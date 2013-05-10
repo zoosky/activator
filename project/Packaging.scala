@@ -24,6 +24,9 @@ object Packaging {
   val makeBashScript = TaskKey[File]("make-bash-script")
   val makeBatScript = TaskKey[File]("make-bat-script")
 
+  val licenseFileUrl = SettingKey[String]("actiavtor-license-url")
+  val licenseFileLocation = SettingKey[File]("actiavtor-license-location")
+  val licenseFileDownloaded = TaskKey[File]("activator-license-downloaded")
   val makeReadmeHtml = TaskKey[File]("make-readme-html")
   val makeLicensesHtml = TaskKey[File]("make-licenses-html")
 
@@ -88,6 +91,7 @@ object Packaging {
     mappings in Universal <+= makeBatScript map (_ -> "activator.bat"),
     mappings in Universal <+= makeReadmeHtml map (_ -> "README.html"),
     mappings in Universal <+= makeLicensesHtml map (_ -> "LICENSE.html"),
+    mappings in Universal <+= licenseFileDownloaded map (file => file -> file.getName),
     mappings in Universal <++= localRepoCreated map { repo =>
       for {
         (file, path) <- (repo.*** --- repo) x relativeTo(repo)
@@ -135,7 +139,20 @@ object Packaging {
     },
     localTemplateSourceDirectory <<= (baseDirectory in ThisBuild) apply (_ / "templates"),
     localTemplateCache <<= target(_ / "template-cache"),
-    localTemplateCacheCreated <<= (localTemplateSourceDirectory, localTemplateCache) map makeTemplateCache
+    localTemplateCacheCreated <<= (localTemplateSourceDirectory, localTemplateCache) map makeTemplateCache,
+    licenseFileUrl := "http://typesafe.com/public/legal/TypesafeSubscriptionAgreement-v1.pdf",
+    licenseFileLocation <<= (licenseFileUrl, target) apply { (url, tdir) =>
+      val asUrl = new java.net.URL(url)
+      // Grab File Name...
+      val fileName = asUrl.getPath.split("/").lastOption getOrElse sys.error("Bad License URL: " + asUrl)
+      tdir / fileName
+    },
+    licenseFileDownloaded <<= (licenseFileUrl, licenseFileLocation) map { (urlString, file) =>
+      if(!file.exists) {
+        IO.download(new java.net.URL(urlString), file)
+      } 
+      file
+    }
   )
 
   def makeTemplateCache(sourceDir: File, targetDir: File): File = {
