@@ -15,7 +15,10 @@ define(['webjars!knockout', './router', './tutorial/tutorial'], function(ko, rou
 				name: ko.observable(window.serverAppModel.name ? window.serverAppModel.name : window.serverAppModel.id),
 				hasAkka: ko.observable(false),
 				hasPlay: ko.observable(false),
-				hasConsole: ko.observable(false)
+				hasConsole: ko.observable(false),
+				runInConsole: ko.observable(false),
+				haveActiveTask: ko.observable(false),
+				atmosLink: ko.observable('')
 			}
 		},
 		// This is the initialization of the application...

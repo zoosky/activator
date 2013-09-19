@@ -21,9 +21,13 @@ define(['core/model', 'text!./run.html', 'core/pluginapi', 'core/widgets/log', '
 				// currentMainClass to 'undefined'
 				return typeof(self.currentMainClass()) == 'string' && self.currentMainClass() != "";
 			}, this);
-			this.haveActiveTask = ko.computed(function() {
-				return self.activeTask() != "";
-			}, this);
+
+			this.haveActiveTask = model.snap.app.haveActiveTask;
+			self.activeTask.subscribe(function() {
+				self.haveActiveTask(self.activeTask() != "");
+				console.log("activeTask changed", self.haveActiveTask());
+			});
+
 			this.startStopLabel = ko.computed(function() {
 				if (self.haveActiveTask())
 					return "Stop";
@@ -31,7 +35,7 @@ define(['core/model', 'text!./run.html', 'core/pluginapi', 'core/widgets/log', '
 					return "Start";
 			}, this);
 			this.rerunOnBuild = ko.observable(true);
-			this.runInConsole = ko.observable(false);
+			this.runInConsole = model.snap.app.runInConsole;
 			this.restartPending = ko.observable(false);
 
 			api.events.subscribe(function(event) {
@@ -46,28 +50,15 @@ define(['core/model', 'text!./run.html', 'core/pluginapi', 'core/widgets/log', '
 			this.outputModel = new log.Log();
 			this.outputScroll = this.outputModel.findScrollState();
 			this.playAppLink = ko.observable('');
-			this.playAppStarted = ko.computed(function() { return this.haveActiveTask() && this.playAppLink() != ''; }, this);
-			this.atmosLink = ko.observable('');
+			this.playAppStarted = ko.computed(function() { return self.haveActiveTask() && this.playAppLink() != ''; }, this);
+			this.atmosLink = model.snap.app.atmosLink;
 			this.atmosCompatible = model.snap.app.hasConsole;
-			this.runningWithAtmos = ko.computed(function() {
-				return this.haveActiveTask() && this.atmosLink() != '' && model.snap.signedIn();
-			}, this);
-			this.runningWithoutAtmosButEnabled = ko.computed(function() {
-				return this.haveActiveTask() && this.atmosLink() == '' && model.snap.signedIn() && this.runInConsole();
-			}, this);
-			this.runningWithoutAtmosBecauseDisabled = ko.computed(function() {
-				return this.haveActiveTask() && this.atmosLink() == '' && model.snap.signedIn() && !this.runInConsole();
-			}, this);
-			this.notSignedIn = ko.computed(function() {
-				return !model.snap.signedIn();
-			}, this);
-			this.notRunningAndSignedInAndAtmosEnabled = ko.computed(function() {
-				return !this.haveActiveTask() && this.runInConsole() && model.snap.signedIn();
-			}, this);
-			this.notRunningAndSignedInAndAtmosDisabled = ko.computed(function() {
-				return !this.haveActiveTask() && !this.runInConsole() && model.snap.signedIn();
-			}, this);
 			this.status = ko.observable('Application is stopped.');
+
+			model.snap.app.runInConsole.subscribe(function() {
+				console.log("runInConsole changed", model.snap.app.runInConsole())
+				self.doRestart();
+			});
 		},
 		update: function(parameters){
 		},
@@ -223,7 +214,7 @@ define(['core/model', 'text!./run.html', 'core/pluginapi', 'core/widgets/log', '
 				task.task = 'run';
 			}
 
-			if (self.runInConsole()) {
+			if (model.snap.app.runInConsole()) {
 				task.task = 'atmos:' + task.task;
 			}
 
@@ -314,23 +305,6 @@ define(['core/model', 'text!./run.html', 'core/pluginapi', 'core/widgets/log', '
 		onPostActivate: function() {
 			this.logModel.applyScrollState(this.logScroll);
 			this.outputModel.applyScrollState(this.outputScroll);
-		},
-		restartWithAtmos: function(self) {
-			this.runInConsole(true);
-			this.doRestart();
-		},
-		restartWithoutAtmos: function(self) {
-			this.runInConsole(false);
-			this.doRestart();
-		},
-		enableAtmos: function(self) {
-			this.runInConsole(true);
-		},
-		disableAtmos: function(self) {
-			this.runInConsole(false);
-		},
-		showLogin: function(self) {
-			$('#user').addClass("open");
 		}
 	});
 

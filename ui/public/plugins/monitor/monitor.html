@@ -1,0 +1,26 @@
+<article class="monitor">
+	<header>
+		<nav>
+            <div data-bind="visible: atmosCompatible">
+                <button data-bind="click: restartWithAtmos, visible: runningWithoutAtmosBecauseDisabled">Restart With Console</button>
+                <button data-bind="click: restartWithoutAtmos, visible: runningWithoutAtmosButEnabled">Restart Without Console</button>
+                <button data-bind="click: restartWithoutAtmos, visible: runningWithAtmos">Restart Without Console</button>
+                <button data-bind="click: showLogin, visible: notSignedIn" class="do-pop-over">Login to Typesafe.com</button>
+                <button data-bind="click: disableAtmos, visible: notRunningAndSignedInAndAtmosEnabled">Turn Off Console</button>
+                <button data-bind="click: enableAtmos, visible: notRunningAndSignedInAndAtmosDisabled">Turn On Console</button>
+            </div>
+		</nav>
+		<h1>Monitor</h1>
+		<div class="subheader">
+            <span data-bind="visible: runningWithoutAtmosBecauseDisabled">Typesafe Console: Disabled</span>
+            <span data-bind="visible: runningWithoutAtmosButEnabled">Typesafe Console: Enabled (waiting for launch)</span>
+            <span data-bind="visible: runningWithAtmos">Typesafe Console: Running (<a data-bind="attr: {href: atmosLink}" target="_blank" style="color: #246C7E">Open in a New Window</a>)</span>
+            <span data-bind="visible: notSignedIn">Typesafe Console: Free Typesafe.com Account Required (<a href="http://typesafe.com/platform/runtime/console#licensing" target="_blank" style="color: #246C7E">why?</a>)</span>
+            <span data-bind="visible: notRunningAndSignedInAndAtmosEnabled">Typesafe Console: Enabled</span>
+            <span data-bind="visible: notRunningAndSignedInAndAtmosDisabled">Typesafe Console: Disabled</span>
+		</div>
+	</header>
+	<section class="wrapper" style="overflow: hidden;">
+	    <iframe data-bind="attr: {src: atmosLink}" style="width: 100%; height: 100%;"></iframe>
+	</section>
+</article>
