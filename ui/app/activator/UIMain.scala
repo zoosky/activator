@@ -11,6 +11,7 @@ import com.typesafe.sbtrc.launching.DefaultSbtProcessLauncher
 import snap._
 import activator.properties.ActivatorProperties._
 import xsbti.GlobalLock
+import java.io.IOException
 
 object PidDetector {
   // Converts to callable
@@ -93,7 +94,7 @@ class UIMain extends AppMain {
 
     // Play defaults to 0.0.0.0 which listens on all
     // interfaces, we want loopback only.
-    System.setProperty("http.address", "127.0.0.1")
+    System.setProperty("http.address", serverAddress)
 
     if (!alreadyRunning) {
       // locate sbt details and store in a singleton
@@ -104,6 +105,8 @@ class UIMain extends AppMain {
       withContextClassloader(play.core.server.NettyServer.main(configuration.arguments))
 
       // Delay opening the browser a short bit so play can start.
+      // It should already be accepting HTTP connections, but it might take a while
+      // until we get a OK response code.
       waitForServerStartup()
     } else {
       System.err.println("Connecting to existing Activator UI server...")
@@ -133,27 +136,15 @@ class UIMain extends AppMain {
       throw new Exception("http.port is not set even though we just set it?")
     }
   }
+  lazy val serverAddress: String = "127.0.0.1"
+  def serverUrl = new URL(f"http://${serverAddress}:${serverPort}%d/")
 
   def waitForServerStartup(): Unit = {
-    import java.net._
-    def isAlive: Boolean = {
-      HttpURLConnection setFollowRedirects true
-      val url = new URL(f"http://localhost:${serverPort}%d/")
-      val request = url.openConnection()
-      request setDoOutput true
-      val http = request.asInstanceOf[HttpURLConnection]
-      http setRequestMethod "GET"
-      try {
-        http.connect()
-        val response = http.getResponseCode
-        response == HttpURLConnection.HTTP_OK
-      } finally http.disconnect()
-    }
     // Keep sleeping until we see the server respond.
     val secondsToWait = 60
     // remaining = half-second ticks
     def checkAlive(remaining: Int = secondsToWait * 2): Unit =
-      if (!isAlive) remaining match {
+      if (!httpPing(serverURL)) remaining match {
         case 0 => sys error "Web server never started!"
         case _ =>
           Thread sleep 500L
@@ -170,9 +161,9 @@ class UIMain extends AppMain {
   // TODO - detect port?
   def openBrowser() = {
     def iCannaeDoIt(): Unit =
-      showError("""|Unable to open a web browser!
-                   |Please point your browser at:
-                   | http://localhost:%d/""".stripMargin format (serverPort))
+      showError(s"""|Unable to open a web browser!
+                    |Please point your browser at:
+                    | ${serverUrl.toExternalForm}""".stripMargin)
 
     val desktop: Option[Desktop] =
       if (Desktop.isDesktopSupported)
@@ -182,12 +173,29 @@ class UIMain extends AppMain {
     desktop match {
       case Some(d) =>
         try {
-          d browse new java.net.URI(f"http://localhost:${serverPort}%d/")
+          d browse serverUrl.toURI
         } catch {
           case _: Exception => iCannaeDoIt()
         }
       case _ => iCannaeDoIt()
     }
+  }
+
+  /** Returns true if the URL responds with HTTP_OK to a GET request, false on other status codes or refused connection */
+  private def httpPing(url: URL): Boolean = {
+    import java.net._
+    HttpURLConnection setFollowRedirects true
+    val request = url.openConnection()
+    request setDoOutput true
+    val http = request.asInstanceOf[HttpURLConnection]
+    http setRequestMethod "GET"
+    try {
+      http.connect()
+      val response = http.getResponseCode
+      response == HttpURLConnection.HTTP_OK
+    } catch {
+      case io: IOException => false
+    } finally http.disconnect()
   }
 
   def withContextClassloader[A](f: => A): A = {
