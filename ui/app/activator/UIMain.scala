@@ -144,7 +144,7 @@ class UIMain extends AppMain {
     val secondsToWait = 60
     // remaining = half-second ticks
     def checkAlive(remaining: Int = secondsToWait * 2): Unit =
-      if (!httpPing(serverURL)) remaining match {
+      if (!httpPing(serverUrl)) remaining match {
         case 0 => sys error "Web server never started!"
         case _ =>
           Thread sleep 500L
