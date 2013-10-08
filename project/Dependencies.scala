@@ -14,6 +14,17 @@ object Dependencies {
   val webJarsVersion = "2.2.0"
   val akkaVersion = "2.1.2"
   val slickVersion = "1.0.1"
+  val atmosVersion = "1.3.1"
+
+  val atmosArtifacts = Seq(
+    "com.typesafe.atmos" % "atmos-dev" % atmosVersion,
+    "com.typesafe.atmos" % "atmos-sigar-libs" % atmosVersion,
+    "com.typesafe.atmos" % "trace-akka-2.2.1_2.10" % atmosVersion,
+    "com.typesafe.atmos" % "trace-play-2.2.0" % atmosVersion,
+    "com.typesafe.atmos" % "trace-play-common" % atmosVersion,
+    "com.typesafe.atmos" % "trace-scala-2.10.2" % atmosVersion,
+    "com.typesafe.console" % "console-solo" % atmosVersion
+  )
 
   val activatorCommon      = "com.typesafe.activator" % "activator-common" % templateCacheVersion
   val templateCache        = "com.typesafe.activator" % "activator-templates-cache" % templateCacheVersion
@@ -26,22 +37,22 @@ object Dependencies {
   val sbtIo                = "org.scala-sbt" % "io" % sbtVersion
   val sbtLogging           = "org.scala-sbt" % "logging" % sbtVersion
   val sbtProcess           = "org.scala-sbt" % "process" % sbtVersion
-  
-  
+
+
   // sbtrc projects
   val sbtrcRemoteController = "com.typesafe.sbtrc" % "sbt-rc-remote-controller" % sbtRcVersion
-  
+
   // Probes
   val sbtrcProbe13           = "com.typesafe.sbtrc" % "sbt-rc-probe-0-13" % sbtRcVersion
   val sbtshimUiInterface13   = "com.typesafe.sbtrc" % "sbt-rc-ui-interface-0-13" % sbtRcVersion
 
   // TODO - Don't use a snapshot version for this...
   val sbtCompletion           = "org.scala-sbt" % "completion" % sbtSnapshotVersion
-  
+
   val akkaActor            = "com.typesafe.akka" % "akka-actor_2.10" % akkaVersion
   val akkaSlf4j            = "com.typesafe.akka" % "akka-slf4j_2.10" % akkaVersion
   val akkaTestkit          = "com.typesafe.akka" % "akka-testkit_2.10" % akkaVersion
-  
+
   val commonsIo            = "commons-io" % "commons-io" % "2.0.1"
 
   val mimeUtil             = "eu.medsea.mimeutil" % "mime-util" % "2.1.1"
@@ -62,7 +73,7 @@ object Dependencies {
   val luceneAnalyzerCommon = "org.apache.lucene" % "lucene-analyzers-common" % luceneVersion
   val luceneQueryParser = "org.apache.lucene" % "lucene-queryparser" % luceneVersion
 
-  
+
   // WebJars for the Activator UI
   val webjarsPlay3     = "org.webjars" %% "webjars-play" % Dependencies.webJarsVersion
   val requirejs        = "org.webjars" % "requirejs" % "2.1.8"
@@ -73,7 +84,7 @@ object Dependencies {
   val requireText      = "org.webjars" % "requirejs-text" % "2.0.10"
   val keymage          = "org.webjars" % "keymage" % "1.0.1"
 
-  
+
   // Mini DSL
   // DSL for adding remote deps like local deps.
   implicit def p2remote(p: Project): RemoteDepHelper = new RemoteDepHelper(p)
@@ -91,7 +102,7 @@ object Dependencies {
     def dependsOnSource(dir: String): Project =
       p.settings(Dependencies.dependsOnSource(dir):_*)
   }
-  
+
   // compile classpath and classes directory, with provided/optional or scala dependencies
   // specifically for projects that need remote-probe dependencies
   val requiredClasspath = TaskKey[Classpath]("required-classpath")
@@ -100,7 +111,7 @@ object Dependencies {
     import xsbti.ArtifactInfo._
     import Project.Initialize
     val dependentProjectClassPaths: Seq[Initialize[Task[Seq[File]]]] =
-      (deps map { proj => 
+      (deps map { proj =>
         (classDirectory in Compile in proj) map { dir => Seq(dir) }
       })
     val ivyDeps: Initialize[Task[Seq[File]]] =  update map { report =>
