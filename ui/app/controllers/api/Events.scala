@@ -35,7 +35,7 @@ object Events extends Controller {
 
   // Action that returns a new event source stream.
   def eventSource = Action {
-    Ok.stream(events &> toEventSource).withHeaders(CONTENT_TYPE -> "text/event-stream")
+    Ok.chunked(events &> toEventSource).withHeaders(CONTENT_TYPE -> "text/event-stream")
   }
 
   def test = Action {

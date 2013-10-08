@@ -83,7 +83,7 @@ object Sbt extends Controller {
         }
       }
     }
-    Async(resultFuture)
+    resultFuture
   }
 
   // Incoming JSON { "appId" : appId, "taskId" : uuid }
@@ -95,7 +95,7 @@ object Sbt extends Controller {
       app.actor ! snap.ForceStopTask(taskId)
       Ok(JsObject(Nil))
     }
-    Async(resultFuture)
+    resultFuture
   }
 
   // Incoming JSON { "appId" : appId, "taskId" : uuid }
@@ -123,18 +123,18 @@ object Sbt extends Controller {
           }
       }
     }
-    Async(resultFuture)
+    resultFuture
   }
 
-  private def jsonAction(f: JsValue => Result): Action[AnyContent] = Action { request =>
+  private def jsonAction(f: JsValue => Future[SimpleResult]): Action[AnyContent] = Action.async { request =>
     request.body.asJson.map({ json =>
       try f(json)
       catch {
         case e: Exception =>
           Logger.info("json action failed: " + e.getMessage(), e)
-          BadRequest(e.getClass.getName + ": " + e.getMessage)
+          Future.successful(BadRequest(e.getClass.getName + ": " + e.getMessage))
       }
-    }).getOrElse(BadRequest("expecting JSON body"))
+    }).getOrElse(Future.successful(BadRequest("expecting JSON body")))
   }
 
   private def withTaskActor[T](taskId: String, taskDescription: String, app: snap.App)(body: ActorRef => Future[T]): Future[T] = {

@@ -31,27 +31,23 @@ object Templates extends Controller {
       JsError("Reading TemplateMetadata not supported!")
   }
 
-  def list = Action { request =>
-    Async {
-      import concurrent.ExecutionContext.Implicits._
-      templateCache.metadata map { m => Ok(Json toJson m) }
-    }
+  def list = Action.async { request =>
+    import concurrent.ExecutionContext.Implicits._
+    templateCache.metadata map { m => Ok(Json toJson m) }
   }
 
-  def tutorial(id: String, location: String) = Action { request =>
-    Async {
-      import concurrent.ExecutionContext.Implicits._
-      templateCache tutorial id map { tutorialOpt =>
-        // TODO - Use a Validation  applicative functor so this isn't so ugly.
-        val result =
-          for {
-            tutorial <- tutorialOpt
-            file <- tutorial.files get location
-          } yield file
-        result match {
-          case Some(file) => Ok sendFile file
-          case _ => NotFound
-        }
+  def tutorial(id: String, location: String) = Action.async { request =>
+    import concurrent.ExecutionContext.Implicits._
+    templateCache tutorial id map { tutorialOpt =>
+      // TODO - Use a Validation  applicative functor so this isn't so ugly.
+      val result =
+        for {
+          tutorial <- tutorialOpt
+          file <- tutorial.files get location
+        } yield file
+      result match {
+        case Some(file) => Ok sendFile file
+        case _ => NotFound
       }
     }
   }
@@ -72,16 +68,14 @@ object Templates extends Controller {
     }
   }
 
-  def cloneTemplate = Action(parse.json) { request =>
+  def cloneTemplate = Action.async(parse.json) { request =>
     val location = new java.io.File((request.body \ "location").as[String])
     val templateid = (request.body \ "template").as[String]
     val name = (request.body \ "name").asOpt[String]
-    Async {
-      import scala.concurrent.ExecutionContext.Implicits._
-      val result = doCloneTemplate(templateid, location, name)
-      result.map(x => Ok(request.body)).recover {
-        case e => NotAcceptable(e.getMessage)
-      }
+    import scala.concurrent.ExecutionContext.Implicits._
+    val result = doCloneTemplate(templateid, location, name)
+    result.map(x => Ok(request.body)).recover {
+      case e => NotAcceptable(e.getMessage)
     }
   }
 }

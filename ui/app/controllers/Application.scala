@@ -49,14 +49,12 @@ object Application extends Controller {
    * Our index page.  Either we load an app from the CWD, or we direct
    * to the homepage to create a new app.
    */
-  def index = Action {
-    Async {
-      AppManager.loadAppIdFromLocation(cwd) map {
-        case activator.ProcessSuccess(name) => Redirect(routes.Application.app(name))
-        case activator.ProcessFailure(errors) =>
-          // TODO FLASH THE ERROR, BABY
-          Redirect(routes.Application.forceHome)
-      }
+  def index = Action.async {
+    AppManager.loadAppIdFromLocation(cwd) map {
+      case activator.ProcessSuccess(name) => Redirect(routes.Application.app(name))
+      case activator.ProcessFailure(errors) =>
+        // TODO FLASH THE ERROR, BABY
+        Redirect(routes.Application.forceHome)
     }
   }
 
@@ -86,11 +84,9 @@ object Application extends Controller {
   }
 
   /** Loads the homepage, with a blank new-app form. */
-  def forceHome = Action { implicit request =>
-    Async {
-      homeModel map { model =>
-        Ok(views.html.home(model, newAppForm))
-      }
+  def forceHome = Action.async { implicit request =>
+    homeModel map { model =>
+      Ok(views.html.home(model, newAppForm))
     }
   }
 
@@ -103,20 +99,18 @@ object Application extends Controller {
   }
 
   /** Loads an application model and pushes to the view by id. */
-  def app(id: String) = Action { implicit request =>
-    Async {
-      // TODO - Different results of attempting to load the application....
-      Logger.debug("Loading app for /app html page")
-      AppManager.loadApp(id).map { theApp =>
-        Logger.debug(s"loaded for html page: ${theApp}")
-        Ok(views.html.application(getApplicationModel(theApp)))
-      } recover {
-        case e: Exception =>
-          // TODO we need to have an error message and "flash" it then
-          // display it on home screen
-          Logger.error("Failed to load app id " + id + ": " + e.getMessage())
-          Redirect(routes.Application.forceHome)
-      }
+  def app(id: String) = Action.async { implicit request =>
+    // TODO - Different results of attempting to load the application....
+    Logger.debug("Loading app for /app html page")
+    AppManager.loadApp(id).map { theApp =>
+      Logger.debug(s"loaded for html page: ${theApp}")
+      Ok(views.html.application(getApplicationModel(theApp)))
+    } recover {
+      case e: Exception =>
+        // TODO we need to have an error message and "flash" it then
+        // display it on home screen
+        Logger.error("Failed to load app id " + id + ": " + e.getMessage())
+        Redirect(routes.Application.forceHome)
     }
   }
 
@@ -194,28 +188,26 @@ object Application extends Controller {
     tutorialConfig.exists
   }
 
-  def appTutorialFile(id: String, location: String) = Action { request =>
-    Async {
-      AppManager.loadApp(id) map { theApp =>
-        // If we're debugging locally, pull the local tutorial, otherwise redirect
-        // to the templates tutorial file.
-        if (hasLocalTutorial(theApp)) {
-          // TODO - Don't hardcode tutorial directory name!
-          val localTutorialDir = new File(theApp.config.location, "tutorial")
-          val file = new File(localTutorialDir, location)
-          if (file.exists) Ok sendFile file
-          else NotFound
-        } else theApp.templateID match {
-          case Some(template) => Redirect(api.routes.Templates.tutorial(template, location))
-          case None => NotFound
-        }
-      } recover {
-        case e: Exception =>
-          // TODO we need to have an error message and "flash" it then
-          // display it on home screen
-          Logger.error("Failed to find tutorial app id " + id + ": " + e.getMessage(), e)
-          NotFound
+  def appTutorialFile(id: String, location: String) = Action.async { request =>
+    AppManager.loadApp(id) map { theApp =>
+      // If we're debugging locally, pull the local tutorial, otherwise redirect
+      // to the templates tutorial file.
+      if (hasLocalTutorial(theApp)) {
+        // TODO - Don't hardcode tutorial directory name!
+        val localTutorialDir = new File(theApp.config.location, "tutorial")
+        val file = new File(localTutorialDir, location)
+        if (file.exists) Ok sendFile file
+        else NotFound
+      } else theApp.templateID match {
+        case Some(template) => Redirect(api.routes.Templates.tutorial(template, location))
+        case None => NotFound
       }
+    } recover {
+      case e: Exception =>
+        // TODO we need to have an error message and "flash" it then
+        // display it on home screen
+        Logger.error("Failed to find tutorial app id " + id + ": " + e.getMessage(), e)
+        NotFound
     }
   }
 
