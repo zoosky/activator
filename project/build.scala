@@ -9,7 +9,6 @@ import com.typesafe.sbt.SbtNativePackager.Universal
 
 
 object TheActivatorBuild extends Build {
-
   // ADD sbt launcher support here.
   override def settings = super.settings ++ SbtSupport.buildSettings ++ baseVersions ++ Seq(
     // This is a hack, so the play application will have the right view of the template directory.
@@ -240,7 +239,7 @@ object TheActivatorBuild extends Build {
         "com.jcraft" % "jsch" % "0.1.44-1",
         "jline" % "jline" % "0.9.94",
         "com.typesafe.akka" % "akka-slf4j_2.10" % "2.2.0"
-      ),
+      ) ++ Dependencies.atmosArtifacts,
       Keys.mappings in S3.upload <<= (Keys.packageBin in Universal, Keys.version) map { (zip, v) =>
         Seq(zip -> ("typesafe-activator/%s/typesafe-activator-%s.zip" format (v, v)))
       },
