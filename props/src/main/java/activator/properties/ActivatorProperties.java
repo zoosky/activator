@@ -63,7 +63,7 @@ public class ActivatorProperties {
   }
 
   private static String cleanUriFileString(String file) {
-	  return file.replaceAll(" ", "%20");
+    return file.replaceAll(" ", "%20");
   }
 
   private static String uriToFilename(String uri) {
@@ -79,7 +79,7 @@ public class ActivatorProperties {
 
   /** Returns the distribution home directory (or local project) as a URI string. */
   public static String ACTIVATOR_HOME_FILENAME() {
-	// TODO - We should probably remove all spaces and URI-ify the string first.
+    // TODO - We should probably remove all spaces and URI-ify the string first.
     return uriToFilename("file://" + ACTIVATOR_HOME());
   }
 
@@ -110,11 +110,11 @@ public class ActivatorProperties {
 
   public static String ACTIVATOR_LAUNCHER_JAR_NAME() {
     String version = APP_VERSION();
-	if(version != null) {
-	  // TODO - synch this with build in some better fashion!
-	  return SCRIPT_NAME+"-launch-"+version+".jar";
-	}
-	return null;
+    if(version != null) {
+      // TODO - synch this with build in some better fashion!
+      return SCRIPT_NAME+"-launch-"+version+".jar";
+    }
+    return null;
   }
 
   public static String ACTIVATOR_LAUNCHER_JAR() {

@@ -18,6 +18,11 @@ object Fixer {
     else
       s
 
+  private val tabRegex = """\t""".r
+
+  private def fixTabsToTwoSpaces(s: String): String =
+    tabRegex.replaceAllIn(s, "  ")
+
   @tailrec
   private def fixMultipleNewlinesAtEnd(s: String): String =
     if (s.endsWith("\n\n"))
@@ -29,6 +34,7 @@ object Fixer {
   // it requires too much judgment as to what
   // was intended.
   val whitespaceFixer = (fixWindowsLineBreaks _)
+    .andThen(fixTabsToTwoSpaces)
     .andThen(fixNoNewlineAtEnd)
     .andThen(fixTrailingWhitespace)
     .andThen(fixMultipleNewlinesAtEnd)
