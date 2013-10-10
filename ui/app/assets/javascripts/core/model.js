@@ -1,4 +1,4 @@
-define(['webjars!knockout', './router', './tutorial/tutorial'], function(ko, router, Tutorial) {
+define(['webjars!knockout', './router', './tutorial/tutorial', './widgets/log'], function(ko, router, Tutorial, log) {
   // Model for the whole app view; created in two parts
   // so that this first part is available during construction
   // of the second part.
@@ -18,6 +18,7 @@ define(['webjars!knockout', './router', './tutorial/tutorial'], function(ko, rou
         hasConsole: ko.observable(false)
       }
     },
+    logModel: new log.Log(),
     // This is the initialization of the application...
     init: function(plugins) {
       var self = this;
