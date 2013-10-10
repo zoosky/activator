@@ -20,7 +20,7 @@ object JsChecker {
 
   // these regexes are used on single lines
   private val oneSpaceBeforeCommentStar = """^\t* \*""".r
-  private val hasLeadingSpaces = """^\t* +\t*""".r
+  private val hasTabs = """\t""".r
   private val hasTrailingWhitespace = """[\t ]+$""".r
 
   def check(f: File): Seq[String] = {
@@ -28,11 +28,8 @@ object JsChecker {
     val content = IO.read(f)
     val name = f.getPath
 
-    def checkLeadingSpaces(line: String, num: Int): Option[String] = {
-      if (oneSpaceBeforeCommentStar.findFirstIn(line).isDefined)
-        None
-      else
-        hasLeadingSpaces.findFirstIn(line) map { _ => name + ":" + num + ": space should be a tab" }
+    def checkNoTabs(line: String, num: Int): Option[String] = {
+        hasTabs.findFirstIn(line) map { _ => name + ":" + num + ": tab detected! No tabs! Bad!" }
     }
 
     def checkTrailingSpaces(line: String, num: Int): Option[String] = {
@@ -41,7 +38,7 @@ object JsChecker {
 
     content.split("\n") zip Stream.from(1) foreach {
       case (line, num) =>
-        for (error <- checkLeadingSpaces(line, num))
+        for (error <- checkNoTabs(line, num))
           cbf += error
         for (error <- checkTrailingSpaces(line, num))
           cbf += error
