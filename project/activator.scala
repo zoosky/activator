@@ -59,7 +59,7 @@ object ActivatorBuild {
       makeFixWhitespace(Test),
       compileInputs in (Compile, compile) <<= (compileInputs in (Compile, compile)) dependsOn (fixWhitespace in Compile),
       compileInputs in (Test, compile) <<= (compileInputs in (Test, compile)) dependsOn (fixWhitespace in Test)
-    )
+    ) ++ JavaVersionCheck.javacVersionCheckSettings
 
   def sbtShimPluginSettings: Seq[Setting[_]] =
     activatorDefaults ++
