@@ -44,8 +44,7 @@ define(['core/model', 'text!./run.html', 'core/pluginapi', 'core/widgets/log', '
         self.onCompileSucceeded(event);
       });
 
-      this.logModel = new log.Log();
-      this.logScroll = this.logModel.findScrollState();
+      this.logModel = model.logModel;
       this.outputModel = new log.Log();
       this.outputScroll = this.outputModel.findScrollState();
       this.playAppLink = ko.observable('');
@@ -420,11 +419,9 @@ define(['core/model', 'text!./run.html', 'core/pluginapi', 'core/widgets/log', '
       self.doRestart();
     },
     onPreDeactivate: function() {
-      this.logScroll = this.logModel.findScrollState();
       this.outputScroll = this.outputModel.findScrollState();
     },
     onPostActivate: function() {
-      this.logModel.applyScrollState(this.logScroll);
       this.outputModel.applyScrollState(this.outputScroll);
     },
     restartWithAtmos: function(self) {

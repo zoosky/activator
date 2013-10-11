@@ -1,4 +1,4 @@
-define(['text!./test.html', 'css!./test.css', 'core/pluginapi', 'core/widgets/log'], function(template, css, api, log) {
+define(['text!./test.html', 'css!./test.css', 'core/pluginapi', 'core/model'], function(template, css, api, model) {
   var ko = api.ko;
   var sbt = api.sbt;
 
@@ -41,8 +41,7 @@ define(['text!./test.html', 'css!./test.css', 'core/pluginapi', 'core/widgets/lo
       var self = this;
       self.results = ko.observableArray();
       self.testStatus = ko.observable('Waiting to test');
-      self.logModel = new log.Log();
-      self.logScroll = self.logModel.findScrollState();
+      self.logModel = model.logModel;
       // TODO - Store state beyond the scope of this widget!
       // We should probably be listening to tests *always*
       // and displaying latest status *always*.
@@ -229,12 +228,6 @@ define(['text!./test.html', 'css!./test.css', 'core/pluginapi', 'core/widgets/lo
       console.log("Restart was clicked");
       self.doStop();
       self.restartPending(true);
-    },
-    onPreDeactivate: function() {
-      this.logScroll = this.logModel.findScrollState();
-    },
-    onPostActivate: function() {
-      this.logModel.applyScrollState(this.logScroll);
     }
   });
 

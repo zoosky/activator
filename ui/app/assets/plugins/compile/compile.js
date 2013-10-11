@@ -1,4 +1,4 @@
-define(['text!./compile.html', 'core/pluginapi', 'core/widgets/log', 'core/model', 'css!./compile.css'], function(template, api, log, model){
+define(['text!./compile.html', 'core/pluginapi', 'core/model', 'css!./compile.css'], function(template, api, model){
 
   var ko = api.ko;
   var sbt = api.sbt;
@@ -16,16 +16,15 @@ define(['text!./compile.html', 'core/pluginapi', 'core/widgets/log', 'core/model
       }, this);
       this.startStopLabel = ko.computed(function() {
         if (self.haveActiveTask())
-          return "Stop";
+          return "Stop compiling";
         else
-          return "Start";
+          return "Start compiling";
       }, this);
+
       this.needCompile = ko.observable(false);
       this.recompileOnChange = ko.observable(true);
-
-      this.logModel = new log.Log();
-      this.logScroll = this.logModel.findScrollState();
-
+      this.logModel = model.logModel;
+      this.logScroll = model.logModel.findScrollState();
       this.status = ko.observable(api.STATUS_DEFAULT);
 
       api.events.subscribe(function(event) {
@@ -57,16 +56,16 @@ define(['text!./compile.html', 'core/pluginapi', 'core/widgets/log', 'core/model
     update: function(parameters){
     },
     logEvent: function(event) {
-      if (this.logModel.event(event)) {
+      if (model.logModel.event(event)) {
         // logged already
       } else {
-        this.logModel.leftoverEvent(event);
+        model.logModel.leftoverEvent(event);
       }
     },
     reloadProjectInfoThenCompile: function() {
       var self = this;
 
-      self.logModel.info("Loading details of this project...");
+      model.logModel.info("Loading details of this project...");
 
       self.status(api.STATUS_BUSY);
       var taskId = api.sbt.runTask({
@@ -85,7 +84,7 @@ define(['text!./compile.html', 'core/pluginapi', 'core/widgets/log', 'core/model
           app.hasPlay(result.params.hasPlay === true);
           app.hasConsole(result.params.hasConsole === true);
 
-          self.logModel.debug("name=" + app.name() +
+          model.logModel.debug("name=" + app.name() +
               " hasAkka=" + app.hasAkka() +
               " hasPlay=" + app.hasPlay() +
               " hasConsole=" + app.hasConsole());
@@ -95,7 +94,7 @@ define(['text!./compile.html', 'core/pluginapi', 'core/widgets/log', 'core/model
         failure: function(status, message) {
           console.log("loading project info failed", message);
           self.activeTask("");
-          self.logModel.warn("Failed to load project details: " + message);
+          model.logModel.warn("Failed to load project details: " + message);
           self.status(api.STATUS_ERROR);
         }
       });
@@ -105,7 +104,7 @@ define(['text!./compile.html', 'core/pluginapi', 'core/widgets/log', 'core/model
     reloadSources: function(after) {
       var self = this;
 
-      self.logModel.info("Refreshing list of source files to watch for changes...");
+      model.logModel.info("Refreshing list of source files to watch for changes...");
       // Are we busy when watching sources? I think so...
       self.status(api.STATUS_BUSY);
       sbt.watchSources({
@@ -116,13 +115,13 @@ define(['text!./compile.html', 'core/pluginapi', 'core/widgets/log', 'core/model
         success: function(data) {
           console.log("watching sources result", data);
           self.status(api.STATUS_DEFAULT);
-          self.logModel.info("Will watch " + data.count + " source files.");
+          model.logModel.info("Will watch " + data.count + " source files.");
           if (typeof(after) === 'function')
             after();
         },
         failure: function(status, message) {
           console.log("watching sources failed", message);
-          self.logModel.warn("Failed to reload source file list: " + message);
+          model.logModel.warn("Failed to reload source file list: " + message);
           // WE should modify our status here!
           self.status(api.STATUS_ERROR);
           if (typeof(after) === 'function')
@@ -159,13 +158,13 @@ define(['text!./compile.html', 'core/pluginapi', 'core/widgets/log', 'core/model
       if (self.needCompile()) {
         // asked to restart while loading the project info; so bail out here
         // without starting the actual compile task.
-        self.logModel.info('Recompile requested.');
+        model.logModel.info('Recompile requested.');
         self.afterCompile(false);
         return;
       }
 
       self.status(api.STATUS_BUSY);
-      self.logModel.info("Compiling...");
+      model.logModel.info("Compiling...");
       var task = { task: 'compile' };
       var taskId = sbt.runTask({
         task: task,
@@ -176,16 +175,16 @@ define(['text!./compile.html', 'core/pluginapi', 'core/widgets/log', 'core/model
           console.log("compile result: ", data);
           self.activeTask("");
           if (data.type == 'GenericResponse') {
-            self.logModel.info('Compile complete.');
+            model.logModel.info('Compile complete.');
           } else {
-            self.logModel.error('Unexpected reply: ' + JSON.stringify(data));
+            model.logModel.error('Unexpected reply: ' + JSON.stringify(data));
           }
           self.afterCompile(true); // true=success
         },
         failure: function(status, message) {
           console.log("compile failed: ", status, message)
           self.activeTask("");
-          self.logModel.error("Request failed: " + status + ": " + message);
+          model.logModel.error("Request failed: " + status + ": " + message);
           self.afterCompile(false); // false=failed
         }
       });
@@ -200,7 +199,7 @@ define(['text!./compile.html', 'core/pluginapi', 'core/widgets/log', 'core/model
         return;
       }
 
-      self.logModel.clear();
+      model.logModel.clear();
       self.reloadProjectInfoThenCompile();
     },
     startStopButtonClicked: function(self) {
@@ -213,7 +212,7 @@ define(['text!./compile.html', 'core/pluginapi', 'core/widgets/log', 'core/model
           },
           failure: function(status, message) {
             console.log("kill failed: ", status, message)
-            self.logModel.error("Killing task failed: " + status + ": " + message)
+            model.logModel.error("Killing task failed: " + status + ": " + message)
           }
         });
       } else {
@@ -221,16 +220,16 @@ define(['text!./compile.html', 'core/pluginapi', 'core/widgets/log', 'core/model
       }
     },
     onPreDeactivate: function() {
-      this.logScroll = this.logModel.findScrollState();
+      this.logScroll = model.logModel.findScrollState();
     },
     onPostActivate: function() {
-      this.logModel.applyScrollState(this.logScroll);
+      model.logModel.applyScrollState(this.logScroll);
     }
   });
 
   return api.Plugin({
     id: 'compile',
-    name: "Compile",
+    name: "Compile & Logs",
     icon: "B",
     url: "#compile",
     routes: {
