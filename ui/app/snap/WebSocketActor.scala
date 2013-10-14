@@ -34,7 +34,7 @@ abstract class WebSocketActor[MessageType](implicit frameFormatter: FrameFormatt
   private case object TimeoutAfterHalfCompleted extends InternalWebSocketMessage
 
   // This is a consumer which is pushed to by the websocket handler
-  private class ActorIteratee[In](val actor: ActorRef) extends Iteratee[In, Unit] {
+  private class ActorIteratee[In](val actorAware: ActorWrapperHelper) extends Iteratee[In, Unit] {
     // we are an iteratee that always _continues_ by providing the function
     // handleNextInput, which in turn computes the next iteratee based on
     // some input fed to us from the websocket. The next iteratee will
@@ -48,15 +48,15 @@ abstract class WebSocketActor[MessageType](implicit frameFormatter: FrameFormatt
           this
         case Input.EOF ⇒ {
           log.debug("consumer iteratee (incoming websocket messages) EOF")
-          actor ! IncomingComplete
+          actorAware.actor ! IncomingComplete
           Done((), Input.Empty)
         }
         case Input.El(x) ⇒ {
-          if (actor.isTerminated) {
+          if (actorAware.isTerminated) {
             log.debug("Sending error to the incoming websocket, can't consume since actor is terminated {}", x)
             Error("web socket consumer actor has been terminated", i)
           } else {
-            val response = actor.ask(Incoming[In](x))(WebSocketActor.timeout)
+            val response = actorAware.actor.ask(Incoming[In](x))(WebSocketActor.timeout)
             flatMapM(_ =>
               response map {
                 case iteratee: Iteratee[_, _] =>
@@ -70,7 +70,7 @@ abstract class WebSocketActor[MessageType](implicit frameFormatter: FrameFormatt
               } recover {
                 case e: Exception ⇒
                   log.warning("Failed to consume incoming websocket message: consumer.isTerminated={}: {}: {}: message was {}",
-                    actor.isTerminated, e.getClass.getName, e.getMessage, x)
+                    actorAware.isTerminated, e.getClass.getName, e.getMessage, x)
                   Error("web socket actor failed to consume a message", Input.El(x))
               })
           }
@@ -80,7 +80,7 @@ abstract class WebSocketActor[MessageType](implicit frameFormatter: FrameFormatt
   }
 
   // this is called from a non-actor thread
-  private def newConsumer(): Iteratee[MessageType, Unit] = new ActorIteratee[MessageType](self)
+  private def newConsumer(): Iteratee[MessageType, Unit] = new ActorIteratee[MessageType](ActorWrapperHelper(self))
 
   private var incomingCompleted = false
   private var outgoingCompleted = false
@@ -91,9 +91,7 @@ abstract class WebSocketActor[MessageType](implicit frameFormatter: FrameFormatt
   // don't restart children
   override val supervisorStrategy = SupervisorStrategy.stoppingStrategy
 
-  private val producer = context.actorOf(Props(new ProducerProxy[MessageType]), name = "producer")
-
-  context.watch(producer)
+  private val producerAware = ActorWrapperHelper(context.actorOf(Props(new ProducerProxy[MessageType]), name = "producer"))
 
   override def preStart(): Unit = {
     log.debug("starting")
@@ -117,7 +115,7 @@ abstract class WebSocketActor[MessageType](implicit frameFormatter: FrameFormatt
 
   private def internalReceive: Receive = {
     case Terminated(child) ⇒
-      if (child == producer) {
+      if (child == producerAware.actor) {
         log.debug("In websocket actor, got Terminated for producer actor")
         outgoingCompleted = true
         checkFullyCompleted()
@@ -130,7 +128,7 @@ abstract class WebSocketActor[MessageType](implicit frameFormatter: FrameFormatt
         incomingCompleted = true
         checkFullyCompleted()
         log.debug("poisoning producer to close our side of the socket")
-        producer ! PoisonPill
+        producerAware.actor ! PoisonPill
       case InitialReadyTimeout ⇒
         if (!ready) {
           log.warning("websocket actor not ready within its timeout, poisoning")
@@ -145,11 +143,12 @@ abstract class WebSocketActor[MessageType](implicit frameFormatter: FrameFormatt
         incomingCompleted = true
         outgoingCompleted = true
         checkFullyCompleted()
+      case other => log.warning("Received unexpected internal websocket message {}", other)
     }
     case Incoming(message) ⇒
       onMessage(message.asInstanceOf[MessageType])
       // reply with the new iteratee
-      sender ! new ActorIteratee[MessageType](self)
+      sender ! new ActorIteratee[MessageType](ActorWrapperHelper(self))
     case GetWebSocket ⇒
       if (createdSocket) {
         log.warning("second connection attempt will fail")
@@ -157,7 +156,7 @@ abstract class WebSocketActor[MessageType](implicit frameFormatter: FrameFormatt
       } else {
         log.info("Firing up web socket")
         val actor = self
-        val futureStreams = producer.ask(GetProducer)
+        val futureStreams = producerAware.actor.ask(GetProducer)
           .mapTo[GotProducer[MessageType]]
           .map({
             case GotProducer(enumerator) ⇒
@@ -177,7 +176,7 @@ abstract class WebSocketActor[MessageType](implicit frameFormatter: FrameFormatt
       }
     case CloseWebSocket =>
       log.debug("got CloseWebSocket poisoning the producer")
-      producer ! PoisonPill
+      producerAware.actor ! PoisonPill
   }
 
   final override def receive = internalReceive orElse subReceive
@@ -189,17 +188,17 @@ abstract class WebSocketActor[MessageType](implicit frameFormatter: FrameFormatt
   }
 
   protected final def produce(message: MessageType): Unit = {
-    if (producer.isTerminated) {
+    if (producerAware.isTerminated) {
       // this isn't reliable, it's just nicer to fail early instead of timing out
       log.warning("producer actor is dead, sending isn't going to work")
     } else {
-      producer.ask(OutgoingMessage(message))(WebSocketActor.timeout).mapTo[Ack.type].onFailure {
+      producerAware.actor.ask(OutgoingMessage(message))(WebSocketActor.timeout).mapTo[Ack.type].onFailure {
         case e: Exception ⇒
           log.debug("Producer actor failed to send Outgoing, {}: {}", e.getClass.getSimpleName, e.getMessage)
           log.debug("Killing failed producer")
           // this is supposed to start a chain reaction where we get Terminated
           // on the producer and then kill ourselves as well
-          producer ! PoisonPill
+          producerAware.actor ! PoisonPill
       }
     }
   }
