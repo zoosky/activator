@@ -1,11 +1,12 @@
+/**
+ * Copyright (C) 2013 Typesafe <http://typesafe.com/>
+ */
 package controllers.api
 
-import play.api._
 import play.api.mvc._
 import play.api.libs.json._
 import activator._
 import activator.cache.TemplateMetadata
-import scala.util.control.NonFatal
 import scala.concurrent.duration._
 import scala.concurrent.Future
 

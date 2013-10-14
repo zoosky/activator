@@ -1,3 +1,6 @@
+/**
+ * Copyright (C) 2013 Typesafe <http://typesafe.com/>
+ */
 package snap
 
 import scala.concurrent.Future
@@ -9,8 +12,6 @@ import com.typesafe.sbtrc.launching.SbtProcessLauncher
 import com.typesafe.sbtrc.DefaultSbtProcessFactory
 import com.typesafe.sbtrc.protocol
 import play.Logger
-import akka.util.Timeout
-import java.util.concurrent.TimeUnit
 import akka.actor._
 import scala.concurrent.Await
 import scala.concurrent.duration._
@@ -40,12 +41,8 @@ class AppCacheActor extends Actor with ActorLogging {
           try {
             // this should be "instant" but 5 seconds to be safe
             val app = Await.result(futureApp, 5.seconds)
-            if (Some(app.actor) == deadRef) {
+            if (Some(app.actor) == deadRef || app.isTerminated) {
               log.debug("cleaning up terminated app actor {} {}", id, app.actor)
-              false
-            } else if (app.actor.isTerminated) {
-              // as side effect, mop up anything accidentally left over
-              log.warning("leftover app wasn't cleaned up before {} {}", id, app.actor)
               false
             } else {
               true
@@ -72,7 +69,7 @@ class AppCacheActor extends Actor with ActorLogging {
           case Some(f) =>
             log.debug(s"returning existing app from app cache for $id")
             f map { a =>
-              log.debug(s"existing app $a terminated=${a.actor.isTerminated}")
+              log.debug(s"existing app $a terminated=${a.isTerminated}")
               GotApp(a)
             } pipeTo sender
           case None => {
@@ -128,7 +125,7 @@ class KeepAliveActor extends Actor with ActorLogging {
   // whether a CheckForExit is still valid or should be dropped
   var serial = 0
 
-  override def receive = {
+  def receive = {
     case Terminated(ref) =>
       log.debug("terminated {}", ref)
       if (keepAlives.contains(ref)) {
@@ -144,14 +141,10 @@ class KeepAliveActor extends Actor with ActorLogging {
       }
     case req: KeepAliveRequest => req match {
       case RegisterKeepAlive(ref) =>
-        if (ref.isTerminated) {
-          log.debug("ref already terminated so won't keep us alive {}", ref)
-        } else {
-          log.debug("Actor will keep us alive {}", ref)
-          keepAlives += ref
-          serial += 1
-          context.watch(ref)
-        }
+        log.debug("Actor will keep us alive {}", ref)
+        keepAlives += ref
+        serial += 1
+        context.watch(ref)
       case CheckForExit(validitySerial) =>
         if (validitySerial == serial) {
           log.debug("checking for exit, keepAlives={}", keepAlives)

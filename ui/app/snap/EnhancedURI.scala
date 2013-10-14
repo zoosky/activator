@@ -1,5 +1,5 @@
 /**
- *  Copyright (C) 2011-2013 Typesafe, Inc <http://typesafe.com>
+ * Copyright (C) 2013 Typesafe <http://typesafe.com/>
  */
 package snap
 
@@ -7,7 +7,6 @@ import java.net.URI
 import java.net.URLDecoder
 import java.net.URLEncoder
 import language.implicitConversions
-import java.net.URISyntaxException
 
 object EnhancedURI {
   implicit def uri2enhanced(uri: URI) = new EnhancedURI(uri)

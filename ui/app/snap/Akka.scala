@@ -1,14 +1,15 @@
+/**
+ * Copyright (C) 2013 Typesafe <http://typesafe.com/>
+ */
 package snap
 
 import akka.util.Timeout
-import scala.concurrent.duration._
 import akka.actor._
 import scala.concurrent.Future
 import scala.concurrent.Promise
 import scala.concurrent.duration._
 import akka.pattern._
-import play.api.libs.json.JsValue
-import scala.util.{ Try, Success, Failure }
+import scala.util.{ Success, Failure }
 
 // This guy stores the Akka we use for eventing.
 object Akka {
@@ -67,39 +68,31 @@ class DeathReportingProxy(val delegate: ActorRef)(implicit val timeout: akka.uti
   import DeathReportingProxy.Internal._
 
   var originalSender: Option[ActorRef] = None
-
-  var terminated = delegate.isTerminated
-
   context.watch(delegate)
+  var terminated = false
+
   context.system.scheduler.scheduleOnce(timeout.duration, self, DeathReportTimedOut)
 
   override def receive = {
-
     case DeathReportTimedOut =>
-      // this happens if we never got a message and the delegate never
-      // died.
+      // this happens if we never got a message and the delegate never died.
       self ! PoisonPill
-
     case Terminated(ref) if ref == delegate =>
       terminated = true
       // this makes us self-destruct if we send to the sender
       originalSender.foreach(informOfDeath(self, _))
-
     case message =>
-      if (terminated) {
-        informOfDeath(self, context.sender)
-      } else {
-        val f = delegate ? message
-        val proxy = self
-        val sender = context.sender
-        originalSender = Some(sender)
-        f onComplete {
-          case Success(v) =>
-            completeOurMission(proxy, sender, v)
-          case Failure(e) =>
-            completeOurMission(proxy, sender, Status.Failure(e))
-        }
+      val f = delegate ? message
+      val proxy = self
+      val sender = context.sender
+      originalSender = Some(sender)
+      f onComplete {
+        case Success(v) =>
+          completeOurMission(proxy, sender, v)
+        case Failure(e) =>
+          completeOurMission(proxy, sender, Status.Failure(e))
       }
+
   }
 }
 

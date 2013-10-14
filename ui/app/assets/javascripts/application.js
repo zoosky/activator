@@ -1,3 +1,6 @@
+/**
+ * Copyright (C) 2013 Typesafe, Inc <http://typesafe.com>
+ */
 require.config({
   baseUrl:  '/public',
   // hack for now due to problem loading plugin loaders from a plugin loader

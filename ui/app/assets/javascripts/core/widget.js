@@ -1,3 +1,6 @@
+/*
+ Copyright (C) 2013 Typesafe, Inc <http://typesafe.com>
+ */
 define(['webjars!knockout','./utils', './templates'], function(ko, utils, templates) {
 
 // base class for widgets, with convenience.

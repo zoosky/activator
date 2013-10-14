@@ -1,3 +1,6 @@
+/**
+ * Copyright (C) 2013 Typesafe <http://typesafe.com/>
+ */
 package controllers
 
 import play.api.mvc.{ Action, Controller, WebSocket }
@@ -119,7 +122,7 @@ object Application extends Controller {
     val streamsFuture = AppManager.loadApp(id) flatMap { app =>
       Logger.debug(s"Loaded app for connection: $app")
       // this is just easier to debug than a timeout; it isn't reliable
-      if (app.actor.isTerminated) throw new RuntimeException("App is dead")
+      if (app.isTerminated) throw new RuntimeException("App is dead")
 
       import snap.WebSocketActor.timeout
       DeathReportingProxy.ask(app.system, app.actor, snap.CreateWebSocket).map {

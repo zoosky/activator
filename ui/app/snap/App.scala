@@ -1,19 +1,23 @@
+/**
+ * Copyright (C) 2013 Typesafe <http://typesafe.com/>
+ */
 package snap
 
 import akka.actor._
 import com.typesafe.sbtrc.launching.SbtProcessLauncher
 import java.util.concurrent.atomic.AtomicInteger
 import activator.properties.ActivatorProperties
-import scala.util.control.NonFatal
 import java.net.URLEncoder
 
-class App(val config: AppConfig, val system: ActorSystem, val sbtProcessLauncher: SbtProcessLauncher) {
+class App(val config: AppConfig, val system: ActorSystem, val sbtProcessLauncher: SbtProcessLauncher) extends ActorWrapper {
   val appInstance = App.nextInstanceId.getAndIncrement()
   override def toString = s"App(${config.id}@$appInstance})"
   val actorName = "app-" + URLEncoder.encode(config.id, "UTF-8") + "-" + appInstance
 
   val actor = system.actorOf(Props(new AppActor(config, sbtProcessLauncher)),
     name = actorName)
+
+  system.actorOf(Props(new ActorWatcher(actor, this)), "app-actor-watcher-" + appInstance)
 
   // TODO - this method is dangerous, as it hits the file system.
   // Figure out when it should initialize/run.

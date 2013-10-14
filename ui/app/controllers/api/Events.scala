@@ -1,11 +1,9 @@
+/**
+ * Copyright (C) 2013 Typesafe <http://typesafe.com/>
+ */
 package controllers.api
 
 import play.api.mvc.{ Action, Controller }
-import play.api.libs.json.{ JsString, JsObject, JsArray, JsNumber }
-import play.api.Play
-import sys.process.Process
-import java.io.File
-import play.api.mvc.{ ResponseHeader, SimpleResult }
 import play.api.libs.iteratee.{ Enumerator, Enumeratee }
 import akka.actor.{ Actor, ActorRef, Props }
 import play.api.libs.iteratee.Concurrent

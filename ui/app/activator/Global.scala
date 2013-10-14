@@ -1,3 +1,6 @@
+/**
+ * Copyright (C) 2013 Typesafe <http://typesafe.com/>
+ */
 package activator
 
 import play.api._
@@ -5,7 +8,6 @@ import com.typesafe.sbtrc.launching.{
   SbtProcessLauncher,
   DebugSbtProcessLauncher
 }
-import scala.annotation.implicitNotFound
 
 object Global extends GlobalSettings {
 

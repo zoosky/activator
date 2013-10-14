@@ -1,3 +1,6 @@
+/*
+ Copyright (C) 2013 Typesafe, Inc <http://typesafe.com>
+ */
 define(['text!./home.html', 'css!./home.css', 'core/pluginapi' ], function(template, css, api){
 
   var ko = api.ko;

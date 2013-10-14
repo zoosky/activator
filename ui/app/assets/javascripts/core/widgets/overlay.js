@@ -1,3 +1,6 @@
+/*
+ Copyright (C) 2013 Typesafe, Inc <http://typesafe.com>
+ */
 define(['css!./overlay.css', 'text!./overlay.html', 'webjars!knockout', 'core/widget', 'core/utils'], function(css, template, ko, Widget, utils){
 
   var Overlay = utils.Class(Widget, {

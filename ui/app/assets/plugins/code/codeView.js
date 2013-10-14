@@ -1,3 +1,6 @@
+/*
+ Copyright (C) 2013 Typesafe, Inc <http://typesafe.com>
+ */
 define(["text!./viewCode.html", 'core/pluginapi'], function(template, api){
   var ko = api.ko;
 

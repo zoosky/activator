@@ -1,3 +1,6 @@
+/*
+ Copyright (C) 2013 Typesafe, Inc <http://typesafe.com>
+ */
 // event bus allowing plugins to communicate with each other
 define(function() {
 

@@ -1,3 +1,6 @@
+/*
+ Copyright (C) 2013 Typesafe, Inc <http://typesafe.com>
+ */
 define(['webjars!knockout'], function(ko) {
   var templates = {};
   // Register a template (by text) with the template engine.

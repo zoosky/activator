@@ -1,3 +1,6 @@
+/**
+ * Copyright (C) 2013 Typesafe <http://typesafe.com/>
+ */
 package snap
 
 import play.api.libs.json._
