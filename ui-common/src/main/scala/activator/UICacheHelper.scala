@@ -1,9 +1,11 @@
+/**
+ * Copyright (C) 2013 Typesafe <http://typesafe.com/>
+ */
 package activator
 
 import activator.properties.ActivatorProperties
 import activator.properties.ActivatorProperties.SCRIPT_NAME
 import activator.cache._
-import activator.cache.Actions.cloneTemplate
 import akka.actor.ActorRefFactory
 import java.io.File
 import activator.cache.RemoteTemplateRepository
