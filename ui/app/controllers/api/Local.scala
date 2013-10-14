@@ -54,6 +54,7 @@ object Local extends Controller {
     case "xml" => "code"
     case "json" => "code"
     case "plugins" => "code"
+    case "sql" => "code"
     // TODO - New "tail" viewer for logs?
     case "log" => "code"
 
