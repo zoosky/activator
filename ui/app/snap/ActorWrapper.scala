@@ -3,7 +3,7 @@
  */
 package snap
 
-import akka.actor.{PoisonPill, Terminated, Actor, ActorRef}
+import akka.actor.{ PoisonPill, Terminated, Actor, ActorRef }
 
 trait ActorWrapper {
   @volatile var isTerminated = false
