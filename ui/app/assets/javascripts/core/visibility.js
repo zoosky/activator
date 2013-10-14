@@ -1,3 +1,7 @@
+/*
+ Copyright (C) 2013 Typesafe, Inc <http://typesafe.com>
+ */
+
 // From: https://developer.mozilla.org/en-US/docs/Web/Guide/User_experience/Using_the_Page_Visibility_API
 // Set the name of the hidden property and the change event for visibility
 var hidden, visibilityChange;

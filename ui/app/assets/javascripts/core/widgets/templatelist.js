@@ -1,3 +1,6 @@
+/*
+ Copyright (C) 2013 Typesafe, Inc <http://typesafe.com>
+ */
 define(['text!./templatelist.html', 'webjars!knockout', 'core/widget', 'core/utils'], function(template, ko, Widget, utils) {
 
   function getlist() {

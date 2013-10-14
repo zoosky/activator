@@ -1,3 +1,6 @@
+/*
+ Copyright (C) 2013 Typesafe, Inc <http://typesafe.com>
+ */
 define(['webjars!knockout', './router', './tutorial/tutorial'], function(ko, router, Tutorial) {
   // Model for the whole app view; created in two parts
   // so that this first part is available during construction

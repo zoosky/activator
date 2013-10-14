@@ -1,3 +1,6 @@
+/*
+ Copyright (C) 2013 Typesafe, Inc <http://typesafe.com>
+ */
 define(['core/model', 'text!./run.html', 'core/pluginapi', 'core/widgets/log', 'css!./run.css'], function(model, template, api, log, css){
 
   var ko = api.ko;

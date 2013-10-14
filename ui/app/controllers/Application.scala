@@ -1,3 +1,6 @@
+/**
+ * Copyright (C) 2013 Typesafe <http://typesafe.com/>
+ */
 package controllers
 
 import play.api.mvc.{ Action, Controller, WebSocket }

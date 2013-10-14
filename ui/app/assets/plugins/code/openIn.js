@@ -1,3 +1,6 @@
+/*
+ Copyright (C) 2013 Typesafe, Inc <http://typesafe.com>
+ */
 define(['text!./openInEclipse.html', 'text!./openInIdea.html', 'core/pluginapi', 'core/widgets/overlay', 'core/widgets/log'],
 function(eclipseTemplate, ideaTemplate, api, Overlay, log){
 

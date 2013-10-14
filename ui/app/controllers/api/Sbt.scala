@@ -1,11 +1,11 @@
+/**
+ * Copyright (C) 2013 Typesafe <http://typesafe.com/>
+ */
 package controllers.api
 
-import play.api.mvc.{ Action, Controller }
 import play.api.libs.json._
-import play.api.Play
 import com.typesafe.sbtrc._
 import play.api.mvc._
-import java.util.UUID
 import snap.AppManager
 import akka.pattern._
 import akka.actor._
