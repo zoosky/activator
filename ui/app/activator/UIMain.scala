@@ -2,13 +2,10 @@ package activator
 
 import xsbti.{ AppMain, AppConfiguration }
 import java.awt._
-import java.awt.event._
 import javax.swing._
-import java.net.HttpURLConnection
 import java.net.URL
 import sbt.IO
 import com.typesafe.sbtrc.launching.DefaultSbtProcessLauncher
-import snap._
 import activator.properties.ActivatorProperties._
 import xsbti.GlobalLock
 import java.io.IOException

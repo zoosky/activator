@@ -9,13 +9,7 @@ import java.util.UUID
 import snap.AppManager
 import akka.pattern._
 import akka.actor._
-import akka.util.Timeout
-import scala.concurrent.duration._
 import scala.concurrent.ExecutionContext.Implicits.global
-import scala.util.parsing.json.JSONType
-import scala.util.parsing.json.JSONObject
-import scala.util.parsing.json.JSONArray
-import scala.math.BigDecimal
 import play.Logger
 import scala.concurrent.Future
 import snap.GetTaskActor

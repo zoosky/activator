@@ -9,8 +9,6 @@ import com.typesafe.sbtrc.launching.SbtProcessLauncher
 import com.typesafe.sbtrc.DefaultSbtProcessFactory
 import com.typesafe.sbtrc.protocol
 import play.Logger
-import akka.util.Timeout
-import java.util.concurrent.TimeUnit
 import akka.actor._
 import scala.concurrent.Await
 import scala.concurrent.duration._

@@ -2,7 +2,6 @@ package snap
 
 import akka.actor._
 import play.api.libs.json._
-import play.api.libs.iteratee.Concurrent
 import java.io.File
 import akka.pattern.pipe
 import scala.util.control.NonFatal
