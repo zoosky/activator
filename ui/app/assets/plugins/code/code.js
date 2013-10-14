@@ -1,3 +1,6 @@
+/*
+ Copyright (C) 2013 Typesafe, Inc <http://typesafe.com>
+ */
 define(['core/pluginapi', 'text!./home.html', './files', './browse', './view', './openIn', 'css!./code.css'],
     function(api, template, files, Browser, Viewer, openIn, css) {
 

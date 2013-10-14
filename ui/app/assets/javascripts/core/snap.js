@@ -1,3 +1,7 @@
+/*
+ Copyright (C) 2013 Typesafe, Inc <http://typesafe.com>
+ */
+
 // Sort of MVC (Module, Grid, Router)
 define(['./model', './pluginapi', './streams', './plugin', './navigation'], function(model, api, streams, plugins, navigation) {
 

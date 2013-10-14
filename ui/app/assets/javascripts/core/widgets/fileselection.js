@@ -1,3 +1,6 @@
+/*
+ Copyright (C) 2013 Typesafe, Inc <http://typesafe.com>
+ */
 define(['css!./fileselection.css', 'text!./fileselection.html', 'webjars!knockout', 'core/widget', 'core/utils'], function(css, template, ko, Widget, utils) {
 
   function browse(location) {
