@@ -1,9 +1,8 @@
+/**
+ * Copyright (C) 2013 Typesafe <http://typesafe.com/>
+ */
 package launcher
 
-import concurrent.duration._
-import concurrent.Await
-import concurrent.ExecutionContext.Implicits.global
-import concurrent.future
 import snap.tests._
 
 class MustStartUI extends IntegrationTest {

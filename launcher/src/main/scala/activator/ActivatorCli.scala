@@ -1,6 +1,9 @@
+/**
+ * Copyright (C) 2013 Typesafe <http://typesafe.com/>
+ */
 package activator
 
-import xsbti.{ AppMain, AppConfiguration }
+import xsbti.AppConfiguration
 import activator.properties.ActivatorProperties.SCRIPT_NAME
 import activator.cache.Actions.cloneTemplate
 import java.io.File
