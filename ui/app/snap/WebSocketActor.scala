@@ -6,8 +6,6 @@ import scala.concurrent.{ Channel => _, _ }
 import scala.concurrent.duration._
 import akka.util._
 import play.api._
-import play.api.mvc._
-import play.api.data._
 import play.api.libs.iteratee._
 import scala.collection.immutable.Queue
 import play.api.mvc.WebSocket.FrameFormatter

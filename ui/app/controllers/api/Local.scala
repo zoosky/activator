@@ -2,7 +2,6 @@ package controllers.api
 
 import play.api.mvc.{ Action, Controller }
 import play.api.libs.json._
-import play.api.Play
 import java.io.File
 import snap.Platform
 import play.api.data._

@@ -4,14 +4,10 @@ import com.typesafe.sbtrc._
 import com.typesafe.sbtrc.launching.SbtProcessLauncher
 import akka.actor._
 import java.io.File
-import java.util.UUID
-import play.api.libs.json.JsValue
 import java.net.URLEncoder
-import akka.pattern._
 import play.api.libs.concurrent.Execution.Implicits.defaultContext
 import scala.concurrent.duration._
 import play.api.libs.json._
-import activator._
 
 sealed trait AppRequest
 
