@@ -43,6 +43,9 @@ define(["text!./viewCode.html", 'core/pluginapi'], function(template, api){
     if(ext == 'ruby') {
       return 'ruby';
     }
+    if (ext == 'sql') {
+      return 'sql';
+    }
     return 'text';
   }
 
