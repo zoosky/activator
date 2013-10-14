@@ -17,7 +17,7 @@ class App(val config: AppConfig, val system: ActorSystem, val sbtProcessLauncher
   val actor = system.actorOf(Props(new AppActor(config, sbtProcessLauncher)),
     name = actorName)
 
-  system.actorOf(Props(new ActorWatcher(actor, this)))
+  system.actorOf(Props(new ActorWatcher(actor, this)), "app-actor-watcher-" + appInstance)
 
   // TODO - this method is dangerous, as it hits the file system.
   // Figure out when it should initialize/run.
