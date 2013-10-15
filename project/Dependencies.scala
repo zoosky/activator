@@ -15,6 +15,7 @@ object Dependencies {
   val akkaVersion = "2.1.2"
   val slickVersion = "1.0.1"
   val atmosVersion = "1.3.1"
+  val atmosPluginVersion = "0.3.1"
 
   val atmosArtifacts = Seq(
     "com.typesafe.atmos" % "atmos-dev" % atmosVersion,
@@ -23,7 +24,9 @@ object Dependencies {
     "com.typesafe.atmos" % "trace-play-2.2.0" % atmosVersion,
     "com.typesafe.atmos" % "trace-play-common" % atmosVersion,
     "com.typesafe.atmos" % "trace-scala-2.10.2" % atmosVersion,
-    "com.typesafe.console" % "console-solo" % atmosVersion
+    "com.typesafe.console" % "console-solo" % atmosVersion,
+    "com.typesafe.sbt" % "sbt-atmos-play" % atmosPluginVersion,
+    "com.typesafe.sbt" % "sbt-atmos" % atmosPluginVersion
   )
 
   val activatorCommon      = "com.typesafe.activator" % "activator-common" % templateCacheVersion
