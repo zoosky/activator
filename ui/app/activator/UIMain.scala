@@ -97,8 +97,15 @@ class UIMain extends AppMain {
     System.setProperty("http.address", serverAddress)
 
     if (!alreadyRunning) {
+      // Locate the local repo if it exists
+      val optRepositories: Seq[(String, java.io.File, Option[String])] =
+        configuration.provider.scalaProvider.launcher.appRepositories collect {
+          case x: xsbti.IvyRepository if (x.id == "activator-local") && (x.url.getProtocol == "file") =>
+            System.err.println("FOUND REPO = " + x.id + " @ " + x.url)
+            (x.id, new java.io.File(x.url.toURI), Some(x.ivyPattern))
+        }
       // locate sbt details and store in a singleton
-      Global.installSbtLauncher(new DefaultSbtProcessLauncher(configuration))
+      Global.installSbtLauncher(new DefaultSbtProcessLauncher(configuration, optRepositories = optRepositories))
 
       // Start the Play app... (TODO - how do we know when we're done?)
       // TODO - Is this hack ok?
