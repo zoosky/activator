@@ -24,9 +24,7 @@ object Dependencies {
     "com.typesafe.atmos" % "trace-play-2.2.0" % atmosVersion,
     "com.typesafe.atmos" % "trace-play-common" % atmosVersion,
     "com.typesafe.atmos" % "trace-scala-2.10.2" % atmosVersion,
-    "com.typesafe.console" % "console-solo" % atmosVersion,
-    "com.typesafe.sbt" % "sbt-atmos-play" % atmosPluginVersion,
-    "com.typesafe.sbt" % "sbt-atmos" % atmosPluginVersion
+    "com.typesafe.console" % "console-solo" % atmosVersion
   )
 
   val activatorCommon      = "com.typesafe.activator" % "activator-common" % templateCacheVersion
@@ -69,7 +67,8 @@ object Dependencies {
   val playSbt13Plugin        =  Defaults.sbtPluginExtra("com.typesafe.play" % "sbt-plugin" % playVersion, "0.13", "2.10")
   val eclipseSbt13Plugin     =  Defaults.sbtPluginExtra("com.typesafe.sbteclipse" % "sbteclipse-plugin" % "2.2.0", "0.13", "2.10")
   val ideaSbt13Plugin        =  Defaults.sbtPluginExtra("com.github.mpeltonen" % "sbt-idea" % "1.5.2", "0.13", "2.10")
-
+  val atmosSbt13Plugin       =  Defaults.sbtPluginExtra("com.typesafe.sbt" % "sbt-atmos-play" % atmosPluginVersion, "0.13", "2.10")
+  val atmosPlaySbt13Plugin   =  Defaults.sbtPluginExtra("com.typesafe.sbt" % "sbt-atmos" % atmosPluginVersion, "0.13", "2.10")
 
   // Embedded databases / index
   val lucene = "org.apache.lucene" % "lucene-core" % luceneVersion
