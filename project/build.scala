@@ -214,6 +214,8 @@ object TheActivatorBuild extends Build {
         playSbt13Plugin,
         eclipseSbt13Plugin,
         ideaSbt13Plugin,
+        atmosSbt13Plugin,
+        atmosPlaySbt13Plugin,
 
         // featured template deps
         // note: do not use %% here
