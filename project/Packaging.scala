@@ -195,7 +195,7 @@ object Packaging {
 [app]
   org: com.typesafe.activator
   name: activator-launcher
-  version: %s
+  version: ${activator.version-read(activator.version)[%s]}
   class: activator.ActivatorLauncher
   cross-versioned: false
   components: xsbti
@@ -208,11 +208,13 @@ object Packaging {
 
 [boot]
  directory: ${sbt.boot.directory-${sbt.global.base-${user.home}/.sbt}/boot/}
+ properties: ${activator.boot.properties-${user.home}/.activator/version.properties}
 
 [ivy]
   ivy-home: ${user.home}/.ivy2
   checksums: ${sbt.checksums-sha1,md5}
   override-build-repos: ${sbt.override.build.repos-false}
+  repository-config: ${sbt.repository.config-${sbt.global.base-${user.home}/.sbt}/repositories}
 """ format(scalaVersion, version))
     tprops -> "sbt/sbt.boot.properties"
   }
