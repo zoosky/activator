@@ -213,6 +213,7 @@ object Packaging {
   ivy-home: ${user.home}/.ivy2
   checksums: ${sbt.checksums-sha1,md5}
   override-build-repos: ${sbt.override.build.repos-false}
+  repository-config: ${sbt.repository.config-${sbt.global.base-${user.home}/.sbt}/repositories}
 """ format(scalaVersion, version))
     tprops -> "sbt/sbt.boot.properties"
   }
