@@ -35,10 +35,16 @@ define(['text!./compile.html', 'core/pluginapi', 'core/model', 'css!./compile.cs
       },
       function(event) {
         if (self.recompileOnChange()) {
-          console.log("files changed, doing a recompile");
-          // doCompile just marks a compile pending if one is already
-          // active.
-          self.doCompile();
+          if (model.snap.app.hasPlay()) {
+            console.log("files changed but it's a Play app so not recompiling.")
+            self.logModel.info("Some of your files may have changed; reload in the browser or click \"Start compiling\" above to recompile.")
+            self.logModel.info("  (for Play apps, Activator does not auto-recompile because it may conflict with compilation on reload in the browser.)")
+          } else {
+            console.log("files changed, doing a recompile");
+            // doCompile just marks a compile pending if one is already
+            // active.
+            self.doCompile();
+          }
         } else {
           console.log("recompile on change unchecked, doing nothing");
         }
