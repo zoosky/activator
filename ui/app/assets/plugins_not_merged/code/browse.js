@@ -1,7 +1,7 @@
 /*
  Copyright (C) 2013 Typesafe, Inc <http://typesafe.com>
  */
-define(['text!./browse.html', 'core/pluginapi'], function(template, api) {
+define(['/public/plugins/code/browse.html.js', 'core/pluginapi'], function(template, api) {
 
   var ko = api.ko;
 
@@ -30,7 +30,7 @@ define(['text!./browse.html', 'core/pluginapi'], function(template, api) {
 
   var Browser = api.Class(api.Widget, {
     id: 'code-browser-view',
-    template: template,
+    template: noir.api.templateToString(template()),
     init: function(config) {
       var self = this;
       self.openInEclipse = config.openInEclipse;

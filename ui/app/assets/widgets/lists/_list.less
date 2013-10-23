@@ -1,0 +1,32 @@
+article {
+  ul, dl {
+    font-size: 13px;
+    li, dd {
+      background: #fff;
+      padding: 10px 15px;
+      border-bottom: 1px solid #BFBFBF;
+      position: relative;
+      &:hover {
+        background: @clear;
+      }
+      a {
+        font-weight: bold;
+        color: @text-dark;
+        text-decoration: none;
+        &:after {
+          content: " ";
+          display: block;
+          position: absolute;
+          top: 0; left: 0; right: 0; bottom: 0;
+        }
+      }
+    }
+    dt {
+      border-bottom: 1px solid #BFBFBF;
+      padding: 10px 15px;
+      background: @light;
+      color: @text-dark;
+      font-size: 16px;
+    }
+  }
+}

@@ -12,7 +12,7 @@ require.config({
   },
   paths: {
     core:    'javascripts/core',
-    plugins:  'plugins'
+    plugins:  'plugins_not_merged'
   }
 });
 

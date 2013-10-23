@@ -222,4 +222,9 @@ object Application extends Controller {
 
   /** The current working directory of the app. */
   val cwd = (new java.io.File(".").getAbsoluteFile.getParentFile)
+
+  def merge = Action {
+    Ok(views.html.main())
+  }
+
 }

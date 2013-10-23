@@ -65,8 +65,23 @@ define(['webjars!knockout'], function(ko) {
   // Register us immediately.
   ko.setTemplateEngine(createStringTemplateEngine(new ko.nativeTemplateEngine(), templates));
 
+
+  noir.api.addAttributeBinding("kobind", function(element, value, attrs){
+    element.setAttribute("data-biding", value);
+  });
+
+  // TEMP FUNCTION FOR MERGING
+  noir.api.templateToString = function(template){
+    var wrapper = $("<div/>");
+    $.each(template.childNodes, function(i, it){
+      wrapper.append(it);
+    });
+    return wrapper.html();
+  }
+
   return {
     registerTemplate: registerTemplate,
     templates: templates
   };
+
 });
