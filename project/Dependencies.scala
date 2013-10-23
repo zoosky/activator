@@ -24,7 +24,8 @@ object Dependencies {
     "com.typesafe.atmos" % "trace-play-2.2.0" % atmosVersion,
     "com.typesafe.atmos" % "trace-play-common" % atmosVersion,
     "com.typesafe.atmos" % "trace-scala-2.10.2" % atmosVersion,
-    "com.typesafe.console" % "console-solo" % atmosVersion
+    "com.typesafe.console" % "console-solo" % atmosVersion,
+    "org.aspectj" % "aspectjweaver" % "1.7.3"
   )
 
   val activatorCommon      = "com.typesafe.activator" % "activator-common" % templateCacheVersion
