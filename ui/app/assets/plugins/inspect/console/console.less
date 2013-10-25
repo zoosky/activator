@@ -1,0 +1,85 @@
+@import 'colors.less';
+
+.clear-after() {
+  &:after {
+    content: " ";
+    display: block;
+    clear: both;
+  }
+}
+
+#console {
+  .module {
+    background: #fff;
+  }
+
+  .listing {
+    li {
+      position: relative;
+      cursor: pointer;
+      padding: 10px;
+      border-top: 1px solid @grey;
+      .clear-after();
+
+      &:first-child {
+        border-top: none;
+      }
+
+      &:last-child {
+        border-bottom: 1px solid @grey;
+      }
+
+      &.active, &:hover {
+        background: @grey_alt;
+        border-color: @grey;
+        + dd, + li {
+          border-top: 1px solid @grey;
+        }
+      }
+
+      .counter {
+        color: @grey_text;
+        float: right;
+      }
+
+      .focus & {
+        &.active {
+          background: @grey_alt;
+          border-color: @grey;
+        }
+        &.focus {
+          border-color: @red - #222;
+          background: @red;
+          color: #fff;
+          h2 a {
+            color: #fff;
+          }
+          &:before {
+            color: #fff;
+          }
+          .counter {
+            color: white;
+          }
+        }
+      }
+    }
+
+    h2 a {
+      color: @blue_text;
+      font-weight: 700;
+      font-size: 20px;
+      &:after {
+        content: " ";
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        z-index: 99;
+      }
+    }
+  }
+
+}
+
+@import 'grid.less';

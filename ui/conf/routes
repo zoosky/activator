@@ -43,6 +43,9 @@ GET         /app/:id/                                    controllers.Application
 GET         /app/:id/tutorial/*location                  controllers.Application.appTutorialFile(id, location)
 GET         /home/stream                                 controllers.Application.homeStream
 
+# Console
+GET         /api/console/:id                             controllers.Application.connectConsole(id)
+
 # Map static resources from the /public folder to the /assets URL path
 GET         /public/*file                                controllers.Assets.at(path="/public", file)
 GET         /webjars/requirejs-loader.js                 controllers.WebJarAssets.requirejs

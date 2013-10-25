@@ -165,6 +165,13 @@ object Application extends Controller {
     }
   }
 
+  /**
+   * Connects console websocket.
+   */
+  def connectConsole(id: String) = WebSocket.async[JsValue] { req ⇒
+    console.ClientController.join(id)
+  }
+
   /** List all the applications in our history as JSON. */
   def getHistory = Action { request =>
     Ok(Json.toJson(RootConfig.user.applications))
@@ -179,7 +186,7 @@ object Application extends Controller {
       app.config.id,
       Platform.getClientFriendlyFilename(app.config.location),
       // TODO - These should be drawn from the template itself...
-      Seq("plugins/home/home", "plugins/code/code", "plugins/compile/compile", "plugins/test/test", "plugins/run/run"),
+      Seq("plugins/home/home", "plugins/code/code", "plugins/compile/compile", "plugins/test/test", "plugins/run/run", "plugins/inspect/inspect"),
       app.config.cachedName getOrElse app.config.id,
       // TODO - something less lame than exception here...
       app.templateID,

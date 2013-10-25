@@ -352,6 +352,7 @@ define(['core/model', 'text!./run.html', 'core/pluginapi', 'core/widgets/log', '
             self.playAppLink(url);
           } else if (event.id == 'atmosStarted') {
             self.atmosLink(event.params.uri);
+            api.events.send({ 'type' : 'AtmosStarted' });
           } else {
             self.logModel.leftoverEvent(event);
           }
@@ -388,7 +389,8 @@ define(['core/model', 'text!./run.html', 'core/pluginapi', 'core/widgets/log', '
         sbt.killTask({
           taskId: self.activeTask(),
           success: function(data) {
-            console.log("kill success: ", data)
+            console.log("kill success: ", data);
+            api.events.send({ 'type' : 'RunStopped' });
           },
           failure: function(status, message) {
             console.log("kill failed: ", status, message)
