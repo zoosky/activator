@@ -9,7 +9,7 @@ object Dependencies {
   val sbtSnapshotVersion = "0.13.0"
   val luceneVersion = "4.2.1"
   val templateCacheVersion = "1.0-824c0759d90d52bf3fc7cd07795c49e05affc87a"
-  val sbtRcVersion = "1.0-32732bd6bd78f95a7ee8aadf178057d3afff44bf"
+  val sbtRcVersion = "1.0-037b7594418cc87815b264f0cd13e8defe379769"
   val playVersion = "2.2.0"
   val webJarsVersion = "2.2.0"
   val akkaVersion = "2.1.2"
@@ -24,7 +24,8 @@ object Dependencies {
     "com.typesafe.atmos" % "trace-play-2.2.0" % atmosVersion,
     "com.typesafe.atmos" % "trace-play-common" % atmosVersion,
     "com.typesafe.atmos" % "trace-scala-2.10.2" % atmosVersion,
-    "com.typesafe.console" % "console-solo" % atmosVersion
+    "com.typesafe.console" % "console-solo" % atmosVersion,
+    "org.aspectj" % "aspectjweaver" % "1.7.3"
   )
 
   val activatorCommon      = "com.typesafe.activator" % "activator-common" % templateCacheVersion
