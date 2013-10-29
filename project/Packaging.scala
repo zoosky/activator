@@ -80,7 +80,7 @@ object Packaging {
       (to / "activator").setExecutable(true, true)
     },
     dist <<= packageBin in Universal,
-    minimalDist := minimizeZip(dist.value, version.value),
+    minimalDist := minimalZip((target in Universal).value, (mappings in Universal).value, version.value),
     mappings in Universal <+= (repackagedLaunchJar, version) map { (jar, v) =>
       jar -> ("activator-launch-%s.jar" format (v))
     },
@@ -221,34 +221,17 @@ object Packaging {
     tprops -> "sbt/sbt.boot.properties"
   }
 
-  def minimizeZip(orig: File, activatorVersion: String): File = {
+  def minimalZip(destDir: File, mappings: Seq[(File, String)], activatorVersion: String): File = {
     val minimalDirName = s"activator-${activatorVersion}-minimal"
-    val dest = orig.getParentFile / s"${minimalDirName}.zip"
-    IO.withTemporaryDirectory { tmpDir =>
-      val executableNames = Seq("activator", "activator.bat")
-      val sourceNames = Seq(s"activator-launch-${activatorVersion}.jar") ++ executableNames
-      val unpackedDir = orig.getName.substring(0, orig.getName.length - ".zip".length)
-      IO.unzip(orig, tmpDir, new NameFilter {
-        override def accept(name: String) = {
-          require(name.length >= unpackedDir.length)
-          // the "+1" is for the "/"; one of the names will be "unpackedDir" itself
-          val relativeName = if (name.length > unpackedDir.length)
-            name.substring(unpackedDir.length + 1)
-          else
-            name
-          sourceNames.contains(relativeName)
-        }
-      })
-      val sources = sourceNames map {
-        name =>
-          val origFile = tmpDir / unpackedDir / name
-          if (executableNames.contains(name)) {
-            origFile.setExecutable(true) // unzip drops execute bit
-          }
-          origFile -> s"${minimalDirName}/${name}"
-      }
-      com.typesafe.sbt.packager.universal.ZipHelper.zipNative(sources, dest)
+    val dest = destDir / s"${minimalDirName}.zip"
+    val sourceNames = Seq(s"activator-launch-${activatorVersion}.jar", "activator", "activator.bat")
+    val sources = mappings filter {
+        case (file, name) => sourceNames.contains(name)
+    } map {
+        case (file, name) => file -> s"${minimalDirName}/${name}"
     }
+    require(sources.length == sourceNames.length)
+    com.typesafe.sbt.packager.universal.ZipHelper.zipNative(sources, dest)
     dest
   }
 }
