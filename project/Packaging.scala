@@ -36,7 +36,8 @@ object Packaging {
   val localRepoCreation = TaskKey[LocalRepoReport]("local-repository-creation", "Creates a local repository in the specified location.")
   val localRepoLicenses = TaskKey[Unit]("local-repository-licenses", "Prints all the licenses used by software in the local repo.")
   val localRepoCreated = TaskKey[File]("local-repository-created", "Creates a local repository in the specified location.")
-  
+  val minimalDist = taskKey[File]("dist without the bundled repository and templates")
+
   // This is dirty, but play has stolen our keys, and we must mimc them here.
   val stage = TaskKey[Unit]("stage")
   val dist = TaskKey[File]("dist")
@@ -79,6 +80,7 @@ object Packaging {
       (to / "activator").setExecutable(true, true)
     },
     dist <<= packageBin in Universal,
+    minimalDist := minimizeZip(dist.value, version.value),
     mappings in Universal <+= (repackagedLaunchJar, version) map { (jar, v) =>
       jar -> ("activator-launch-%s.jar" format (v))
     },
@@ -217,5 +219,36 @@ object Packaging {
   repository-config: ${sbt.repository.config-${sbt.global.base-${user.home}/.sbt}/repositories}
 """ format(scalaVersion, version))
     tprops -> "sbt/sbt.boot.properties"
+  }
+
+  def minimizeZip(orig: File, activatorVersion: String): File = {
+    val minimalDirName = s"activator-${activatorVersion}-minimal"
+    val dest = orig.getParentFile / s"${minimalDirName}.zip"
+    IO.withTemporaryDirectory { tmpDir =>
+      val executableNames = Seq("activator", "activator.bat")
+      val sourceNames = Seq(s"activator-launch-${activatorVersion}.jar") ++ executableNames
+      val unpackedDir = orig.getName.substring(0, orig.getName.length - ".zip".length)
+      IO.unzip(orig, tmpDir, new NameFilter {
+        override def accept(name: String) = {
+          require(name.length >= unpackedDir.length)
+          // the "+1" is for the "/"; one of the names will be "unpackedDir" itself
+          val relativeName = if (name.length > unpackedDir.length)
+            name.substring(unpackedDir.length + 1)
+          else
+            name
+          sourceNames.contains(relativeName)
+        }
+      })
+      val sources = sourceNames map {
+        name =>
+          val origFile = tmpDir / unpackedDir / name
+          if (executableNames.contains(name)) {
+            origFile.setExecutable(true) // unzip drops execute bit
+          }
+          origFile -> s"${minimalDirName}/${name}"
+      }
+      com.typesafe.sbt.packager.universal.ZipHelper.zipNative(sources, dest)
+    }
+    dest
   }
 }
