@@ -1,7 +1,7 @@
 /*
  Copyright (C) 2013 Typesafe, Inc <http://typesafe.com>
  */
-define(["text!./console.html", "css!./console.css", "core/pluginapi", "./connection", "./grid", "./overview", "./utils"], function(template, css, api, Connection, Grid, Overview) {
+define(["text!./console.html", "css!./console.css", "core/pluginapi", "./connection", "./overview", "./utils"], function(template, css, api, Connection, Overview) {
 
   var ko = api.ko;
 
@@ -15,11 +15,11 @@ define(["text!./console.html", "css!./console.css", "core/pluginapi", "./connect
       this.connected = ko.observable(false);
       this.path = [];
       this.defaultTime = { "startTime": "", "endTime": "", "rolling": "10minutes" };
-
-      this.modules = [ { "index": 0, "path": "inspect", "module": new Overview() } ];
-
       Connection.init(self.defaultTime);
-      Grid.init();
+
+      this.overview = new Overview();
+      this.modules = [ this.overview ];
+      Connection.updateModules(this.modules);
 
       api.events.subscribe(function(event) {
         return event.type == "AtmosStarted" || event.type == "RunStopped";
@@ -36,7 +36,6 @@ define(["text!./console.html", "css!./console.css", "core/pluginapi", "./connect
       var self = this;
       Connection.open(consoleWsUrl, function() {
         self.connected(true);
-        self.render();
       });
     },
     runStopped: function(event) {
@@ -44,13 +43,8 @@ define(["text!./console.html", "css!./console.css", "core/pluginapi", "./connect
       this.connected(false);
     },
     route: function(path) {
+      // TODO: routing and module loading/unloading based on path
       this.path = path;
-      if (this.connected()) this.render();
-    },
-    render: function() {
-      // TODO: proper routing and module loading/unloading based on path
-      Grid.render(this.modules);
-      Connection.updateModules(this.modules);
     }
   });
 

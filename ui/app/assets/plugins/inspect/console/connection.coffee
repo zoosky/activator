@@ -69,12 +69,8 @@ define ->
       # Update module with data
       for module in @modules
         # Match modules with loaded module object's data types
-        if module.module?.dataTypes? and message.type in module.module.dataTypes
-          #console.log "console connection update :", message.type, " | ", module.module.dataTypes.join(", ")
-          # If module has id, match id with data
-          if !module.module.id? or !message.name? or (module.module.id? and message.name? and message.name is module.module.id)
-            # console.log "console connection update module : ", message.type, if module.module.id? then module.module.id else "-"
-            module.module.onData message.data
+        if module?.dataTypes? and message.type in module.dataTypes
+          module.onData message.data
 
       # Run recieve callbacks
       callback(message) for callback in @recieveCallbacks
@@ -85,19 +81,15 @@ define ->
       @modules = modules if modules?
       @request.modules = []
 
-      for index, m of @modules
+      for index, module of @modules
         # Get connection parameters
-        if m.module.getConnectionParameters
-          current = m.module.getConnectionParameters()
+        if module.dataScope
+          currentScope = module.dataScope
           # We copy the previous object's scope
           if @request.modules.length > 0
             previousScope = @request.modules[ @request.modules.length - 1 ].scope
-            current.scope = $.extend({}, previousScope, current.scope)
-          @request.modules.push(current)
-        # Register connection update callback on modules
-        if not m.module.updateConnection?
-          m.module.updateConnection = () =>
-            @updateModules()
+            currentScope = $.extend({}, previousScope, currentScope)
+          @request.modules.push({ name: module.dataName, scope: currentScope })
 
       @update()
       @
@@ -106,8 +98,8 @@ define ->
       debug && console.log "console connection updateTime : ", time, minutes
       @request.time = time
       @update()
-      for m in @modules
-        m.module.onTimeUpdateMinutes minutes if m.module.onTimeUpdateMinutes
+      for module in @modules
+        module.onTimeUpdateMinutes minutes if module.onTimeUpdateMinutes
       @
 
     getTimeInMinutes: (startTime, endTime) ->
@@ -117,7 +109,6 @@ define ->
       debug && console.log "console connection request : ", @request
 
       # Build request object
-      sendData = @request.modules
       sendData =
         modules: []
       sentModules = []
