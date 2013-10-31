@@ -57,7 +57,7 @@ object Local extends Controller {
     case "sql" => "code"
     // TODO - New "tail" viewer for logs?
     case "log" => "code"
-
+    case "txt" => "code"
     // If we can't find any specific handler based on extension, certain files still need
     // to be handled by name....
     case _ => file.getName match {
