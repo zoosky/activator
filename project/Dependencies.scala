@@ -10,12 +10,12 @@ object Dependencies {
   val luceneVersion = "4.2.1"
   val templateCacheVersion = "1.0-824c0759d90d52bf3fc7cd07795c49e05affc87a"
   val sbtRcVersion = "1.0-63342a87542eda1c911253af9652e664b4395938"
-  val playVersion = "2.2.0"
+  val playVersion = "2.2.1"
   val webJarsVersion = "2.2.0"
   val akkaVersion = "2.1.2"
   val slickVersion = "1.0.1"
   val atmosVersion = "1.3.1"
-  val atmosPluginVersion = "0.3.1"
+  val atmosPluginVersion = "0.3.2"
 
   val atmosArtifacts = Seq(
     "com.typesafe.atmos" % "atmos-dev" % atmosVersion,
