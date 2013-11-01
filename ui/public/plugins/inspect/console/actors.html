@@ -1,0 +1,22 @@
+<div class="actors">
+    <table>
+        <thead>
+            <tr>
+                <th><span>Actor</span></th>
+                <th class="right"><span>Throughput</span></th>
+                <th class="right"><span>Max Mailbox Time</span></th>
+                <th class="right"><span>Max Mailbox Size</span></th>
+                <th class="right"><span>Deviations</span></th>
+            </tr>
+        </thead>
+        <tbody class="listing" data-bind="foreach: actors">
+            <tr>
+                <td class="name"><a data-bind="text: name"></a></td>
+                <td class="throughput right"><a data-bind="text: throughput"></a></td>
+                <td class="maxTimeInMailbox right"  data-bind="text: maxTimeInMailbox"><a></a></td>
+                <td class="maxMailboxSize right"><a data-bind="text: maxMailboxSize"></a></td>
+                <td class="right"><a><span class="deviation-counter" data-bind="text: deviations"></span></a></td>
+            </tr>
+        </tbody>
+    </table>
+</div>

@@ -99,9 +99,10 @@ object RequestHandler {
   final val scheme = "http"
   final val timestampFormatting = "formatTimestamps=off&"
 
-  def urlTuple(base: String): (String, String) = (base, base + "/")
+  def url(path: String) = ConsoleConfig.consoleStartURL + path
 
-  val (metadataURL, metadataURL2) = urlTuple(ConsoleConfig.consoleStartURL + "metadata")
+  val metadataURL = url("metadata")
+  val actorsURL = url("actors")
 }
 
 object Responses {

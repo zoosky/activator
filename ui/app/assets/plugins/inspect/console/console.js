@@ -1,7 +1,8 @@
 /*
  Copyright (C) 2013 Typesafe, Inc <http://typesafe.com>
  */
-define(["text!./console.html", "css!./console.css", "core/pluginapi", "./connection", "./overview", "./utils"], function(template, css, api, Connection, Overview) {
+define(['text!./console.html', 'css!./console.css', 'core/pluginapi', './connection', './overview', './actors', './requests', './utils'],
+  function(template, css, api, Connection, Overview, Actors, Requests) {
 
   var ko = api.ko;
 
@@ -13,38 +14,50 @@ define(["text!./console.html", "css!./console.css", "core/pluginapi", "./connect
 
       window.debug = true;
       this.connected = ko.observable(false);
-      this.path = [];
+      this.crumbs = ko.observableArray([]);
       this.defaultTime = { "startTime": "", "endTime": "", "rolling": "10minutes" };
       Connection.init(self.defaultTime);
 
-      this.overview = new Overview();
-      this.modules = [ this.overview ];
-      Connection.updateModules(this.modules);
-
-      api.events.subscribe(function(event) {
-        return event.type == "AtmosStarted" || event.type == "RunStopped";
-      },
-      function(event) {
-        if (event.type == "AtmosStarted") {
-          self.atmosStarted();
-        } else if (event.type == "RunStopped") {
-          if (self.connected()) self.runStopped();
-        }
+      this.navigation = new Overview();
+      this.views = {
+        'actors': { 'contents': new Actors() },
+        'requests': { 'contents': new Requests() }
+      };
+      this.viewer = ko.computed(function() {
+        return self.updateView(self.crumbs());
       });
+
+      api.events.subscribe(
+        function(event) {
+          return event.type == "AtmosStarted" || event.type == "RunStopped";
+        },
+        function(event) {
+          if (event.type == "AtmosStarted") {
+            self.atmosStarted();
+          } else if (event.type == "RunStopped") {
+            if (self.connected()) self.runStopped();
+          }
+        }
+      );
     },
-    atmosStarted: function(event) {
+    atmosStarted: function() {
       var self = this;
       Connection.open(consoleWsUrl, function() {
         self.connected(true);
       });
     },
-    runStopped: function(event) {
+    runStopped: function() {
       Connection.close();
       this.connected(false);
     },
     route: function(path) {
-      // TODO: routing and module loading/unloading based on path
-      this.path = path;
+      this.crumbs(path);
+    },
+    updateView: function(path) {
+      view = this.views[path[0]];
+      modules = view ? [ this.navigation, view.contents ] : [ this.navigation ]
+      Connection.updateModules(modules);
+      return view;
     }
   });
 

@@ -8,26 +8,31 @@ import akka.actor.ActorRef
 import play.api.libs.json._
 import scala.concurrent.{ ExecutionContext, Future }
 
-class OverviewHandler extends RequestHandler {
+class ActorsHandler extends RequestHandler {
   import Responses._
   import ExecutionContext.Implicits.global
 
   def call(receiver: ActorRef, mi: ModuleInformation): Future[(ActorRef, JsValue)] = {
     val timeFilter = mi.time.queryParams
+    val scopeFilter = "&" + mi.scope.queryParams
+    val offset = for { pi ← mi.pagingInformation } yield pi.offset
+    val offsetFilter = "&offset=" + offset.getOrElse("")
     val limit = for { pi ← mi.pagingInformation } yield pi.limit
     val limitFilter = "&limit=" + limit.getOrElse("")
-    val query = timeFilter + limitFilter
+    val sortCommand = for { sc ← mi.sortCommand } yield sc
+    val sortCommandFilter = "&sortOn=" + sortCommand.getOrElse("")
+    val query = timeFilter + scopeFilter + offsetFilter + limitFilter + sortCommandFilter
 
-    val metadataPromise = call(RequestHandler.metadataURL, query)
+    val actorsStatsPromise = call(RequestHandler.actorsURL, query)
 
     for {
-      metadata ← metadataPromise
+      actorsStats ← actorsStatsPromise
     } yield {
-      val result = validateResponse(metadata) match {
+      val result = validateResponse(actorsStats) match {
         case ValidResponse ⇒
-          val data = metadata.json
+          val data = JsObject(Seq("actors" -> actorsStats.json))
           JsObject(Seq(
-            "type" -> JsString("overview"),
+            "type" -> JsString("actors"),
             "data" -> data))
         case InvalidLicense(jsonLicense) ⇒ jsonLicense
         case ErrorResponse(jsonErrorCodes) ⇒ jsonErrorCodes

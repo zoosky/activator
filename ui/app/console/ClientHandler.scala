@@ -4,7 +4,7 @@
 package console
 
 import akka.actor.{ Props, ActorLogging, Actor }
-import console.handler.OverviewHandler
+import console.handler._
 import console.parser.{ SpanParser, TimeParser, TimeQuery }
 import play.api.libs.iteratee.Concurrent
 import play.api.libs.json._
@@ -17,6 +17,7 @@ class ClientHandler extends Actor with ActorLogging {
 
   val jsonHandler = context.actorOf(Props[JsonHandler], "jsonHandler")
   val overviewHandler = context.actorOf(Props[OverviewHandler], "overviewHandler")
+  val actorsHandler = context.actorOf(Props[ActorsHandler], "actorsHandler")
 
   def receive = {
     case Tick ⇒ modules foreach callHandler
@@ -32,6 +33,7 @@ class ClientHandler extends Actor with ActorLogging {
   def callHandler(mi: ModuleInformation) {
     mi.name match {
       case "overview" ⇒ overviewHandler ! mi
+      case "actors" => actorsHandler ! mi
       case _ ⇒ log.debug("Unknown module name: {}", mi.name)
     }
   }

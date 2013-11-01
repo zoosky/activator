@@ -8,23 +8,6 @@
   }
 }
 
-@-webkit-keyframes fadein {
-  0% {
-    opacity: 0;
-    -webkit-transform: translate3d(-100px, 0, 0);
-  }
-  100% {
-    opacity: 1;
-    -webkit-transform: translate3d(0, 0, 0);
-  }
-}
-
-.fast-transition() {
-  -webkit-transition: all 200ms cubic-bezier(0.6, 0, 0.4, 1);
-  -moz-transition: all 200ms cubic-bezier(0.6, 0, 0.4, 1);
-  transition: all 200ms cubic-bezier(0.6, 0, 0.4, 1);
-}
-
 #console {
   position: absolute;
   top: 60px;
@@ -35,31 +18,24 @@
   white-space: nowrap;
   background: @grey;
   z-index: 2;
-  .fast-transition();
 
   .module {
     position: relative;
     vertical-align: top;
     white-space: normal;
+    width: 50%;
     height: 100%;
     display: inline-block;
-    box-shadow: 1px 0 1px rgba(0,0,0,.1);
-    -webkit-transform: translate3d(0, 0, 0);
-    -moz-transform: translate3d(0, 0, 0);
-    transform: translate3d(0, 0, 0);
     background: #fff;
-    &.active {
-      opacity: 1;
-    }
   }
 
-  .overview {
+  .navigation {
     width: 33%;
   }
 
-  .fadein {
-    -webkit-animation: fadein 300ms 1 ease-out;
-    -webkit-animation-fill-mode: both;
+  .viewer {
+    width: 67%;
+    border-left: 1px solid @grey;
   }
 
   .listing {
@@ -130,3 +106,5 @@
   }
 
 }
+
+@import 'actors.less';
