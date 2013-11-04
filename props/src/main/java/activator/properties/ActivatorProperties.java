@@ -46,7 +46,6 @@ public class ActivatorProperties {
   public static String TEMPLATE_UUID_PROPERTY_NAME = "template.uuid";
   public static String SCRIPT_NAME = "activator";
 
-
   public static String APP_VERSION() {
     return props.getProperty("app.version");
   }
@@ -94,12 +93,28 @@ public class ActivatorProperties {
     return getProperty("user.home");
   }
 
-  public static String ACTIVATOR_USER_HOME() {
-    return lookupOr("activator.user.home", getProperty("user.home") + "/.activator/" + APP_ABI_VERSION());
+  // If you need these directories, consider keeping them private
+  // and instead just exporting a value for the final filename
+  // you would construct, like ACTIVATOR_USER_CONFIG_FILE below.
+
+  private static String ACTIVATOR_UNVERSIONED_USER_HOME() {
+    return lookupOr("activator.user.home", getProperty("user.home") + "/.activator");
+  }
+
+  private static String ACTIVATOR_VERSIONED_USER_HOME() {
+    return ACTIVATOR_UNVERSIONED_USER_HOME() + "/" + APP_ABI_VERSION();
+  }
+
+  private static String ACTIVATOR_USER_CONFIG_HOME() {
+    return ACTIVATOR_VERSIONED_USER_HOME();
+  }
+
+  public static String ACTIVATOR_USER_CONFIG_FILE() {
+    return ACTIVATOR_USER_CONFIG_HOME() + "/config.json";
   }
 
   public static String ACTIVATOR_TEMPLATE_CACHE() {
-    return lookupOr("activator.template.cache", ACTIVATOR_USER_HOME() + "/templates");
+    return lookupOr("activator.template.cache", ACTIVATOR_VERSIONED_USER_HOME() + "/templates");
   }
 
   public static String ACTIVATOR_TEMPLATE_LOCAL_REPO() {
@@ -145,11 +160,11 @@ public class ActivatorProperties {
   }
 
   public static java.io.File ACTIVATOR_LOCK_FILE() {
-    return new java.io.File(ACTIVATOR_USER_HOME() + "/.lock");
+    return new java.io.File(ACTIVATOR_VERSIONED_USER_HOME() + "/.lock");
   }
 
   public static java.io.File ACTIVATOR_PID_FILE() {
-    return new java.io.File(ACTIVATOR_USER_HOME() + "/.currentpid");
+    return new java.io.File(ACTIVATOR_VERSIONED_USER_HOME() + "/.currentpid");
   }
 
   public static String SBT_XMX() {
