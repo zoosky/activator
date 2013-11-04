@@ -98,7 +98,7 @@ public class ActivatorProperties {
   // you would construct, like ACTIVATOR_USER_CONFIG_FILE below.
 
   private static String ACTIVATOR_UNVERSIONED_USER_HOME() {
-    return lookupOr("activator.user.home", getPropertyWithOverrides("user.home") + "/.activator");
+    return lookupOr("activator.user.home", GLOBAL_USER_HOME() + "/.activator");
   }
 
   private static String ACTIVATOR_VERSIONED_USER_HOME() {
