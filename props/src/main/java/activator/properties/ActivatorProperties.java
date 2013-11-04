@@ -19,6 +19,11 @@ public class ActivatorProperties {
   }
 
   private static Properties props = loadProperties();
+
+  private static String getPropertyNoOverrides(String name) {
+    return props.getProperty(name);
+  }
+
   /** Checks the system properties, before the environment, before the hard coded defaults. */
   private static String getPropertyWithOverrides(String name) {
     String value = System.getProperty(name);
@@ -29,7 +34,7 @@ public class ActivatorProperties {
       value = System.getenv("ACTIVATOR_" + name.replace('.', '_').toUpperCase());
     }
     if (value == null) {
-      value = props.getProperty(name);
+      value = getPropertyNoOverrides(name);
     }
     return value;
   }
@@ -47,7 +52,7 @@ public class ActivatorProperties {
   public static String SCRIPT_NAME = "activator";
 
   public static String APP_VERSION() {
-    return props.getProperty("app.version");
+    return getPropertyNoOverrides("app.version");
   }
 
   public static String APP_ABI_VERSION() {
@@ -56,11 +61,11 @@ public class ActivatorProperties {
   }
 
   public static String APP_SCALA_VERSION() {
-    return props.getProperty("app.scala.version");
+    return getPropertyNoOverrides("app.scala.version");
   }
 
   public static String SBT_DEFAULT_VERSION() {
-    return props.getProperty("sbt.default.version");
+    return getPropertyNoOverrides("sbt.default.version");
   }
 
   private static String cleanUriFileString(String file) {
