@@ -24,14 +24,22 @@ public class ActivatorProperties {
     return props.getProperty(name);
   }
 
+  // trying to avoid activator.activator.home here
+  private static String ensureNamespacing(String name) {
+    if (name.startsWith("activator."))
+      return name;
+    else
+      return "activator." + name;
+  }
+
   /** Checks the system properties, before the environment, before the hard coded defaults. */
   private static String getPropertyWithOverrides(String name) {
     String value = System.getProperty(name);
     if(value == null) {
-      value = System.getenv("activator." + name);
+      value = System.getenv(ensureNamespacing(name));
     }
     if(value == null) {
-      value = System.getenv("ACTIVATOR_" + name.replace('.', '_').toUpperCase());
+      value = System.getenv(ensureNamespacing(name).replace('.', '_').toUpperCase());
     }
     if (value == null) {
       value = getPropertyNoOverrides(name);
