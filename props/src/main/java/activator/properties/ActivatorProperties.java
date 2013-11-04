@@ -20,7 +20,7 @@ public class ActivatorProperties {
 
   private static Properties props = loadProperties();
   /** Checks the system properties, before the environment, before the hard coded defaults. */
-  private static String getProperty(String name) {
+  private static String getPropertyWithOverrides(String name) {
     String value = System.getProperty(name);
     if(value == null) {
       value = System.getenv("activator." + name);
@@ -36,7 +36,7 @@ public class ActivatorProperties {
 
   /** Looks up a property value, and parses its value as appropriate. */
   private static String lookupOr(String name, String defaultValue) {
-    String value = getProperty(name);
+    String value = getPropertyWithOverrides(name);
     if(value == null) {
       value = defaultValue;
     }
@@ -86,11 +86,11 @@ public class ActivatorProperties {
 
   /** Returns the distribution home directory (or local project) as a URI string. */
   public static String ACTIVATOR_HOME() {
-    return getProperty("activator.home");
+    return getPropertyWithOverrides("activator.home");
   }
 
   public static String GLOBAL_USER_HOME() {
-    return getProperty("user.home");
+    return getPropertyWithOverrides("user.home");
   }
 
   // If you need these directories, consider keeping them private
@@ -98,7 +98,7 @@ public class ActivatorProperties {
   // you would construct, like ACTIVATOR_USER_CONFIG_FILE below.
 
   private static String ACTIVATOR_UNVERSIONED_USER_HOME() {
-    return lookupOr("activator.user.home", getProperty("user.home") + "/.activator");
+    return lookupOr("activator.user.home", getPropertyWithOverrides("user.home") + "/.activator");
   }
 
   private static String ACTIVATOR_VERSIONED_USER_HOME() {
@@ -168,10 +168,10 @@ public class ActivatorProperties {
   }
 
   public static String SBT_XMX() {
-    return getProperty("sbt.Xmx");
+    return getPropertyWithOverrides("sbt.Xmx");
   }
 
   public static String SBT_PERMSIZE() {
-    return getProperty("sbt.PermSize");
+    return getPropertyWithOverrides("sbt.PermSize");
   }
 }
