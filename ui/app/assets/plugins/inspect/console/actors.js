@@ -9,11 +9,27 @@ define(['text!./actors.html', 'core/pluginapi', './widget'], function(template, 
     id: 'console-actors-widget',
     template: template,
     init: function(args) {
+      var self = this;
+      this.columns = [
+        { 'name': 'Actor', 'sortBy': 'actorPath' },
+        { 'name': 'Throughput', 'sortBy': 'throughput' },
+        { 'name': 'Max Mailbox Time', 'sortBy': 'maxTimeInMailbox' },
+        { 'name': 'Max Mailbox Size', 'sortBy': 'maxMailboxSize' },
+        { 'name': 'Deviations', 'sortBy': 'deviation' }
+      ];
+      this.sortBy = ko.observable('actorPath');
+      this.changeSort = function(column) {
+        self.sortBy(column.sortBy);
+      };
       this.actors = ko.observableArray([]);
     },
     dataName: 'actors',
     dataTypes: ['actors'],
-    dataScope: {},
+    dataRequest: function() {
+      return {
+        'sortCommand': this.sortBy()
+      };
+    },
     onData: function(data) {
       newActors = [];
       actorData = data.actors.actors;

@@ -1,12 +1,8 @@
 <div class="actors">
     <table>
         <thead>
-            <tr>
-                <th><span>Actor</span></th>
-                <th class="right"><span>Throughput</span></th>
-                <th class="right"><span>Max Mailbox Time</span></th>
-                <th class="right"><span>Max Mailbox Size</span></th>
-                <th class="right"><span>Deviations</span></th>
+            <tr data-bind="foreach: columns">
+                <th><span data-bind="text: name, click: $root.changeSort, css: { sortBy: sortBy == $root.sortBy() }"></span></th>
             </tr>
         </thead>
         <tbody class="listing" data-bind="foreach: actors">

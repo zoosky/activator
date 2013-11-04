@@ -82,14 +82,13 @@ define ->
       @request.modules = []
 
       for index, module of @modules
-        # Get connection parameters
-        if module.dataScope
-          currentScope = module.dataScope
-          # We copy the previous object's scope
-          if @request.modules.length > 0
-            previousScope = @request.modules[ @request.modules.length - 1 ].scope
-            currentScope = $.extend({}, previousScope, currentScope)
-          @request.modules.push({ name: module.dataName, scope: currentScope })
+        if module.dataRequest
+          moduleRequest = module.dataRequest()
+          if !moduleRequest.name
+            moduleRequest.name = module.dataName
+          if !moduleRequest.scope
+            moduleRequest.scope = {}
+          @request.modules.push(moduleRequest)
 
       @update()
       @

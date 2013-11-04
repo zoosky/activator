@@ -5,7 +5,7 @@ define(['core/utils', 'core/widget'], function(utils, Widget) {
   var ConsoleWidget = utils.Class(Widget, {
     dataName: '',
     dataTypes: [],
-    dataScope: {},
+    dataRequest: function() { return {}; },
     onData: function() {}
   })
   return ConsoleWidget;

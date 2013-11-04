@@ -1,4 +1,5 @@
 @import 'colors.less';
+@import 'icons.less';
 
 #console {
   .actors {
@@ -17,7 +18,7 @@
           &:last-child {
             padding-right: 10px;
           }
-          &.right {
+          & + th, + td, .right {
             text-align: right;
           }
         }
@@ -38,6 +39,18 @@
               line-height: 30px;
               cursor: pointer;
               white-space: nowrap;
+              &.sortBy {
+                color: @red;
+                margin-left: 0 !important;
+                .iconSmall("\25be", @red, icons);
+                &:before {
+                  float: none;
+                  width: 16px;
+                  height: 16px;
+                  display: inline-block;
+                  vertical-align: top;
+                }
+              }
             }
             &.right span {
               margin-left: 16px;

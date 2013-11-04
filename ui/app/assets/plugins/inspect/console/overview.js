@@ -13,7 +13,6 @@ define(['text!./overview.html', 'core/pluginapi', './widget'], function(template
     },
     dataName: 'overview',
     dataTypes: ['overview'],
-    dataScope: {},
     onData: function(data) {
       this.actorCount(window.format.shortenNumber(data.actorPathCount));
     }

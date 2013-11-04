@@ -13,7 +13,6 @@ define(['text!./requests.html', 'core/pluginapi', './widget'], function(template
     },
     dataName: '',
     dataTypes: [''],
-    dataScope: {},
     onData: function(data) {
 
     }
