@@ -36,11 +36,11 @@ define(['webjars!knockout'], function(ko) {
     });
     // put in the new one
     markers.push(marker);
-    console.log("file markers for '" + filename + "' now ", markers());
+    logging &&console.log("file markers for '" + filename + "' now ", markers());
   }
 
   function clearFileMarkers(ownerId) {
-    console.log("clearing file markers for ", ownerId);
+    logging &&console.log("clearing file markers for ", ownerId);
     $.each(fileMarkers, function(filename, markers) {
       markers.remove(function(item) {
         return item.owner == ownerId;

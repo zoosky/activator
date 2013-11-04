@@ -1,7 +1,7 @@
 /*
  Copyright (C) 2013 Typesafe, Inc <http://typesafe.com>
  */
-define(['webjars!knockout', './router', './tutorial/tutorial', './widgets/log'], function(ko, router, Tutorial, log) {
+define(['webjars!knockout', './router', './settings', './tutorial/tutorial', './widgets/log'], function(ko, router, settings, Tutorial, log) {
   // Model for the whole app view; created in two parts
   // so that this first part is available during construction
   // of the second part.
@@ -11,6 +11,9 @@ define(['webjars!knockout', './router', './tutorial/tutorial', './widgets/log'],
     tutorial: new Tutorial(),
     snap: {
       activeWidget: ko.observable(""),
+      navigationOpened: ko.observable( settings.get("app.navigationOpened", true) ),
+      pannelOpened: ko.observable( settings.get("app.pannelOpened", false) ),
+      pannelShape: ko.observable( settings.get("app.pannelShape", "right1") ),
       pageTitle: ko.observable(),
       // TODO load last value from somewhere until we get a message from the iframe
       signedIn: ko.observable(false),
@@ -19,6 +22,14 @@ define(['webjars!knockout', './router', './tutorial/tutorial', './widgets/log'],
         hasAkka: ko.observable(false),
         hasPlay: ko.observable(false),
         hasConsole: ko.observable(false)
+      },
+      toggleNavigation: function(){
+        this.snap.navigationOpened(!this.snap.navigationOpened());
+        settings.set("app.navigationOpened", this.snap.navigationOpened());
+      },
+      togglePannel: function(){
+        this.snap.pannelOpened(!this.snap.pannelOpened());
+        settings.set("app.pannelOpened", this.snap.pannelOpened());
       }
     },
     logModel: new log.Log(),

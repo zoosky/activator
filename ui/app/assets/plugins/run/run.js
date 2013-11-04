@@ -82,21 +82,21 @@ define(['core/model', 'text!./run.html', 'core/pluginapi', 'core/widgets/log', '
       // the spaghetti here is getting really, really bad.
       function taskCompleteShouldWeAbort() {
         if (!self.haveActiveTask())
-          console.log("BUG should not call this without an active task");
+          logging &&console.log("BUG should not call this without an active task");
         var weWereStopped = (self.activeTask() == self.stoppingTaskId);
 
         // clear out our task always
         self.activeTask('');
 
         if (self.restartPending()) {
-          console.log("Need to start over due to restart");
+          logging &&console.log("Need to start over due to restart");
           self.logModel.debug("Restarting...");
           self.restartPending(false);
           self.loadMainClasses(success, failure);
           // true = abort abort
           return true;
         } else if (weWereStopped) {
-          console.log("Stopped, restart not requested");
+          logging &&console.log("Stopped, restart not requested");
           self.logModel.debug("Stopped");
           // true = abort abort
           return true;
@@ -110,11 +110,11 @@ define(['core/model', 'text!./run.html', 'core/pluginapi', 'core/widgets/log', '
       var taskId = sbt.runTask({
         task: 'discovered-main-classes',
         onmessage: function(event) {
-          console.log("event discovering main classes", event);
+          logging &&console.log("event discovering main classes", event);
           self.logModel.event(event);
         },
         success: function(data) {
-          console.log("discovered main classes result", data);
+          logging &&console.log("discovered main classes result", data);
 
           if (taskCompleteShouldWeAbort())
             return;
@@ -140,11 +140,11 @@ define(['core/model', 'text!./run.html', 'core/pluginapi', 'core/widgets/log', '
           var taskId = sbt.runTask({
             task: 'main-class',
             onmessage: function(event) {
-              console.log("event getting default main class", event);
+              logging &&console.log("event getting default main class", event);
               self.logModel.event(event);
             },
             success: function(data) {
-              console.log("default main class result", data);
+              logging &&console.log("default main class result", data);
 
               if (taskCompleteShouldWeAbort())
                 return;
@@ -165,7 +165,7 @@ define(['core/model', 'text!./run.html', 'core/pluginapi', 'core/widgets/log', '
             failure: function(status, message) {
               // a common reason for fail is that sbt tried to ask /dev/null to
               // pick a main class manually.
-              console.log("getting default main class failed", message);
+              logging &&console.log("getting default main class failed", message);
 
               if (taskCompleteShouldWeAbort())
                 return;
@@ -178,7 +178,7 @@ define(['core/model', 'text!./run.html', 'core/pluginapi', 'core/widgets/log', '
           self.activeTask(taskId);
         },
         failure: function(status, message) {
-          console.log("getting main classes failed", message);
+          logging &&console.log("getting main classes failed", message);
 
           if (taskCompleteShouldWeAbort())
             return;
@@ -192,13 +192,13 @@ define(['core/model', 'text!./run.html', 'core/pluginapi', 'core/widgets/log', '
     onCompileSucceeded: function(event) {
       var self = this;
 
-      console.log("Compile succeeded - marking need to reload main class info");
+      logging &&console.log("Compile succeeded - marking need to reload main class info");
       self.reloadMainClassPending(true);
       if (self.rerunOnBuild()) {
-        console.log("Restarting due to completed compile");
+        logging &&console.log("Restarting due to completed compile");
         self.doRestart();
       } else {
-        console.log("Run-on-compile not enabled, but we want to load main classes to fill in the option menu.");
+        logging &&console.log("Run-on-compile not enabled, but we want to load main classes to fill in the option menu.");
         self.doMainClassLoadThenMaybeRun(false /* shouldWeRun */);
       }
     },
@@ -240,17 +240,17 @@ define(['core/model', 'text!./run.html', 'core/pluginapi', 'core/widgets/log', '
       // update our list of main classes
       this.loadMainClasses(function(data) {
         // SUCCESS
-        console.log("GOT main class info ", data);
+        logging &&console.log("GOT main class info ", data);
 
         // hack because run-main doesn't work on Play right now.
         if (model.snap.app.hasPlay()) {
-          console.log("OVERRIDING main class info due to Play app; dropping it all");
+          logging &&console.log("OVERRIDING main class info due to Play app; dropping it all");
           data.name = '';
           data.names = [];
         }
 
         self.defaultMainClass(data.name);
-        console.log("Set default main class to " + self.defaultMainClass());
+        logging &&console.log("Set default main class to " + self.defaultMainClass());
         // ensure the default configured class is in the menu
         if (self.defaultMainClass() != '' && data.names.indexOf(self.defaultMainClass()) < 0)
           data.names.push(self.defaultMainClass());
@@ -262,40 +262,40 @@ define(['core/model', 'text!./run.html', 'core/pluginapi', 'core/widgets/log', '
           actualCurrent = '';
         var newCurrent = '';
 
-        console.log("Current main class was: '" + actualCurrent + "'");
+        logging &&console.log("Current main class was: '" + actualCurrent + "'");
         // so here's where knockout makes currentMainClass into something crazy
         self.mainClasses(data.names);
-        console.log("Set main class options to " + self.mainClasses());
+        logging &&console.log("Set main class options to " + self.mainClasses());
 
         // only force current selection to change if it's no longer
         // discovered AND no longer explicitly configured in the build.
         if (actualCurrent != '' && self.mainClasses().indexOf(actualCurrent) >= 0) {
           newCurrent = actualCurrent;
-          console.log("Keeping current main class since it still exists: '" + newCurrent + "'");
+          logging &&console.log("Keeping current main class since it still exists: '" + newCurrent + "'");
         }
 
         // if no existing setting, try to set it
         if (newCurrent == '') {
           if (self.defaultMainClass() != '') {
-            console.log("Setting current main class to the default " + self.defaultMainClass());
+            logging &&console.log("Setting current main class to the default " + self.defaultMainClass());
             newCurrent = self.defaultMainClass();
           } else if (self.mainClasses().length > 0) {
-            console.log("Setting current main class to the first in our list");
+            logging &&console.log("Setting current main class to the first in our list");
             newCurrent = self.mainClasses()[0];
           } else {
-            console.log("We have nothing to set the current main class to");
+            logging &&console.log("We have nothing to set the current main class to");
             newCurrent = '';
           }
         }
 
-        console.log("Current main class is now: '" + newCurrent + "'");
+        logging &&console.log("Current main class is now: '" + newCurrent + "'");
         self.currentMainClass(newCurrent);
 
         afterLoadMainClasses();
       },
       function(status, message) {
         // FAIL
-        console.log("FAILED to set up main classes");
+        logging &&console.log("FAILED to set up main classes");
         afterLoadMainClasses();
       });
     },
@@ -358,7 +358,7 @@ define(['core/model', 'text!./run.html', 'core/pluginapi', 'core/widgets/log', '
           }
         },
         success: function(data) {
-          console.log("run result: ", data);
+          logging &&console.log("run result: ", data);
           if (data.type == 'GenericResponse') {
             self.logModel.info('Run complete.');
             self.status('Run complete');
@@ -368,7 +368,7 @@ define(['core/model', 'text!./run.html', 'core/pluginapi', 'core/widgets/log', '
           self.doAfterRun();
         },
         failure: function(status, message) {
-          console.log("run failed: ", status, message)
+          logging &&console.log("run failed: ", status, message)
           self.status('Run failed');
           self.logModel.error("Failed: " + status + ": " + message);
           self.doAfterRun();
@@ -389,11 +389,11 @@ define(['core/model', 'text!./run.html', 'core/pluginapi', 'core/widgets/log', '
         sbt.killTask({
           taskId: self.activeTask(),
           success: function(data) {
-            console.log("kill success: ", data);
+            logging &&console.log("kill success: ", data);
             api.events.send({ 'type' : 'RunStopped' });
           },
           failure: function(status, message) {
-            console.log("kill failed: ", status, message)
+            logging &&console.log("kill failed: ", status, message)
             self.status('Unable to stop');
             self.logModel.error("HTTP request to kill task failed: " + message)
           }
@@ -401,7 +401,7 @@ define(['core/model', 'text!./run.html', 'core/pluginapi', 'core/widgets/log', '
       }
     },
     startStopButtonClicked: function(self) {
-      console.log("Start or Stop was clicked");
+      logging &&console.log("Start or Stop was clicked");
       if (self.haveActiveTask()) {
         // stop
         self.restartPending(false);
@@ -420,7 +420,7 @@ define(['core/model', 'text!./run.html', 'core/pluginapi', 'core/widgets/log', '
       }
     },
     restartButtonClicked: function(self) {
-      console.log("Restart was clicked");
+      logging &&console.log("Restart was clicked");
       self.doRestart();
     },
     onPreDeactivate: function() {

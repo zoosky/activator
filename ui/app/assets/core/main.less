@@ -1,0 +1,72 @@
+@import "../commons/_reset";
+@import "../commons/_vars";
+@import "../commons/_helpers";
+@import "../commons/_base";
+
+html, body {
+  width: 100%;
+  height: 100%;
+}
+
+body {
+  background: @grey;
+  color: @grey-dkr;
+  font: 500 14px/1em "Helvetica Neue", "Helvetica", sans-serif;
+  -webkit-font-smoothing: antialiased;
+  overflow: hidden;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;   
+}
+
+button {
+  cursor: pointer;
+}
+
+h1, h2, h3, h4, h5, h6, dt {
+  font-family: "HelveticaNeue-CondensedBold", "Open Sans Condensed", "Helvetica", sans-serif;
+  font-weight: bold;
+  font-stretch: condensed;
+  letter-spacing: -0.03em;
+  font-weight: 700;
+}
+
+main {
+  & > * {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    .transition(300ms);
+  }
+}
+
+
+// @import "../plugins/api/_api";
+// @import "../plugins/community/_community";
+// @import "../plugins/documentation/_documentation";
+// @import "../plugins/errors/_errors";
+// @import "../plugins/help/_help";
+// @import "../plugins/home/_home";
+// @import "../plugins/source/_source";
+// @import "../plugins/tutorials/_tutorials";
+
+@import "../widgets/breadcrumb/_breadcrumb";
+@import "../widgets/buttons/_button";
+@import "../widgets/buttons/_dropdown";
+@import "../widgets/header/_header";
+@import "../widgets/layout/_layout";
+// @import "../widgets/code/_code";
+// @import "../widgets/lists/_list";
+// @import "../widgets/lists/_menu";
+// @import "../widgets/lists/_browser";
+@import "../widgets/login/_login";
+@import "../widgets/modals/_modals";
+@import "../widgets/pannels/_pannels";
+@import "../widgets/modals/_tooltip";
+@import "../widgets/navigation/_navigation";
+@import "../widgets/omnisearch/_omnisearch";
+@import "../widgets/typesafe/_typesafe";
+
