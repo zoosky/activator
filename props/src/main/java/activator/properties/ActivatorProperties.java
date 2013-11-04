@@ -185,12 +185,4 @@ public class ActivatorProperties {
   public static java.io.File ACTIVATOR_PID_FILE() {
     return new java.io.File(ACTIVATOR_VERSIONED_USER_HOME() + "/.currentpid");
   }
-
-  public static String SBT_XMX() {
-    return requirePropertyWithOverrides("sbt.Xmx");
-  }
-
-  public static String SBT_PERMSIZE() {
-    return requirePropertyWithOverrides("sbt.PermSize");
-  }
 }
