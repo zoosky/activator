@@ -7,7 +7,7 @@ import com.typesafe.sbt.SbtGit
 
 object ActivatorBuild {
   // Don't calculate versions EVERYWHERE, just in global...
-	def baseVersions: Seq[Setting[_]] = SbtGit.versionWithGit
+  def baseVersions: Seq[Setting[_]] = SbtGit.versionWithGit
 
   def formatPrefs = {
     import scalariform.formatter.preferences._
