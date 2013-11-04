@@ -43,16 +43,8 @@
       position: relative;
       cursor: pointer;
       padding: 10px;
-      border-top: 1px solid @grey;
+      border-bottom: 1px solid @grey;
       .clear-after();
-
-      &:first-child {
-        border-top: none;
-      }
-
-      &:last-child {
-        border-bottom: 1px solid @grey;
-      }
 
       &.active, &:hover {
         background: @grey_alt;

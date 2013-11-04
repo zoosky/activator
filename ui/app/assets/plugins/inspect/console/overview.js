@@ -9,12 +9,17 @@ define(['text!./overview.html', 'core/pluginapi', './widget'], function(template
     id: 'console-overview-widget',
     template: template,
     init: function(args) {
-      this.actorCount = ko.observable('-');
+      var self = this;
+      this.actors = ko.observable(0);
+      this.requests = ko.observable(0);
     },
     dataName: 'overview',
     dataTypes: ['overview'],
     onData: function(data) {
-      this.actorCount(window.format.shortenNumber(data.actorPathCount));
+      this.actors(data.actorPathCount);
+    },
+    shorten: function(count) {
+      return format.shortenNumber(count);
     }
   });
 
