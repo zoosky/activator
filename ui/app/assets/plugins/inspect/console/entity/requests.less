@@ -1,8 +1,7 @@
-@import 'colors.less';
-@import 'icons.less';
+@import '../colors';
 
 #console {
-  .actors {
+  .requests {
     table {
       font-size: 1.2em;
       width: 100%;
@@ -18,7 +17,7 @@
           &:last-child {
             padding-right: 10px;
           }
-          & + th, + td, .right {
+          &.right {
             text-align: right;
           }
         }
@@ -39,18 +38,6 @@
               line-height: 30px;
               cursor: pointer;
               white-space: nowrap;
-              &.sortBy {
-                color: @red;
-                margin-left: 0 !important;
-                .iconSmall("\25be", @red, icons);
-                &:before {
-                  float: none;
-                  width: 16px;
-                  height: 16px;
-                  display: inline-block;
-                  vertical-align: top;
-                }
-              }
             }
             &.right span {
               margin-left: 16px;
@@ -82,23 +69,6 @@
           &.active td, &:active td {
             background-color: @grey_alt;
           }
-        }
-      }
-      .deviation-counter {
-        background: @red;
-        color: #fff;
-        font-size: 13px;
-        font-weight: bold;
-        line-height: 13px;
-        padding: 3px;
-        border: 1px solid rgba(255, 255, 255, .5);
-        border-radius: 3px;
-        min-width: 24px;
-        text-align: center;
-        display: inline-block;
-        vertical-align: text-top;
-        &:empty {
-          display: none;
         }
       }
     }

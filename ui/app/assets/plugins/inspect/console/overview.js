@@ -17,6 +17,7 @@ define(['text!./overview.html', 'core/pluginapi', './widget'], function(template
     dataTypes: ['overview'],
     onData: function(data) {
       this.actors(data.actorPathCount);
+      this.requests(data.playPatternCount);
     },
     shorten: function(count) {
       return format.shortenNumber(count);
