@@ -44,7 +44,6 @@ public class ActivatorProperties {
   }
 
   public static String TEMPLATE_UUID_PROPERTY_NAME = "template.uuid";
-  public static String ABI_VERSION_PROPERTY_NAME = "activator.abi.version";
   public static String SCRIPT_NAME = "activator";
 
 
