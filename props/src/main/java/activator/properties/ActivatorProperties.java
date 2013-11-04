@@ -48,11 +48,25 @@ public class ActivatorProperties {
     return value;
   }
 
+  private static String requirePropertyWithOverrides(String name) {
+    String value = getPropertyWithOverrides(name);
+    if (value == null)
+      throw new RuntimeException("Property '" + name + "' has not been set");
+    return value;
+  }
+
+  private static String requirePropertyNoOverrides(String name) {
+    String value = getPropertyNoOverrides(name);
+    if (value == null)
+      throw new RuntimeException("Property '" + name + "' has not been set");
+    return value;
+  }
+
   public static String TEMPLATE_UUID_PROPERTY_NAME = "template.uuid";
   public static String SCRIPT_NAME = "activator";
 
   public static String APP_VERSION() {
-    return getPropertyNoOverrides("app.version");
+    return requirePropertyNoOverrides("app.version");
   }
 
   public static String APP_ABI_VERSION() {
@@ -61,11 +75,11 @@ public class ActivatorProperties {
   }
 
   public static String APP_SCALA_VERSION() {
-    return getPropertyNoOverrides("app.scala.version");
+    return requirePropertyNoOverrides("app.scala.version");
   }
 
   public static String SBT_DEFAULT_VERSION() {
-    return getPropertyNoOverrides("sbt.default.version");
+    return requirePropertyNoOverrides("sbt.default.version");
   }
 
   private static String cleanUriFileString(String file) {
@@ -91,11 +105,11 @@ public class ActivatorProperties {
 
   /** Returns the distribution home directory (or local project) as a URI string. */
   public static String ACTIVATOR_HOME() {
-    return getPropertyWithOverrides("activator.home");
+    return requirePropertyWithOverrides("activator.home");
   }
 
   public static String GLOBAL_USER_HOME() {
-    return getPropertyWithOverrides("user.home");
+    return requirePropertyWithOverrides("user.home");
   }
 
   // If you need these directories, consider keeping them private
@@ -173,10 +187,10 @@ public class ActivatorProperties {
   }
 
   public static String SBT_XMX() {
-    return getPropertyWithOverrides("sbt.Xmx");
+    return requirePropertyWithOverrides("sbt.Xmx");
   }
 
   public static String SBT_PERMSIZE() {
-    return getPropertyWithOverrides("sbt.PermSize");
+    return requirePropertyWithOverrides("sbt.PermSize");
   }
 }
