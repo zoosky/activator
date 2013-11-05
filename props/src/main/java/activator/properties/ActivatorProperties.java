@@ -133,11 +133,21 @@ public class ActivatorProperties {
   }
 
   private static String ACTIVATOR_USER_CONFIG_HOME() {
-    return ACTIVATOR_VERSIONED_USER_HOME();
+    return ACTIVATOR_UNVERSIONED_USER_HOME() + "/"
+        + requirePropertyWithOverrides("app.config.version");
+  }
+
+  private static String ACTIVATOR_PREVIOUS_USER_CONFIG_HOME() {
+    return ACTIVATOR_UNVERSIONED_USER_HOME() + "/"
+        + requirePropertyWithOverrides("app.config.previousVersion");
   }
 
   public static String ACTIVATOR_USER_CONFIG_FILE() {
     return ACTIVATOR_USER_CONFIG_HOME() + "/config.json";
+  }
+
+  public static String ACTIVATOR_PREVIOUS_USER_CONFIG_FILE() {
+    return ACTIVATOR_PREVIOUS_USER_CONFIG_HOME() + "/config.json";
   }
 
   public static String ACTIVATOR_TEMPLATE_CACHE() {
