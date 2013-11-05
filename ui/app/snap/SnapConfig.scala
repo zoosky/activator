@@ -7,7 +7,7 @@ import play.api.libs.json._
 import scala.concurrent._
 import ExecutionContext.Implicits.global
 import java.io._
-import activator.properties.ActivatorProperties.ACTIVATOR_USER_HOME
+import activator.properties.ActivatorProperties.ACTIVATOR_USER_CONFIG_FILE
 import scala.concurrent.duration._
 import sbt.IO
 
@@ -38,7 +38,7 @@ object RootConfig {
   implicit val writes = Json.writes[RootConfig]
   implicit val reads = Json.reads[RootConfig]
 
-  private def loadUser = ConfigFile(new File(ACTIVATOR_USER_HOME(), "config.json"))
+  private def loadUser = ConfigFile(new File(ACTIVATOR_USER_CONFIG_FILE))
 
   // volatile because we read it unsynchronized. we don't care
   // which one we get, just something sane. Also double-checked

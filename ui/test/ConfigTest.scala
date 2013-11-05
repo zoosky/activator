@@ -7,7 +7,7 @@ import snap.AppConfig
 import java.io.File
 import scala.concurrent._
 import scala.concurrent.duration._
-import activator.properties.ActivatorProperties.ACTIVATOR_USER_HOME
+import activator.properties.ActivatorProperties.ACTIVATOR_USER_CONFIG_FILE
 import java.io.FileOutputStream
 
 // these tests are all synchronized because they are testing
@@ -16,7 +16,7 @@ class ConfigTest {
 
   @Before
   def beforeEachTest(): Unit = {
-    val d = new File(ACTIVATOR_USER_HOME())
+    val d = (new File(ACTIVATOR_USER_CONFIG_FILE())).getParentFile()
     d.mkdirs()
 
     if (!d.exists() || !d.isDirectory())
@@ -74,7 +74,7 @@ class ConfigTest {
 
   @Test
   def testRecoveringFromBrokenFile(): Unit = synchronized {
-    val file = new File(ACTIVATOR_USER_HOME(), "config.json")
+    val file = new File(ACTIVATOR_USER_CONFIG_FILE)
     try {
       file.delete()
 
@@ -121,7 +121,7 @@ class ConfigTest {
 
   @Test
   def testRecoveringFromEmptyJsonFile(): Unit = synchronized {
-    val file = new File(ACTIVATOR_USER_HOME(), "config.json")
+    val file = new File(ACTIVATOR_USER_CONFIG_FILE)
     try {
       file.delete()
 
