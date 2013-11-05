@@ -27,6 +27,9 @@ define(['core/model', 'text!./run.html', 'core/pluginapi', 'core/widgets/log', '
       this.haveActiveTask = ko.computed(function() {
         return self.activeTask() != "";
       }, this);
+      this.haveActiveTask.subscribe(function(active) {
+        if (!active) api.events.send({ 'type' : 'RunStopped' });
+      });
       this.startStopLabel = ko.computed(function() {
         if (self.haveActiveTask())
           return "Stop";
@@ -390,7 +393,6 @@ define(['core/model', 'text!./run.html', 'core/pluginapi', 'core/widgets/log', '
           taskId: self.activeTask(),
           success: function(data) {
             console.log("kill success: ", data);
-            api.events.send({ 'type' : 'RunStopped' });
           },
           failure: function(status, message) {
             console.log("kill failed: ", status, message)
