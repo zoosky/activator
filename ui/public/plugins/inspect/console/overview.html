@@ -1,5 +1,5 @@
 <ul class="listing">
-    <li data-bind="visible: actors() > 0">
+    <li data-bind="visible: actors() > 0, css: { active: active() == 'actors' }">
         <h2>
             <a href="#inspect/actors">
                 <span class="label">Actors</span>
@@ -7,7 +7,7 @@
             </a>
         </h2>
     </li>
-    <li data-bind="visible: requests() > 0">
+    <li data-bind="visible: requests() > 0, css: { active: active() == 'requests' }">
         <h2>
             <a href="#inspect/requests">
                 <span class="label">Requests</span>

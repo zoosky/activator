@@ -54,7 +54,9 @@ define(['text!./console.html', 'css!./console.css', 'core/pluginapi', './connect
       this.crumbs(path);
     },
     updateView: function(path) {
-      view = this.views[path[0]];
+      name = path[0];
+      view = this.views[name];
+      if (view) this.navigation.active(name);
       modules = view ? [ this.navigation, view.contents ] : [ this.navigation ]
       Connection.updateModules(modules);
       return view;

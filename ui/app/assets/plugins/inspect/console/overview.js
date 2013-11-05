@@ -13,6 +13,7 @@ define(['text!./overview.html', 'core/pluginapi', './widget'], function(template
       this.actors = ko.observable(0);
       this.requests = ko.observable(0);
     },
+    active: ko.observable(''),
     dataName: 'overview',
     dataTypes: ['overview'],
     onData: function(data) {
