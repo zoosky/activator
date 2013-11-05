@@ -2,30 +2,45 @@ package test
 
 import org.junit.Assert._
 import org.junit._
-import snap.RootConfig
+import snap.RootConfigOps
 import snap.AppConfig
 import java.io.File
 import scala.concurrent._
 import scala.concurrent.duration._
-import activator.properties.ActivatorProperties.ACTIVATOR_USER_CONFIG_FILE
 import java.io.FileOutputStream
 
+object TestRootConfig extends RootConfigOps {
+  val scratchHome = (new File("target/config-test-scratch")).getCanonicalFile
+  val configHome = new File(scratchHome, "X.NEW")
+
+  // has to be lazy because trait uses it to init
+  override lazy val userConfigFile =
+    new File(configHome, "config.json")
+
+  def ensureDirsExist(): Unit = {
+    def ensureDir(d: File): Unit = {
+      d.mkdirs()
+
+      if (!d.exists() || !d.isDirectory())
+        throw new Exception("failed to create " + d)
+    }
+    ensureDir(configHome)
+  }
+}
+
 // these tests are all synchronized because they are testing
-// behavior of global state (RootConfig.user).
+// behavior of global state (TestRootConfig.user).
 class ConfigTest {
 
   @Before
-  def beforeEachTest(): Unit = {
-    val d = (new File(ACTIVATOR_USER_CONFIG_FILE())).getParentFile()
-    d.mkdirs()
-
-    if (!d.exists() || !d.isDirectory())
-      throw new Exception("failed to create " + d)
+  def beforeEachTest(): Unit = synchronized {
+    TestRootConfig.userConfigFile.delete()
+    TestRootConfig.ensureDirsExist()
   }
 
   @Test
   def testUserConfig(): Unit = synchronized {
-    val rewritten = RootConfig.rewriteUser { old =>
+    val rewritten = TestRootConfig.rewriteUser { old =>
       val appList = if (old.applications.exists(_.location.getPath == "foo"))
         old.applications
       else
@@ -33,12 +48,12 @@ class ConfigTest {
       old.copy(applications = appList)
     }
     Await.ready(rewritten, 5.seconds)
-    val c = RootConfig.user
+    val c = TestRootConfig.user
     assertTrue("app 'foo' now in user config", c.applications.exists(_.location.getPath == "foo"))
   }
 
   def removeProjectName(): Unit = {
-    val rewritten = RootConfig.rewriteUser { old =>
+    val rewritten = TestRootConfig.rewriteUser { old =>
       val withNoName = old.applications
         .find(_.location.getPath == "foo")
         .getOrElse(AppConfig(new File("foo"), "id"))
@@ -48,7 +63,7 @@ class ConfigTest {
       old.copy(applications = appList)
     }
     Await.ready(rewritten, 5.seconds)
-    val c = RootConfig.user
+    val c = TestRootConfig.user
     assertTrue("app 'foo' now in user config with no name",
       c.applications.exists({ p => p.location.getPath == "foo" && p.cachedName.isEmpty }))
   }
@@ -57,7 +72,7 @@ class ConfigTest {
   def testAddingProjectName(): Unit = synchronized {
     removeProjectName()
 
-    val rewritten = RootConfig.rewriteUser { old =>
+    val rewritten = TestRootConfig.rewriteUser { old =>
       val withName = old.applications
         .find(_.location.getPath == "foo")
         .getOrElse(AppConfig(new File("foo"), "id"))
@@ -67,14 +82,14 @@ class ConfigTest {
       old.copy(applications = appList)
     }
     Await.ready(rewritten, 5.seconds)
-    val c = RootConfig.user
+    val c = TestRootConfig.user
     assertTrue("app 'foo' now in user config with a name",
       c.applications.exists({ p => p.location.getPath == "foo" && p.cachedName == Some("Hello World") }))
   }
 
   @Test
   def testRecoveringFromBrokenFile(): Unit = synchronized {
-    val file = new File(ACTIVATOR_USER_CONFIG_FILE)
+    val file = TestRootConfig.userConfigFile
     try {
       file.delete()
 
@@ -82,10 +97,10 @@ class ConfigTest {
       stream.write("{ invalid json! ]".getBytes())
       stream.close()
 
-      RootConfig.forceReload()
+      TestRootConfig.forceReload()
 
       val e = try {
-        RootConfig.user
+        TestRootConfig.user
         throw new AssertionError("We expected to get an exception and not reach here (first time)")
       } catch {
         case e: Exception => e
@@ -95,7 +110,7 @@ class ConfigTest {
 
       // bad json is still there, so things should still fail...
       val e2 = try {
-        RootConfig.user
+        TestRootConfig.user
         throw new AssertionError("We expected to get an exception and not reach here (second time)")
       } catch {
         case e: Exception => e
@@ -108,7 +123,7 @@ class ConfigTest {
         throw new AssertionError("failed to delete " + file.getAbsolutePath())
 
       try {
-        assertTrue("loaded an empty config after recovering from corrupt one", RootConfig.user.applications.isEmpty)
+        assertTrue("loaded an empty config after recovering from corrupt one", TestRootConfig.user.applications.isEmpty)
       } catch {
         case e: Exception =>
           throw new AssertionError("should not have had an error loading empty config", e)
@@ -121,7 +136,7 @@ class ConfigTest {
 
   @Test
   def testRecoveringFromEmptyJsonFile(): Unit = synchronized {
-    val file = new File(ACTIVATOR_USER_CONFIG_FILE)
+    val file = TestRootConfig.userConfigFile
     try {
       file.delete()
 
@@ -129,10 +144,10 @@ class ConfigTest {
       stream.write("{}".getBytes())
       stream.close()
 
-      RootConfig.forceReload()
+      TestRootConfig.forceReload()
 
       val e = try {
-        RootConfig.user
+        TestRootConfig.user
         throw new AssertionError("We expected to get an exception and not reach here (first time)")
       } catch {
         case e: Exception => e
@@ -142,7 +157,7 @@ class ConfigTest {
 
       // bad json is still there, so things should still fail...
       val e2 = try {
-        RootConfig.user
+        TestRootConfig.user
         throw new AssertionError("We expected to get an exception and not reach here (second time)")
       } catch {
         case e: Exception => e
@@ -155,7 +170,7 @@ class ConfigTest {
         throw new AssertionError("failed to delete " + file.getAbsolutePath())
 
       try {
-        assertTrue("loaded an empty config after recovering from corrupt one", RootConfig.user.applications.isEmpty)
+        assertTrue("loaded an empty config after recovering from corrupt one", TestRootConfig.user.applications.isEmpty)
       } catch {
         case e: Exception =>
           throw new AssertionError("should not have had an error loading empty config", e)
