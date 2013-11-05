@@ -1,7 +1,7 @@
 /*
  Copyright (C) 2013 Typesafe, Inc <http://typesafe.com>
  */
-define(['text!./console.html', 'css!./console.css', 'core/pluginapi', './connection', './overview', './entity/actors', './entity/requests', './utils'],
+define(['text!./console.html', 'css!./console.css', 'core/pluginapi', './connection', './overview', './entity/actors', './entity/requests'],
   function(template, css, api, Connection, Overview, Actors, Requests) {
 
   var ko = api.ko;

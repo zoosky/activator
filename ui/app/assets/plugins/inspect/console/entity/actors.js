@@ -1,7 +1,7 @@
 /*
  Copyright (C) 2013 Typesafe, Inc <http://typesafe.com>
  */
-define(['text!./actors.html', 'core/pluginapi', './../widget'], function(template, api, ConsoleWidget) {
+define(['text!./actors.html', 'core/pluginapi', '../widget', '../format'], function(template, api, ConsoleWidget, format) {
 
   var ko = api.ko;
 
@@ -47,7 +47,7 @@ define(['text!./actors.html', 'core/pluginapi', './../widget'], function(templat
           var prefix = fullPath ? elements : [];
           var messageRate = a.totalMessageRate || 0;
           var throughput = format.units('messages/second', messageRate, formatUnits);
-          var maxTimeInMailbox = format.units(a.maxTimeInMailboxUnit, a.maxTimeInMailbox, formatUnits)
+          var maxTimeInMailbox = format.units(a.maxTimeInMailboxUnit, a.maxTimeInMailbox, formatUnits);
           var maxMailboxSize = a.maxMailboxSize;
           var deviationCount = a.errorCount + a.warningCount + a.deadLetterCount + a.unhandledMessageCount;
           var deviations = deviationCount > 0 ? deviationCount : "";
