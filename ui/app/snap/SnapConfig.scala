@@ -34,11 +34,10 @@ object AppConfig {
 
 case class RootConfig(applications: Seq[AppConfig])
 
-object RootConfig {
-  implicit val writes = Json.writes[RootConfig]
-  implicit val reads = Json.reads[RootConfig]
+trait RootConfigOps {
+  protected def userConfigFile: File
 
-  private def loadUser = ConfigFile(new File(ACTIVATOR_USER_CONFIG_FILE))
+  private def loadUser = ConfigFile(userConfigFile)
 
   // volatile because we read it unsynchronized. we don't care
   // which one we get, just something sane. Also double-checked
@@ -96,14 +95,28 @@ object RootConfig {
   }
 }
 
+object RootConfig extends RootConfigOps {
+  implicit val writes = Json.writes[RootConfig]
+  implicit val reads = Json.reads[RootConfig]
+
+  // has to be lazy because trait uses it to init
+  override lazy val userConfigFile = new File(ACTIVATOR_USER_CONFIG_FILE)
+}
+
 private[snap] class ConfigFile(val file: File, json: JsValue) {
+  require(file ne null)
+  require(file.getParentFile ne null)
   val config = json.as[RootConfig]
 }
 
 private[snap] object ConfigFile {
   def apply(file: File): Future[ConfigFile] = {
+    // a file that hasn't been "canonicalized" may not have
+    // a parent file which eventually leads to NPE.
+    val canonicalFile = file.getCanonicalFile
+    require(canonicalFile.getParentFile ne null)
     future {
-      val input = new FileInputStream(file)
+      val input = new FileInputStream(canonicalFile)
       val s = try {
         val out = new ByteArrayOutputStream()
         copy(input, out)
@@ -115,10 +128,10 @@ private[snap] object ConfigFile {
         case x: JsObject => x
         case whatever => throw new Exception("config file contains non-JSON-object")
       }
-      new ConfigFile(file, obj)
+      new ConfigFile(canonicalFile, obj)
     } recover {
       case e: FileNotFoundException =>
-        new ConfigFile(file, Json.toJson(RootConfig(Seq.empty[AppConfig])))
+        new ConfigFile(canonicalFile, Json.toJson(RootConfig(Seq.empty[AppConfig])))
     }
   }
 
