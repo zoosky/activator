@@ -15,14 +15,14 @@ define(['text!./requests.html', 'core/pluginapi', './../widget'], function(templ
     dataTypes: ['requests'],
     dataScope: {},
     onData: function(data) {
-      newRequests = [];
-      requestData = data.playRequestSummaries.playRequestSummaries;
+      var newRequests = [];
+      var requestData = data.playRequestSummaries.playRequestSummaries;
       for (var i = 0; i < requestData.length; i++) {
-        req = requestData[i];
-        path = req.invocationInfo.path;
-        method = req.invocationInfo.httpMethod;
-        responseCode = req.response.httpResponseCode;
-        request = {
+        var req = requestData[i];
+        var path = req.invocationInfo.path;
+        var method = req.invocationInfo.httpMethod;
+        var responseCode = req.response.httpResponseCode;
+        var request = {
           'path' : path,
           'method' : method,
           'responseCode' : responseCode

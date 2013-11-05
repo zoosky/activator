@@ -5,7 +5,7 @@ define ->
     sendQueue: []
     modules: []
     request: {}
-    recieveCallbacks: []
+    receiveCallbacks: []
 
     constructor: ->
 
@@ -14,7 +14,7 @@ define ->
       @
 
     registerRecieveCallback: (callback) ->
-      @recieveCallbacks.push callback
+      @receiveCallbacks.push callback
       @
 
     open: (url, onOpenCallback) ->
@@ -60,10 +60,10 @@ define ->
         message = JSON.parse(message)
         $(window).trigger("network-data")
       catch e
-        debug && console.log "console connection couldn't parse recieved JSON message : ", message
+        debug && console.log "console connection couldn't parse received JSON message : ", message
         $(window).trigger("network-error")
         return false
-      debug && console.log "console connection recieve : ", message
+      debug && console.log "console connection receive : ", message
       # Catch errors
 
       # Update module with data
@@ -72,8 +72,8 @@ define ->
         if module?.dataTypes? and message.type in module.dataTypes
           module.onData message.data
 
-      # Run recieve callbacks
-      callback(message) for callback in @recieveCallbacks
+      # Run receive callbacks
+      callback(message) for callback in @receiveCallbacks
       @
 
     # Update all modules
