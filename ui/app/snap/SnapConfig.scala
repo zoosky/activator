@@ -44,7 +44,7 @@ trait RootConfigOps {
   // locking below requires volatile.
   // this is an Option so we can make forceReload() defer reloading
   // by setting to None and then going back to Some "on demand"
-  @volatile private var userFutureOption: Option[Future[ConfigFile]] = Some(loadUser)
+  @volatile private var userFutureOption: Option[Future[ConfigFile]] = None
 
   def forceReload(): Unit = {
     // we want to ensure we reload the file next time, but
