@@ -8,6 +8,7 @@ import scala.concurrent._
 import ExecutionContext.Implicits.global
 import java.io._
 import activator.properties.ActivatorProperties.ACTIVATOR_USER_CONFIG_FILE
+import activator.properties.ActivatorProperties.ACTIVATOR_PREVIOUS_USER_CONFIG_FILE
 import scala.concurrent.duration._
 import sbt.IO
 
@@ -34,18 +35,18 @@ object AppConfig {
 
 case class RootConfig(applications: Seq[AppConfig])
 
-object RootConfig {
-  implicit val writes = Json.writes[RootConfig]
-  implicit val reads = Json.reads[RootConfig]
+trait RootConfigOps {
+  protected def userConfigFile: File
+  protected def previousUserConfigFile: File
 
-  private def loadUser = ConfigFile(new File(ACTIVATOR_USER_CONFIG_FILE))
+  private def loadUser = ConfigFile(userConfigFile, upgradeFrom = Some(previousUserConfigFile))
 
   // volatile because we read it unsynchronized. we don't care
   // which one we get, just something sane. Also double-checked
   // locking below requires volatile.
   // this is an Option so we can make forceReload() defer reloading
   // by setting to None and then going back to Some "on demand"
-  @volatile private var userFutureOption: Option[Future[ConfigFile]] = Some(loadUser)
+  @volatile private var userFutureOption: Option[Future[ConfigFile]] = None
 
   def forceReload(): Unit = {
     // we want to ensure we reload the file next time, but
@@ -96,29 +97,60 @@ object RootConfig {
   }
 }
 
+object RootConfig extends RootConfigOps {
+  implicit val writes = Json.writes[RootConfig]
+  implicit val reads = Json.reads[RootConfig]
+
+  // has to be lazy because trait uses it to init
+  override lazy val userConfigFile = (new File(ACTIVATOR_USER_CONFIG_FILE)).getCanonicalFile()
+  override lazy val previousUserConfigFile = (new File(ACTIVATOR_PREVIOUS_USER_CONFIG_FILE)).getCanonicalFile()
+}
+
 private[snap] class ConfigFile(val file: File, json: JsValue) {
+  require(file ne null)
+  require(file.getParentFile ne null)
   val config = json.as[RootConfig]
 }
 
 private[snap] object ConfigFile {
-  def apply(file: File): Future[ConfigFile] = {
+  private def parse(file: File, upgradeFrom: Option[File]): JsValue = try {
+    val input = new FileInputStream(file)
+    val s = try {
+      val out = new ByteArrayOutputStream()
+      copy(input, out)
+      new String(out.toString("UTF-8"))
+    } finally {
+      input.close()
+    }
+    Json.parse(s) match {
+      case x: JsObject => x
+      case whatever => throw new Exception("config file contains non-JSON-object")
+    }
+  } catch {
+    case e: FileNotFoundException =>
+      upgradeFrom map { old =>
+        parse(old, upgradeFrom = None)
+      } getOrElse {
+        Json.toJson(RootConfig(Seq.empty[AppConfig]))
+      }
+  }
+
+  def apply(file: File, upgradeFrom: Option[File]): Future[ConfigFile] = {
+    // a file that hasn't been "canonicalized" may not have
+    // a parent file which eventually leads to NPE.
+    val canonicalFile = file.getCanonicalFile
+    require(canonicalFile.getParentFile ne null)
     future {
-      val input = new FileInputStream(file)
-      val s = try {
-        val out = new ByteArrayOutputStream()
-        copy(input, out)
-        new String(out.toString("UTF-8"))
-      } finally {
-        input.close()
+      val obj = parse(canonicalFile, upgradeFrom)
+      new ConfigFile(canonicalFile, obj)
+    } flatMap { cf =>
+      if (cf.file.exists) {
+        Future.successful(cf)
+      } else {
+        // we must have upgraded, be sure to write
+        // out the new file in the new location
+        rewrite(cf)(identity)
       }
-      val obj = Json.parse(s) match {
-        case x: JsObject => x
-        case whatever => throw new Exception("config file contains non-JSON-object")
-      }
-      new ConfigFile(file, obj)
-    } recover {
-      case e: FileNotFoundException =>
-        new ConfigFile(file, Json.toJson(RootConfig(Seq.empty[AppConfig])))
     }
   }
 
