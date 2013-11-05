@@ -102,5 +102,27 @@
         }
       }
     }
+
+    footer.filters {
+      .showing {
+        .itemsShown, .itemsTotal {
+          font-weight: 700;
+        }
+      }
+      .limit {
+        select {
+          font-weight: 700;
+          direction: rtl;
+          padding: 0;
+          width: 50px;
+          option {
+            text-align: right;
+          }
+        }
+        &:after {
+          position: static;
+        }
+      }
+    }
   }
 }

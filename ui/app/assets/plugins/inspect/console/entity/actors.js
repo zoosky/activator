@@ -11,50 +11,83 @@ define(['text!./actors.html', 'core/pluginapi', './../widget'], function(templat
     init: function(args) {
       var self = this;
       this.columns = [
-        { 'name': 'Actor', 'sortBy': 'actorPath' },
+        { 'name': 'Actor', 'sortBy': 'actor' },
         { 'name': 'Throughput', 'sortBy': 'throughput' },
         { 'name': 'Max Mailbox Time', 'sortBy': 'maxTimeInMailbox' },
         { 'name': 'Max Mailbox Size', 'sortBy': 'maxMailboxSize' },
         { 'name': 'Deviations', 'sortBy': 'deviation' }
       ];
-      this.sortBy = ko.observable('actorPath');
+      this.sortBy = ko.observable('actor');
       this.changeSort = function(column) {
         self.sortBy(column.sortBy);
       };
-      this.actors = ko.observableArray([]);
+      this.data = ko.observable({ 'actors': [], 'total': 0 });
+      this.total = ko.computed(function() {
+        return self.data().total;
+      });
+      this.limit = ko.observable('50');
+      this.hideAnonymous = ko.observable(true);
+      this.fullActorPath = ko.observable(true);
+      this.filter = ko.observable('');
+      this.clearFilter = function() {
+        self.filter('');
+      };
+      this.actors = ko.computed(function() {
+        data = self.data().actors;
+        fullPath = self.fullActorPath();
+        hideAnonymous = self.hideAnonymous();
+        filter = self.filter();
+        actors = [];
+        formatUnits = function(u, v) { return format.shorten(v) + ' ' + u };
+        for (var i = 0; i < data.length; i++) {
+          a = data[i];
+          path = a.scope.actorPath;
+          elements = path.split('/');
+          name = elements.pop();
+          prefix = fullPath ? elements : [];
+          messageRate = a.totalMessageRate || 0;
+          throughput = format.units('messages/second', messageRate, formatUnits);
+          maxTimeInMailbox = format.units(a.maxTimeInMailboxUnit, a.maxTimeInMailbox, formatUnits)
+          maxMailboxSize = a.maxMailboxSize;
+          deviationCount = a.errorCount + a.warningCount + a.deadLetterCount + a.unhandledMessageCount;
+          deviations = deviationCount > 0 ? deviationCount : "";
+          actor = {
+            'path': path,
+            'prefix': prefix,
+            'name': name,
+            'throughput': throughput,
+            'maxTimeInMailbox': maxTimeInMailbox,
+            'maxMailboxSize': maxMailboxSize,
+            'deviations': deviations
+          };
+          show = true;
+          if (hideAnonymous && name.charAt(0) == '$') show = false;
+          if (filter.length > 0) {
+            filters = filter.toLowerCase().split(' ');
+            matchWith = fullPath ? path.toLowerCase() : name.toLowerCase();
+            for (var j = 0; j < filters.length; j++) {
+              if (matchWith.indexOf(filters[j]) < 0) show = false;
+            }
+          }
+          if (show) actors.push(actor);
+        }
+        return actors;
+      });
     },
     dataName: 'actors',
     dataTypes: ['actors'],
     dataRequest: function() {
+      sortBy = this.sortBy();
+      if (sortBy == "actor") {
+        sortBy = this.fullActorPath() ? "actorPath" : "actorName";
+      }
       return {
-        'sortCommand': this.sortBy()
+        'sortCommand': sortBy,
+        'paging': { 'offset': 0, 'limit': parseInt(this.limit(), 10) }
       };
     },
     onData: function(data) {
-      newActors = [];
-      actorData = data.actors.actors;
-      formatUnits = function(u, v) { return format.shorten(v) + ' ' + u };
-      for (var i = 0; i < actorData.length; i++) {
-        a = actorData[i];
-        id = a.scope.actorPath;
-        name = a.scope.actorPath.substr(a.scope.actorPath.lastIndexOf("/") + 1);
-        messageRate = a.totalMessageRate || 0;
-        throughput = format.units('messages/second', messageRate, formatUnits);
-        maxTimeInMailbox = format.units(a.maxTimeInMailboxUnit, a.maxTimeInMailbox, formatUnits)
-        maxMailboxSize = a.maxMailboxSize;
-        deviationCount = a.errorCount + a.warningCount + a.deadLetterCount + a.unhandledMessageCount;
-        deviations = deviationCount > 0 ? deviationCount : "";
-        actor = {
-          'id': id,
-          'name': name,
-          'throughput': throughput,
-          'maxTimeInMailbox': maxTimeInMailbox,
-          'maxMailboxSize': maxMailboxSize,
-          'deviations': deviations
-        };
-        newActors.push(actor);
-      }
-      this.actors(newActors);
+      this.data(data.actors);
     }
   });
 
