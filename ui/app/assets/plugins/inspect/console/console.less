@@ -1,0 +1,101 @@
+@import 'colors';
+
+.clear-after() {
+  &:after {
+    content: " ";
+    display: block;
+    clear: both;
+  }
+}
+
+#console {
+  position: absolute;
+  top: 60px;
+  left: 0;
+  right: 0;
+  bottom: 0px;
+  overflow: hidden;
+  white-space: nowrap;
+  background: @grey;
+  z-index: 2;
+
+  .module {
+    position: relative;
+    vertical-align: top;
+    white-space: normal;
+    width: 50%;
+    height: 100%;
+    display: inline-block;
+    background: #fff;
+  }
+
+  .navigation {
+    width: 33%;
+  }
+
+  .viewer {
+    width: 67%;
+    border-left: 1px solid @grey;
+  }
+
+  .module .listing {
+    li {
+      position: relative;
+      cursor: pointer;
+      padding: 10px;
+      border-bottom: 1px solid @grey;
+      .clear-after();
+
+      &.active, &:hover {
+        background: @grey_alt;
+        border-color: @grey;
+      }
+
+      .counter {
+        color: @grey_text;
+        float: right;
+      }
+
+      .focus & {
+        &.active {
+          background: @grey_alt;
+          border-color: @grey;
+        }
+        &.focus {
+          border-color: @red - #222;
+          background: @red;
+          color: #fff;
+          h2 a {
+            color: #fff;
+          }
+          &:before {
+            color: #fff;
+          }
+          .counter {
+            color: white;
+          }
+        }
+      }
+    }
+
+    h2 a {
+      color: @blue_text;
+      font-weight: 700;
+      font-size: 20px;
+      &:after {
+        content: " ";
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        z-index: 99;
+      }
+    }
+  }
+
+}
+
+@import 'entity/actors';
+@import 'entity/requests';
+@import 'footer';

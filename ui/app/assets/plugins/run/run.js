@@ -27,6 +27,9 @@ define(['core/model', 'text!./run.html', 'core/pluginapi', 'core/widgets/log', '
       this.haveActiveTask = ko.computed(function() {
         return self.activeTask() != "";
       }, this);
+      this.haveActiveTask.subscribe(function(active) {
+        if (!active) api.events.send({ 'type' : 'RunStopped' });
+      });
       this.startStopLabel = ko.computed(function() {
         if (self.haveActiveTask())
           return "Stop";
@@ -352,6 +355,7 @@ define(['core/model', 'text!./run.html', 'core/pluginapi', 'core/widgets/log', '
             self.playAppLink(url);
           } else if (event.id == 'atmosStarted') {
             self.atmosLink(event.params.uri);
+            api.events.send({ 'type' : 'AtmosStarted' });
           } else {
             self.logModel.leftoverEvent(event);
           }
@@ -388,7 +392,7 @@ define(['core/model', 'text!./run.html', 'core/pluginapi', 'core/widgets/log', '
         sbt.killTask({
           taskId: self.activeTask(),
           success: function(data) {
-            console.log("kill success: ", data)
+            console.log("kill success: ", data);
           },
           failure: function(status, message) {
             console.log("kill failed: ", status, message)

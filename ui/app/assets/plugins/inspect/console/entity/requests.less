@@ -1,0 +1,76 @@
+@import '../colors';
+
+#console {
+  .requests {
+    table {
+      font-size: 1.2em;
+      width: 100%;
+      tr {
+        border-bottom: 1px solid @grey;
+        min-height: 26.5px;
+        th, td {
+          line-height: 26.5px;
+          padding: 0 5px;
+          &:first-child {
+            padding-left: 10px;
+          }
+          &:last-child {
+            padding-right: 10px;
+          }
+          &.right {
+            text-align: right;
+          }
+        }
+      }
+      thead {
+        background-color: white;
+        tr {
+          border-top: none;
+          height: 56px;
+          th {
+            font-weight: 700;
+            color: @grey_text;
+            vertical-align: bottom;
+            &:first-child {
+              width: 60%;
+            }
+            span {
+              line-height: 30px;
+              cursor: pointer;
+              white-space: nowrap;
+            }
+            &.right span {
+              margin-left: 16px;
+            }
+          }
+        }
+      }
+      tbody {
+        tr {
+          td {
+            a {
+              display: inline-block;
+              height: 100%;
+              width: 100%;
+            }
+            a:link, a:visited {
+              color: black;
+            }
+            &.name a:link, &.name a:visited {
+              color: @blue;
+              strong {
+                font-weight: 600;
+              }
+            }
+          }
+          &:hover td {
+            background: @grey_alt;
+          }
+          &.active td, &:active td {
+            background-color: @grey_alt;
+          }
+        }
+      }
+    }
+  }
+}

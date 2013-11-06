@@ -1,0 +1,128 @@
+@import '../colors';
+@import '../icons';
+
+#console {
+  .actors {
+    table {
+      font-size: 1.2em;
+      width: 100%;
+      tr {
+        border-bottom: 1px solid @grey;
+        min-height: 26.5px;
+        th, td {
+          line-height: 26.5px;
+          padding: 0 5px;
+          &:first-child {
+            padding-left: 10px;
+          }
+          &:last-child {
+            padding-right: 10px;
+          }
+          & + th, + td, .right {
+            text-align: right;
+          }
+        }
+      }
+      thead {
+        background-color: white;
+        tr {
+          border-top: none;
+          height: 56px;
+          th {
+            font-weight: 700;
+            color: @grey_text;
+            vertical-align: bottom;
+            &:first-child {
+              width: 60%;
+            }
+            span {
+              line-height: 30px;
+              cursor: pointer;
+              white-space: nowrap;
+              &.sortBy {
+                color: @red;
+                margin-left: 0 !important;
+                .iconSmall("\25be", @red, icons);
+                &:before {
+                  float: none;
+                  width: 16px;
+                  height: 16px;
+                  display: inline-block;
+                  vertical-align: top;
+                }
+              }
+            }
+            &.right span {
+              margin-left: 16px;
+            }
+          }
+        }
+      }
+      tbody {
+        tr {
+          td {
+            a {
+              display: inline-block;
+              height: 100%;
+              width: 100%;
+            }
+            a:link, a:visited {
+              color: black;
+            }
+            &.name a:link, &.name a:visited {
+              color: @blue;
+              strong {
+                font-weight: 600;
+              }
+            }
+          }
+          &:hover td {
+            background: @grey_alt;
+          }
+          &.active td, &:active td {
+            background-color: @grey_alt;
+          }
+        }
+      }
+      .deviation-counter {
+        background: @red;
+        color: #fff;
+        font-size: 13px;
+        font-weight: bold;
+        line-height: 13px;
+        padding: 3px;
+        border: 1px solid rgba(255, 255, 255, .5);
+        border-radius: 3px;
+        min-width: 24px;
+        text-align: center;
+        display: inline-block;
+        vertical-align: text-top;
+        &:empty {
+          display: none;
+        }
+      }
+    }
+
+    footer.filters {
+      .showing {
+        .itemsShown, .itemsTotal {
+          font-weight: 700;
+        }
+      }
+      .limit {
+        select {
+          font-weight: 700;
+          direction: rtl;
+          padding: 0;
+          width: 50px;
+          option {
+            text-align: right;
+          }
+        }
+        &:after {
+          position: static;
+        }
+      }
+    }
+  }
+}
