@@ -4,7 +4,7 @@
 package console
 
 import play.api.{ Logger, Plugin, Application }
-import com.typesafe.config.{ ConfigRenderOptions, Config }
+import com.typesafe.config.Config
 import akka.actor.{ PoisonPill, ActorRef, Props, ActorSystem }
 import scala.util.control.NonFatal
 
@@ -15,17 +15,11 @@ class ConsolePlugin(app: Application) extends Plugin {
   def clientHandlerActor = env.clientHandlerActor
 
   override def onStart(): Unit = {
-    Logger.info("Starting plugin ${this.getClass.getName}")
     require(env eq null)
-    val conf = app.configuration.underlying
-    Logger.info("Got config: " + conf.getObject("console").render(
-      ConfigRenderOptions.defaults().setOriginComments(true).setFormatted(true)))
-    env = ConsolePluginEnvironment(conf)
-    Logger.info("Console per-app environment initialized")
+    env = ConsolePluginEnvironment(app.configuration.underlying)
   }
 
   override def onStop(): Unit = {
-    Logger.info("Stopping plugin ${this.getClass.getName}")
     try {
       require(env ne null)
       env.close()
