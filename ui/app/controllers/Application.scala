@@ -165,13 +165,6 @@ object Application extends Controller {
     }
   }
 
-  /**
-   * Connects console websocket.
-   */
-  def connectConsole(id: String) = WebSocket.async[JsValue] { req ⇒
-    console.ClientController.join(id)
-  }
-
   /** List all the applications in our history as JSON. */
   def getHistory = Action { request =>
     Ok(Json.toJson(RootConfig.user.applications))
