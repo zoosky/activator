@@ -1,6 +1,7 @@
-@import "../commons/_reset";
-@import "../commons/_vars";
-@import "../commons/_helpers";
+/*
+ Copyright (C) 2013 Typesafe, Inc <http://typesafe.com>
+*/
+
 @import "../commons/_base";
 
 html, body {
@@ -22,6 +23,7 @@ body {
 
 button {
   cursor: pointer;
+  background: none;
 }
 
 h1, h2, h3, h4, h5, h6, dt {
@@ -43,25 +45,105 @@ main {
   }
 }
 
+.hidden {
+    display: none;
+}
 
-// @import "../plugins/api/_api";
-// @import "../plugins/community/_community";
-// @import "../plugins/documentation/_documentation";
-// @import "../plugins/errors/_errors";
-// @import "../plugins/help/_help";
-// @import "../plugins/home/_home";
-// @import "../plugins/source/_source";
-// @import "../plugins/tutorials/_tutorials";
+.noAnim * {
+  -webkit-transition: none !important;
+  -moz-transition: none !important;
+  transition: none !important;
+}
 
+
+
+#user {
+  position: absolute;
+  top: 0;
+  right: 52px;
+  height: 50px;
+  width: 50px;
+  background: #354551;
+  border-left: solid 2px #29353e;
+  > button {
+    cursor: pointer;
+    width: 50px;
+    height: 50px;
+    background: url(/public/images/user.png);
+    background-size: 50px;
+    border: none;
+  }
+  > iframe {
+    display: none;
+    position: fixed;
+    top: 50px;
+    right: 0px;
+    width: 450px;
+    height: 300px;
+    background: #fff;
+    z-index: 9999;
+    box-shadow: 3px 3px 4px rgba(0,0,0,.2);
+    .clear-after();
+    overflow: auto;
+  }
+  &.open > iframe {
+    display: block;
+  }
+}
+
+
+a[href="#todo"], [todo] {
+  position: relative;
+  &:before {
+    content: "TODO";
+    background: #c00;
+    color: #fff;
+    position: absolute;
+    top: -5px;
+    right: -5px;
+    font-size: 9px;
+    padding: 1px 2px;
+    border-radius: 2px;
+    line-height: 10px;
+  }
+}
+
+/* Styled checkbox */
+input[type="checkbox"].styled {
+    display:none;
+}
+input[type="checkbox"].styled + label span {
+    vertical-align: text-bottom;
+    margin-right: 5px;
+    border: 2px solid rgba(255, 255, 255, .5);
+    border-radius: 2px;
+    display: inline-block;
+    width: 16px;
+    height: 16px;
+    cursor: pointer;
+}
+input[type="checkbox"].styled:checked + label span:before {
+    content: "\2713";
+    color: #ffffff;
+    font: 18px icons;
+    line-height: 16px;
+    display: inline;
+}
+input[type="checkbox"].styled.dark + label span {
+    border-color: rgba(0, 0, 0, .25);
+}
+input[type="checkbox"].styled.dark:checked + label span:before {
+    color: #000000;
+}
+
+
+@import '_app.less';
+@import '../widgets/lists/_list.less';
 @import "../widgets/breadcrumb/_breadcrumb";
 @import "../widgets/buttons/_button";
 @import "../widgets/buttons/_dropdown";
 @import "../widgets/header/_header";
 @import "../widgets/layout/_layout";
-// @import "../widgets/code/_code";
-// @import "../widgets/lists/_list";
-// @import "../widgets/lists/_menu";
-// @import "../widgets/lists/_browser";
 @import "../widgets/login/_login";
 @import "../widgets/modals/_modals";
 @import "../widgets/pannels/_pannels";
@@ -69,4 +151,3 @@ main {
 @import "../widgets/navigation/_navigation";
 @import "../widgets/omnisearch/_omnisearch";
 @import "../widgets/typesafe/_typesafe";
-

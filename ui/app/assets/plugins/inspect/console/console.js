@@ -1,7 +1,7 @@
 /*
  Copyright (C) 2013 Typesafe, Inc <http://typesafe.com>
  */
-define(["text!./console.html", "css!./console.css", "core/pluginapi", "./connection", "./grid", "./overview", "./utils"], function(template, css, api, Connection, Grid, Overview) {
+define(["text!./console.html", "css!./console.css", "core/pluginapi", "./connection", "./grid", "./overview", "commons/utils"], function(template, css, api, Connection, Grid, Overview) {
 
   var ko = api.ko;
 

@@ -12,7 +12,6 @@
 <html>
   <head>
     <title>Typesafe Console</title>
-    <link href="@routes.Assets.at("stylesheets/main.css")" rel="stylesheet" type="text/css">
     <link href="@routes.Assets.at("core/main.css")" rel="stylesheet" type="text/css">
     <script type="text/javascript">
       // Gobal configuration
@@ -23,15 +22,15 @@
       window.serverAppModel = @Html(Json.toJson(model).toString())
       window.serverAppVersion = "@ActivatorProperties.APP_VERSION"
     </script>
-    <script data-main='@routes.Assets.at("javascripts/application.js")' type='text/javascript' src='@routes.WebJarAssets.requirejs()'></script>
+    <script data-main='@routes.Assets.at("core/application.js")' type='text/javascript' src='@routes.WebJarAssets.requirejs()'></script>
   </head>
   <body data-bind="css: {navigationOpened: snap.navigationOpened, pannelOpened: snap.pannelOpened}, attr: { 'data-shape': snap.pannelShape }">
 
     <header id="header">
       <button class="toggleNavigation" data-bind="click: snap.toggleNavigation"></button>
 
-      <dl id="layoutManager" class="dropdown">
-        <dt><span class="all-options"></span></dt>
+      <dl id="layoutManager" class="dropdown" data-bind="call: snap.test">
+        <dt data-bind="click: snap.togglePannel"><span class="all-options"></span></dt>
         <dd>
           <button class="right1"></button>
           <button class="bottom1"></button>
@@ -84,6 +83,7 @@
       </div>
 
       <dl id="rockets">
+        @*
         <dt>Learn</dt>
         <dd>
           <a href="#Tutorial">Tutorial</a>
@@ -92,6 +92,7 @@
           <a href="#Scala">Scala API</a>
           <a href="#Trainings">Trainings</a>
         </dd>
+        *@
         <dt>Develop</dt>
         <dd>
           <a href="#code">Code</a>
@@ -99,6 +100,7 @@
           <a href="#inspect">Inspect</a>
           <a href="#test">Test</a>
         </dd>
+        @*
         <dt>Team</dt>
         <dd>
           <a href="#Versioning">Versioning</a>
@@ -109,10 +111,11 @@
           <a href="#Stage">Stage</a>
           <a href="#Heroku">Heroku</a>
         </dd>
+        *@
       </dl>
       <div id="typesafe">
         <a href="http://typesafe.com" class="website">
-          <img src="/assets/images/typesafe.svg">
+          <img src="/public/images/typesafe.svg">
         </a>
         <a href="/" class="infos">i</a>
       </div>
