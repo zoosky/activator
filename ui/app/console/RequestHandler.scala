@@ -12,6 +12,8 @@ import play.api.libs.ws.Response
 import play.api.libs.ws.WS
 import scala.concurrent.duration._
 import scala.concurrent.{ Future, ExecutionContext }
+import play.api.Play.current
+import controllers.ConsoleController
 
 trait RequestHandler extends Actor with ActorLogging {
   import ClientController.Update
@@ -29,8 +31,8 @@ trait RequestHandler extends Actor with ActorLogging {
       new URI(
         RequestHandler.scheme,
         null,
-        ConsoleConfig.consoleHost,
-        ConsoleConfig.consolePort,
+        ConsoleController.config.getString("console.host"),
+        ConsoleController.config.getInt("console.port"),
         path,
         RequestHandler.timestampFormatting + params,
         null).toASCIIString()
@@ -99,7 +101,7 @@ object RequestHandler {
   final val scheme = "http"
   final val timestampFormatting = "formatTimestamps=off&"
 
-  def url(path: String) = ConsoleConfig.consoleStartURL + path
+  def url(path: String) = ConsoleController.config.getString("console.start-url") + path
 
   val metadataURL = url("metadata")
   val actorsURL = url("actors")
