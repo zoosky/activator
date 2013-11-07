@@ -1,7 +1,7 @@
 /*
  Copyright (C) 2013 Typesafe, Inc <http://typesafe.com>
  */
-define(['text!./actors.html', 'core/pluginapi', '../widget', '../format'], function(template, api, ConsoleWidget, format) {
+define(['text!./actors.html', 'core/pluginapi', '../widget', '../format', '../hover'], function(template, api, ConsoleWidget, format) {
 
   var ko = api.ko;
 
@@ -45,6 +45,7 @@ define(['text!./actors.html', 'core/pluginapi', '../widget', '../format'], funct
           var elements = path.split('/');
           var name = elements.pop();
           var prefix = fullPath ? elements : [];
+          var hover = fullPath ? '' : path;
           var messageRate = a.totalMessageRate || 0;
           var throughput = format.units('messages/second', messageRate, formatUnits);
           var maxTimeInMailbox = format.units(a.maxTimeInMailboxUnit, a.maxTimeInMailbox, formatUnits);
@@ -55,6 +56,7 @@ define(['text!./actors.html', 'core/pluginapi', '../widget', '../format'], funct
             'path': path,
             'prefix': prefix,
             'name': name,
+            'hover': hover,
             'throughput': throughput,
             'maxTimeInMailbox': maxTimeInMailbox,
             'maxMailboxSize': maxMailboxSize,
