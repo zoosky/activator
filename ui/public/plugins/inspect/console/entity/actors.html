@@ -1,5 +1,5 @@
-<article class="actors">
-    <section>
+<article class="actors" data-bind="hoverPopup: 'hoverPopup'">
+    <section class="withFooter">
         <table>
             <thead>
                 <tr data-bind="foreach: columns">
@@ -9,8 +9,8 @@
             <tbody class="listing" data-bind="foreach: actors">
                 <tr>
                     <td class="name">
-                        <a href="#inspect/actors">
-                            <!-- ko foreach: prefix--><!-- ko text: $data--><!-- /ko -->/<wbr><!-- /ko --><strong data-bind="text: name"></strong>
+                        <a href="#inspect/actors" data-bind="attr: { 'data-hover-text': hover }">
+                            <!-- ko foreach: prefix--><!-- ko text: $data--><!-- /ko -->/<wbr><!-- /ko --><strong data-bind="text: name, attr: { 'data-hover-text': hover }"></strong>
                         </a>
                     </td>
                     <td class="throughput right"><a data-bind="text: throughput"></a></td>
@@ -26,7 +26,7 @@
             Showing <span class="itemsShown" data-bind="text: actors().length">?</span>
             of <span class="itemsTotal" data-bind="text: total">?</span>
         </p>
-        <p class="limit select" data-hover-text="Limit actor count">
+        <p class="limit select">
             <label>Limit</label>
             <select data-bind="value: limit">
                 <option value="50">50</option>
@@ -47,8 +47,8 @@
                 </li>
             </ul>
         </div>
-        <p class="search input" data-hover-text="Filter by name">
-            <input type="text" data-bind="value: filter, valueUpdate: 'afterkeydown'">
+        <p class="search input" data-hover-text="Filter actors">
+            <input type="text" data-bind="value: filter, valueUpdate: 'afterkeydown'" data-hover-text="Filter actors">
             <span class="clear" data-bind="click: clearFilter"></span>
         </p>
     </footer>
