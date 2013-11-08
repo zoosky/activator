@@ -21,22 +21,22 @@ class ClientHandler extends Actor with ActorLogging {
   val playRequestsHandler = context.actorOf(Props[PlayRequestsHandler], "playRequestsHandler")
 
   def receive = {
-    case Tick ⇒ modules foreach callHandler
-    case Update(js) ⇒ channel.push(js)
-    case r: HandleRequest ⇒ jsonHandler ! r
-    case mi: ModuleInformation ⇒ callHandler(mi)
-    case InitializeCommunication ⇒ sender ! Connection(self, enum)
-    case RegisterModules(newModules) ⇒
+    case Tick => modules foreach callHandler
+    case Update(js) => channel.push(js)
+    case r: HandleRequest => jsonHandler ! r
+    case mi: ModuleInformation => callHandler(mi)
+    case InitializeCommunication => sender ! Connection(self, enum)
+    case RegisterModules(newModules) =>
       modules = newModules
-      for { mi ← newModules } self ! mi
+      for { mi <- newModules } self ! mi
   }
 
   def callHandler(mi: ModuleInformation) {
     mi.name match {
-      case "overview" ⇒ overviewHandler ! mi
+      case "overview" => overviewHandler ! mi
       case "actors" => actorsHandler ! mi
       case "requests" => playRequestsHandler ! mi
-      case _ ⇒ log.debug("Unknown module name: {}", mi.name)
+      case _ => log.debug("Unknown module name: {}", mi.name)
     }
   }
 }
@@ -48,7 +48,7 @@ class JsonHandler extends Actor with ActorLogging {
   implicit val reader = innerModuleReads
 
   def receive = {
-    case HandleRequest(js) ⇒ sender ! RegisterModules(parseRequest(js))
+    case HandleRequest(js) => sender ! RegisterModules(parseRequest(js))
   }
 
   def parseRequest(js: JsValue): Seq[ModuleInformation] = {
@@ -60,7 +60,7 @@ class JsonHandler extends Actor with ActorLogging {
 
     val span = (js \ "span").asOpt[String].getOrElse(SpanParser.DefaultSpanType)
     val innerModules = (js \ "modules").as[List[InnerModuleInformation]]
-    innerModules map { i ⇒
+    innerModules map { i =>
       ModuleInformation(
         name = i.name,
         scope = i.scope,
@@ -111,15 +111,18 @@ case class Scope(
   playPattern: Option[String] = None,
   playController: Option[String] = None) {
 
-  def queryParams: String = {
+  import RequestHandler.mapify
+
+  def queryParams: Map[String, String] = {
     Seq(
-      node.map("node=" + _),
-      actorSystem.map("actorSystem=" + _),
-      dispatcher.map("dispatcher=" + _),
-      tag.map("tag=" + _),
-      actorPath.map("actorPath=" + _),
-      playPattern.map("playPattern=" + _),
-      playController.map("playController=" + _)).flatten.mkString("&")
+      "node" -> node,
+      "actorSystem" -> actorSystem,
+      "dispatcher" -> dispatcher,
+      "tag" -> tag,
+      "actorPath" -> actorPath,
+      "playPattern" -> playPattern,
+      "playController" -> playController).
+      map(x => mapify(x._1, x._2)).head
   }
 }
 

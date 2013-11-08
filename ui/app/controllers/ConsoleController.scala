@@ -13,7 +13,7 @@ object ConsoleController extends ConsoleController {
   /**
    * Connects console websocket.
    */
-  def connectConsole(id: String) = WebSocket.async[JsValue] { req ⇒
+  def connectConsole(id: String) = WebSocket.async[JsValue] { req =>
     console.ClientController.join(id)
   }
 }

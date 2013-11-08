@@ -154,8 +154,8 @@ class EnhancedURI(val uri: URI) {
     // we sort the query string because deterministic order
     // makes the test suite a lot easier
     query.toSeq.sortBy(_._1).foldLeft("") {
-      case (sofar, (key, value)) ⇒
-        val pairs = for { v ← value }
+      case (sofar, (key, value)) =>
+        val pairs = for { v <- value }
           yield key + "=" + encodeValue(v)
         val encoded = pairs.mkString("&")
         if (sofar.length() == 0)
@@ -167,7 +167,7 @@ class EnhancedURI(val uri: URI) {
 
   private def mergeQuery(left: Map[String, Seq[String]], right: Map[String, Seq[String]]): Map[String, Seq[String]] = {
     right.foldLeft(left) {
-      case (sofar, (key, value)) ⇒
+      case (sofar, (key, value)) =>
         val dup = sofar.get(key)
         sofar + (key -> dup.map(_ ++ value).getOrElse(value))
     }
