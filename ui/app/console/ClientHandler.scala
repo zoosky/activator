@@ -111,16 +111,17 @@ case class Scope(
   playPattern: Option[String] = None,
   playController: Option[String] = None) {
 
-  def queryParams: String = {
+  def queryParams: Map[String, String] =
     Seq(
-      node.map("node=" + _),
-      actorSystem.map("actorSystem=" + _),
-      dispatcher.map("dispatcher=" + _),
-      tag.map("tag=" + _),
-      actorPath.map("actorPath=" + _),
-      playPattern.map("playPattern=" + _),
-      playController.map("playController=" + _)).flatten.mkString("&")
-  }
+      node.map(z => Map("node" -> z)),
+      actorSystem.map(z => Map("actorSystem" -> z)),
+      dispatcher.map(z => Map("dispatcher" -> z)),
+      tag.map(z => Map("tag" -> z)),
+      actorPath.map(z => Map("actorPath" -> z)),
+      playPattern.map(z => Map("playPattern" -> z)),
+      playController.map(z => Map("playController" -> z))).
+      flatten.
+      foldLeft(Map.empty[String, String])((r, c) => r ++ c)
 }
 
 case class InnerModuleInformation(

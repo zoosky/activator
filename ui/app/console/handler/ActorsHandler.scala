@@ -12,19 +12,14 @@ class ActorsHandler extends RequestHandler {
   import Responses._
   import ExecutionContext.Implicits.global
 
-  def call(receiver: ActorRef, mi: ModuleInformation): Future[(ActorRef, JsValue)] = {
-    val timeFilter = mi.time.queryParams
-    val scopeFilter = "&" + mi.scope.queryParams
-    val offset = for { pi ← mi.pagingInformation } yield pi.offset
-    val offsetFilter = "&offset=" + offset.getOrElse("")
-    val limit = for { pi ← mi.pagingInformation } yield pi.limit
-    val limitFilter = "&limit=" + limit.getOrElse("")
-    val sortCommand = for { sc ← mi.sortCommand } yield sc
-    val sortCommandFilter = "&sortOn=" + sortCommand.getOrElse("")
-    val query = timeFilter + scopeFilter + offsetFilter + limitFilter + sortCommandFilter
-
-    val actorsStatsPromise = call(RequestHandler.actorsURL, query)
-
+  def handle(receiver: ActorRef, mi: ModuleInformation): Future[(ActorRef, JsValue)] = {
+    val params =
+      mi.time.queryParams ++
+        mi.scope.queryParams ++
+        mapifyF("offset", mi.pagingInformation, { pi: PagingInformation => pi.offset }) ++
+        mapifyF("limit", mi.pagingInformation, { pi: PagingInformation => pi.limit }) ++
+        mapify("sortOn", mi.sortCommand)
+    val actorsStatsPromise = call(RequestHandler.actorsURL, params)
     for {
       actorsStats ← actorsStatsPromise
     } yield {

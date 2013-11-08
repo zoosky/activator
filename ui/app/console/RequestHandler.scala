@@ -14,29 +14,28 @@ import scala.concurrent.duration._
 import scala.concurrent.{ Future, ExecutionContext }
 import play.api.Play.current
 import controllers.ConsoleController
+import snap.EnhancedURI._
 
 trait RequestHandler extends Actor with ActorLogging {
   import ClientController.Update
   import Responses._
   import ExecutionContext.Implicits.global
 
-  def call(receiver: ActorRef, moduleInformation: ModuleInformation): Future[(ActorRef, JsValue)]
+  def handle(receiver: ActorRef, moduleInformation: ModuleInformation): Future[(ActorRef, JsValue)]
 
   def receive = {
-    case mi: ModuleInformation ⇒ for { r ← call(sender, mi) } r._1 ! Update(r._2)
+    case mi: ModuleInformation ⇒ for { r ← handle(sender, mi) } r._1 ! Update(r._2)
   }
 
-  def call(path: String, params: String): Future[Response] = {
-    val url =
-      new URI(
-        RequestHandler.scheme,
-        null,
-        ConsoleController.config.getString("console.host"),
-        ConsoleController.config.getInt("console.port"),
-        path,
-        RequestHandler.timestampFormatting + params,
-        null).toASCIIString()
-    WS.url(url).get()
+  def call(path: String, params: Map[String, String]): Future[Response] = {
+    val uri = new URI(null).copy(
+      scheme = RequestHandler.scheme,
+      host = ConsoleController.config.getString("console.host"),
+      port = ConsoleController.config.getInt("console.port"),
+      path = path).addQueryParameters(
+        (RequestHandler.timestampFormatting ++ params).foldLeft(
+          Map.empty[String, Seq[String]])((r, c) => r ++ Map(c._1 -> Seq(c._2))))
+    WS.url(uri.toASCIIString).get()
   }
 
   def validateResponse(responses: Response*): ResponseStatus = {
@@ -95,11 +94,17 @@ trait RequestHandler extends Actor with ActorLogging {
     if (json.value.isEmpty) JsNumber(0)
     else JsNumber((endTime(json.value.last) + 1 - startTime(json.value.head)).millis.toMinutes)
   }
+
+  def mapify[A](name: String, value: Option[A]): Map[String, String] =
+    (for { v <- value } yield Map(name -> v.toString)) getOrElse Map.empty[String, String]
+
+  def mapifyF[A, B](name: String, value: Option[A], f: A => B): Map[String, String] =
+    (for { v <- value } yield Map(name -> f(v).toString)) getOrElse Map.empty[String, String]
 }
 
 object RequestHandler {
   final val scheme = "http"
-  final val timestampFormatting = "formatTimestamps=off&"
+  final val timestampFormatting = Map("formatTimestamps" -> "off")
 
   def url(path: String) = ConsoleController.config.getString("console.start-url") + path
 

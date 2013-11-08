@@ -12,13 +12,9 @@ class OverviewHandler extends RequestHandler {
   import Responses._
   import ExecutionContext.Implicits.global
 
-  def call(receiver: ActorRef, mi: ModuleInformation): Future[(ActorRef, JsValue)] = {
-    val timeFilter = mi.time.queryParams
-    val limit = for { pi ← mi.pagingInformation } yield pi.limit
-    val limitFilter = "&limit=" + limit.getOrElse("")
-    val query = timeFilter + limitFilter
-
-    val metadataPromise = call(RequestHandler.metadataURL, query)
+  def handle(receiver: ActorRef, mi: ModuleInformation): Future[(ActorRef, JsValue)] = {
+    val params = mi.time.queryParams ++ mapifyF("offset", mi.pagingInformation, { pi: PagingInformation => pi.offset })
+    val metadataPromise = call(RequestHandler.metadataURL, params)
 
     for {
       metadata ← metadataPromise

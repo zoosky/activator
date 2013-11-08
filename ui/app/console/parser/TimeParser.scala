@@ -130,17 +130,17 @@ case class TimeQuery(duration: Duration, rangeType: String, startTime: Option[Lo
       format(startTime, endTime))
   }
 
-  def queryParams: String = (startTime, endTime) match {
+  def queryParams: Map[String, String] = (startTime, endTime) match {
     case (Some(start), Some(end)) ⇒
-      "startTime=%s&endTime=%s&rangeType=%s".format(
-        TimeParser.timeFormatter.get.format(new Date(start)),
-        TimeParser.timeFormatter.get.format(new Date(end)),
-        rangeType)
+      Map(
+        "startTime" -> TimeParser.timeFormatter.get.format(new Date(start)),
+        "endTime" -> TimeParser.timeFormatter.get.format(new Date(end)),
+        "rangeType" -> rangeType)
     case (_, _) ⇒ rangeType match {
-      case unit @ "minutes" ⇒ "rolling=" + duration.toMinutes + unit
-      case unit @ "hours" ⇒ "rolling=" + duration.toHours + unit
-      case unit @ "days" ⇒ "rolling=" + duration.toDays + unit
-      case unit @ "months" ⇒ "rolling=" + (duration.toDays / 30) + unit
+      case unit @ "minutes" ⇒ Map("rolling" -> (duration.toMinutes + unit))
+      case unit @ "hours" ⇒ Map("rolling" -> (duration.toHours + unit))
+      case unit @ "days" ⇒ Map("rolling" -> (duration.toDays + unit))
+      case unit @ "months" ⇒ Map("rolling" -> ((duration.toDays / 30) + unit))
     }
   }
 

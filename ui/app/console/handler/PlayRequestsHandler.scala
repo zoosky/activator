@@ -3,7 +3,7 @@
  */
 package console.handler
 
-import console.{ ModuleInformation, RequestHandler }
+import console.{ PagingInformation, ModuleInformation, RequestHandler }
 import akka.actor.ActorRef
 import scala.concurrent.{ ExecutionContext, Future }
 import play.api.libs.json.{ JsString, JsObject, JsValue }
@@ -12,16 +12,13 @@ import console.Responses._
 class PlayRequestsHandler extends RequestHandler {
   import ExecutionContext.Implicits.global
 
-  def call(receiver: ActorRef, mi: ModuleInformation): Future[(ActorRef, JsValue)] = {
-    val timeFilter = mi.time.queryParams
-    val scopeFilter = "&" + mi.scope.queryParams
-    val offset = for { pi ← mi.pagingInformation } yield pi.offset
-    val offsetFilter =
-      if (offset.isDefined) "&offset=" + offset.get
-      else ""
-    val limit = for { pi ← mi.pagingInformation } yield pi.limit
-    val limitFilter = "&limit=" + limit.getOrElse("")
-    val playRequestsPromise = call(RequestHandler.playRequestsURL, timeFilter + scopeFilter + offsetFilter + limitFilter)
+  def handle(receiver: ActorRef, mi: ModuleInformation): Future[(ActorRef, JsValue)] = {
+    val params =
+      mi.time.queryParams ++
+        mi.scope.queryParams ++
+        mapifyF("offset", mi.pagingInformation, { pi: PagingInformation => pi.offset }) ++
+        mapifyF("limit", mi.pagingInformation, { pi: PagingInformation => pi.limit })
+    val playRequestsPromise = call(RequestHandler.playRequestsURL, params)
     for {
       playRequests ← playRequestsPromise
     } yield {
