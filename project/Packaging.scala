@@ -36,7 +36,8 @@ object Packaging {
   val localRepoCreation = TaskKey[LocalRepoReport]("local-repository-creation", "Creates a local repository in the specified location.")
   val localRepoLicenses = TaskKey[Unit]("local-repository-licenses", "Prints all the licenses used by software in the local repo.")
   val localRepoCreated = TaskKey[File]("local-repository-created", "Creates a local repository in the specified location.")
-  
+  val minimalDist = taskKey[File]("dist without the bundled repository and templates")
+
   // This is dirty, but play has stolen our keys, and we must mimc them here.
   val stage = TaskKey[Unit]("stage")
   val dist = TaskKey[File]("dist")
@@ -79,6 +80,7 @@ object Packaging {
       (to / "activator").setExecutable(true, true)
     },
     dist <<= packageBin in Universal,
+    minimalDist := minimalZip((target in Universal).value, (mappings in Universal).value, version.value),
     mappings in Universal <+= (repackagedLaunchJar, version) map { (jar, v) =>
       jar -> ("activator-launch-%s.jar" format (v))
     },
@@ -217,5 +219,19 @@ object Packaging {
   repository-config: ${sbt.repository.config-${sbt.global.base-${user.home}/.sbt}/repositories}
 """ format(scalaVersion, version))
     tprops -> "sbt/sbt.boot.properties"
+  }
+
+  def minimalZip(destDir: File, mappings: Seq[(File, String)], activatorVersion: String): File = {
+    val minimalDirName = s"activator-${activatorVersion}-minimal"
+    val dest = destDir / s"${minimalDirName}.zip"
+    val sourceNames = Seq(s"activator-launch-${activatorVersion}.jar", "activator", "activator.bat")
+    val sources = mappings filter {
+        case (file, name) => sourceNames.contains(name)
+    } map {
+        case (file, name) => file -> s"${minimalDirName}/${name}"
+    }
+    require(sources.length == sourceNames.length)
+    com.typesafe.sbt.packager.universal.ZipHelper.zipNative(sources, dest)
+    dest
   }
 }

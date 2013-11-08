@@ -19,37 +19,62 @@ public class ActivatorProperties {
   }
 
   private static Properties props = loadProperties();
+
+  private static String getPropertyNoOverrides(String name) {
+    return props.getProperty(name);
+  }
+
+  // trying to avoid activator.activator.home here
+  private static String ensureNamespacing(String name) {
+    if (name.startsWith("activator."))
+      return name;
+    else
+      return "activator." + name;
+  }
+
   /** Checks the system properties, before the environment, before the hard coded defaults. */
-  private static String getProperty(String name) {
+  private static String getPropertyWithOverrides(String name) {
     String value = System.getProperty(name);
     if(value == null) {
-      value = System.getenv("activator." + name);
+      value = System.getenv(ensureNamespacing(name));
     }
     if(value == null) {
-      value = System.getenv("ACTIVATOR_" + name.replace('.', '_').toUpperCase());
+      value = System.getenv(ensureNamespacing(name).replace('.', '_').toUpperCase());
     }
     if (value == null) {
-      value = props.getProperty(name);
+      value = getPropertyNoOverrides(name);
     }
     return value;
   }
 
   /** Looks up a property value, and parses its value as appropriate. */
   private static String lookupOr(String name, String defaultValue) {
-    String value = getProperty(name);
+    String value = getPropertyWithOverrides(name);
     if(value == null) {
       value = defaultValue;
     }
     return value;
   }
 
+  private static String requirePropertyWithOverrides(String name) {
+    String value = getPropertyWithOverrides(name);
+    if (value == null)
+      throw new RuntimeException("Property '" + name + "' has not been set");
+    return value;
+  }
+
+  private static String requirePropertyNoOverrides(String name) {
+    String value = getPropertyNoOverrides(name);
+    if (value == null)
+      throw new RuntimeException("Property '" + name + "' has not been set");
+    return value;
+  }
+
   public static String TEMPLATE_UUID_PROPERTY_NAME = "template.uuid";
-  public static String ABI_VERSION_PROPERTY_NAME = "activator.abi.version";
   public static String SCRIPT_NAME = "activator";
 
-
   public static String APP_VERSION() {
-    return props.getProperty("app.version");
+    return requirePropertyNoOverrides("app.version");
   }
 
   public static String APP_ABI_VERSION() {
@@ -58,11 +83,11 @@ public class ActivatorProperties {
   }
 
   public static String APP_SCALA_VERSION() {
-    return props.getProperty("app.scala.version");
+    return requirePropertyNoOverrides("app.scala.version");
   }
 
   public static String SBT_DEFAULT_VERSION() {
-    return props.getProperty("sbt.default.version");
+    return requirePropertyNoOverrides("sbt.default.version");
   }
 
   private static String cleanUriFileString(String file) {
@@ -88,19 +113,45 @@ public class ActivatorProperties {
 
   /** Returns the distribution home directory (or local project) as a URI string. */
   public static String ACTIVATOR_HOME() {
-    return getProperty("activator.home");
+    return requirePropertyWithOverrides("activator.home");
   }
 
   public static String GLOBAL_USER_HOME() {
-    return getProperty("user.home");
+    return requirePropertyWithOverrides("user.home");
   }
 
-  public static String ACTIVATOR_USER_HOME() {
-    return lookupOr("activator.user.home", getProperty("user.home") + "/.activator/" + APP_ABI_VERSION());
+  // If you need these directories, consider keeping them private
+  // and instead just exporting a value for the final filename
+  // you would construct, like ACTIVATOR_USER_CONFIG_FILE below.
+
+  private static String ACTIVATOR_UNVERSIONED_USER_HOME() {
+    return lookupOr("activator.user.home", GLOBAL_USER_HOME() + "/.activator");
+  }
+
+  private static String ACTIVATOR_VERSIONED_USER_HOME() {
+    return ACTIVATOR_UNVERSIONED_USER_HOME() + "/" + APP_ABI_VERSION();
+  }
+
+  private static String ACTIVATOR_USER_CONFIG_HOME() {
+    return ACTIVATOR_UNVERSIONED_USER_HOME() + "/"
+        + requirePropertyWithOverrides("app.config.version");
+  }
+
+  private static String ACTIVATOR_PREVIOUS_USER_CONFIG_HOME() {
+    return ACTIVATOR_UNVERSIONED_USER_HOME() + "/"
+        + requirePropertyWithOverrides("app.config.previousVersion");
+  }
+
+  public static String ACTIVATOR_USER_CONFIG_FILE() {
+    return ACTIVATOR_USER_CONFIG_HOME() + "/config.json";
+  }
+
+  public static String ACTIVATOR_PREVIOUS_USER_CONFIG_FILE() {
+    return ACTIVATOR_PREVIOUS_USER_CONFIG_HOME() + "/config.json";
   }
 
   public static String ACTIVATOR_TEMPLATE_CACHE() {
-    return lookupOr("activator.template.cache", ACTIVATOR_USER_HOME() + "/templates");
+    return lookupOr("activator.template.cache", ACTIVATOR_VERSIONED_USER_HOME() + "/templates");
   }
 
   public static String ACTIVATOR_TEMPLATE_LOCAL_REPO() {
@@ -146,18 +197,10 @@ public class ActivatorProperties {
   }
 
   public static java.io.File ACTIVATOR_LOCK_FILE() {
-    return new java.io.File(ACTIVATOR_USER_HOME() + "/.lock");
+    return new java.io.File(ACTIVATOR_VERSIONED_USER_HOME() + "/.lock");
   }
 
   public static java.io.File ACTIVATOR_PID_FILE() {
-    return new java.io.File(ACTIVATOR_USER_HOME() + "/.currentpid");
-  }
-
-  public static String SBT_XMX() {
-    return getProperty("sbt.Xmx");
-  }
-
-  public static String SBT_PERMSIZE() {
-    return getProperty("sbt.PermSize");
+    return new java.io.File(ACTIVATOR_VERSIONED_USER_HOME() + "/.currentpid");
   }
 }
