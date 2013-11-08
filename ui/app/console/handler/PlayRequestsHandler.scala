@@ -11,6 +11,7 @@ import console.Responses._
 
 class PlayRequestsHandler extends RequestHandler {
   import ExecutionContext.Implicits.global
+  import RequestHandler._
 
   def handle(receiver: ActorRef, mi: ModuleInformation): Future[(ActorRef, JsValue)] = {
     val params =
@@ -20,16 +21,16 @@ class PlayRequestsHandler extends RequestHandler {
         mapifyF("limit", mi.pagingInformation, { pi: PagingInformation => pi.limit })
     val playRequestsPromise = call(RequestHandler.playRequestsURL, params)
     for {
-      playRequests ← playRequestsPromise
+      playRequests <- playRequestsPromise
     } yield {
       val result = validateResponse(playRequests) match {
-        case ValidResponse ⇒
+        case ValidResponse =>
           val data = JsObject(Seq("playRequestSummaries" -> playRequests.json))
           JsObject(Seq(
             "type" -> JsString("requests"),
             "data" -> data))
-        case InvalidLicense(jsonLicense) ⇒ jsonLicense
-        case ErrorResponse(jsonErrorCodes) ⇒ jsonErrorCodes
+        case InvalidLicense(jsonLicense) => jsonLicense
+        case ErrorResponse(jsonErrorCodes) => jsonErrorCodes
       }
 
       (receiver, result)

@@ -10,6 +10,7 @@ import scala.concurrent.{ ExecutionContext, Future }
 
 class OverviewHandler extends RequestHandler {
   import Responses._
+  import RequestHandler._
   import ExecutionContext.Implicits.global
 
   def handle(receiver: ActorRef, mi: ModuleInformation): Future[(ActorRef, JsValue)] = {
@@ -17,16 +18,16 @@ class OverviewHandler extends RequestHandler {
     val metadataPromise = call(RequestHandler.metadataURL, params)
 
     for {
-      metadata ← metadataPromise
+      metadata <- metadataPromise
     } yield {
       val result = validateResponse(metadata) match {
-        case ValidResponse ⇒
+        case ValidResponse =>
           val data = metadata.json
           JsObject(Seq(
             "type" -> JsString("overview"),
             "data" -> data))
-        case InvalidLicense(jsonLicense) ⇒ jsonLicense
-        case ErrorResponse(jsonErrorCodes) ⇒ jsonErrorCodes
+        case InvalidLicense(jsonLicense) => jsonLicense
+        case ErrorResponse(jsonErrorCodes) => jsonErrorCodes
       }
 
       (receiver, result)

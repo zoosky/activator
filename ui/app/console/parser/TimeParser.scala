@@ -34,8 +34,8 @@ object TimeParser {
     7 -> ThreadUtcDateFormat("yyyy-MM"))
 
   def parse(dateString: Option[String]): Option[Long] = dateString match {
-    case Some(x) ⇒ parse(x)
-    case _ ⇒ None
+    case Some(x) => parse(x)
+    case _ => None
   }
 
   def parse(dateString: String): Option[Long] = {
@@ -44,12 +44,12 @@ object TimeParser {
       try {
         Some(formatter.parse(dateString).getTime)
       } catch {
-        case e: ParseException ⇒ None
-        case e: NumberFormatException ⇒ None
+        case e: ParseException => None
+        case e: NumberFormatException => None
       }
     }
 
-    timeFormatters.get(dateString.length).flatMap(x ⇒ tryParse(x.get))
+    timeFormatters.get(dateString.length).flatMap(x => tryParse(x.get))
   }
 
   def format(date: Date): String = {
@@ -64,19 +64,19 @@ object TimeParser {
     def adjustTimeFormat(queryValue: String): String = {
       val s = queryValue.replaceAll("_", "T").replaceAll(" ", "T")
       TimeParser.parse(s) match {
-        case Some(x) ⇒ TimeParser.format(x)
-        case _ ⇒
-          for { l ← log } l.warning("Unknown time format, expected 'yyyy-MM-dd_HH:mm', got: " + queryValue + ". Defaulting to now.")
+        case Some(x) => TimeParser.format(x)
+        case _ =>
+          for { l <- log } l.warning("Unknown time format, expected 'yyyy-MM-dd_HH:mm', got: " + queryValue + ". Defaulting to now.")
           TimeParser.format(System.currentTimeMillis)
       }
     }
 
     def timeRange(queryValue: String): (Duration, String) = queryValue match {
-      case MinutePattern(value, _) ⇒ ((value.toInt.minutes), "minutes")
-      case HourPattern(value, _) ⇒ ((value.toInt.hours), "hours")
-      case DayPattern(value, _) ⇒ ((value.toInt.days), "days")
-      case MonthPattern(value, _) ⇒ (((value.toInt * 30).days), "months")
-      case _ ⇒ throw new IllegalArgumentException("Unknown time range format: " + queryValue)
+      case MinutePattern(value, _) => ((value.toInt.minutes), "minutes")
+      case HourPattern(value, _) => ((value.toInt.hours), "hours")
+      case DayPattern(value, _) => ((value.toInt.days), "days")
+      case MonthPattern(value, _) => (((value.toInt * 30).days), "months")
+      case _ => throw new IllegalArgumentException("Unknown time range format: " + queryValue)
     }
 
     def diffTimeRange(startTime: Long, endTime: Long): (Duration, String) = {
@@ -94,25 +94,25 @@ object TimeParser {
       TimeParser.parse(queryValue).getOrElse(throw new IllegalArgumentException("Unknown time format: " + queryValue))
     }
 
-    val adjustedStartTime = for { s ← startTimeOption } yield adjustTimeFormat(s)
-    val adjustedEndTime = for { e ← endTimeOption } yield adjustTimeFormat(e)
+    val adjustedStartTime = for { s <- startTimeOption } yield adjustTimeFormat(s)
+    val adjustedEndTime = for { e <- endTimeOption } yield adjustTimeFormat(e)
     val adjustedRolling = rollingOption.getOrElse(DefaultTimeRange)
 
     (adjustedStartTime, adjustedEndTime) match {
-      case (None, None) ⇒
+      case (None, None) =>
         val (duration, rangeType) = timeRange(adjustedRolling)
         TimeQuery(duration, rangeType)
-      case (Some(startTime), Some(endTime)) ⇒
+      case (Some(startTime), Some(endTime)) =>
         val startTimeMillis = parseTime(startTime)
         val endTimeMillis = parseTime(endTime)
         val (duration, rangeType) = diffTimeRange(startTimeMillis, endTimeMillis)
         TimeQuery(duration, rangeType, Some(startTimeMillis), Some(endTimeMillis))
-      case (Some(startTime), None) ⇒
+      case (Some(startTime), None) =>
         val (duration, rangeType) = timeRange(adjustedRolling)
         val startTimeMillis = parseTime(startTime)
         val endTimeMillis = startTimeMillis + duration.toMillis - 1
         TimeQuery(duration, rangeType, Some(startTimeMillis), Some(endTimeMillis))
-      case (None, Some(endTime)) ⇒
+      case (None, Some(endTime)) =>
         val (duration, rangeType) = timeRange(adjustedRolling)
         val endTimeMillis = parseTime(endTime)
         val startTimeMillis = endTimeMillis - (duration - 1.minute).toMillis
@@ -124,30 +124,30 @@ object TimeParser {
 case class TimeQuery(duration: Duration, rangeType: String, startTime: Option[Long] = None, endTime: Option[Long] = None) {
   // precondition
   (startTime, endTime) match {
-    case (None, None) ⇒ // ok
-    case (Some(_), Some(_)) ⇒ // ok
-    case (s, e) ⇒ throw new IllegalArgumentException("startTime and endTime must be defined: [%s,%s]".
+    case (None, None) => // ok
+    case (Some(_), Some(_)) => // ok
+    case (s, e) => throw new IllegalArgumentException("startTime and endTime must be defined: [%s,%s]".
       format(startTime, endTime))
   }
 
   def queryParams: Map[String, String] = (startTime, endTime) match {
-    case (Some(start), Some(end)) ⇒
+    case (Some(start), Some(end)) =>
       Map(
         "startTime" -> TimeParser.timeFormatter.get.format(new Date(start)),
         "endTime" -> TimeParser.timeFormatter.get.format(new Date(end)),
         "rangeType" -> rangeType)
-    case (_, _) ⇒ rangeType match {
-      case unit @ "minutes" ⇒ Map("rolling" -> (duration.toMinutes + unit))
-      case unit @ "hours" ⇒ Map("rolling" -> (duration.toHours + unit))
-      case unit @ "days" ⇒ Map("rolling" -> (duration.toDays + unit))
-      case unit @ "months" ⇒ Map("rolling" -> ((duration.toDays / 30) + unit))
+    case (_, _) => rangeType match {
+      case unit @ "minutes" => Map("rolling" -> (duration.toMinutes + unit))
+      case unit @ "hours" => Map("rolling" -> (duration.toHours + unit))
+      case unit @ "days" => Map("rolling" -> (duration.toDays + unit))
+      case unit @ "months" => Map("rolling" -> ((duration.toDays / 30) + unit))
     }
   }
 
   def isRolling: Boolean = startTime.isEmpty && endTime.isEmpty
 
   def percentilesQueryParams: String = endTime match {
-    case None ⇒ "rolling=1hour"
-    case Some(end) ⇒ "time=" + TimeParser.timeFormatter.get.format(new Date(end)) + "&rangeType=hours"
+    case None => "rolling=1hour"
+    case Some(end) => "time=" + TimeParser.timeFormatter.get.format(new Date(end)) + "&rangeType=hours"
   }
 }

@@ -11,6 +11,7 @@ import scala.concurrent.{ ExecutionContext, Future }
 class ActorsHandler extends RequestHandler {
   import Responses._
   import ExecutionContext.Implicits.global
+  import RequestHandler._
 
   def handle(receiver: ActorRef, mi: ModuleInformation): Future[(ActorRef, JsValue)] = {
     val params =
@@ -21,16 +22,16 @@ class ActorsHandler extends RequestHandler {
         mapify("sortOn", mi.sortCommand)
     val actorsStatsPromise = call(RequestHandler.actorsURL, params)
     for {
-      actorsStats ← actorsStatsPromise
+      actorsStats <- actorsStatsPromise
     } yield {
       val result = validateResponse(actorsStats) match {
-        case ValidResponse ⇒
+        case ValidResponse =>
           val data = JsObject(Seq("actors" -> actorsStats.json))
           JsObject(Seq(
             "type" -> JsString("actors"),
             "data" -> data))
-        case InvalidLicense(jsonLicense) ⇒ jsonLicense
-        case ErrorResponse(jsonErrorCodes) ⇒ jsonErrorCodes
+        case InvalidLicense(jsonLicense) => jsonLicense
+        case ErrorResponse(jsonErrorCodes) => jsonErrorCodes
       }
 
       (receiver, result)

@@ -24,9 +24,9 @@ class ClientController extends Actor with ActorLogging {
     Tick)
 
   def receive = {
-    case CreateClient(id) ⇒
+    case CreateClient(id) =>
       if (context.child(id).isEmpty) context.actorOf(Props[ClientHandler], id) forward InitializeCommunication
-    case Tick ⇒ context.children foreach { _ ! Tick }
+    case Tick => context.children foreach { _ ! Tick }
   }
 }
 
@@ -42,7 +42,7 @@ object ClientController {
     import play.api.libs.concurrent.Execution.Implicits._
     implicit val timeout = Timeout(1.second)
     (ConsoleController.clientHandlerActor ? CreateClient(id)).map {
-      case Connection(ref, enumerator) ⇒ (Iteratee.foreach[JsValue] { ref ! HandleRequest(_) }.map(_ ⇒ ref ! PoisonPill), enumerator)
+      case Connection(ref, enumerator) => (Iteratee.foreach[JsValue] { ref ! HandleRequest(_) }.map(_ => ref ! PoisonPill), enumerator)
     }
   }
 }

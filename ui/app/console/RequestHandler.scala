@@ -14,27 +14,28 @@ import scala.concurrent.duration._
 import scala.concurrent.{ Future, ExecutionContext }
 import play.api.Play.current
 import controllers.ConsoleController
-import snap.EnhancedURI._
 
 trait RequestHandler extends Actor with ActorLogging {
-  import ClientController.Update
   import Responses._
   import ExecutionContext.Implicits.global
+  import snap.EnhancedURI._
+  import ClientController.Update
 
   def handle(receiver: ActorRef, moduleInformation: ModuleInformation): Future[(ActorRef, JsValue)]
 
   def receive = {
-    case mi: ModuleInformation ⇒ for { r ← handle(sender, mi) } r._1 ! Update(r._2)
+    case mi: ModuleInformation => for { r <- handle(sender, mi) } r._1 ! Update(r._2)
   }
 
   def call(path: String, params: Map[String, String]): Future[Response] = {
-    val uri = new URI(null).copy(
+    val uri = new URI("").copy(
       scheme = RequestHandler.scheme,
       host = ConsoleController.config.getString("console.host"),
       port = ConsoleController.config.getInt("console.port"),
       path = path).addQueryParameters(
         (RequestHandler.timestampFormatting ++ params).foldLeft(
           Map.empty[String, Seq[String]])((r, c) => r ++ Map(c._1 -> Seq(c._2))))
+
     WS.url(uri.toASCIIString).get()
   }
 
@@ -56,8 +57,8 @@ trait RequestHandler extends Actor with ActorLogging {
 
   def latencyBarsJson(spanSummaryBars: play.api.libs.ws.Response): JsObject = {
     val latencyMinutes = spanSummaryBars.json match {
-      case a @ JsArray(_) ⇒ minutesFromArray(a)
-      case other ⇒ JsNumber(0)
+      case a @ JsArray(_) => minutesFromArray(a)
+      case other => JsNumber(0)
     }
 
     JsObject(Seq("spanSummaryBars" ->
@@ -70,8 +71,8 @@ trait RequestHandler extends Actor with ActorLogging {
 
   def timeInMailboxBarsJson(actorStatsBars: play.api.libs.ws.Response): JsObject = {
     val timeInMailboxMinutes = actorStatsBars.json match {
-      case a @ JsArray(_) ⇒ minutesFromArray(a)
-      case other ⇒ JsNumber(0)
+      case a @ JsArray(_) => minutesFromArray(a)
+      case other => JsNumber(0)
     }
 
     JsObject(Seq("actorStatsBars" ->
@@ -94,12 +95,6 @@ trait RequestHandler extends Actor with ActorLogging {
     if (json.value.isEmpty) JsNumber(0)
     else JsNumber((endTime(json.value.last) + 1 - startTime(json.value.head)).millis.toMinutes)
   }
-
-  def mapify[A](name: String, value: Option[A]): Map[String, String] =
-    (for { v <- value } yield Map(name -> v.toString)) getOrElse Map.empty[String, String]
-
-  def mapifyF[A, B](name: String, value: Option[A], f: A => B): Map[String, String] =
-    (for { v <- value } yield Map(name -> f(v).toString)) getOrElse Map.empty[String, String]
 }
 
 object RequestHandler {
@@ -111,6 +106,12 @@ object RequestHandler {
   val metadataURL = url("metadata")
   val actorsURL = url("actors")
   val playRequestsURL = url("playrequestsummary/multi")
+
+  def mapify[A](name: String, value: Option[A]): Map[String, String] =
+    (for { v <- value } yield Map(name -> v.toString)) getOrElse Map.empty[String, String]
+
+  def mapifyF[A, B](name: String, value: Option[A], f: A => B): Map[String, String] =
+    (for { v <- value } yield Map(name -> f(v).toString)) getOrElse Map.empty[String, String]
 }
 
 object Responses {
