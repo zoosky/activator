@@ -159,6 +159,13 @@ public class ActivatorProperties {
     return lookupOr("activator.latest.url", "https://typesafe.com/activator/latest");
   }
 
+  // We will consume latest versions only if they match this.
+  // So we would bump this if we want to require people to
+  // update their launcher.
+  public static int ACTIVATOR_LAUNCHER_GENERATION() {
+    return Integer.parseInt(lookupOr("activator.launcher.generation", "0"));
+  }
+
   public static String ACTIVATOR_TEMPLATE_CACHE() {
     return lookupOr("activator.template.cache", ACTIVATOR_VERSIONED_USER_HOME() + "/templates");
   }

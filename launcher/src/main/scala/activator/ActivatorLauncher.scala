@@ -17,6 +17,8 @@ import java.nio.charset.Charset
 /** Expose for SBT launcher support. */
 class ActivatorLauncher extends AppMain {
 
+  val currentLauncherGeneration = ACTIVATOR_LAUNCHER_GENERATION
+
   def run(configuration: AppConfiguration) =
     // TODO - Detect if we're running against a local project.
     try configuration.arguments match {
@@ -85,9 +87,9 @@ class ActivatorLauncher extends AppMain {
       }
 
       // sue me, not worth a JSON library
-      val re = """.*"version" *: *"([^"]+)".*""".r
-      line match {
-        case re(v) =>
+      val versionRegex = """.*"version" *: *"([^"]+)".*""".r
+      val versionOption = line match {
+        case versionRegex(v) =>
           if (v != APP_VERSION)
             System.out.println(s"   ... found updated version of Activator ${v} (replacing ${APP_VERSION})")
           else
@@ -97,6 +99,19 @@ class ActivatorLauncher extends AppMain {
           throw new Exception(s"JSON at ${latestUrl} doesn't seem to have the version in it: '${line}'")
       }
 
+      versionOption flatMap { version =>
+        val launcherGenerationRegex = """.*"launcherGeneration" *: *([0-9]+).*""".r
+        val latestLauncherGeneration = line match {
+          case launcherGenerationRegex(g) => g
+          case other => 0 // typesafe.com didn't include launcherGeneration in its json for gen 0
+        }
+        if (currentLauncherGeneration == latestLauncherGeneration) {
+          versionOption
+        } else {
+          System.out.println(s"   ... Please download a new Activator by hand at http://typesafe.com/ (the latest version ${version} isn't compatible with this launcher, generation ${currentLauncherGeneration} vs. ${latestLauncherGeneration}).")
+          None
+        }
+      }
     } catch {
       case NonFatal(e) =>
         System.out.println(s"   ... failed to get latest version information: ${e.getClass.getName}: ${e.getMessage}")
