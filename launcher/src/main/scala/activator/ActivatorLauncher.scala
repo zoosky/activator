@@ -6,6 +6,13 @@ package activator
 import xsbti.{ AppMain, AppConfiguration }
 import activator.properties.ActivatorProperties._
 import java.io.File
+import java.net.HttpURLConnection
+import scala.util.control.NonFatal
+import java.util.Properties
+import java.io.FileOutputStream
+import java.io.BufferedReader
+import java.io.InputStreamReader
+import java.nio.charset.Charset
 
 /** Expose for SBT launcher support. */
 class ActivatorLauncher extends AppMain {
@@ -13,7 +20,7 @@ class ActivatorLauncher extends AppMain {
   def run(configuration: AppConfiguration) =
     // TODO - Detect if we're running against a local project.
     try configuration.arguments match {
-      case Array("ui") => RebootToUI(configuration)
+      case Array("ui") => RebootToUI(configuration, version = checkForUpdatedVersion.getOrElse(APP_VERSION))
       case Array("new") => Exit(ActivatorCli(configuration))
       case Array("shell") => RebootToSbt(configuration, useArguments = false)
       case _ if Sbt.looksLikeAProject(new File(".")) => RebootToSbt(configuration, useArguments = true)
@@ -41,7 +48,90 @@ class ActivatorLauncher extends AppMain {
     e.printStackTrace()
     Exit(2)
   }
+
+  private def slurp(reader: BufferedReader): String = {
+    val sb = new StringBuilder
+    var next = reader.readLine()
+    while (next ne null) {
+      sb.append(next)
+      next = reader.readLine()
+    }
+    sb.toString
+  }
+
+  val latestUrl = new java.net.URL(ACTIVATOR_LATEST_URL)
+
+  def downloadLatestVersion(): Option[String] = {
+    System.out.println(s"Checking for a newer version of Activator (current version ${APP_VERSION})...")
+    try {
+      val connection = latestUrl.openConnection() match {
+        case c: HttpURLConnection => c
+        case whatever =>
+          throw new Exception(s"Unknown connection type: ${whatever.getClass.getName}")
+      }
+      // we don't want to wait too long
+      val timeout = 4000 // milliseconds
+      connection.setConnectTimeout(timeout)
+      connection.setReadTimeout(timeout)
+      connection.connect()
+
+      val in = connection.getInputStream()
+      val reader = new BufferedReader(new InputStreamReader(connection.getInputStream(), Charset.forName("UTF-8")))
+
+      val line = try {
+        slurp(reader)
+      } finally {
+        reader.close()
+      }
+
+      // sue me, not worth a JSON library
+      val re = """.*"version" *: *"([^"]+)".*""".r
+      line match {
+        case re(v) =>
+          if (v != APP_VERSION)
+            System.out.println(s"   ... found updated version of Activator ${v} (replacing ${APP_VERSION})")
+          else
+            System.out.println(s"   ... our current version ${APP_VERSION} looks like the latest.")
+          Some(v)
+        case other =>
+          throw new Exception(s"JSON at ${latestUrl} doesn't seem to have the version in it: '${line}'")
+      }
+
+    } catch {
+      case NonFatal(e) =>
+        System.out.println(s"   ... failed to get latest version information: ${e.getClass.getName}: ${e.getMessage}")
+        None
+    }
+  }
+
+  def checkForUpdatedVersion(): Option[String] = {
+    downloadLatestVersion() map { version =>
+      if (version != APP_VERSION()) {
+        val file = new File(ACTIVATOR_VERSION_FILE)
+        try {
+          if (file.getParentFile() != null)
+            file.getParentFile().mkdirs()
+          val props = new Properties()
+          props.setProperty("activator.version", version)
+          val out = new FileOutputStream(file)
+          try {
+            props.store(out, s"Activator version downloaded from ${latestUrl}")
+          } finally {
+            out.close()
+          }
+          Some(version)
+        } catch {
+          case NonFatal(e) =>
+            System.out.println(s"   ... failed to write ${file}: ${e.getMessage}")
+            None
+        }
+      } else {
+        None
+      }
+    } getOrElse None
+  }
 }
+
 /**
  * If we're rebooting into a non-cross-versioned app, we can leave off the scala
  *  version declaration, and Ivy will figure it out for us.
@@ -51,14 +141,14 @@ trait AutoScalaReboot extends xsbti.Reboot {
 }
 
 // Wrapper to return the UI application.
-case class RebootToUI(configuration: AppConfiguration) extends AutoScalaReboot {
+case class RebootToUI(configuration: AppConfiguration, version: String = APP_VERSION) extends AutoScalaReboot {
   val arguments = Array.empty[String]
   val baseDirectory = configuration.baseDirectory
   val app = ApplicationID(
     groupID = configuration.provider.id.groupID,
     // TODO - Pull this string from somewhere else so it's only configured in the build?
     name = "activator-ui",
-    version = APP_VERSION,
+    version = version,
     mainClass = "activator.UIMain")
 }
 

@@ -150,6 +150,15 @@ public class ActivatorProperties {
     return ACTIVATOR_PREVIOUS_USER_CONFIG_HOME() + "/config.json";
   }
 
+  public static String ACTIVATOR_VERSION_FILE() {
+    return ACTIVATOR_UNVERSIONED_USER_HOME() + "/version.properties";
+  }
+
+  // where to get the latest version
+  public static String ACTIVATOR_LATEST_URL() {
+    return lookupOr("activator.latest.url", "https://typesafe.com/activator/latest");
+  }
+
   public static String ACTIVATOR_TEMPLATE_CACHE() {
     return lookupOr("activator.template.cache", ACTIVATOR_VERSIONED_USER_HOME() + "/templates");
   }
