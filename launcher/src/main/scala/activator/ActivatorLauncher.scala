@@ -128,12 +128,15 @@ class ActivatorLauncher extends AppMain {
             file.getParentFile().mkdirs()
           val props = new Properties()
           props.setProperty("activator.version", version)
-          val out = new FileOutputStream(file)
+          val tmpFile = new File(file.getPath() + ".tmp")
+          val out = new FileOutputStream(tmpFile)
           try {
             props.store(out, s"Activator version downloaded from ${latestUrl}")
           } finally {
+            out.flush()
             out.close()
           }
+          sbt.IO.move(tmpFile, file)
           Some(version)
         } catch {
           case NonFatal(e) =>
