@@ -13,6 +13,7 @@ import java.io.FileOutputStream
 import java.io.BufferedReader
 import java.io.InputStreamReader
 import java.nio.charset.Charset
+import java.util.concurrent.TimeUnit
 
 /** Expose for SBT launcher support. */
 class ActivatorLauncher extends AppMain {
@@ -120,33 +121,48 @@ class ActivatorLauncher extends AppMain {
   }
 
   def checkForUpdatedVersion(): Option[String] = {
-    downloadLatestVersion() map { version =>
-      if (version != APP_VERSION()) {
-        val file = new File(ACTIVATOR_VERSION_FILE)
-        try {
-          if (file.getParentFile() != null)
-            file.getParentFile().mkdirs()
-          val props = new Properties()
-          props.setProperty("activator.version", version)
-          val tmpFile = new File(file.getPath() + ".tmp")
-          val out = new FileOutputStream(tmpFile)
+    val file = new File(ACTIVATOR_VERSION_FILE)
+    // this is documented to return 0L on IOException (e.g. no such file)
+    val lastSuccessfulCheck = file.lastModified()
+
+    val now = System.currentTimeMillis()
+
+    // if the time ends up in the future, assume something is haywire
+    val needCheck = lastSuccessfulCheck > now || (now - lastSuccessfulCheck) > TimeUnit.HOURS.toMillis(4)
+
+    if (needCheck) {
+      downloadLatestVersion() map { version =>
+        if (version != APP_VERSION()) {
           try {
-            props.store(out, s"Activator version downloaded from ${latestUrl}")
-          } finally {
-            out.flush()
-            out.close()
+            if (file.getParentFile() != null)
+              file.getParentFile().mkdirs()
+            val props = new Properties()
+            props.setProperty("activator.version", version)
+            val tmpFile = new File(file.getPath() + ".tmp")
+            val out = new FileOutputStream(tmpFile)
+            try {
+              props.store(out, s"Activator version downloaded from ${latestUrl}")
+            } finally {
+              out.flush()
+              out.close()
+            }
+            sbt.IO.move(tmpFile, file)
+            Some(version)
+          } catch {
+            case NonFatal(e) =>
+              System.out.println(s"   ... failed to write ${file}: ${e.getMessage}")
+              None
           }
-          sbt.IO.move(tmpFile, file)
-          Some(version)
-        } catch {
-          case NonFatal(e) =>
-            System.out.println(s"   ... failed to write ${file}: ${e.getMessage}")
-            None
+        } else {
+          // this should silently return false if file doesn't exist
+          file.setLastModified(now)
+          None
         }
-      } else {
-        None
-      }
-    } getOrElse None
+      } getOrElse None
+    } else {
+      // we had a successful check recently so don't check again
+      None
+    }
   }
 }
 
