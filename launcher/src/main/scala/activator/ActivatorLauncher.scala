@@ -52,7 +52,7 @@ class ActivatorLauncher extends AppMain {
     Exit(2)
   }
 
-  private def slurp(reader: BufferedReader): String = {
+  private def slurpIntoSingleLine(reader: BufferedReader): String = {
     val sb = new StringBuilder
     var next = reader.readLine()
     while (next ne null) {
@@ -82,7 +82,7 @@ class ActivatorLauncher extends AppMain {
       val reader = new BufferedReader(new InputStreamReader(connection.getInputStream(), Charset.forName("UTF-8")))
 
       val line = try {
-        slurp(reader)
+        slurpIntoSingleLine(reader)
       } finally {
         reader.close()
       }
