@@ -15,6 +15,8 @@ define(['webjars!knockout', './router', 'commons/settings', 'plugins/tutorial/tu
       },
       activeWidget: ko.observable(""),
       navigationOpened: ko.observable( settings.get("app.navigationOpened", true) ),
+      navigationSneak: ko.observable( false ),
+      navigationSneakTimer: 0,
       pannelOpened: ko.observable( settings.get("app.pannelOpened", false) ),
       pannelShape: ko.observable( settings.get("app.pannelShape", "right1") ),
       pageTitle: ko.observable(),
@@ -28,7 +30,22 @@ define(['webjars!knockout', './router', 'commons/settings', 'plugins/tutorial/tu
       },
       toggleNavigation: function(){
         this.snap.navigationOpened(!this.snap.navigationOpened());
+        this.snap.navigationSneak(this.snap.navigationOpened());
         settings.set("app.navigationOpened", this.snap.navigationOpened());
+      },
+      sneakNavigationOn: function(){
+        if (!this.snap.navigationOpened()) {
+          this.snap.navigationSneak(true);
+        }
+      },
+      sneakNavigationShow: function(){
+        clearTimeout(this.snap.navigationSneakTimer);
+      },
+      sneakNavigationHide: function(){
+        var navigationSneak = this.snap.navigationSneak;
+        this.snap.navigationSneakTimer = setTimeout(function(){
+          navigationSneak(false);
+        } ,500);
       },
       togglePannel: function(){
         this.snap.pannelOpened(!this.snap.pannelOpened());

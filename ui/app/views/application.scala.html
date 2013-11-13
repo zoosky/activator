@@ -24,10 +24,10 @@
     </script>
     <script data-main='@routes.Assets.at("core/application.js")' type='text/javascript' src='@routes.WebJarAssets.requirejs()'></script>
   </head>
-  <body data-bind="css: {navigationOpened: snap.navigationOpened, pannelOpened: snap.pannelOpened}, attr: { 'data-shape': snap.pannelShape }">
+  <body data-bind="css: {navigationOpened: snap.navigationOpened, navigationSneak: snap.navigationSneak, pannelOpened: snap.pannelOpened}, attr: { 'data-shape': snap.pannelShape }">
 
     <header id="header">
-      <button class="toggleNavigation" data-bind="click: snap.toggleNavigation"></button>
+      <button class="toggleNavigation" data-bind="click: snap.toggleNavigation, event: {mouseover: snap.sneakNavigationOn}"></button>
 
       <dl id="layoutManager" class="dropdown" data-bind="call: snap.test">
         <dt data-bind="click: snap.togglePannel"><span class="all-options"></span></dt>
@@ -60,7 +60,7 @@
       </dl>
     </header>
 
-    <nav id="navigation">
+    <nav id="navigation" data-bind="event: {mouseover: snap.sneakNavigationShow, mouseout: snap.sneakNavigationHide}">
 
       <dl id="switch" class="dropdown">
         <dt>Appname</dt>
