@@ -67,8 +67,8 @@ object TheActivatorBuild extends Build {
   // runtime.
   lazy val SbtProbesConfig = config("sbtprobes")
   def makeProbeClasspath(update: sbt.UpdateReport): String = {
-     val probeClasspath = update.matching(configurationFilter(SbtProbesConfig.name))
-     Path.makeString(probeClasspath)
+    val probeClasspath = update.matching(configurationFilter(SbtProbesConfig.name))
+    Path.makeString(probeClasspath)
   }
 
   def configureSbtTest(testKey: Scoped) = Seq(
@@ -119,7 +119,7 @@ object TheActivatorBuild extends Build {
         (launcher, update, templateCache) =>
           // We register the location after it's resolved so we have it for running play...
           sys.props("sbtrc.launch.jar") = launcher.getAbsoluteFile.getAbsolutePath
-          // The debug variant of the sbt finder automatically splits the ui + controller jars appart.
+          // The debug variant of the sbt finder automatically splits the ui + controller jars apart.
           sys.props("sbtrc.controller.classpath") = makeProbeClasspath(update)
           sys.props("activator.template.cache") = templateCache.getAbsolutePath
           sys.props("activator.runinsbt") = "true"
