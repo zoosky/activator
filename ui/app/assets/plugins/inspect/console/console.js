@@ -1,8 +1,8 @@
 /*
  Copyright (C) 2013 Typesafe, Inc <http://typesafe.com>
  */
-define(['text!./console.html', 'css!./console.css', 'core/pluginapi', './connection', './overview', './entity/actors', './entity/requests'],
-  function(template, css, api, Connection, Overview, Actors, Requests) {
+define(['text!./console.html', 'css!./console.css', 'core/pluginapi', './connection', './overview', './entity/actors', './entity/requests', './entity/request'],
+  function(template, css, api, Connection, Overview, Actors, Requests, Request) {
 
   var ko = api.ko;
 
@@ -21,7 +21,8 @@ define(['text!./console.html', 'css!./console.css', 'core/pluginapi', './connect
       this.navigation = new Overview();
       this.views = {
         'actors': { 'contents': new Actors() },
-        'requests': { 'contents': new Requests() }
+        'requests': { 'contents': new Requests() },
+        'request' : { 'contents': new Request() }
       };
       this.viewer = ko.computed(function() {
         return self.updateView(self.crumbs());
@@ -40,6 +41,7 @@ define(['text!./console.html', 'css!./console.css', 'core/pluginapi', './connect
         }
       );
     },
+
     atmosStarted: function() {
       var self = this;
       Connection.open(consoleWsUrl, function() {
@@ -56,6 +58,11 @@ define(['text!./console.html', 'css!./console.css', 'core/pluginapi', './connect
     updateView: function(path) {
       name = path[0];
       view = this.views[name];
+      if (path.length > 1) {
+        // If the view expects extra params it should implement a parameters function
+        view.contents.parameters(path.slice(1));
+      }
+
       if (view) this.navigation.active(name);
       modules = view ? [ this.navigation, view.contents ] : [ this.navigation ]
       Connection.updateModules(modules);
