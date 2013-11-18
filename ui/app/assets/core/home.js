@@ -11,6 +11,7 @@ require.config({
     }
   },
   paths: {
+    commons:  'commons',
     core:     'core',
     services: 'services',
     plugins:  'plugins',
@@ -18,6 +19,7 @@ require.config({
   }
 });
 
+// var hidden = document[hidden] = false;
 require([
   // Vendors
   '../../webjars/requirejs-text/2.0.10/text',
@@ -27,7 +29,6 @@ require([
   'webjars!keymage',
   'commons/visibility'
 ],function() {
-
   if (!document[hidden]) {
     startApp()
   }
