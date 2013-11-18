@@ -27,6 +27,9 @@ define(['core/model', 'text!./run.html', 'core/pluginapi', 'widgets/log/log', 'c
       this.haveActiveTask = ko.computed(function() {
         return self.activeTask() != "";
       }, this);
+      this.haveActiveTask.subscribe(function(active) {
+        if (!active) api.events.send({ 'type' : 'RunStopped' });
+      });
       this.startStopLabel = ko.computed(function() {
         if (self.haveActiveTask())
           return "Stop";

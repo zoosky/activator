@@ -10,17 +10,23 @@ import play.api.libs.iteratee.{ Enumerator, Iteratee }
 import play.api.libs.json.JsValue
 import scala.concurrent.duration._
 import scala.concurrent.{ Future, ExecutionContext }
+import controllers.ConsoleController
+import play.api.Play.current
 
 class ClientController extends Actor with ActorLogging {
   import ClientController._
   import ExecutionContext.Implicits.global
 
-  context.system.scheduler.schedule(ConsoleConfig.updateFrequency, ConsoleConfig.updateFrequency, self, Tick)
+  context.system.scheduler.schedule(
+    ConsoleController.config.getLong("console.update-frequency").milliseconds,
+    ConsoleController.config.getLong("console.update-frequency").milliseconds,
+    self,
+    Tick)
 
   def receive = {
-    case CreateClient(id) ⇒
+    case CreateClient(id) =>
       if (context.child(id).isEmpty) context.actorOf(Props[ClientHandler], id) forward InitializeCommunication
-    case Tick ⇒ context.children foreach { _ ! Tick }
+    case Tick => context.children foreach { _ ! Tick }
   }
 }
 
@@ -35,8 +41,8 @@ object ClientController {
   def join(id: String): Future[(Iteratee[JsValue, _], Enumerator[JsValue])] = {
     import play.api.libs.concurrent.Execution.Implicits._
     implicit val timeout = Timeout(1.second)
-    (ConsoleActorSystem.clientController ? CreateClient(id)).map {
-      case Connection(ref, enumerator) ⇒ (Iteratee.foreach[JsValue] { ref ! HandleRequest(_) }.map(_ ⇒ ref ! PoisonPill), enumerator)
+    (ConsoleController.clientHandlerActor ? CreateClient(id)).map {
+      case Connection(ref, enumerator) => (Iteratee.foreach[JsValue] { ref ! HandleRequest(_) }.map(_ => ref ! PoisonPill), enumerator)
     }
   }
 }

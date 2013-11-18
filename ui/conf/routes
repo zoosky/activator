@@ -44,7 +44,7 @@ GET         /app/:id/tutorial/*location                  controllers.Application
 GET         /home/stream                                 controllers.Application.homeStream
 
 # Console
-GET         /api/console/:id                             controllers.Application.connectConsole(id)
+GET         /api/console/:id                             controllers.ConsoleController.connectConsole(id)
 
 # Map static resources from the /public folder to the /assets URL path
 GET         /public/*file                                controllers.Assets.at(path="/public", file)

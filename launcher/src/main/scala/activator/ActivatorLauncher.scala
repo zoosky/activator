@@ -6,14 +6,24 @@ package activator
 import xsbti.{ AppMain, AppConfiguration }
 import activator.properties.ActivatorProperties._
 import java.io.File
+import java.net.HttpURLConnection
+import scala.util.control.NonFatal
+import java.util.Properties
+import java.io.FileOutputStream
+import java.io.BufferedReader
+import java.io.InputStreamReader
+import java.nio.charset.Charset
+import java.util.concurrent.TimeUnit
 
 /** Expose for SBT launcher support. */
 class ActivatorLauncher extends AppMain {
 
+  val currentLauncherGeneration = ACTIVATOR_LAUNCHER_GENERATION
+
   def run(configuration: AppConfiguration) =
     // TODO - Detect if we're running against a local project.
     try configuration.arguments match {
-      case Array("ui") => RebootToUI(configuration)
+      case Array("ui") => RebootToUI(configuration, version = checkForUpdatedVersion.getOrElse(APP_VERSION))
       case Array("new") => Exit(ActivatorCli(configuration))
       case Array("shell") => RebootToSbt(configuration, useArguments = false)
       case _ if Sbt.looksLikeAProject(new File(".")) => RebootToSbt(configuration, useArguments = true)
@@ -41,7 +51,121 @@ class ActivatorLauncher extends AppMain {
     e.printStackTrace()
     Exit(2)
   }
+
+  private def slurpIntoSingleLine(reader: BufferedReader): String = {
+    val sb = new StringBuilder
+    var next = reader.readLine()
+    while (next ne null) {
+      sb.append(next)
+      next = reader.readLine()
+    }
+    sb.toString
+  }
+
+  val latestUrl = new java.net.URL(ACTIVATOR_LATEST_URL)
+
+  def downloadLatestVersion(): Option[String] = {
+    System.out.println(s"Checking for a newer version of Activator (current version ${APP_VERSION})...")
+    try {
+      val connection = latestUrl.openConnection() match {
+        case c: HttpURLConnection => c
+        case whatever =>
+          throw new Exception(s"Unknown connection type: ${whatever.getClass.getName}")
+      }
+      // we don't want to wait too long
+      val timeout = 4000 // milliseconds
+      connection.setConnectTimeout(timeout)
+      connection.setReadTimeout(timeout)
+      connection.connect()
+
+      val in = connection.getInputStream()
+      val reader = new BufferedReader(new InputStreamReader(connection.getInputStream(), Charset.forName("UTF-8")))
+
+      val line = try {
+        slurpIntoSingleLine(reader)
+      } finally {
+        reader.close()
+      }
+
+      // sue me, not worth a JSON library
+      val versionRegex = """.*"version" *: *"([^"]+)".*""".r
+      val versionOption = line match {
+        case versionRegex(v) =>
+          if (v != APP_VERSION)
+            System.out.println(s"   ... found updated version of Activator ${v} (replacing ${APP_VERSION})")
+          else
+            System.out.println(s"   ... our current version ${APP_VERSION} looks like the latest.")
+          Some(v)
+        case other =>
+          throw new Exception(s"JSON at ${latestUrl} doesn't seem to have the version in it: '${line}'")
+      }
+
+      versionOption flatMap { version =>
+        val launcherGenerationRegex = """.*"launcherGeneration" *: *([0-9]+).*""".r
+        val latestLauncherGeneration = line match {
+          case launcherGenerationRegex(g) => g
+          case other => 0 // typesafe.com didn't include launcherGeneration in its json for gen 0
+        }
+        if (currentLauncherGeneration == latestLauncherGeneration) {
+          versionOption
+        } else {
+          System.out.println(s"   ... Please download a new Activator by hand at http://typesafe.com/ (the latest version ${version} isn't compatible with this launcher, generation ${currentLauncherGeneration} vs. ${latestLauncherGeneration}).")
+          None
+        }
+      }
+    } catch {
+      case NonFatal(e) =>
+        System.out.println(s"   ... failed to get latest version information: ${e.getClass.getName}: ${e.getMessage}")
+        None
+    }
+  }
+
+  def checkForUpdatedVersion(): Option[String] = {
+    val file = new File(ACTIVATOR_VERSION_FILE)
+    // this is documented to return 0L on IOException (e.g. no such file)
+    val lastSuccessfulCheck = file.lastModified()
+
+    val now = System.currentTimeMillis()
+
+    // if the time ends up in the future, assume something is haywire
+    val needCheck = lastSuccessfulCheck > now || (now - lastSuccessfulCheck) > TimeUnit.HOURS.toMillis(4)
+
+    if (needCheck) {
+      downloadLatestVersion() map { version =>
+        if (version != APP_VERSION()) {
+          try {
+            if (file.getParentFile() != null)
+              file.getParentFile().mkdirs()
+            val props = new Properties()
+            props.setProperty("activator.version", version)
+            val tmpFile = new File(file.getPath() + ".tmp")
+            val out = new FileOutputStream(tmpFile)
+            try {
+              props.store(out, s"Activator version downloaded from ${latestUrl}")
+            } finally {
+              out.flush()
+              out.close()
+            }
+            sbt.IO.move(tmpFile, file)
+            Some(version)
+          } catch {
+            case NonFatal(e) =>
+              System.out.println(s"   ... failed to write ${file}: ${e.getMessage}")
+              None
+          }
+        } else {
+          // this should silently return false if file doesn't exist
+          file.setLastModified(now)
+          None
+        }
+      } getOrElse None
+    } else {
+      // we had a successful check recently so don't check again
+      None
+    }
+  }
 }
+
 /**
  * If we're rebooting into a non-cross-versioned app, we can leave off the scala
  *  version declaration, and Ivy will figure it out for us.
@@ -51,14 +175,14 @@ trait AutoScalaReboot extends xsbti.Reboot {
 }
 
 // Wrapper to return the UI application.
-case class RebootToUI(configuration: AppConfiguration) extends AutoScalaReboot {
+case class RebootToUI(configuration: AppConfiguration, version: String = APP_VERSION) extends AutoScalaReboot {
   val arguments = Array.empty[String]
   val baseDirectory = configuration.baseDirectory
   val app = ApplicationID(
     groupID = configuration.provider.id.groupID,
     // TODO - Pull this string from somewhere else so it's only configured in the build?
     name = "activator-ui",
-    version = APP_VERSION,
+    version = version,
     mainClass = "activator.UIMain")
 }
 

@@ -1,12 +1,18 @@
-<div class="module">
-    <ul class="listing">
-        <li class="actors">
-            <h2>
-                <a>
-                    <span class="label">Actors</span>
-                    <span class="counter">&ndash;</span>
-                </a>
-            </h2>
-        </li>
-    </ul>
-</div>
+<ul class="listing">
+    <li data-bind="visible: actors() > 0, css: { active: active() == 'actors' }">
+        <h2>
+            <a href="#inspect/actors">
+                <span class="label">Actors</span>
+                <span class="counter" data-bind="text: shorten(actors())">&ndash;</span>
+            </a>
+        </h2>
+    </li>
+    <li data-bind="visible: requests() > 0, css: { active: active() == 'requests' }">
+        <h2>
+            <a href="#inspect/requests">
+                <span class="label">Requests</span>
+                <span class="counter" data-bind="text: shorten(requests())">&ndash;</span>
+            </a>
+        </h2>
+    </li>
+</ul>

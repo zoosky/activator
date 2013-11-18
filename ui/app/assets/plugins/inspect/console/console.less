@@ -1,4 +1,4 @@
-@import 'colors.less';
+@import 'colors';
 
 .clear-after() {
   &:after {
@@ -9,32 +9,61 @@
 }
 
 #console {
+  position: absolute;
+  top: 60px;
+  left: 0;
+  right: 0;
+  bottom: 0px;
+  overflow: hidden;
+  white-space: nowrap;
+  background: @grey;
+  z-index: 2;
+
   .module {
+    position: relative;
+    vertical-align: top;
+    white-space: normal;
+    width: 50%;
+    height: 100%;
+    display: inline-block;
     background: #fff;
+
+    article {
+      height: 100%;
+    }
+
+    article {
+      section {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        overflow: auto;
+      }
+    }
   }
 
-  .listing {
+  .navigation {
+    width: 33%;
+  }
+
+  .viewer {
+    width: 67%;
+    border-left: 1px solid @grey;
+  }
+
+  .module .listing {
     li {
       position: relative;
       cursor: pointer;
       padding: 10px;
-      border-top: 1px solid @grey;
+      border-bottom: 1px solid @grey;
       .clear-after();
-
-      &:first-child {
-        border-top: none;
-      }
-
-      &:last-child {
-        border-bottom: 1px solid @grey;
-      }
 
       &.active, &:hover {
         background: @grey_alt;
         border-color: @grey;
-        + dd, + li {
-          border-top: 1px solid @grey;
-        }
       }
 
       .counter {
@@ -82,4 +111,6 @@
 
 }
 
-@import 'grid.less';
+@import 'entity/actors';
+@import 'entity/requests';
+@import 'footer';

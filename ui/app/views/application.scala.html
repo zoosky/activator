@@ -16,8 +16,9 @@
     <script type="text/javascript">
       // Gobal configuration
       var logging = false;
+      var debug = false;
       window.wsUrl = '@routes.Application.connectApp(model.id).webSocketURL()';
-      window.consoleWsUrl = '@routes.Application.connectConsole(model.id).webSocketURL()';
+      window.consoleWsUrl = '@routes.ConsoleController.connectConsole(model.id).webSocketURL()';
       @* The @Html thing prevents the Json from being escaped *@
       window.serverAppModel = @Html(Json.toJson(model).toString())
       window.serverAppVersion = "@ActivatorProperties.APP_VERSION"

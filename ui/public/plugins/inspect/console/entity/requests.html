@@ -1,0 +1,18 @@
+<div class="requests">
+    <table>
+        <thead>
+        <tr>
+            <th><span>Request</span></th>
+            <th class="right"><span>Method</span></th>
+            <th class="right"><span>Response Code</span></th>
+        </tr>
+        </thead>
+        <tbody class="listing" data-bind="foreach: requests">
+        <tr>
+            <td class="path"><a data-bind="text: path"></a></td>
+            <td class="method right"><a data-bind="text: method"></a></td>
+            <td class="response right"><a data-bind="text: responseCode"></a></td>
+        </tr>
+        </tbody>
+    </table>
+</div>

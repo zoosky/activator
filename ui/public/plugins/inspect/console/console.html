@@ -1,2 +1,5 @@
-<div id="console" data-bind="visible: connected"></div>
+<div id="console" data-bind="visible: connected">
+  <div class="module navigation" data-bind="snapView: navigation"></div><!-- ko with: viewer
+  --><div class="module viewer" data-bind="snapView: contents"></div><!-- /ko -->
+</div>
 <div data-bind="visible: !connected()">Not connected. See Run tab.</div>

@@ -67,8 +67,8 @@ object TheActivatorBuild extends Build {
   // runtime.
   lazy val SbtProbesConfig = config("sbtprobes")
   def makeProbeClasspath(update: sbt.UpdateReport): String = {
-     val probeClasspath = update.matching(configurationFilter(SbtProbesConfig.name))
-     Path.makeString(probeClasspath)
+    val probeClasspath = update.matching(configurationFilter(SbtProbesConfig.name))
+    Path.makeString(probeClasspath)
   }
 
   def configureSbtTest(testKey: Scoped) = Seq(
@@ -119,7 +119,7 @@ object TheActivatorBuild extends Build {
         (launcher, update, templateCache) =>
           // We register the location after it's resolved so we have it for running play...
           sys.props("sbtrc.launch.jar") = launcher.getAbsoluteFile.getAbsolutePath
-          // The debug variant of the sbt finder automatically splits the ui + controller jars appart.
+          // The debug variant of the sbt finder automatically splits the ui + controller jars apart.
           sys.props("sbtrc.controller.classpath") = makeProbeClasspath(update)
           sys.props("activator.template.cache") = templateCache.getAbsolutePath
           sys.props("activator.runinsbt") = "true"
@@ -242,8 +242,9 @@ object TheActivatorBuild extends Build {
         "jline" % "jline" % "0.9.94",
         "com.typesafe.akka" % "akka-slf4j_2.10" % "2.2.0"
       ) ++ Dependencies.atmosArtifacts,
-      Keys.mappings in S3.upload <<= (Keys.packageBin in Universal, Keys.version) map { (zip, v) =>
-        Seq(zip -> ("typesafe-activator/%s/typesafe-activator-%s.zip" format (v, v)))
+      Keys.mappings in S3.upload <<= (Keys.packageBin in Universal, Packaging.minimalDist, Keys.version) map { (zip, minimalZip, v) =>
+        Seq(minimalZip -> ("typesafe-activator/%s/typesafe-activator-%s-minimal.zip" format (v, v)),
+            zip -> ("typesafe-activator/%s/typesafe-activator-%s.zip" format (v, v)))
       },
       S3.host in S3.upload := "downloads.typesafe.com.s3.amazonaws.com",
       S3.progress in S3.upload := true

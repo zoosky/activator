@@ -120,7 +120,6 @@ define(['core/pluginapi'], function(api) {
       var self = this;
       if(config.name) self.name(config.name);
       if(config.mimeType) self.mimeType(config.mimeType);
-      if(config.name) self.name(config.name);
       if(config.isDirectory) self.isDirectory(config.isDirectory);
       if(config.type) self.type(config.type);
 

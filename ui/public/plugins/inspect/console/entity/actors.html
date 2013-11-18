@@ -1,0 +1,55 @@
+<article class="actors" data-bind="hoverPopup: 'hoverPopup'">
+    <section class="withFooter">
+        <table>
+            <thead>
+                <tr data-bind="foreach: columns">
+                    <th><span data-bind="text: name, click: $root.changeSort, css: { sortBy: sortBy == $root.sortBy() }"></span></th>
+                </tr>
+            </thead>
+            <tbody class="listing" data-bind="foreach: actors">
+                <tr>
+                    <td class="name">
+                        <a href="#inspect/actors" data-bind="attr: { 'data-hover-text': hover }">
+                            <!-- ko foreach: prefix--><!-- ko text: $data--><!-- /ko -->/<wbr><!-- /ko --><strong data-bind="text: name, attr: { 'data-hover-text': hover }"></strong>
+                        </a>
+                    </td>
+                    <td class="throughput right"><a data-bind="text: throughput"></a></td>
+                    <td class="maxTimeInMailbox right"  data-bind="text: maxTimeInMailbox"><a></a></td>
+                    <td class="maxMailboxSize right"><a data-bind="text: maxMailboxSize"></a></td>
+                    <td class="right"><a><span class="deviation-counter" data-bind="text: deviations"></span></a></td>
+                </tr>
+            </tbody>
+        </table>
+    </section>
+    <footer class="filters fourFilters">
+        <p class="showing">
+            Showing <span class="itemsShown" data-bind="text: actors().length">?</span>
+            of <span class="itemsTotal" data-bind="text: total">?</span>
+        </p>
+        <p class="limit select">
+            <label>Limit</label>
+            <select data-bind="value: limit">
+                <option value="50">50</option>
+                <option value="100">100</option>
+                <option value="200">200</option>
+                <option value="500">500</option>
+                <option value="1000">1000</option>
+            </select>
+        </p>
+        <div class="toggles menu">
+            <span>Toggles</span>
+            <ul>
+                <li class="filterAnonymous">
+                    <label><input type="checkbox" data-bind="checked: hideAnonymous"> Hide anonymous actors</label>
+                </li>
+                <li class="showFullPath">
+                    <label><input type="checkbox" data-bind="checked: fullActorPath"> Show full actor paths</label>
+                </li>
+            </ul>
+        </div>
+        <p class="search input" data-hover-text="Filter actors">
+            <input type="text" data-bind="value: filter, valueUpdate: 'afterkeydown'" data-hover-text="Filter actors">
+            <span class="clear" data-bind="click: clearFilter"></span>
+        </p>
+    </footer>
+</article>

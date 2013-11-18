@@ -1,7 +1,7 @@
 /*
  Copyright (C) 2013 Typesafe, Inc <http://typesafe.com>
  */
-define(['text!./browse.html', 'core/pluginapi'], function(template, api) {
+define(['text!./browse.html', 'core/pluginapi', './files'], function(template, api, files) {
 
   var ko = api.ko;
 
@@ -96,6 +96,14 @@ define(['text!./browse.html', 'core/pluginapi'], function(template, api) {
           logging &&console.log('Success creating file or folder');
           // reload (since we don't watch for changes...)
           self.directory().loadInfo();
+
+          // open file in browser
+          if (!isDirectory) {
+            var fm = new files.FileModel({
+              location: full
+            });
+            fm.select();
+          }
         }).fail(function(err) {
           logging &&console.log('Failed to create: ', err);
           alert(err.responseText);

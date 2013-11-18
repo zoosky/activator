@@ -44,15 +44,15 @@ abstract class WebSocketActor[MessageType](implicit frameFormatter: FrameFormatt
 
     private def handleNextInput(i: Input[In]): Iteratee[In, Unit] = {
       i match {
-        case Input.Empty ⇒
+        case Input.Empty =>
           log.debug("consumer iteratee (incoming websocket messages) is empty")
           this
-        case Input.EOF ⇒ {
+        case Input.EOF => {
           log.debug("consumer iteratee (incoming websocket messages) EOF")
           actorWrapper.actor ! IncomingComplete
           Done((), Input.Empty)
         }
-        case Input.El(x) ⇒ {
+        case Input.El(x) => {
           if (actorWrapper.isTerminated) {
             log.debug("Sending error to the incoming websocket, can't consume since actor is terminated {}", x)
             Error("web socket consumer actor has been terminated", i)
@@ -69,7 +69,7 @@ abstract class WebSocketActor[MessageType](implicit frameFormatter: FrameFormatt
                   log.warning("Bad reply from websocket actor {}", whatever)
                   Error("web socket actor gave us a mystery reply: " + whatever, Input.El(x))
               } recover {
-                case e: Exception ⇒
+                case e: Exception =>
                   log.warning("Failed to consume incoming websocket message: consumer.isTerminated={}: {}: {}: message was {}",
                     actorWrapper.isTerminated, e.getClass.getName, e.getMessage, x)
                   Error("web socket actor failed to consume a message", Input.El(x))
@@ -115,7 +115,7 @@ abstract class WebSocketActor[MessageType](implicit frameFormatter: FrameFormatt
   }
 
   private def internalReceive: Receive = {
-    case Terminated(child) ⇒
+    case Terminated(child) =>
       if (child == producerActorWrapper.actor) {
         log.debug("In websocket actor, got Terminated for producer actor")
         outgoingCompleted = true
@@ -123,21 +123,21 @@ abstract class WebSocketActor[MessageType](implicit frameFormatter: FrameFormatt
       } else {
         log.warning("In websocket actor, got Terminated for unexpected actor: " + child)
       }
-    case internal: InternalWebSocketMessage ⇒ internal match {
-      case IncomingComplete ⇒
+    case internal: InternalWebSocketMessage => internal match {
+      case IncomingComplete =>
         log.debug("In websocket actor, got IncomingComplete signaling consumer actor is done")
         incomingCompleted = true
         checkFullyCompleted()
         log.debug("poisoning producer to close our side of the socket")
         producerActorWrapper.actor ! PoisonPill
-      case InitialReadyTimeout ⇒
+      case InitialReadyTimeout =>
         if (!ready) {
           log.warning("websocket actor not ready within its timeout, poisoning")
           self ! PoisonPill
         }
-      case Ready ⇒
+      case Ready =>
         ready = true
-      case TimeoutAfterHalfCompleted ⇒
+      case TimeoutAfterHalfCompleted =>
         log.warning("websocket actor had incoming completed=" + incomingCompleted +
           " and outgoing completed=" + outgoingCompleted +
           " and timed out before the other one completed; force-terminating")
@@ -146,11 +146,11 @@ abstract class WebSocketActor[MessageType](implicit frameFormatter: FrameFormatt
         checkFullyCompleted()
       case other => log.warning("Received unexpected internal websocket message {}", other)
     }
-    case Incoming(message) ⇒
+    case Incoming(message) =>
       onMessage(message.asInstanceOf[MessageType])
       // reply with the new iteratee
       sender ! new ActorIteratee[MessageType](ActorWrapperHelper(self))
-    case GetWebSocket ⇒
+    case GetWebSocket =>
       if (createdSocket) {
         log.warning("second connection attempt will fail")
         throw new Exception("Tried to attach a second web socket to the same WebSocketActor")
@@ -160,7 +160,7 @@ abstract class WebSocketActor[MessageType](implicit frameFormatter: FrameFormatt
         val futureStreams = producerActorWrapper.actor.ask(GetProducer)
           .mapTo[GotProducer[MessageType]]
           .map({
-            case GotProducer(enumerator) ⇒
+            case GotProducer(enumerator) =>
               log.debug("got producer enumerator")
               val consumer = newConsumer()
               actor ! Ready
@@ -194,7 +194,7 @@ abstract class WebSocketActor[MessageType](implicit frameFormatter: FrameFormatt
       log.warning("producer actor is dead, sending isn't going to work")
     } else {
       producerActorWrapper.actor.ask(OutgoingMessage(message))(WebSocketActor.timeout).mapTo[Ack.type].onFailure {
-        case e: Exception ⇒
+        case e: Exception =>
           log.debug("Producer actor failed to send Outgoing, {}: {}", e.getClass.getSimpleName, e.getMessage)
           log.debug("Killing failed producer")
           // this is supposed to start a chain reaction where we get Terminated
@@ -270,15 +270,15 @@ private class ProducerProxy[Out] extends Actor with ActorLogging {
   // create a producer that accepts outgoing websocket messages
   // and sends us status updates on the producer channel
   protected lazy val enumerator = Concurrent.unicast[Out](
-    onStart = { channel ⇒
+    onStart = { channel =>
       log.debug("unicast onStart: sending channel to websocket producer")
       self ! OutgoingReady[Out](channel)
     },
-    onComplete = { () ⇒
+    onComplete = { () =>
       log.debug("unicast onComplete: completing websocket producer")
       self ! OutgoingComplete
     },
-    onError = { (s, input) ⇒
+    onError = { (s, input) =>
       log.debug("unicast onError: websocket producer {}", s)
       self ! OutgoingError(s, input)
     })
@@ -294,7 +294,7 @@ private class ProducerProxy[Out] extends Actor with ActorLogging {
         channel.push(message)
         log.debug("message pushed with no exception")
       } catch {
-        case other: Exception ⇒
+        case other: Exception =>
           log.warning("Exception {} sending to socket, suiciding: {}", other.getClass.getSimpleName, other.getMessage)
           self ! PoisonPill
       }
@@ -325,29 +325,29 @@ private class ProducerProxy[Out] extends Actor with ActorLogging {
   }
 
   override def receive = {
-    case InitialReadyTimeout ⇒
+    case InitialReadyTimeout =>
       if (!channelOption.isDefined) {
         log.warning("ProducerProxy not ready within initial timeout, poisoning")
         self ! PoisonPill
       }
-    case ppMessage: ProducerProxyMessage ⇒ ppMessage match {
-      case OutgoingMessage(message) ⇒
+    case ppMessage: ProducerProxyMessage => ppMessage match {
+      case OutgoingMessage(message) =>
         log.debug("producer got outgoing: {}", message)
         produce(message.asInstanceOf[Out])
         log.debug("producer sending Ack")
         sender ! Ack
-      case OutgoingReady(channel) ⇒
+      case OutgoingReady(channel) =>
         log.debug("ProducerProxy ready to go, got channel {}", channel)
         require(channelOption.isEmpty)
         channelOption = Some(channel.asInstanceOf[Concurrent.Channel[Out]])
         flushBuffer()
-      case OutgoingComplete ⇒
+      case OutgoingComplete =>
         log.debug("ProducerProxy got complete, closing down)")
         self ! PoisonPill
-      case OutgoingError(what, input) ⇒
+      case OutgoingError(what, input) =>
         log.debug("ProducerProxy got error, closing down: {}", what)
         self ! PoisonPill
-      case GetProducer ⇒
+      case GetProducer =>
         log.debug("ProducerProxy returning its enumerator: {}", enumerator)
         sender ! GotProducer(enumerator)
     }
@@ -362,7 +362,7 @@ private class ProducerProxy[Out] extends Actor with ActorLogging {
     log.debug("stopping")
     channelOption.foreach { channel =>
       try channel.eofAndEnd() catch {
-        case e: Exception ⇒
+        case e: Exception =>
           log.warning("Problem closing websocket outgoing producer: {}: {}", e.getClass.getSimpleName, e.getMessage)
       }
     }
