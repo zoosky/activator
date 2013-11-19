@@ -11,7 +11,7 @@ require.config({
     }
   },
   paths: {
-    core:    'javascripts/core',
+    core:    'core',
     plugins:  'plugins'
   }
 });
