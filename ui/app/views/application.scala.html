@@ -77,10 +77,10 @@
       </dl>
 
       <div id="appStatus">
-        <button class="running"></button>
-        <button class="refresh"></button>
-        <button class="console"></button>
-        <button class="testing"></button>
+        <button class="running" data-bind="toggle: snap.build.startApp, css: {active: snap.build.startApp}"></button>
+        <button class="refresh" data-bind="toggle: snap.build.rerunOnBuild, css: {active: snap.build.rerunOnBuild}"></button>
+        <button class="console" data-bind="toggle: snap.build.runInConsole, css: {active: snap.build.runInConsole}"></button>
+        <button class="testing" data-bind="toggle: snap.build.retestOnSuccessfulBuild, css: {active: snap.build.retestOnSuccessfulBuild}"></button>
       </div>
 
       <dl id="rockets">

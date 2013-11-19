@@ -62,6 +62,18 @@ define(['webjars!knockout'], function(ko) {
     return templateEngine;
   }
 
+  // toggle Booleans from binding
+  ko.bindingHandlers.toggle = {
+    init: function(element, valueAccessor, allBindings, viewModel, bindingContext) {
+      var val = valueAccessor();
+      console.log("??",val, val());
+      element.addEventListener("click",function(){
+        val(!val());
+      });
+    },
+    update: function() {}
+  };
+
   // Register us immediately.
   ko.setTemplateEngine(createStringTemplateEngine(new ko.nativeTemplateEngine(), templates));
 
