@@ -30,11 +30,11 @@
     <header id="header">
       <button class="toggleNavigation" data-bind="click: snap.toggleNavigation, event: {mouseover: snap.sneakNavigationOn}"></button>
 
-      <dl id="layoutManager" class="dropdown" data-bind="call: snap.test">
-        <dt data-bind="click: snap.togglePannel"><span class="all-options"></span></dt>
+      <dl id="layoutManager" class="dropdown dropdownNoEvent" data-bind="css: {active: snap.panelDropdownActive}, call: snap.test">
+        <dt data-bind="click: snap.togglePannel"><span class="all-options" data-bind="click: snap.togglePanelDropdown"></span></dt>
         <dd>
-          <button class="right1"></button>
-          <button class="bottom1"></button>
+          <button class="right1" data-panel-shape="right1" data-bind="click: snap.togglePannelShape"></button>
+          <button class="bottom1" data-panel-shape="bottom1" data-bind="click: snap.togglePannelShape"></button>
         </dd>
       </dl>
 

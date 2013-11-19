@@ -17,6 +17,7 @@ define(['webjars!knockout', './router', 'commons/settings', 'plugins/tutorial/tu
       navigationOpened: ko.observable( settings.get("app.navigationOpened", true) ),
       navigationSneak: ko.observable( false ),
       navigationSneakTimer: 0,
+      panelDropdownActive: ko.observable( false ),
       pannelOpened: ko.observable( settings.get("app.pannelOpened", false) ),
       pannelShape: ko.observable( settings.get("app.pannelShape", "right1") ),
       pageTitle: ko.observable(),
@@ -51,6 +52,15 @@ define(['webjars!knockout', './router', 'commons/settings', 'plugins/tutorial/tu
       togglePannel: function(){
         this.snap.pannelOpened(!this.snap.pannelOpened());
         settings.set("app.pannelOpened", this.snap.pannelOpened());
+      },
+      togglePannelShape: function(data, event){
+        this.snap.pannelShape(event.target.dataset.panelShape);
+        this.snap.panelDropdownActive( false );
+        settings.set("app.pannelShape", this.snap.pannelShape());
+      },
+      togglePanelDropdown: function(data, event){
+        event.stopPropagation();
+        this.snap.panelDropdownActive(!this.snap.panelDropdownActive());
       }
     },
     logModel: new log.Log(),
