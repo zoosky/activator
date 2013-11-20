@@ -48,11 +48,9 @@ require([
     }
     var r;
     if (failed === null) {
-      console.log("passed ", desc);
       r = { desc: desc, passed: true };
       passedCount += 1;
     } else {
-      console.log("failed ", desc, " ", failed);
       r = { desc: desc, passed: false, error: failed };
       failedCount += 1;
     }

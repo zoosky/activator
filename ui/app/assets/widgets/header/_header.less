@@ -1,0 +1,145 @@
+.red-icon() {
+  background-color: @red;
+  background-repeat: no-repeat;
+  &:hover, &.active {
+    background-color: @red-dkr;
+  }
+}
+
+#header {
+  background: @navy;
+  color: #fff;
+  position: fixed;
+  top: 0;
+  left: @drawer-width;
+  right: @panel-width;
+  height: 50px;
+  box-shadow: 0 3px 0 rgba(0,0,0,.1);
+  z-index: 10;
+}
+
+#user, #notifications, #layoutManager {
+  .square(50px);
+  width: 52px;
+  float: right;
+  border-left: 2px solid @navy-dkr;
+  dt {
+    .square(50px);
+    background-position: center center;    
+  }
+}
+
+#notifications {
+  dt {
+    text-align: center;
+  }
+  span {
+    display: inline-block;
+    .square(30px);
+    line-height: 25px;
+    border-radius: 15px;
+    border: 3px solid @grey-dkr;
+    font-size: 16px;
+    margin: 11px;
+  }
+  dd {
+    background: @navy;
+    right: -1px;
+    min-width: (@panel-width / 2);
+    a {
+      color: @grey-ltr;
+      line-height: 20px;
+      text-decoration: none;
+      padding: 5px 10px;
+      border-bottom: 1px solid @navy-dkr;
+      min-height: 30px;
+      display: block;
+      &:last-child {
+        border-bottom: none;
+      }
+      &:hover {
+        background: @navy-ltr;
+        color: white;
+      }
+    }
+  }
+}
+
+#user {
+  background-image: url(/public/images/icons/user.svg);
+}
+
+// ----------------
+// LAYOUT BUTTONS
+// ----------------
+#header {
+  .toggleNavigation {
+    .square(50px);
+    float: left;
+    background: @red url(/public/images/icons/stripes.svg) center center no-repeat;
+    .transition();
+    &:hover, .navigationOpened & {
+      background-color: @red-dkr;
+    }
+  }
+}
+
+
+#layoutManager {
+  position: relative;
+  background-color: @red;
+  background-repeat: no-repeat;
+  &:hover, .panelOpened & {
+    background-color: @red-dkr;
+  }
+  dt {
+    background-image: url(/public/images/icons/layouts.svg);
+  }
+  [data-shape='right1'] & dt, .right1 {
+    background-position: 0 0;
+  }
+  [data-shape='right2'] & dt, .right2 {
+    background-position: 0 -50px;
+  }
+  [data-shape='bottom1'] & dt, .bottom1 {
+    background-position: 0 -100px;
+  }
+  [data-shape='bottom2'] & dt, .bottom2 {
+    background-position: 0 -150px;
+  }
+  &:hover .all-options {
+    opacity: .3;
+  }
+  .all-options {
+    position: absolute;
+    top: 36px;
+    right: 1px;
+    .square(14px);
+    background: url(/public/images/icons/layouts.svg) bottom right;
+    opacity: 0;
+    .transition();
+    &:hover {
+      opacity: 1;
+    }
+  }
+  dd {
+    line-height: auto;
+  }
+  button {
+    .square(50px);
+    background-image: url(/public/images/icons/layouts.svg);
+    background-color: @red;
+    float: left;
+    &:hover {
+      background-color: @red-dkr;
+    }
+  }
+
+  [data-shape='right1'] & .right1,
+  [data-shape='right2'] & .right2,
+  [data-shape='bottom1'] & .bottom1,
+  [data-shape='bottom2'] & .bottom2 {
+    display: none;
+  }
+}
+

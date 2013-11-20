@@ -28,7 +28,6 @@ require([
   'webjars!keymage',
   'commons/visibility'
 ],function() {
-
   if (!document[hidden]) {
     startApp()
   }

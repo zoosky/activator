@@ -22,10 +22,10 @@ define ->
       @websocket = new WebSocket(url)
       @websocket.onerror = (event) ->
         # $(window).trigger("console-alert", {message: "Connection error", level: "error"})
-        debug && console.log "console websocket error : ", event
+        console.log "console websocket error : ", event
       @websocket.onopen = (event) =>
         @connected = true
-        debug && console.log "console websocket opened : ", event
+        console.log "console websocket opened : ", event
         # Send queued messages
         messages = @sendQueue
         @sendQueue = []
@@ -36,7 +36,7 @@ define ->
         @receive event.data
       @websocket.onclose = (event) =>
         # $(window).trigger("console-alert", {message: "Connection closed", level: "warning"})
-        debug && console.log "console websocket closing : ", event
+        console.log "console websocket closing : ", event
 
     close: ->
       if @websocket
@@ -48,11 +48,11 @@ define ->
     send: (message) ->
       json = JSON.stringify message
       if @connected
-        debug && console.log "console connection send : ", json
+        console.log "console connection send : ", json
         @websocket.send json
       else
         @sendQueue.push message
-        debug && console.log "console connection queued message : ", message
+        console.log "console connection queued message : ", message
       @
 
     receive: (message) ->
@@ -60,10 +60,10 @@ define ->
         message = JSON.parse(message)
         $(window).trigger("network-data")
       catch e
-        debug && console.log "console connection couldn't parse received JSON message : ", message
+        console.log "console connection couldn't parse received JSON message : ", message
         $(window).trigger("network-error")
         return false
-      debug && console.log "console connection receive : ", message
+      console.log "console connection receive : ", message
       # Catch errors
 
       # Update module with data
@@ -94,7 +94,7 @@ define ->
       @
 
     updateTime: (time, minutes) ->
-      debug && console.log "console connection updateTime : ", time, minutes
+      console.log "console connection updateTime : ", time, minutes
       @request.time = time
       @update()
       for module in @modules
@@ -105,7 +105,7 @@ define ->
       Math.ceil(new Date(endTime).getTime() - new Date(startTime).getTime()) / 60000
 
     update: ->
-      debug && console.log "console connection request : ", @request
+      console.log "console connection request : ", @request
 
       # Build request object
       sendData =

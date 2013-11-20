@@ -1,0 +1,89 @@
+// ----------------
+// LAYOUT
+// ----------------
+
+// Defaults
+#wrapper {
+  position: fixed;
+  top: 50px;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  overflow: hidden;
+  -webkit-perspective: 2000;
+  .transition();
+}
+
+#header {
+  left: 0;
+  right: 0;
+  .transition();
+}
+
+#panels {
+  position: fixed;
+  bottom: 0;
+  right: 0;
+  display: none;
+}
+
+#navigation {
+  -webkit-transform: translateX(-100%);
+  -moz-transform: translateX(-100%);
+  transform: translateX(-100%);
+  .transition();
+}
+
+// Navigation opened
+body.navigationOpened {
+  #header, #wrapper {
+    left: @drawer-width;
+  }
+  #navigation {
+    -webkit-transform: translateX(0);
+    -moz-transform: translateX(0);
+    transform: translateX(0);
+  }
+}
+body.navigationSneak {
+  #navigation {
+    -webkit-transform: translateX(0);
+    -moz-transform: translateX(0);
+    transform: translateX(0);
+  }
+}
+
+// Panel opened
+body.panelOpened {
+  #panels {
+    display: block;
+  }
+  &[data-shape='right1'],
+  &[data-shape='right2'] {
+    #header, #wrapper {
+      right: @panel-width;
+    }
+    #panels {
+      top: 0;
+      width: @panel-width;
+    }
+    main {
+      left: @panel-width;
+    }
+  }
+  &[data-shape='bottom1'],
+  &[data-shape='bottom2'] {
+    #panels {
+      height: @panel-width;
+      left: 0;
+    }
+    &.navigationOpened {
+      #panels {
+        left: @drawer-width;
+      }
+    }
+    main {
+      bottom: @panel-width;
+    }
+  }
+}
