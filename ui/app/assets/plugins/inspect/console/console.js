@@ -1,8 +1,8 @@
 /*
  Copyright (C) 2013 Typesafe, Inc <http://typesafe.com>
  */
-define(['text!./console.html', 'css!./console.css', 'core/pluginapi', './connection', './overview', './entity/actors', './entity/requests', './entity/request', 'commons/utils'],
-  function(template, css, api, Connection, Overview, Actors, Requests, Request, Utils) {
+define(['text!./console.html', 'css!./console.css', 'core/pluginapi', './connection', './overview', './entity/actors', './entity/actor', './entity/requests', './entity/request', 'commons/utils'],
+  function(template, css, api, Connection, Overview, Actors, Actor, Requests, Request, Utils) {
 
   var ko = api.ko;
 
