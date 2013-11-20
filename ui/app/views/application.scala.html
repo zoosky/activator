@@ -22,17 +22,17 @@
     </script>
     <script data-main='@routes.Assets.at("core/application.js")' type='text/javascript' src='@routes.WebJarAssets.requirejs()'></script>
   </head>
-  <body data-bind="css: {navigationOpened: snap.navigationOpened, navigationSneak: snap.navigationSneak, pannelOpened: snap.pannelOpened}, attr: { 'data-shape': snap.pannelShape }">
+  <body data-bind="css: {navigationOpened: snap.navigationOpened, navigationSneak: snap.navigationSneak, panelOpened: snap.panelOpened}, attr: { 'data-shape': snap.panelShape }">
 
     <header id="header">
       <button class="toggleNavigation" data-bind="click: snap.toggleNavigation, event: {mouseover: snap.sneakNavigationOn}"></button>
 
       <!-- remove the method testCallBinding from the JS when removing this -->
       <dl id="layoutManager" class="dropdown dropdownNoEvent" data-bind="css: {active: snap.panelDropdownActive}, call: snap.testCallBinding">
-        <dt data-bind="click: snap.togglePannel"><span class="all-options" data-bind="click: snap.togglePanelDropdown"></span></dt>
+        <dt data-bind="click: snap.togglePanel"><span class="all-options" data-bind="click: snap.togglePanelDropdown"></span></dt>
         <dd>
-          <button class="right1" data-panel-shape="right1" data-bind="click: snap.togglePannelShape"></button>
-          <button class="bottom1" data-panel-shape="bottom1" data-bind="click: snap.togglePannelShape"></button>
+          <button class="right1" data-panel-shape="right1" data-bind="click: snap.togglePanelShape"></button>
+          <button class="bottom1" data-panel-shape="bottom1" data-bind="click: snap.togglePanelShape"></button>
         </dd>
       </dl>
 
@@ -122,7 +122,7 @@
     <main id="wrapper" data-bind="foreach: { data: widgets }, visible: snap.activeWidget() != undefined">
       <div class="widget" data-bind="snapView: $data, visible: id == $parent.snap.activeWidget()"></div>
     </main>
-    <div id="pannels" data-bind="snapView: tutorial">
+    <div id="panels" data-bind="snapView: tutorial">
       <header></header>
       <aside id="tutorial"></aside>
     </div>

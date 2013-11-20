@@ -20,8 +20,8 @@ define(['webjars!knockout', './router', 'commons/settings', 'plugins/tutorial/tu
       navigationSneak: ko.observable( false ),
       navigationSneakTimer: 0,
       panelDropdownActive: ko.observable( false ),
-      pannelOpened: ko.observable( settings.get("app.pannelOpened", false) ),
-      pannelShape: ko.observable( settings.get("app.pannelShape", "right1") ),
+      panelOpened: ko.observable( settings.get("app.panelOpened", false) ),
+      panelShape: ko.observable( settings.get("app.panelShape", "right1") ),
       pageTitle: ko.observable(),
       // TODO load last value from somewhere until we get a message from the iframe
       signedIn: ko.observable(false),
@@ -51,14 +51,14 @@ define(['webjars!knockout', './router', 'commons/settings', 'plugins/tutorial/tu
           navigationSneak(false);
         } ,500);
       },
-      togglePannel: function(){
-        this.snap.pannelOpened(!this.snap.pannelOpened());
-        settings.set("app.pannelOpened", this.snap.pannelOpened());
+      togglePanel: function(){
+        this.snap.panelOpened(!this.snap.panelOpened());
+        settings.set("app.panelOpened", this.snap.panelOpened());
       },
-      togglePannelShape: function(data, event){
-        this.snap.pannelShape(event.target.dataset.panelShape);
+      togglePanelShape: function(data, event){
+        this.snap.panelShape(event.target.dataset.panelShape);
         this.snap.panelDropdownActive( false );
-        settings.set("app.pannelShape", this.snap.pannelShape());
+        settings.set("app.panelShape", this.snap.panelShape());
       },
       togglePanelDropdown: function(data, event){
         event.stopPropagation();

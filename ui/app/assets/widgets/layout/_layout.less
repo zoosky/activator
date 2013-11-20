@@ -20,7 +20,7 @@
   .transition();
 }
 
-#pannels {
+#panels {
   position: fixed;
   bottom: 0;
   right: 0;
@@ -53,37 +53,37 @@ body.navigationSneak {
   }
 }
 
-// Pannel opened
-body.pannelOpened {
-  #pannels {
+// Panel opened
+body.panelOpened {
+  #panels {
     display: block;
   }
   &[data-shape='right1'],
   &[data-shape='right2'] {
     #header {
-      right: @pannel-width;
+      right: @panel-width;
     }
-    #pannels {
+    #panels {
       top: 0;
-      width: @pannel-width;
+      width: @panel-width;
     }
     main {
-      left: @pannel-width;
+      left: @panel-width;
     }
   }
   &[data-shape='bottom1'],
   &[data-shape='bottom2'] {
-    #pannels {
-      height: @pannel-width;
+    #panels {
+      height: @panel-width;
       left: 0;
     }
     &.navigationOpened {
-      #pannels {
+      #panels {
         left: @drawer-width;
       }
     }
     main {
-      bottom: @pannel-width;
+      bottom: @panel-width;
     }
   }
 }

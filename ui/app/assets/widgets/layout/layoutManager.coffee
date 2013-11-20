@@ -1,34 +1,34 @@
 define ['commons/settings'], (settings)->
 
   # States
-  pannelShape     = settings.observable("layoutManager.pannelShape"     , "right1")
-  pannelState     = settings.observable("layoutManager.pannelState"     , true)
+  panelShape     = settings.observable("layoutManager.panelShape"     , "right1")
+  panelState     = settings.observable("layoutManager.panelState"     , true)
   navigationState = settings.observable("layoutManager.navigationState" , true)
 
   # Manual binding on <body>
   # -> Navigation
   noir.api.attributeBindings.class document.body, {'navigation-opened': navigationState}
-  # -> Pannels
-  noir.api.attributeBindings.data document.body, {'shape': pannelShape}
-  noir.api.attributeBindings.class document.body, {'pannel-opened': pannelState}
+  # -> Panels
+  noir.api.attributeBindings.data document.body, {'shape': panelShape}
+  noir.api.attributeBindings.class document.body, {'panel-opened': panelState}
 
   # Actions
-  pannelChange = (e)->
-      pannelShape.set e.target.className
-      pannelState.set true
+  panelChange = (e)->
+      panelShape.set e.target.className
+      panelState.set true
 
-  pannelToggle = (e)->
-    pannelState.set !pannelState.get()
+  panelToggle = (e)->
+    panelState.set !panelState.get()
 
   navigationToggle = (e)->
     navigationState.set !navigationState.get()
 
-  openPannelOptions = (e)->
+  openPanelOptions = (e)->
     e.preventDefault()
     e.stopPropagation()
     $("#layoutManager").toggleClass("opened")
 
-  closePannelOptions = (e)->
+  closePanelOptions = (e)->
     e.preventDefault()
     e.stopPropagation()
     $("#layoutManager").removeClass("opened")
@@ -36,10 +36,10 @@ define ['commons/settings'], (settings)->
   # Template
   $switches = noir.Template ->
     @button ".toggleNavigation", click: navigationToggle
-    @dl "#layoutManager.dropdown", click: closePannelOptions, ->
-      @dt click: pannelToggle, ->
-        @span ".all-options", click: openPannelOptions
-      @dd click: pannelChange, ->
+    @dl "#layoutManager.dropdown", click: closePanelOptions, ->
+      @dt click: panelToggle, ->
+        @span ".all-options", click: openPanelOptions
+      @dd click: panelChange, ->
         @button ".right1"
         # @button ".right2"
         @button ".bottom1"
@@ -49,5 +49,5 @@ define ['commons/settings'], (settings)->
   render: (scope)->
     $switches()
 
-  pannelShape: pannelShape
-  pannelState: pannelState
+  panelShape: panelShape
+  panelState: panelState
