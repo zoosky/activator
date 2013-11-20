@@ -117,11 +117,16 @@ object TheActivatorBuild extends Build {
           Keys.update,
           LocalTemplateRepo.localTemplateCacheCreated in localTemplateRepo) map {
         (launcher, update, templateCache) =>
+          def fixFileForURIish(f: File): String = {
+            val uriString = templateCache.toURI.toASCIIString
+            if(uriString startsWith "file://") uriString.drop("file://".length)
+            else uriString.drop("file:".length)
+          }
           // We register the location after it's resolved so we have it for running play...
           sys.props("sbtrc.launch.jar") = launcher.getAbsoluteFile.getAbsolutePath
           // The debug variant of the sbt finder automatically splits the ui + controller jars apart.
           sys.props("sbtrc.controller.classpath") = makeProbeClasspath(update)
-          sys.props("activator.template.cache") = templateCache.getAbsolutePath
+          sys.props("activator.template.cache") = fixFileForURIish(templateCache)
           sys.props("activator.runinsbt") = "true"
           System.err.println("Updating sbt launch jar: " + sys.props("sbtrc.launch.jar"))
           System.err.println("Remote probe classpath = " + sys.props("sbtrc.controller.classpath"))
