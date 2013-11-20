@@ -1,0 +1,60 @@
+<article class="actor">
+    <table data-bind="with: actor">
+        <thead>
+        <tr>
+            <th><span>Message Information</span></th>
+            <th>&nbsp;</th>
+        </tr>
+        </thead>
+        <tbody class="listing">
+            <tr><td>Processed</td><td data-bind="text: processedMessagesCount"></td></tr>
+            <tr><td>Tell</td><td data-bind="text: tellMessagesCount"></td></tr>
+            <tr><td>Ask</td><td data-bind="text: askMessagesCount"></td></tr>
+        </tbody>
+        <thead>
+        <tr>
+            <th><span>Mailbox Information</span></th>
+            <th>&nbsp;</th>
+        </tr>
+        </thead>
+        <tbody class="listing">
+            <tr><td>Max mailbox size</td><td data-bind="text: maxMailboxSize"></td></tr>
+            <tr><td>Max mailbox size time</td><td data-bind="text: $root.formattedMaxMailboxSizeTimestamp"></td></tr>
+            <tr><td>Max time in mailbox</td><td data-bind="text: $root.formattedMaxTimeInMailbox"></td></tr>
+            <tr><td>Max time in mailbox time</td><td data-bind="text: $root.formattedMaxTimeInMailboxTimestamp"></td></tr>
+            <tr><td>Mean mailbox size</td><td data-bind="text: meanMailboxSize"></td></tr>
+            <tr><td>Mean time in mailbox</td><td data-bind="text: $root.formattedMeanTimeInMailbox"></td></tr>
+        </tbody>
+        <thead>
+        <tr>
+            <th><span>Rates</span></th>
+            <th>&nbsp;</th>
+        </tr>
+        </thead>
+        <tbody class="listing">
+            <tr><td>Total message</td><td data-bind="text: totalMessageRate"></td></tr>
+            <tr><td>Receive</td><td data-bind="text: receiveRate"></td></tr>
+            <tr><td>Tell</td><td data-bind="text: tellRate"></td></tr>
+            <tr><td>Ask</td><td data-bind="text: askRate"></td></tr>
+            <tr><td>Mean processed messages</td><td data-bind="text: $root.formattedMeanProcessedMessageRate"></td></tr>
+        </tbody>
+        <thead>
+        <tr>
+            <th><span>Deviations</span></th>
+            <th>&nbsp;</th>
+        </tr>
+        </thead>
+        <tbody class="listing">
+            <tr><td>Errors</td><td data-bind="text: errorCount"></td></tr>
+            <tr><td>Warnings</td><td data-bind="text: warningCount"></td></tr>
+            <tr><td>Dead letters</td><td data-bind="text: deadLetterCount"></td></tr>
+            <tr><td>Unhandled messages</td><td data-bind="text: unhandledMessageCount"></td></tr>
+        </tbody>
+    </table>
+
+    <table>
+        <tr>
+            <td></td>
+        </tr>
+    </table>
+</article>
