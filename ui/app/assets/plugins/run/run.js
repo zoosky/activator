@@ -393,7 +393,6 @@ define(['core/model', 'text!./run.html', 'core/pluginapi', 'widgets/log/log', 'c
           taskId: self.activeTask(),
           success: function(data) {
             console.log("kill success: ", data);
-            api.events.send({ 'type' : 'RunStopped' });
           },
           failure: function(status, message) {
             console.log("kill failed: ", status, message)
