@@ -9,71 +9,132 @@
 @className(app: snap.AppConfig) = {@if(app.cachedName.getOrElse(app.id) == model.name) {default} else {}}
 
 <!-- Copyright (C) 2013 Typesafe, Inc <http://typesafe.com> -->
-<!DOCTYPE html>
 <html>
-	<head>
-		<meta charset="utf-8" />
-		<title>Typesafe Activator</title>
-		<script type="text/javascript">
-		window.wsUrl = '@routes.Application.connectApp(model.id).webSocketURL()';
-		window.consoleWsUrl = '@routes.ConsoleController.connectConsole(model.id).webSocketURL()';
-		@* The @Html thing prevents the Json from being escaped *@
-		window.serverAppModel = @Html(Json.toJson(model).toString())
-		window.serverAppVersion = "@ActivatorProperties.APP_VERSION"
-		</script>
-		<script data-main='@routes.Assets.at("core/application.js")' type='text/javascript' src='@routes.WebJarAssets.requirejs()'></script>
-		<link rel="stylesheet" media="screen" href="/public/stylesheets/main.css">
-		<link rel="shortcut icon" type="image/png" href="/public/images/favicon.png">
+  <head>
+    <title>Typesafe Console</title>
+    <link href="@routes.Assets.at("core/main.css")" rel="stylesheet" type="text/css">
+    <script type="text/javascript">
+      window.wsUrl = '@routes.Application.connectApp(model.id).webSocketURL()';
+      window.consoleWsUrl = '@routes.ConsoleController.connectConsole(model.id).webSocketURL()';
+      @* The @Html thing prevents the Json from being escaped *@
+      window.serverAppModel = @Html(Json.toJson(model).toString())
+      window.serverAppVersion = "@ActivatorProperties.APP_VERSION"
+    </script>
+    <script data-main='@routes.Assets.at("core/application.js")' type='text/javascript' src='@routes.WebJarAssets.requirejs()'></script>
+  </head>
+  <body data-bind="css: {navigationOpened: snap.navigationOpened, navigationSneak: snap.navigationSneak, pannelOpened: snap.pannelOpened}, attr: { 'data-shape': snap.pannelShape }">
 
-		<script>
-			(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
-				(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
-					m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
-			})(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+    <header id="header">
+      <button class="toggleNavigation" data-bind="click: snap.toggleNavigation, event: {mouseover: snap.sneakNavigationOn}"></button>
 
-			ga('create', 'UA-40492643-1', {
-				'cookieDomain': 'none'
-			});
-			ga('send', 'pageview');
-		</script>
-	</head>
-	<body class="noAnim right-open">
-		<header>
-			<nav>
-				<ul class="rockets">
-					<li class="app" data-bind="foreach: plugins.list">
-						<a data-bind="attr: { 'data-icon': icon, href: url }, css: {active: active, busy: statusBusy, error: statusError}">
-                            <span class="text" data-bind="text: name"></span>
-                            <span class="icon"></span>
-						</a>
-					</li>
-				</ul>
-			</nav>
-			<div id="switch">
-				<span class="label do-pop-over" data-bind="text: snap.app.name"></span>
-				<div>
-					<ul>
-                        <li class="newApp" onclick="window.location='@routes.Application.forceHome'" style="cursor: hand; cursor: pointer;">
-                            <a href="@routes.Application.forceHome">New Application</a>
-                        </li>
-                        @model.recentApps.zipWithIndex.map { case (app, idx) =>
-                        <li onclick="window.location='@routes.Application.app(app.id)'" style="cursor: hand; cursor: pointer;">
-                            <span style="font-weight: bold;">@name(app)</span> (@app.location)
-                        </li>
-                        }
-					</ul>
-				</div>
-			</div>
-            <div id="user">
-                <button class="do-pop-over"></button>
-                <iframe id="loginIFrame" src="https://typesafe.com/account/activator/frame"></iframe>
-            </div>
-			<a href="@routes.Application.forceHome()" id="typesafe">Typesafe</a>
-		</header>
-		<aside class="tutorial" data-bind="snapView: tutorial">
-		</aside>
-        <div id="wrapper" data-bind="foreach: { data: widgets }, visible: snap.activeWidget() != undefined">
-          <div class="widget" data-bind="snapView: $data, visible: id == $parent.snap.activeWidget()"></div>
-        </div>
-	</body>
+      <dl id="layoutManager" class="dropdown dropdownNoEvent" data-bind="css: {active: snap.panelDropdownActive}, call: snap.test">
+        <dt data-bind="click: snap.togglePannel"><span class="all-options" data-bind="click: snap.togglePanelDropdown"></span></dt>
+        <dd>
+          <button class="right1" data-panel-shape="right1" data-bind="click: snap.togglePannelShape"></button>
+          <button class="bottom1" data-panel-shape="bottom1" data-bind="click: snap.togglePannelShape"></button>
+        </dd>
+      </dl>
+
+      <form id="omnisearch"><input type="text" name="keywords" placeholder="Type keywords or a command"></form>
+
+      <div id="breadcrumb" data-bind="text: '&nbsp;'">
+        <a href="#"></a>
+      </div>
+
+      <dl id="user" class="dropdown">
+        <dt></dt>
+        <dd>
+          <iframe id="loginIFrame" src="https://typesafe.com/account/activator/frame"></iframe>
+        </dd>
+      </dl>
+
+      <dl id="notifications" class="dropdown">
+        <dt><span>0</span></dt>
+        <dd>
+          <a href="/">Notification</a>
+          <a href="/">Notification</a>
+          <a href="/">Notification</a>
+        </dd>
+      </dl>
+    </header>
+
+    <nav id="navigation" data-bind="event: {mouseover: snap.sneakNavigationShow, mouseout: snap.sneakNavigationHide}">
+
+      <dl id="switch" class="dropdown">
+        <dt>Appname</dt>
+        <dd>
+          <button class="new-app">Manage applications</button>
+          @model.recentApps.zipWithIndex.map { case (app, idx) =>
+          <a href="@routes.Application.app(app.id)">
+            @name(app)
+            <small>(@app.location)</small>
+          </a>
+          }
+        </dd>
+      </dl>
+
+      <div id="appStatus">
+        <button class="running" data-bind="toggle: snap.build.startApp, css: {active: snap.build.startApp}"></button>
+        <button class="refresh" data-bind="toggle: snap.build.rerunOnBuild, css: {active: snap.build.rerunOnBuild}"></button>
+        <button class="console" data-bind="toggle: snap.build.runInConsole, css: {active: snap.build.runInConsole}"></button>
+        <button class="testing" data-bind="toggle: snap.build.retestOnSuccessfulBuild, css: {active: snap.build.retestOnSuccessfulBuild}"></button>
+      </div>
+
+      <dl id="rockets">
+        @*
+        <dt>Learn</dt>
+        <dd>
+          <a href="#Tutorial">Tutorial</a>
+          <a href="#Documentation">Documentation</a>
+          <a href="#Java">Java API</a>
+          <a href="#Scala">Scala API</a>
+          <a href="#Trainings">Trainings</a>
+        </dd>
+        *@
+        <dt>Develop</dt>
+        <dd>
+          <a href="#code">Code</a>
+          <a href="#run">Run</a>
+          <a href="#inspect">Inspect</a>
+          <a href="#test">Test</a>
+        </dd>
+        @*
+        <dt>Team</dt>
+        <dd>
+          <a href="#Versioning">Versioning</a>
+          <a href="#Integration">Integration</a>
+        </dd>
+        <dt>Deploy</dt>
+        <dd>
+          <a href="#Stage">Stage</a>
+          <a href="#Heroku">Heroku</a>
+        </dd>
+        *@
+      </dl>
+      <div id="typesafe">
+        <a href="http://typesafe.com" class="website">
+          <img src="/public/images/typesafe.svg">
+        </a>
+        <a href="/" class="infos">i</a>
+      </div>
+    </nav>
+    <main id="wrapper" data-bind="foreach: { data: widgets }, visible: snap.activeWidget() != undefined">
+      <div class="widget" data-bind="snapView: $data, visible: id == $parent.snap.activeWidget()"></div>
+    </main>
+    <div id="pannels" data-bind="snapView: tutorial">
+      <header></header>
+      <aside id="tutorial"></aside>
+    </div>
+    <script>
+      (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+        (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+          m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+      })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+      ga('create', 'UA-40492643-1', {
+        'cookieDomain': 'none'
+      });
+      ga('send', 'pageview');
+    </script>
+  </body>
 </html>

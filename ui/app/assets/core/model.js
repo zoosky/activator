@@ -1,7 +1,7 @@
 /*
  Copyright (C) 2013 Typesafe, Inc <http://typesafe.com>
  */
-define(['webjars!knockout', './router', 'plugins/tutorial/tutorial', 'widgets/log/log'], function(ko, router, Tutorial, log) {
+define(['webjars!knockout', './router', 'commons/settings', 'plugins/tutorial/tutorial', 'widgets/log/log', 'services/build'], function(ko, router, settings, Tutorial, log, build) {
   // Model for the whole app view; created in two parts
   // so that this first part is available during construction
   // of the second part.
@@ -10,15 +10,57 @@ define(['webjars!knockout', './router', 'plugins/tutorial/tutorial', 'widgets/lo
     router: router,
     tutorial: new Tutorial(),
     snap: {
+      test: function(a,b,c,d){
+        console.log(">>>>",a,b,c,d);
+      },
       activeWidget: ko.observable(""),
+      navigationOpened: ko.observable( settings.get("app.navigationOpened", true) ),
+      navigationSneak: ko.observable( false ),
+      navigationSneakTimer: 0,
+      panelDropdownActive: ko.observable( false ),
+      pannelOpened: ko.observable( settings.get("app.pannelOpened", false) ),
+      pannelShape: ko.observable( settings.get("app.pannelShape", "right1") ),
       pageTitle: ko.observable(),
       // TODO load last value from somewhere until we get a message from the iframe
       signedIn: ko.observable(false),
+      build: build,
       app: {
         name: ko.observable(window.serverAppModel.name ? window.serverAppModel.name : window.serverAppModel.id),
         hasAkka: ko.observable(false),
         hasPlay: ko.observable(false),
         hasConsole: ko.observable(false)
+      },
+      toggleNavigation: function(){
+        this.snap.navigationOpened(!this.snap.navigationOpened());
+        this.snap.navigationSneak(this.snap.navigationOpened());
+        settings.set("app.navigationOpened", this.snap.navigationOpened());
+      },
+      sneakNavigationOn: function(){
+        if (!this.snap.navigationOpened()) {
+          this.snap.navigationSneak(true);
+        }
+      },
+      sneakNavigationShow: function(){
+        clearTimeout(this.snap.navigationSneakTimer);
+      },
+      sneakNavigationHide: function(){
+        var navigationSneak = this.snap.navigationSneak;
+        this.snap.navigationSneakTimer = setTimeout(function(){
+          navigationSneak(false);
+        } ,500);
+      },
+      togglePannel: function(){
+        this.snap.pannelOpened(!this.snap.pannelOpened());
+        settings.set("app.pannelOpened", this.snap.pannelOpened());
+      },
+      togglePannelShape: function(data, event){
+        this.snap.pannelShape(event.target.dataset.panelShape);
+        this.snap.panelDropdownActive( false );
+        settings.set("app.pannelShape", this.snap.pannelShape());
+      },
+      togglePanelDropdown: function(data, event){
+        event.stopPropagation();
+        this.snap.panelDropdownActive(!this.snap.panelDropdownActive());
       }
     },
     logModel: new log.Log(),

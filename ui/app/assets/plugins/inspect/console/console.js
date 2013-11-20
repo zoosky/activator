@@ -1,17 +1,8 @@
 /*
  Copyright (C) 2013 Typesafe, Inc <http://typesafe.com>
  */
-define(
-  ['text!./console.html',
-    'css!./console.css',
-    'core/pluginapi',
-    './connection',
-    './overview',
-    './entity/actors',
-    './entity/actor',
-    './entity/requests',
-    './entity/request'],
-  function(template, css, api, Connection, Overview, Actors, Actor, Requests, Request) {
+define(['text!./console.html', 'css!./console.css', 'core/pluginapi', './connection', './overview', './entity/actors', './entity/requests', './entity/request', 'commons/utils'],
+  function(template, css, api, Connection, Overview, Actors, Requests, Request, Utils) {
 
   var ko = api.ko;
 
@@ -21,7 +12,6 @@ define(
     init: function(args) {
       var self = this;
 
-      window.debug = true;
       this.connected = ko.observable(false);
       this.crumbs = ko.observableArray([]);
       this.defaultTime = { "startTime": "", "endTime": "", "rolling": "20minutes" };
