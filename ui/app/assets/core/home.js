@@ -26,7 +26,6 @@ require([
   '../../webjars/require-css/0.0.7/css',
   'webjars!jquery',
   'webjars!knockout',
-  'webjars!keymage',
   'commons/visibility'
 ],function() {
   if (!document[hidden]) {
@@ -35,7 +34,7 @@ require([
   else {
     document.addEventListener(visibilityChange, handleVisibilityChange, false)
   }
-})
+});
 
 var handleVisibilityChange = function() {
   if (!document[hidden]) {
@@ -49,9 +48,61 @@ var startApp = function() {
   'core/streams',
   'widgets/fileselection/fileselection',
   'widgets/log/log',
-  'widgets/lists/templatelist'], function(streams, FileSelection, log, TemplateList) {
+  'webjars!knockout',
+  'widgets/lists/templatelist'], function(streams, FileSelection, log, ko, TemplateList) {
     // Register handlers on the UI.
     $(function() {
+
+      // App Model
+      var model = function(){
+        var self = this;
+
+        self.filteredTemplates = ko.observableArray(templates);
+        self.currentApp = ko.observable();
+        self.currentAppId = ko.computed(function(){
+          return !!self.currentApp()?self.currentApp().id:"";
+        });
+        self.browseAppLocation = ko.observable(false);
+        self.browseAppLocation = ko.observable(false);
+
+        self.chooseTemplate = function(app){
+          self.currentApp(app)
+        }
+        self.closeTemplate = function(){
+          self.currentApp("")
+        }
+        self.clearSearch = function(){
+          filterInput.val("").trigger("keyup")[0].focus();
+        }
+        self.search = function(model,evt){
+          value = evt.currentTarget.value.toLowerCase();
+          self.filteredTemplates(templates.filter(function(o){
+            return JSON.stringify(o).indexOf(value) >= 0
+          }));
+        }
+        self.closeNewBrowser = function() {
+          $("#newAppLocationBrowser").hide();
+        }
+      };
+
+      // Bind everything
+      ko.applyBindings(new model());
+
+      // Some tasks are simpler to achive with jquery
+      var filterInput = $("#filter input");
+      $(document).on("click", ".tags li", function(e){
+        filterInput.val(e.currentTarget.innerHTML).trigger("keyup");
+      });
+
+
+
+
+
+
+
+
+
+
       // Create log widget before we start recording websocket events...
       var logs = new log.Log();
       logs.renderTo($('#loading-logs'));
@@ -166,10 +217,6 @@ var startApp = function() {
           msg.template = template;
           streams.send(msg);
           toggleWorking();
-
-          try {
-            ga('send', 'event', 'activator', msg.request, msg.template);
-          } catch(err){}
         }
       });
       function toggleDirectoryBrowser() {
@@ -192,9 +239,9 @@ var startApp = function() {
         },
         onCancel: function() {
           toggleDirectoryBrowser();
-        }
+        },
+        dom: '#newAppLocationBrowser .list'
       });
-      fs.renderTo('#newAppLocationBrowser');
       var openFs = new FileSelection({
         selectText: 'Open this Project',
         initialDir: homeDir,
@@ -208,19 +255,19 @@ var startApp = function() {
             location: file
           });
           toggleWorking();
-        }
+        },
+        dom: '#openAppLocationBrowser'
       });
-      openFs.renderTo('#openAppLocationBrowser');
 
       // One method to handle template selection, regardless of popup.
       function updateSelectedTemplate(template) {
-        appTemplateName.val(template.name);
-        // Set id for the template on a hidden attribute...
-        appTemplateName.attr('data-template-id', template.id)
-        var dirname = template.name.replace(' ', '-').replace(/[^A-Za-z0-9_-]/g, '').toLowerCase();
-        appNameInput.attr('placeholder', dirname);
-        updateAppLocation();
-        checkFormReady()
+        // appTemplateName.val(template.name);
+        // // Set id for the template on a hidden attribute...
+        // appTemplateName.attr('data-template-id', template.id)
+        // var dirname = template.name.replace(' ', '-').replace(/[^A-Za-z0-9_-]/g, '').toLowerCase();
+        // appNameInput.attr('placeholder', dirname);
+        // updateAppLocation();
+        // checkFormReady()
       }
 
       // Register fancy radio button controls.
@@ -241,6 +288,7 @@ var startApp = function() {
       });
       $('#open').on('click', '#openButton', function(event) {
         event.preventDefault();
+        $('#openButton').toggleClass("openned");
         toggleAppBrowser();
       });
 
@@ -267,6 +315,11 @@ var startApp = function() {
         // TODO - Better way to do this?
         window.location.href = url;
       })
+
+
+
+
+
     });
   })
 }

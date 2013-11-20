@@ -1,4 +1,4 @@
-@(model: HomeModel, newApp: Form[NewAppForm])(implicit request: RequestHeader)
+@(model: HomeModel, newApp: Form[NewAppForm], json: play.api.libs.json.JsValue)(implicit request: RequestHeader)
 
 <!-- Copyright (C) 2013 Typesafe, Inc <http://typesafe.com> -->
 <!DOCTYPE html>
@@ -11,7 +11,10 @@
       // Gobal configuration
       var logging = false;
       var debug = false;
-			window.wsUrl = '@routes.Application.homeStream.webSocketURL()';
+			var wsUrl = '@routes.Application.homeStream.webSocketURL()';
+			var baseFolder = "@model.userHome/";
+
+			var templates = @Html(json.toString);
 		</script>
 		<script data-main='@routes.Assets.at("core/home.js")' type='text/javascript' src='@routes.WebJarAssets.requirejs()'></script>
 		<link rel="stylesheet" media="screen" href="@routes.Assets.at("core/home.css")">
@@ -28,78 +31,118 @@
 			ga('send', 'pageview');
 		</script>
 	</head>
-	<body class="">
-		<div id="workingPage" class="hidden">
-                    <article class="welcome">
-                        <h1>Your application is being opened!</h1>
-                        <p>This will just take a minute...</p>
-                        <div class="logs" id="loading-logs">
-                        </div>
-                    </article>
-		</div>
-		<div id="templatePage" class="hidden"></div>
-		<div id="homePage">
-			<article class="welcome">
-				<h1>Typesafe Activator</h1>
-				<p>Build apps in a snap! Typesafe Activator is a local-running web application.  Create new apps from templates.  Browse &amp; edit code.  Run apps and tests.</p>
+	<body>
+
+		<h1>Typesafe Activator</h1>
+
+		<section id="working">
+			<header>
+				<h2>Your application is being opened</h2>
+			</header>
+			<article>
+				<p>This will just take a minute...</p>
+				<div class="logs" id="loading-logs"></div>
 			</article>
+		</section>
+
+		<section id="open">
+			<header>
+				<span id="openButton">📁</span>
+				<h2>Open app</h2>
+			</header>
+			<article id="openAppForm">
+				<ul class="list">
+					@model.recentApps.map { app =>
+						<li class="recentApp">
+							<h3><a href="@routes.Application.app(app.id)">@app.cachedName.getOrElse(app.id)</a></h3>
+							<p class="path"><span>@app.location</span></p>
+						</li>
+					}
+				</ul>
+			</article>
+			<!-- <article id="openAppLocationBrowser" class="subsection fileBrowser"></article> -->
+			<div id="openAppLocationBrowser" class="subsection hidden"></div>
+		</section>
+
+		<section id="new">
+			<div class="half">
+				<header>
+					<h2>New application</h2>
+				</header>
+				<aside id="filter">
+					<span class="clear" data-bind="click: clearSearch">×</span>
+					<input type="text" placeholder="Filter templates" data-bind="event: {  keyup: search }" />
+				</aside>
+				<article>
+					<ul class="list" data-bind="foreach: filteredTemplates">
+						<li class="template" data-bind="css: {featured: featured, active: $root.currentAppId() == id}, click: $root.chooseTemplate">
+							<input type="radio" name="template" data-bind="value: id">
+							<span data-bind="text: title"></span>
+							<ul class="tags" data-bind="foreach: tags">
+								<li data-bind="text: $data"></li>
+							</ul>
+						</li>
+					</ul>
+				</article>
+			</div>
+
+			<!-- ko if:currentApp -->
+			<div id="viewTemplate" class="half right" data-bind="with: currentApp">
+				<div class="template">
+					<span class="clear" data-bind="click: $root.closeTemplate">×</span>
+					<h3 data-bind="text: title"></h3>
+					<ul class="tags" data-bind="foreach: tags">
+						<li data-bind="text: $data"></li>
+					</ul>
+					<p data-bind="text: description">Builds simple Actor-based REST server. Demonstrates the usage of Spray to build the RESTful API layer; as well as general structure of such REST actor-based applications. Includes tests for the API layer.</p>
+					<div class="author">
+						<cite>by John Doe (<a href="">@@johndoe</a>)</cite>
+						<a href="#" class="source">github.com/johndoe/activator-akka-spray</a>
+					</div>
+				</div>
+				@helper.form(action = routes.Application.forceHome, 'id -> "newApp") {
+					<h4>Create the app from this template</h4>
+					<input type="hidden" id="newAppTemplateName" name="template-name" required data-bind="value: id">
+					<input type="hidden" id="newappName" name="name" required data-bind="value: name">
+					<p>
+					<a href="#" id="browseAppLocation"></a>
+					<input type="text" id="newappLocation" name="location" data-bind="value: baseFolder + name">
+					</p>
+					<div class="select">
+						<input type="submit" class="button" value="Create" id="newButton">
+					</div>
+				}
+			</div>
+			<!-- /ko -->
+			<div id="newAppLocationBrowser" class="subsection hidden">
+				<header>
+					<span class="close" data-bind="click: $root.closeNewBrowser">×</span>
+					<h2>Choose a destination</h2>
+				</header>
+				<div class="list"></div>
+			</div>
+
+			<!-- ko ifnot:currentApp -->
+			<div id="welcome" class="half right">
+				<h3>Create a new application</h3>
+				<p>Build apps in a snap! Typesafe Activator is a local-running web application. Create new apps from templates. Browse & edit code. Run apps and tests. Community created templates & plugins are coming soon!</p>
+				<ol class="steps">
+					<li>Choose a template</li>
+					<li>Give it a name and location</li>
+					<li>Hack!</li>
+				</ol>
+				<h4>Here some inspiration...</h4>
+				<ul class="inspiration tags">
+					@model.tags.map { i =>
+						<li>@i</li>
+					}
+				</ul>
+			</div>
+			<!-- /ko -->
+
+			<!-- <div id="newAppLocationBrowser" class="subsection fileBrowser"></div> -->
+		</section>
 	
-			<section id="new">
-	            <div id="newAppForm" class="subsection">
-	                <h2>New application</h2>
-	                @helper.form(action = routes.Application.forceHome, 'id -> "newApp") {
-                        <fieldset>
-                            <label for="newappTemplate">Template</label>
-                            <input type="text" id="newAppTemplateName" name="template-name" placeholder="Choose from the list below" disabled required>
-                        </fieldset>
-	                    <fieldset>
-	                        <label for="newappName">Name</label>
-	                        <input type="text" id="newappName" name="name">
-	                    </fieldset>
-	                    <fieldset>
-	                        <label for="newappLocation">Location</label>
-	                        <a href="#" id="browseAppLocation"></a>
-	                        <input type="text" id="newappLocation" name="location" placeholder="@model.userHome">
-	                    </fieldset>
-	                    <div class="list-container">
-		                    <ul>
-		                    @model.templates.map { template =>
-		                        <li class="template">
-		                            <input type="radio" name="template" value="@template.id" data-snap-name-ref="@template.name">
-		                            <h3><span class="archetype">@template.tags.headOption.map(x=>s"[$x] ").getOrElse("")</span>@template.title</h3>
-		                            <p>@template.description</p>
-		                        </li>
-		                    }
-		                    </ul>
-		                    <div class="right">
-		                        <a href="#" id="showLink">Show all @model.otherTemplateCount templates</a>
-		                    </div>
-		                </div>
-	                    <div class="select">
-	                    	<input type="submit" class="button" value="Create" id="newButton" disabled>
-	                    </div>
-	                }
-	            </div>
-	            <div id="newAppLocationBrowser" class="subsection hidden"></div>
-			</section>
-	
-			<section id="open">
-	            <div id="openAppForm" class="subsection">
-				    <h2>Open existing app...</h2>
-	                <ul>
-					    @model.recentApps.map { app =>
-						    <li class="recentApp">
-							    <h3><a href="@routes.Application.app(app.id)">@app.cachedName.getOrElse(app.id)</a></h3>
-							    <p class="path"><span>@app.location</span></p>
-						    </li>
-					    }
-				     </ul>
-	                 <input type="submit" class="button" value="Find Existing" id="openButton">
-	            </div>
-	            <div id="openAppLocationBrowser" class="subsection hidden"></div>
-			</section>
-            
-            <a href="http://typesafe.com/legal/softwareterms" class="tos" target="_blank">Terms of Use</a>
-		</div>
+
 	</body>
 </html>

@@ -35,7 +35,8 @@ case class HomeModel(
   userHome: String,
   templates: Seq[TemplateMetadata],
   otherTemplateCount: Long,
-  recentApps: Seq[AppConfig])
+  recentApps: Seq[AppConfig],
+  tags: Seq[String])
 
 // Data we get from the new application form.
 case class NewAppForm(
@@ -73,13 +74,14 @@ object Application extends Controller {
   /** Reloads the model for the home page. */
   private def homeModel = api.Templates.templateCache.metadata map { templates =>
     val tempSeq = templates.toSeq
-    val featured = tempSeq filter (_.featured)
+    val featured = tempSeq sortBy (!_.featured) //filter (_.featured)
     val config = RootConfig.user
     HomeModel(
       userHome = ActivatorProperties.GLOBAL_USER_HOME,
       templates = featured,
       otherTemplateCount = tempSeq.length,
-      recentApps = config.applications)
+      recentApps = config.applications,
+      tags = Seq("reactive", "scala", "java", "starter", "akka", "play", "slick", "spray", "angular", "javascript", "database", "websocket"))
   }
 
   def redirectToApp(id: String) = Action {
@@ -89,7 +91,9 @@ object Application extends Controller {
   /** Loads the homepage, with a blank new-app form. */
   def forceHome = Action.async { implicit request =>
     homeModel map { model =>
-      Ok(views.html.home(model, newAppForm))
+      import controllers.api.Templates.Protocol
+      val tempates = play.api.libs.json.Json.toJson(model.templates)
+      Ok(views.html.home(model, newAppForm, tempates))
     }
   }
 
