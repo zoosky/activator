@@ -66,7 +66,6 @@ define(['webjars!knockout'], function(ko) {
   ko.bindingHandlers.toggle = {
     init: function(element, valueAccessor, allBindings, viewModel, bindingContext) {
       var val = valueAccessor();
-      console.log("??",val, val());
       element.addEventListener("click",function(){
         val(!val());
       });

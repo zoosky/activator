@@ -27,7 +27,8 @@
     <header id="header">
       <button class="toggleNavigation" data-bind="click: snap.toggleNavigation, event: {mouseover: snap.sneakNavigationOn}"></button>
 
-      <dl id="layoutManager" class="dropdown dropdownNoEvent" data-bind="css: {active: snap.panelDropdownActive}, call: snap.test">
+      <!-- remove the method testCallBinding from the JS when removing this -->
+      <dl id="layoutManager" class="dropdown dropdownNoEvent" data-bind="css: {active: snap.panelDropdownActive}, call: snap.testCallBinding">
         <dt data-bind="click: snap.togglePannel"><span class="all-options" data-bind="click: snap.togglePanelDropdown"></span></dt>
         <dd>
           <button class="right1" data-panel-shape="right1" data-bind="click: snap.togglePannelShape"></button>
