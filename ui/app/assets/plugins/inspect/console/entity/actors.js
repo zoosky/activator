@@ -46,6 +46,7 @@ define(['text!./actors.html', 'core/pluginapi', '../widget', '../format', '../ho
           var name = elements.pop();
           var prefix = fullPath ? elements : [];
           var hover = fullPath ? '' : path;
+          var actorLink = "#inspect/actor/" + path;
           var messageRate = a.totalMessageRate || 0;
           var throughput = format.units('messages/second', messageRate, formatUnits);
           var maxTimeInMailbox = format.units(a.maxTimeInMailboxUnit, a.maxTimeInMailbox, formatUnits);
@@ -54,6 +55,7 @@ define(['text!./actors.html', 'core/pluginapi', '../widget', '../format', '../ho
           var deviations = deviationCount > 0 ? deviationCount : "";
           var actor = {
             'path': path,
+            'actorLink': actorLink,
             'prefix': prefix,
             'name': name,
             'hover': hover,

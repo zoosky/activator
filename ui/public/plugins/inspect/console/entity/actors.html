@@ -9,7 +9,7 @@
             <tbody class="listing" data-bind="foreach: actors">
                 <tr>
                     <td class="name">
-                        <a href="#inspect/actors" data-bind="attr: { 'data-hover-text': hover }">
+                        <a href="#" data-bind="text: path, attr: { href: actorLink, 'data-hover-text': hover }">
                             <!-- ko foreach: prefix--><!-- ko text: $data--><!-- /ko -->/<wbr><!-- /ko --><strong data-bind="text: name, attr: { 'data-hover-text': hover }"></strong>
                         </a>
                     </td>

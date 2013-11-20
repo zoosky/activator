@@ -105,6 +105,7 @@ object RequestHandler {
 
   val metadataURL = url("metadata")
   val actorsURL = url("actors")
+  val actorURL = url("actor")
   val playRequestsURL = url("playrequestsummary/multi")
   val playRequestURL = url("playrequestsummary/event/")
 

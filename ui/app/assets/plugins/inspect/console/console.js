@@ -1,8 +1,17 @@
 /*
  Copyright (C) 2013 Typesafe, Inc <http://typesafe.com>
  */
-define(['text!./console.html', 'css!./console.css', 'core/pluginapi', './connection', './overview', './entity/actors', './entity/requests', './entity/request'],
-  function(template, css, api, Connection, Overview, Actors, Requests, Request) {
+define(
+  ['text!./console.html',
+    'css!./console.css',
+    'core/pluginapi',
+    './connection',
+    './overview',
+    './entity/actors',
+    './entity/actor',
+    './entity/requests',
+    './entity/request'],
+  function(template, css, api, Connection, Overview, Actors, Actor, Requests, Request) {
 
   var ko = api.ko;
 
@@ -15,12 +24,13 @@ define(['text!./console.html', 'css!./console.css', 'core/pluginapi', './connect
       window.debug = true;
       this.connected = ko.observable(false);
       this.crumbs = ko.observableArray([]);
-      this.defaultTime = { "startTime": "", "endTime": "", "rolling": "10minutes" };
+      this.defaultTime = { "startTime": "", "endTime": "", "rolling": "20minutes" };
       Connection.init(self.defaultTime);
 
       this.navigation = new Overview();
       this.views = {
         'actors': { 'contents': new Actors() },
+        'actor' : { 'contents': new Actor() },
         'requests': { 'contents': new Requests() },
         'request' : { 'contents': new Request() }
       };
