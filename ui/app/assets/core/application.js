@@ -11,8 +11,11 @@ require.config({
     }
   },
   paths: {
-    core:    'javascripts/core',
-    plugins:  'plugins'
+    commons:  'commons',
+    core:     'core',
+    plugins:  'plugins',
+    services: 'services',
+    widgets:  'widgets'
   }
 });
 
@@ -27,10 +30,9 @@ var handleVisibilityChange = function() {
 var startApp = function() {
   require(['core/templates'], function() {
     require([
-      'core/effects',
-      // Core
-      'core/utils',
-      'core/sbt'
+      'commons/effects',
+      'commons/utils',
+      'services/sbt'
     ], function() {
       require(['core/snap'])
     })
@@ -44,7 +46,7 @@ require([
   'webjars!jquery',
   'webjars!knockout',
   'webjars!keymage',
-  'core/visibility'
+  'commons/visibility'
 ],function() {
   if (!document[hidden]) {
     startApp()

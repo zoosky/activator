@@ -11,8 +11,11 @@ require.config({
     }
   },
   paths: {
-    core:    'javascripts/core',
-    plugins:  'plugins'
+    commons:  'commons',
+    core:     'core',
+    plugins:  'plugins',
+    services: 'services',
+    widgets:  'widgets'
   }
 });
 
@@ -23,7 +26,7 @@ require([
   'webjars!jquery',
   'webjars!knockout',
   'webjars!keymage',
-  'core/visibility'
+  'commons/visibility'
 ],function() {
 
   if (!document[hidden]) {
@@ -44,9 +47,9 @@ var handleVisibilityChange = function() {
 var startApp = function() {
   require([
   'core/streams',
-  'core/widgets/fileselection',
-  'core/widgets/log',
-  'core/widgets/templatelist'], function(streams, FileSelection, log, TemplateList) {
+  'widgets/fileselection/fileselection',
+  'widgets/log/log',
+  'widgets/lists/templatelist'], function(streams, FileSelection, log, TemplateList) {
     // Register handlers on the UI.
     $(function() {
       // Create log widget before we start recording websocket events...

@@ -4,7 +4,7 @@
 define([
   'webjars!knockout',
   'webjars!ace',
-  './markers'],
+  'commons/markers'],
   function(ko, ignore_ace, markers) {
 
   function refreshFileMarkers(editor, markers) {

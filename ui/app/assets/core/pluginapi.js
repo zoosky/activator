@@ -3,12 +3,12 @@
  */
 define([
   'webjars!knockout',
-  './sbt',
+  'services/sbt',
   'webjars!keymage',
-  './utils',
-  './events',
+  'commons/utils',
+  'commons/events',
   './widget',
-  './acebinding',
+  'widgets/editor/acebinding',
   './model'],
   function(ko, sbt, key, utils, events, Widget, acebinding, model) {
   var STATUS_DEFAULT = 'default';

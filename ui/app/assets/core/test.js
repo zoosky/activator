@@ -11,8 +11,11 @@ require.config({
     }
   },
   paths: {
-    core:    'javascripts/core',
-    plugins:  'plugins'
+    commons:  'commons',
+    core:     'core',
+    plugins:  'plugins',
+    services: 'services',
+    widgets:  'widgets'
   }
 });
 
@@ -24,7 +27,7 @@ require([
   'webjars!knockout',
   'webjars!keymage',
   // other
-  'core/utils'
+  'commons/utils'
 ],function(v1,v2,v3,v4,v5,v6, utils){
 
   function assert(t) {
