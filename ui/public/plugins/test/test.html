@@ -1,14 +1,18 @@
 <article class="test">
 	<header>
 		<nav>
-            <dl class="dropdown">
-                <dt>options</dt>
+            <button class="start groupLeft" data-bind="click: startStopButtonClicked">
+                <span class="icon" data-bind="visible: !haveActiveTask()">&#x25b6;</span>
+                <span class="icon" data-bind="visible: haveActiveTask">&#x25a0;</span>
+                <span data-bind="text: startStopLabel"></span>
+            </button>
+            <button class="restart groupMid" data-bind="enable: haveActiveTask() && !restartPending(), click: restartButtonClicked"><span class="icon">&#x27f3;</span>Restart</button>
+            <dl class="dropdown groupRight">
+                <dt><span class="icon">&#x2699;</span></dt>
                 <dd>
                     <input type="checkbox" data-bind="checked: rerunOnBuild" id="retestOnSuccessfulBuild" class="styled dark" /><label for="retestOnSuccessfulBuild"><span></span>Re-test on successful build</label>
                 </dd>
             </dl>
-			<button class="start" data-bind="text: startStopLabel, click: startStopButtonClicked"></button>
-			<button class="restart" data-bind="enable: haveActiveTask() && !restartPending(), click: restartButtonClicked">Restart</button>
 		</nav>
 		<h1>Test</h1>
 		<p class="subheader">
