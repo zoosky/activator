@@ -1,0 +1,39 @@
+<article class="deviation">
+    <section class="wrapper">
+        <div class="details">
+            <h2 class="deviationType" data-bind="text: deviationType"></h2>
+            <ul class="deviationEvent">
+                <li class="traceEvent">
+                    <div class="eventDetails">
+                        <ul class="fields">
+                            <li class="field">
+                                <div><span class="label">Time</span><span class="value" data-bind="text: deviationTime"></span></div>
+                                <div><span class="label">Actor</span><span class="value" data-bind="text: deviationActorPath"></span></div>
+                                <div><span class="label">Reason</span><span class="value" data-bind="text: deviationReason"></span></div>
+                            </li>
+                        </ul>
+                    </div>
+                </li>
+            </ul>
+            <h2>Trace Tree</h2>
+            <div class="traceTree">
+                <div data-bind="foreach: {data: events}">
+                    <div class="event" data-bind="style: {paddingLeft: paddingSize, borderLeft: reason.length > 0 ? '5px solid @red' : '5px solid @grey'}">
+                        <div data-bind="if: systemEvent == 0">
+                            <div class="type" data-bind="text: type"></div>
+                            <div><span class="label">Time</span><span class="value" data-bind="text: timestamp"></span></div>
+                            <div data-bind="visible: actor.length > 0"><span class="label">Actor</span><span class="value" data-bind="text: actor"></span></div>
+                            <div data-bind="visible: message.length > 0"><span class="label">Message</span><span class="value" data-bind="text: message"></span></div>
+                            <div data-bind="visible: reason.length > 0"><span class="label">Reason</span><span class="value" data-bind="text: reason"></span></div>
+                        </div>
+                        <div class="type" data-bind="if: systemEvent == 1">
+                            <span class="systemType" data-bind="text: type"></span>
+                            <span class="systemValue" data-bind="text: timestamp"></span>
+                            <span class="systemValue" data-bind="text: actor"></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+</article>

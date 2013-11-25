@@ -8,6 +8,7 @@ import console.handler._
 import console.parser.{ SpanParser, TimeParser, TimeQuery }
 import play.api.libs.iteratee.Concurrent
 import play.api.libs.json._
+import scala.collection.Seq
 
 class ClientHandler extends Actor with ActorLogging {
   import ClientController._
@@ -21,9 +22,14 @@ class ClientHandler extends Actor with ActorLogging {
   val actorHandler = context.actorOf(Props[ActorHandler], "actorHandler")
   val playRequestsHandler = context.actorOf(Props[PlayRequestsHandler], "playRequestsHandler")
   val playRequestHandler = context.actorOf(Props[PlayRequestHandler], "playRequestHandler")
+  val deviationsHandler = context.actorOf(Props[DeviationsHandler], "deviationsHandler")
+  val deviationHandler = context.actorOf(Props[DeviationHandler], "deviationHandler")
+
+  // Add the name of handlers that should only be invoked once to this collection
+  val oneTimeHandlers = Seq("deviation")
 
   def receive = {
-    case Tick => modules foreach callHandler
+    case Tick => modules filter { m => !oneTimeHandlers.contains(m.name) } foreach callHandler
     case Update(js) => channel.push(js)
     case r: HandleRequest => jsonHandler ! r
     case mi: ModuleInformation => callHandler(mi)
@@ -40,6 +46,8 @@ class ClientHandler extends Actor with ActorLogging {
       case "actor" => actorHandler ! mi
       case "requests" => playRequestsHandler ! mi
       case "request" => playRequestHandler ! mi
+      case "deviations" => deviationsHandler ! mi
+      case "deviation" => deviationHandler ! mi
       case _ => log.debug("Unknown module name: {}", mi.name)
     }
   }

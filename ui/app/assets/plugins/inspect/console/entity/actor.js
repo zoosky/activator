@@ -1,7 +1,7 @@
 define(['text!./actor.html', 'core/pluginapi', './../widget', '../format'], function(template, api, ConsoleWidget, formatter) {
   var ko = api.ko;
 
-  var Actor = api.Class(ConsoleWidget, {
+  return api.Class(ConsoleWidget, {
     id: 'console-actor-widget',
     template: template,
     init: function(args) {
@@ -53,6 +53,4 @@ define(['text!./actor.html', 'core/pluginapi', './../widget', '../format'], func
       this.actor(data.actor);
     }
   });
-
-  return Actor;
 });

@@ -108,6 +108,8 @@ object RequestHandler {
   val actorURL = url("actor")
   val playRequestsURL = url("playrequestsummary/multi")
   val playRequestURL = url("playrequestsummary/event/")
+  val deviationsURL = url("error")
+  val traceTreeURL = url("trace/tree/")
 
   def mapify[A](name: String, value: Option[A]): Map[String, String] =
     (for { v <- value } yield Map(name -> v.toString)) getOrElse Map.empty[String, String]

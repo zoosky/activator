@@ -14,4 +14,12 @@
             </a>
         </h2>
     </li>
+    <li data-bind="visible: deviations() > 0, css: { active: active() == 'deviations' }">
+        <h2>
+            <a href="#inspect/deviations">
+                <span class="label">Deviations</span>
+                <span class="counter" data-bind="text: shorten(deviations())">&ndash;</span>
+            </a>
+        </h2>
+    </li>
 </ul>

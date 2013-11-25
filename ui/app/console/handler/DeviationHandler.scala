@@ -8,21 +8,21 @@ import scala.concurrent.{ Future, ExecutionContext }
 import akka.actor.ActorRef
 import play.api.libs.json.{ JsString, JsObject, JsValue }
 import console.Responses.{ ErrorResponse, InvalidLicense, ValidResponse }
+import scala.collection.immutable.Map
 
-class PlayRequestHandler extends RequestHandler {
+class DeviationHandler extends RequestHandler {
   import ExecutionContext.Implicits.global
 
   def handle(receiver: ActorRef, mi: ModuleInformation): Future[(ActorRef, JsValue)] = {
-    val params = mi.scope.queryParams
-    val playRequestPromise = call(RequestHandler.playRequestURL + mi.traceId.get, params)
+    val deviationPromise = call(RequestHandler.traceTreeURL + mi.traceId.get, Map.empty[String, String])
     for {
-      playRequests <- playRequestPromise
+      deviation <- deviationPromise
     } yield {
-      val result = validateResponse(playRequests) match {
+      val result = validateResponse(deviation) match {
         case ValidResponse =>
-          val data = JsObject(Seq("playRequestSummary" -> playRequests.json))
+          val data = JsObject(Seq("deviation" -> deviation.json))
           JsObject(Seq(
-            "type" -> JsString("request"),
+            "type" -> JsString("deviation"),
             "data" -> data))
         case InvalidLicense(jsonLicense) => jsonLicense
         case ErrorResponse(jsonErrorCodes) => jsonErrorCodes

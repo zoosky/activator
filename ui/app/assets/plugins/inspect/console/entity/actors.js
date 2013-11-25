@@ -5,7 +5,7 @@ define(['text!./actors.html', 'core/pluginapi', '../widget', '../format', '../ho
 
   var ko = api.ko;
 
-  var Actors = api.Class(ConsoleWidget, {
+  return api.Class(ConsoleWidget, {
     id: 'console-actors-widget',
     template: template,
     init: function(args) {
@@ -94,6 +94,4 @@ define(['text!./actors.html', 'core/pluginapi', '../widget', '../format', '../ho
       this.data(data.actors);
     }
   });
-
-  return Actors;
 });
