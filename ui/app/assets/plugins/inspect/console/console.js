@@ -1,8 +1,8 @@
 /*
  Copyright (C) 2013 Typesafe, Inc <http://typesafe.com>
  */
-define(['text!./console.html', 'css!./console.css', 'core/pluginapi', './connection', './overview', './entity/actors', './entity/actor', './entity/requests', './entity/request', 'commons/utils'],
-  function(template, css, api, Connection, Overview, Actors, Actor, Requests, Request, Utils) {
+define(['text!./console.html', 'css!./console.css', 'core/pluginapi', './connection', './overview', './entity/actors', './entity/actor', './entity/requests', './entity/request', 'commons/utils', './entity/deviations', './entity/deviation'],
+  function(template, css, api, Connection, Overview, Actors, Actor, Requests, Request, Utils, Deviations, Deviation) {
 
   var ko = api.ko;
 
@@ -22,7 +22,9 @@ define(['text!./console.html', 'css!./console.css', 'core/pluginapi', './connect
         'actors': { 'contents': new Actors() },
         'actor' : { 'contents': new Actor() },
         'requests': { 'contents': new Requests() },
-        'request' : { 'contents': new Request() }
+        'request' : { 'contents': new Request() },
+        'deviations' : { 'contents': new Deviations() },
+        'deviation' : { 'contents': new Deviation() }
       };
       this.viewer = ko.computed(function() {
         return self.updateView(self.crumbs());

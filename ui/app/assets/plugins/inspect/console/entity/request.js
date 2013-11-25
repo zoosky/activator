@@ -1,7 +1,7 @@
 define(['text!./request.html', 'core/pluginapi', './../widget'], function(template, api, ConsoleWidget) {
   var ko = api.ko;
 
-  var Request = api.Class(ConsoleWidget, {
+  return api.Class(ConsoleWidget, {
     id: 'console-request-widget',
     template: template,
     init: function(args) {
@@ -21,6 +21,4 @@ define(['text!./request.html', 'core/pluginapi', './../widget'], function(templa
       this.req(data.playRequestSummary);
     }
   });
-
-  return Request;
 });

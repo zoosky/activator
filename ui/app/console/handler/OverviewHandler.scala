@@ -16,13 +16,18 @@ class OverviewHandler extends RequestHandler {
   def handle(receiver: ActorRef, mi: ModuleInformation): Future[(ActorRef, JsValue)] = {
     val params = mi.time.queryParams ++ mapifyF("offset", mi.pagingInformation, { pi: PagingInformation => pi.offset })
     val metadataPromise = call(RequestHandler.metadataURL, params)
+    val deviationsPromise = call(RequestHandler.deviationsURL, params)
 
     for {
       metadata <- metadataPromise
+      deviations <- deviationsPromise
     } yield {
       val result = validateResponse(metadata) match {
         case ValidResponse =>
-          val data = metadata.json
+          val data =
+            JsObject(Seq("metadata" -> metadata.json)) ++
+              JsObject(Seq("deviations" -> deviations.json))
+
           JsObject(Seq(
             "type" -> JsString("overview"),
             "data" -> data))

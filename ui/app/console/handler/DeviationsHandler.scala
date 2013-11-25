@@ -9,20 +9,20 @@ import akka.actor.ActorRef
 import play.api.libs.json.{ JsString, JsObject, JsValue }
 import console.Responses.{ ErrorResponse, InvalidLicense, ValidResponse }
 
-class PlayRequestHandler extends RequestHandler {
+class DeviationsHandler extends RequestHandler {
   import ExecutionContext.Implicits.global
 
   def handle(receiver: ActorRef, mi: ModuleInformation): Future[(ActorRef, JsValue)] = {
-    val params = mi.scope.queryParams
-    val playRequestPromise = call(RequestHandler.playRequestURL + mi.traceId.get, params)
+    val params = mi.time.queryParams ++ mi.scope.queryParams
+    val deviationsPromise = call(RequestHandler.deviationsURL, params)
     for {
-      playRequests <- playRequestPromise
+      deviations <- deviationsPromise
     } yield {
-      val result = validateResponse(playRequests) match {
+      val result = validateResponse(deviations) match {
         case ValidResponse =>
-          val data = JsObject(Seq("playRequestSummary" -> playRequests.json))
+          val data = JsObject(Seq("deviations" -> deviations.json))
           JsObject(Seq(
-            "type" -> JsString("request"),
+            "type" -> JsString("deviations"),
             "data" -> data))
         case InvalidLicense(jsonLicense) => jsonLicense
         case ErrorResponse(jsonErrorCodes) => jsonErrorCodes
