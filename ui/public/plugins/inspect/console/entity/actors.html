@@ -1,10 +1,21 @@
 <article class="actors" data-bind="hoverPopup: 'hoverPopup'">
     <section class="withFooter">
-        <table>
+        <table class="sortable">
             <thead>
-                <tr data-bind="foreach: columns">
-                    <th><span data-bind="text: name, click: $root.changeSort, css: { sortBy: sortBy == $root.sortBy() }"></span></th>
+                <tr>
+                    <th rowspan="2" data-bind="click: changeSort('actor'), css: { sortBy: 'actor' == sortBy() }" class="sortBy">Actor</th>
+                
+                    <th rowspan="2" data-bind="click: changeSort('throughput'), css: { sortBy: 'throughput' == sortBy() }">Throughput</th>
+                
+                    <th colspan="2" style="text-align: center">Mailbox</th>
+                
+                    <th rowspan="2" data-bind="click: changeSort('deviation'), css: { sortBy: 'deviation' == sortBy() }">Deviations</th>
                 </tr>
+                <tr class="legend">
+                    <th data-bind="click: changeSort('maxTimeInMailbox'), css: { sortBy: 'maxTimeInMailbox' == sortBy() }">Max Time</th>
+                    <th data-bind="click: changeSort('maxMailboxSize'), css: { sortBy: 'maxMailboxSize' == sortBy() }">Max Size</th>
+                </tr>
+
             </thead>
             <tbody class="listing" data-bind="foreach: actors">
                 <tr>
@@ -13,10 +24,10 @@
                             <!-- ko foreach: prefix--><!-- ko text: $data--><!-- /ko -->/<wbr><!-- /ko --><strong data-bind="text: name, attr: { 'data-hover-text': hover }"></strong>
                         </a>
                     </td>
-                    <td class="throughput right"><a data-bind="text: throughput"></a></td>
-                    <td class="maxTimeInMailbox right"  data-bind="text: maxTimeInMailbox"><a></a></td>
-                    <td class="maxMailboxSize right"><a data-bind="text: maxMailboxSize"></a></td>
-                    <td class="right"><a><span class="deviation-counter" data-bind="text: deviations"></span></a></td>
+                    <td class="throughput right" data-bind="text: throughput"></td>
+                    <td class="maxTimeInMailbox right" data-bind="text: maxTimeInMailbox"></td>
+                    <td class="maxMailboxSize right" data-bind="text: maxMailboxSize"></td>
+                    <td class="deviation-counter right" data-bind="text: deviations"></td>
                 </tr>
             </tbody>
         </table>

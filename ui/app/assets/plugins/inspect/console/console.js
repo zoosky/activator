@@ -31,16 +31,16 @@ define(['text!./console.html', 'css!./console.css', 'core/pluginapi', './connect
       });
 
       api.events.subscribe(
-        function(event) {
-          return event.type == "AtmosStarted" || event.type == "RunStopped";
-        },
-        function(event) {
-          if (event.type == "AtmosStarted") {
-            self.atmosStarted();
-          } else if (event.type == "RunStopped") {
-            if (self.connected()) self.runStopped();
-          }
-        }
+         function(event) {
+           return event.type == "AtmosStarted" || event.type == "RunStopped";
+         },
+         function(event) {
+           if (event.type == "AtmosStarted") {
+             self.atmosStarted();
+           } else if (event.type == "RunStopped") {
+             if (self.connected()) self.runStopped();
+           }
+         }
       );
     },
 

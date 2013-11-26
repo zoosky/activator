@@ -82,6 +82,12 @@ define(['webjars!knockout'], function(ko) {
           valueAccessor()(element, allBindings, viewModel, bindingContext);
       }
   };
+  // Log
+  ko.bindingHandlers['log'] = {
+      init: function(element, valueAccessor, allBindings, viewModel, bindingContext) {
+          console.log("LOG FROM HTML:",valueAccessor());
+      }
+  };
 
   return {
     registerTemplate: registerTemplate,

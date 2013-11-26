@@ -1,0 +1,51 @@
+table {
+  width: 100%;
+  border: none;
+  border-collapse:collapse;
+  font-size: 13px;
+  th, td {
+    white-space: nowrap;
+    border-bottom: 1px solid @light;
+    border-left: 1px solid @light;
+    padding: 5px 15px;
+    &.right {
+      text-align: right;
+    }
+    &:first-child {
+      border-left: none;
+    }
+    &.fulltext {
+      white-space: normal;
+    }
+  }
+  td:first-child {
+    font-size: 1.2em;
+  }
+  th {
+    font-weight: 700;
+    border-color: #A6B7C3;
+    background-color: #899CA9;
+    color: #fff;
+    font-size: 16px;
+    text-align: left;
+    vertical-align: top;
+    &.sortBy {
+      background: #778A97 url(/public/images/table-down-arrow.png) top right no-repeat;
+    }
+  }
+  tr {
+    &:hover td {
+      background: @clear;
+    }
+    &.active td, &:active td {
+      background-color: @clear;
+    }
+  }
+  a {
+    color: @blue-dkr;
+    display: block;
+  }
+  &.sortable th {
+    cursor: pointer;
+  }
+}

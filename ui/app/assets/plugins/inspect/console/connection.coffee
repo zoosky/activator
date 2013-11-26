@@ -48,11 +48,9 @@ define ->
     send: (message) ->
       json = JSON.stringify message
       if @connected
-        console.log "console connection send : ", json
         @websocket.send json
       else
         @sendQueue.push message
-        console.log "console connection queued message : ", message
       @
 
     receive: (message) ->
@@ -63,7 +61,7 @@ define ->
         console.log "console connection couldn't parse received JSON message : ", message
         $(window).trigger("network-error")
         return false
-      console.log "console connection receive : ", message
+      # console.log "console connection receive : ", message
       # Catch errors
 
       # Update module with data
@@ -105,8 +103,6 @@ define ->
       Math.ceil(new Date(endTime).getTime() - new Date(startTime).getTime()) / 60000
 
     update: ->
-      console.log "console connection request : ", @request
-
       # Build request object
       sendData =
         modules: []

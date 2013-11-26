@@ -1,12 +1,5 @@
-@import 'colors';
-
-.clear-after() {
-  &:after {
-    content: " ";
-    display: block;
-    clear: both;
-  }
-}
+// @import 'colors';
+@import '../../../commons/_base';
 
 #console {
   position: absolute;
@@ -51,6 +44,7 @@
   .viewer {
     width: 67%;
     border-left: 1px solid @grey;
+    overflow: auto;
   }
 
   .module .listing {
@@ -60,6 +54,20 @@
       padding: 10px;
       border-bottom: 1px solid @grey;
       .clear-after();
+      a {
+        .title();
+        font-size: 22px;
+        color: @blue-dkr;
+        line-height: 24px;
+        &:after {
+          content: " ";
+          position: absolute;
+          top: 0;
+          left: 0;
+          right: 0;
+          bottom: 0;
+        }
+      }
 
       &.active, &:hover {
         background: @grey_alt;
@@ -69,6 +77,13 @@
       .counter {
         color: @grey_text;
         float: right;
+        &.error {
+          color: #fff;
+          background: @red;
+          display: inline-block;
+          padding: 3px 6px;
+          border-radius: 2px;
+        }
       }
 
       .focus & {

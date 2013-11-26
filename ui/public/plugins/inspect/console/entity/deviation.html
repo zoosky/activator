@@ -2,23 +2,24 @@
     <section class="wrapper">
         <div class="details">
             <h2 class="deviationType" data-bind="text: deviationType"></h2>
-            <ul class="deviationEvent">
-                <li class="traceEvent">
-                    <div class="eventDetails">
-                        <ul class="fields">
-                            <li class="field">
-                                <div><span class="label">Time</span><span class="value" data-bind="text: deviationTime"></span></div>
-                                <div><span class="label">Actor</span><span class="value" data-bind="text: deviationActorPath"></span></div>
-                                <div><span class="label">Reason</span><span class="value" data-bind="text: deviationReason"></span></div>
-                            </li>
-                        </ul>
-                    </div>
-                </li>
-            </ul>
+            <table class="deviationEvent">
+                <tr>
+                    <th>Time</th>
+                    <td data-bind="text: deviationTime"></td>
+                </tr>
+                <tr>
+                    <th>Actor</th>
+                    <td data-bind="text: deviationActorPath"></td>
+                </tr>
+                <tr>
+                    <th>Reason</th>
+                    <td class="fulltext" data-bind="text: deviationReason"></td>
+                </tr>
+            </table>
             <h2>Trace Tree</h2>
             <div class="traceTree">
                 <div data-bind="foreach: {data: events}">
-                    <div class="event" data-bind="style: {paddingLeft: paddingSize, borderLeft: reason.length > 0 ? '5px solid @red' : '5px solid @grey'}">
+                    <div class="event" data-bind="style: {paddingLeft: paddingSize}">
                         <div data-bind="if: systemEvent == 0">
                             <div class="type" data-bind="text: type"></div>
                             <div><span class="label">Time</span><span class="value" data-bind="text: timestamp"></span></div>
@@ -28,8 +29,7 @@
                         </div>
                         <div class="type" data-bind="if: systemEvent == 1">
                             <span class="systemType" data-bind="text: type"></span>
-                            <span class="systemValue" data-bind="text: timestamp"></span>
-                            <span class="systemValue" data-bind="text: actor"></span>
+                            [<span class="systemValue" data-bind="text: timestamp"></span>&nbsp;<span class="systemValue" data-bind="text: actor"></span>]
                         </div>
                     </div>
                 </div>

@@ -74,11 +74,13 @@
     }
   }
 }
-.list li h2 a ,
-.list dd h2 a {
+.list li.item a ,
+.list dd.item a {
   color: inherit;
-  font-size: 1.1em;
+  font-size: 1.5em;
   font-weight: 700;
+  .title();
+  color: @blue-dkr;
   &:after {
     content: " ";
     position: absolute;

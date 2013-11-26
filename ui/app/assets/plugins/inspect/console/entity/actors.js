@@ -18,8 +18,10 @@ define(['text!./actors.html', 'core/pluginapi', '../widget', '../format', '../ho
         { 'name': 'Deviations', 'sortBy': 'deviation' }
       ];
       this.sortBy = ko.observable('actor');
-      this.changeSort = function(column) {
-        self.sortBy(column.sortBy);
+      this.changeSort = function(sortBy) {
+        return function(){
+          self.sortBy(sortBy);
+        }
       };
       this.data = ko.observable({ 'actors': [], 'total': 0 });
       this.total = ko.computed(function() {

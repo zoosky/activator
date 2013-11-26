@@ -4,7 +4,8 @@
 define([
   'webjars!knockout',
   'webjars!ace',
-  'commons/markers'],
+  'commons/markers',
+  'css!./theme.css'],
   function(ko, ignore_ace, markers) {
 
   function refreshFileMarkers(editor, markers) {
@@ -38,7 +39,6 @@ define([
       var editorValue = options.contents || options;
       var dirtyValue = options.dirty;
       // TODO - unwrap observable?
-      var theme = ko.utils.unwrapObservable(options.theme || 'ace/theme/xcode');
       var highlight = ko.utils.unwrapObservable(options.highlight || 'text');
 
       // We have to write our text into the element before instantiating the editor.
@@ -46,7 +46,7 @@ define([
 
       var editor = ace.edit(element);
 
-      editor.setTheme(theme);
+      editor.setTheme('ace/theme/solarized_dark');
       // TODO - Check for no highlight mode as well, or allow non-built-in
       // highlighting...
       editor.getSession().setMode('ace/mode/'+highlight);

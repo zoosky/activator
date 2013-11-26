@@ -13,7 +13,6 @@ define(['webjars!knockout', './router', 'commons/settings', 'plugins/tutorial/tu
       // TODO this needs to be removed after it's no longer used
       // in application.scala.html
       testCallBinding: function(a,b,c,d){
-        console.log(">>>>",a,b,c,d);
       },
       activeWidget: ko.observable(""),
       navigationOpened: ko.observable( settings.get("app.navigationOpened", true) ),
