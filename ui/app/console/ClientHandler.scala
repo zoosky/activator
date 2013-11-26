@@ -12,6 +12,7 @@ import scala.collection.Seq
 
 class ClientHandler extends Actor with ActorLogging {
   import ClientController._
+  import ClientHandler._
 
   var modules = Seq.empty[ModuleInformation]
   val (enum, channel) = Concurrent.broadcast[JsValue]
@@ -26,7 +27,7 @@ class ClientHandler extends Actor with ActorLogging {
   val deviationHandler = context.actorOf(Props[DeviationHandler], "deviationHandler")
 
   // Add the name of handlers that should only be invoked once to this collection
-  val oneTimeHandlers = Seq("deviation")
+  val oneTimeHandlers = Seq(requestModule, deviationModule)
 
   def receive = {
     case Tick => modules filter { m => !oneTimeHandlers.contains(m.name) } foreach callHandler
@@ -41,16 +42,26 @@ class ClientHandler extends Actor with ActorLogging {
 
   def callHandler(mi: ModuleInformation) {
     mi.name match {
-      case "overview" => overviewHandler ! mi
-      case "actors" => actorsHandler ! mi
-      case "actor" => actorHandler ! mi
-      case "requests" => playRequestsHandler ! mi
-      case "request" => playRequestHandler ! mi
-      case "deviations" => deviationsHandler ! mi
-      case "deviation" => deviationHandler ! mi
+      case overviewModule => overviewHandler ! mi
+      case actorsModule => actorsHandler ! mi
+      case actorModule => actorHandler ! mi
+      case requestsModule => playRequestsHandler ! mi
+      case requestModule => playRequestHandler ! mi
+      case deviationsModule => deviationsHandler ! mi
+      case deviationModule => deviationHandler ! mi
       case _ => log.debug("Unknown module name: {}", mi.name)
     }
   }
+}
+
+object ClientHandler {
+  val overviewModule = "overview"
+  val actorsModule = "actors"
+  val actorModule = "actor"
+  val requestsModule = "requests"
+  val requestModule = "request"
+  val deviationsModule = "deviations"
+  val deviationModule = "deviation"
 }
 
 class JsonHandler extends Actor with ActorLogging {
