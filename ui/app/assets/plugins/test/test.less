@@ -1,6 +1,18 @@
  /*
  Copyright (C) 2013 Typesafe, Inc <http://typesafe.com>
  */
+ article header dl.dropdown {
+   &.dropdownRightAlign {
+     dd {
+       left: -200%;
+       //right: 0;
+       &:before {
+         left: 95%;
+       }
+     }
+   }
+ }
+
 .results {
     .passed {
         color: green;
