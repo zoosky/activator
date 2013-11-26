@@ -1,9 +1,9 @@
 <!-- ko if: isFile() -->
 <header>
 	<nav>
-	    <button class="delete" data-bind="click: deleteFile">delete</button>
-		<button class="revert" data-bind="click: subView().load, enable: subView().isDirty">revert</button>
-		<button class="save" data-bind="click: subView().save, enable: subView().isDirty">save</button>
+	    <button class="delete groupLeft" data-bind="click: deleteFile"><span class="icon">&#xe729;</span>Delete</button>
+		<button class="revert GroupMid" data-bind="click: subView().load, enable: subView().isDirty"><span class="icon">&#x27f2;</span>Revert</button>
+		<button class="save groupRight" data-bind="click: subView().save, enable: subView().isDirty"><span class="icon">&#xe778;</span>Save</button>
 	</nav>
 	<h1 data-bind='text: title'></h1>
 	<p class="subheader" data-bind="text: fileStats"></span>

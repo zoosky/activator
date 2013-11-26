@@ -60,20 +60,24 @@ article header {
     color: @blue-dkr;
     font-size: 14px;
     font-weight: bold;
-    line-height: normal;
-    padding: 5px 10px;
+    line-height: 25px;
+    padding: 0 10px;
     margin: 0 5px;
     border-radius: 3px;
+    height: 25px;
     display: inline-block;
     cursor: pointer;
     &:hover {
-      background: fade(@navy-dkr, 30%);
+      background: @red-dkr;
       color: white;
     }
     &[disabled] {
       background: rgba(255,255,255,.8);
       color: fade(@blue-dkr, 50%);
       cursor: default;
+    }
+    .icon {
+      line-height: 25px;
     }
   }
   button.groupLeft, dl.groupLeft dt {
