@@ -18,21 +18,21 @@
 article .wrapper {
   overflow: auto;
   position: absolute;
-  top: 100px;
+  top: 90px;
   left: 0;
   right: 0;
   bottom: 0;
 }
 
 article header {
-  background: #53cdec;
+  background: @blue;
   color: white;
 }
 article h1 {
-  line-height: 60px;
+  line-height: 50px;
   .title();
-  font-size: 16px;
-  padding: 0 5px;
+  font-size: 21px;
+  padding: 0 10px;
   .ellipsis();
 }
 
@@ -45,33 +45,63 @@ article h1 a:hover {
 }
 
 article header nav {
+  word-spacing: -0.26em;
+  line-height: 50px;
+  height: 50px;
   float: right;
-  line-height: 60px;
-  height: 60px;
+  * {
+    word-spacing: 0;
+  }
 }
 
 article header {
   button, dt {
-        line-height: normal;
-    background: none;
-    color: #fff;
-    display: inline-block;
-    padding: 5px 10px;
+    background: white;
+    color: @blue-dkr;
+    font-size: 14px;
+    font-weight: bold;
+    line-height: 25px;
+    padding: 0 10px;
     margin: 0 5px;
-    border: 1px solid rgba(255,255,255,.5);
     border-radius: 3px;
-    font-size: 13px;
+    height: 25px;
+    display: inline-block;
     cursor: pointer;
     &:hover {
-      background: #fff;
-      color: #53cdec;
+      background: @red-dkr;
+      color: white;
     }
     &[disabled] {
-      background: none;
-      border: 1px solid rgba(255,255,255,.3);
-      color: rgba(255,255,255,.5);
+      background: rgba(255,255,255,.8);
+      color: fade(@blue-dkr, 50%);
+      cursor: default;
     }
-  }  
+    .icon {
+      line-height: 25px;
+    }
+  }
+  button.groupLeft, dl.groupLeft dt {
+    margin-right: 1px;
+    border-bottom-right-radius: 0;
+    border-top-right-radius: 0;
+  }
+  button.groupMid, dl.groupMid dt {
+    margin-right: 1px;
+    margin-left: 0;
+    border-radius: 0;
+  }
+  button.groupRight, dl.groupRight dt {
+    margin-left: 0;
+    border-bottom-left-radius: 0;
+    border-top-left-radius: 0;
+  }
+  .icon {
+    font: 16px icons;
+    line-height: 15px;
+    height: 16px;
+    width: 16px;
+    display: inline-block;
+  }
 }
 
 article header .subheader {
