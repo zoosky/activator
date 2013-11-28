@@ -9,11 +9,18 @@ import com.typesafe.sbt.SbtNativePackager.Universal
 
 
 object TheActivatorBuild extends Build {
+  
+  def fixFileForURIish(f: File): String = {
+    val uriString = f.toURI.toASCIIString
+    if(uriString startsWith "file://") uriString.drop("file://".length)
+    else uriString.drop("file:".length)
+  }
+
   // ADD sbt launcher support here.
   override def settings = super.settings ++ SbtSupport.buildSettings ++ baseVersions ++ Seq(
     // This is a hack, so the play application will have the right view of the template directory.
     Keys.baseDirectory <<= Keys.baseDirectory apply { bd =>
-      sys.props("activator.home") = bd.getAbsoluteFile.getAbsolutePath  // TODO - Make space friendly
+      sys.props("activator.home") = fixFileForURIish(bd.getAbsoluteFile)
       bd
     }
   ) ++ play.Project.intellijCommandSettings
@@ -117,11 +124,6 @@ object TheActivatorBuild extends Build {
           Keys.update,
           LocalTemplateRepo.localTemplateCacheCreated in localTemplateRepo) map {
         (launcher, update, templateCache) =>
-          def fixFileForURIish(f: File): String = {
-            val uriString = templateCache.toURI.toASCIIString
-            if(uriString startsWith "file://") uriString.drop("file://".length)
-            else uriString.drop("file:".length)
-          }
           // We register the location after it's resolved so we have it for running play...
           sys.props("sbtrc.launch.jar") = launcher.getAbsoluteFile.getAbsolutePath
           // The debug variant of the sbt finder automatically splits the ui + controller jars apart.
