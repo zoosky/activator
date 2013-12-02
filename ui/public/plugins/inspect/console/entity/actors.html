@@ -3,17 +3,17 @@
         <table class="sortable">
             <thead>
                 <tr>
-                    <th rowspan="2" data-bind="click: changeSort('actor'), css: { sortBy: 'actor' == sortBy() }" class="sortBy">Actor</th>
-                
-                    <th rowspan="2" data-bind="click: changeSort('throughput'), css: { sortBy: 'throughput' == sortBy() }">Throughput</th>
-                
-                    <th colspan="2" style="text-align: center">Mailbox</th>
-                
-                    <th rowspan="2" data-bind="click: changeSort('deviation'), css: { sortBy: 'deviation' == sortBy() }">Deviations</th>
+                    <th rowspan="2" data-bind="click: changeSort('actor'), css: { sortBy: 'actor' == sortBy() }" class="sortBy"><span>Actor</span></th>
+
+                    <th rowspan="2" data-bind="click: changeSort('throughput'), css: { sortBy: 'throughput' == sortBy() }" class="right"><span>Throughput</span></th>
+
+                    <th colspan="2" class="center">Mailbox</th>
+
+                    <th rowspan="2" data-bind="click: changeSort('deviation'), css: { sortBy: 'deviation' == sortBy() }" class="right"><span>Deviations</span></th>
                 </tr>
                 <tr class="legend">
-                    <th data-bind="click: changeSort('maxTimeInMailbox'), css: { sortBy: 'maxTimeInMailbox' == sortBy() }">Max Time</th>
-                    <th data-bind="click: changeSort('maxMailboxSize'), css: { sortBy: 'maxMailboxSize' == sortBy() }">Max Size</th>
+                    <th data-bind="click: changeSort('maxTimeInMailbox'), css: { sortBy: 'maxTimeInMailbox' == sortBy() }" class="right"><span>Max Time</span></th>
+                    <th data-bind="click: changeSort('maxMailboxSize'), css: { sortBy: 'maxMailboxSize' == sortBy() }" class="right"><span>Max Size</span></th>
                 </tr>
 
             </thead>

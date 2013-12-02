@@ -10,6 +10,12 @@ table {
     padding: 5px 15px;
     &.right {
       text-align: right;
+      span {
+        margin-right: 5px;
+      }
+    }
+    &.center {
+      text-align: center;
     }
     &:first-child {
       border-left: none;
@@ -28,9 +34,21 @@ table {
     color: #fff;
     font-size: 16px;
     text-align: left;
-    vertical-align: top;
+    vertical-align: bottom;
     &.sortBy {
-      background: #778A97 url(/public/images/table-down-arrow.png) top right no-repeat;
+      span {
+        margin-right: 0;
+      }
+      span:after {
+        content: "\25be";
+        color: white;
+        font: 16px icons;
+        line-height: inherit;
+        margin-right: -10px;
+        width: 15px;
+        display: inline-block;
+        float: right;
+      }
     }
   }
   tr {
