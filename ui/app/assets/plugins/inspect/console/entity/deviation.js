@@ -45,7 +45,7 @@ define(['text!./deviation.html', 'core/pluginapi', './../widget', './../format']
                         actorPath = event.annotation.actorInfo.actorPath;
                     }
                     var eventInfo = {
-                        'paddingSize' : "" + level * 15 + "px",
+                        'paddingSize' : "" + level * 20 + "px",
                         'type' : event.annotation.type,
                         'systemEvent' : this.isSystemEvent(event.annotation.type),
                         'timestamp' : formatter.formatTime(new Date(event.timestamp)),

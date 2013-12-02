@@ -13,6 +13,7 @@ define(['text!./actor.html', 'core/pluginapi', './../widget', '../format'], func
 
       // Special formatting of values
 
+      this.path = ko.observable();
       this.maxSizeMailboxTime = ko.observable();
       this.maxTimeInMailboxTime = ko.observable();
       this.maxTime = ko.observableArray([]);
@@ -33,6 +34,10 @@ define(['text!./actor.html', 'core/pluginapi', './../widget', '../format'], func
       this.formattedMeanProcessedMessageRate = ko.computed(function() {
         return formatter.units(self.meanMessageRate()[1], Number(self.meanMessageRate()[0]).toFixed(3));
       });
+
+      this.close = function() {
+        window.location.hash = "inspect/actors";
+      }
     },
     dataName: 'actor',
     dataTypes: ['actor'],
@@ -41,6 +46,7 @@ define(['text!./actor.html', 'core/pluginapi', './../widget', '../format'], func
       return { 'scope': { 'actorPath': this.actorPath } };
     },
     onData: function(data) {
+      this.path(data.actor.maxMailboxSizeAddressPath);
       this.maxSizeMailboxTime(data.actor.maxMailboxSizeTimestamp);
       this.maxTimeInMailboxTime(data.actor.maxTimeInMailboxTimestamp);
       this.meanMessageRate.push(data.actor.meanProcessedMessageRate);

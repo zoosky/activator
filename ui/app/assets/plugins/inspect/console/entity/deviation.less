@@ -1,10 +1,10 @@
 @import '../colors';
 
-article.deviation {
-  .details {
-    background-color: white;
-    overflow: auto;
-    height: 100%;
+.close {
+  position: absolute;
+  top: 6px;
+  right: 3px;
+}
     h2 {
       background-color: #46BCD9;
       color: white;
@@ -16,6 +16,13 @@ article.deviation {
       width: 100%;
       display: block;
     }
+
+article.deviation {
+  .details {
+    background-color: white;
+    overflow: auto;
+    height: 100%;
+
     .traceEvent {
       .eventDetails {
         padding-left: 15px;
@@ -51,12 +58,15 @@ article.deviation {
         border-left: 5px solid @red;
       }
       .event {
+        &:hover {
+          background-color: @clear;
+        }
       }
       .type {
         font-size: 14px;
         font-weight: 800;
-        color: @blue;
-        padding-top: 5px;
+        color: darkslategray;
+        padding-top: 10px;
       }
       .systemType {
         font-size: 14px;
@@ -65,9 +75,9 @@ article.deviation {
         padding-top: 10px;
       }
       .label {
-        color: darkslategrey;
+        font-style: oblique;
         font-size: 14px;
-        font-weight: 700;
+        font-weight: 900;
       }
       .systemLabel {
         color: darkslategrey;
@@ -82,7 +92,6 @@ article.deviation {
         color: @grey_text;
         font-size: 12px;
         font-weight: 700;
-        padding-left: 5px;
       }
     }
   }

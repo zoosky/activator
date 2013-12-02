@@ -75,5 +75,14 @@
             <tr><td>Result</td><td data-bind="text: summaryType"></td></tr>
             <tr><td>Type</td><td data-bind="text: response.type"></td></tr>
         </tbody>
-    </table>
+
+        <thead>
+        <tr>
+            <th colspan="2" data-bind="visible: $root.actors().length > 0">Actors</th>
+        </tr>
+        </thead>
+        <tbody class="listing" data-bind="foreach: {data: $root.actors}">
+            <tr><td colspan="2" data-bind="text: path"></td></tr>
+        </tbody>
+     </table>
 </article>
