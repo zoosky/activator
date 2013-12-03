@@ -92,10 +92,6 @@ class UIMain extends AppMain {
     // First we check to see if a previous app is running..
     val alreadyRunning = PidDetector.checkRunning(lock)
 
-    // Play defaults to 0.0.0.0 which listens on all
-    // interfaces, we want loopback only.
-    System.setProperty("http.address", serverAddress)
-
     if (!alreadyRunning) {
       // Locate the local repo if it exists
       val optRepositories: Seq[(String, java.io.File, Option[String])] =
@@ -128,6 +124,17 @@ class UIMain extends AppMain {
     Exit(0)
   }
 
+  val serverAddress: String = {
+    if (System.getProperty("http.address") eq null) {
+      // Play defaults to 0.0.0.0 which listens on all
+      // interfaces, we want loopback only.
+      System.setProperty("http.address", "127.0.0.1")
+    }
+    Option(System.getProperty("http.address")) getOrElse {
+      throw new Exception("http.address not set even though we just set it?")
+    }
+  }
+
   val serverPort: Int = {
     if (System.getProperty("http.port") eq null) {
       // we are setting this for Play's benefit
@@ -143,7 +150,7 @@ class UIMain extends AppMain {
       throw new Exception("http.port is not set even though we just set it?")
     }
   }
-  lazy val serverAddress: String = "127.0.0.1"
+
   def serverUrl = new URL(f"http://${serverAddress}:${serverPort}%d/")
 
   def waitForServerStartup(): Unit = {
