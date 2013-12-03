@@ -9,13 +9,14 @@
   padding-top: 50px;
   text-align: center;
   font-size: 20;
-  color: white;
-
+  color: @grey-dkr;
   a {
     display: block;
-    color: white;
     text-decoration: underline;
     padding-top: 20px;
+  }
+  .light {
+    color: white;
   }
 }
 
@@ -75,7 +76,12 @@
       a {
         .title();
         font-size: 22px;
-        color: @blue-dkr;
+        .active {
+          color: @blue-dkr;
+        }
+        .inactive {
+          color: @grey-dkr;
+        }
         line-height: 24px;
         &:after {
           content: " ";

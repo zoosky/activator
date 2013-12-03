@@ -20,6 +20,25 @@ define(['text!./deviations.html', 'core/pluginapi', './../widget', '../format'],
             this.unhandledMessageCount = ko.observable(0);
             this.deadlockCount = ko.observable(0);
             this.deviationCount = ko.observable(0);
+            this.hasDeviations = ko.computed(function() {
+              return self.deviationCount() > 0;
+            });
+            this.hasErrors = ko.computed(function() {
+              return self.errorCount() > 0;
+            });
+            this.hasWarnings = ko.computed(function() {
+                return self.warningCount() > 0;
+            });
+            this.hasDeadLetters = ko.computed(function() {
+                return self.deadLetterCount() > 0;
+            });
+            this.hasUnhandledMessages = ko.computed(function() {
+                return self.unhandledMessageCount() > 0;
+            });
+            this.hasDeadlocks = ko.computed(function() {
+                return self.deadlockCount() > 0;
+            });
+
         },
         dataName: 'deviations',
         dataTypes: ['deviations'],
