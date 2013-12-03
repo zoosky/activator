@@ -1,19 +1,13 @@
 <ul class="listing">
-    <li class="item" data-bind="visible: actors() > 0, css: { active: active() == 'actors' }">
-        <a href="#inspect/actors">
-            Actors
-        </a>
-        <span class="error counter" data-bind="text: shorten(actors())">&ndash;</span>
+    <li class="item">
+        <a data-bind="style: { color: requests() > 0 ? '#01B8E4' : '#899CA9' }" href="#inspect/requests">Play requests</a>
     </li>
-    <li class="item" data-bind="visible: requests() > 0, css: { active: active() == 'requests' }">
-        <a href="#inspect/requests">
-            Play requests
-        </a>
+    <li class="item">
+        <a data-bind="style: { color: actors() > 0 ? '#01B8E4' : '#899CA9' }" href="#inspect/actors">Actors</a>
+        <span data-bind="visible: actors() > 0, text: shorten(actors())" class="error counter">&ndash;</span>
     </li>
-    <li class="item" data-bind="visible: deviations() > 0, css: { active: active() == 'deviations' }">
-        <a href="#inspect/deviations">
-            Deviations
-        </a>
-        <span class="error counter" data-bind="text: shorten(deviations())">&ndash;</span>
+    <li class="item">
+        <a data-bind="style: { color: deviations() > 0 ? '#01B8E4' : '#899CA9' }" href="#inspect/deviations">Deviations</a>
+        <span data-bind="visible: deviations() > 0, text: shorten(deviations())" class="error counter">&ndash;</span>
     </li>
 </ul>

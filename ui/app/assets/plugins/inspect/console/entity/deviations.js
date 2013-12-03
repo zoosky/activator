@@ -19,17 +19,20 @@ define(['text!./deviations.html', 'core/pluginapi', './../widget', '../format'],
             this.deadLetterCount = ko.observable(0);
             this.unhandledMessageCount = ko.observable(0);
             this.deadlockCount = ko.observable(0);
+            this.deviationCount = ko.observable(0);
         },
         dataName: 'deviations',
         dataTypes: ['deviations'],
         dataScope: {},
         onData: function(data) {
+            var deviations = 0;
             this.formatTimestamp = function(value) {
                 return formatter.formatTime(new Date(value));
             };
             this.format = function(collection, deviationType) {
                 var newCollection = [];
                 for (var i = 0; i < collection.length; i++) {
+                    deviations += 1;
                     var element = {
                         'event' : collection[i].event,
                         'message' : collection[i].message,
@@ -51,6 +54,7 @@ define(['text!./deviations.html', 'core/pluginapi', './../widget', '../format'],
             this.deadLetterCount(data.deviations.deadLetterCount);
             this.unhandledMessageCount(data.deviations.unhandledMessageCount);
             this.deadlockCount(data.deviations.deadlockCount);
+            this.deviationCount(deviations);
         }
     });
 });

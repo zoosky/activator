@@ -1,69 +1,74 @@
-<article class="deviations">
-    <table>
-        <thead data-bind="visible: errorCount() > 0">
+<div data-bind="visible: deviationCount() > 0">
+    <article class="deviations">
+        <table>
+            <thead data-bind="visible: errorCount() > 0">
+                <tr>
+                    <th>Error</th>
+                    <th>Time</th>
+                </tr>
+            </thead>
+            <tbody class="listing" data-bind="foreach: {data: errors}">
             <tr>
-                <th>Error</th>
+                <td class="message"><a href="#" data-bind="text: message, attr: { href : traceLink}"></a></td>
+                <td class="timestamp" data-bind="text: timestamp"></td>
+            </tr>
+            </tbody>
+
+            <thead data-bind="visible: warningCount() > 0">
+            <tr>
+                <th>Warning</th>
                 <th>Time</th>
             </tr>
-        </thead>
-        <tbody class="listing" data-bind="foreach: {data: errors}">
-        <tr>
-            <td class="message"><a href="#" data-bind="text: message, attr: { href : traceLink}"></a></td>
-            <td class="timestamp" data-bind="text: timestamp"></td>
-        </tr>
-        </tbody>
+            </thead>
+            <tbody class="listing" data-bind="foreach: {data: warnings}">
+            <tr>
+                <td class="message"><a href="#" data-bind="text: message, attr: { href : traceLink}"></a></td>
+                <td class="timestamp" data-bind="text: timestamp"></td>
+            </tr>
+            </tbody>
 
-        <thead data-bind="visible: warningCount() > 0">
-        <tr>
-            <th>Warning</th>
-            <th>Time</th>
-        </tr>
-        </thead>
-        <tbody class="listing" data-bind="foreach: {data: warnings}">
-        <tr>
-            <td class="message"><a href="#" data-bind="text: message, attr: { href : traceLink}"></a></td>
-            <td class="timestamp" data-bind="text: timestamp"></td>
-        </tr>
-        </tbody>
+            <thead data-bind="visible: deadLetterCount() > 0">
+            <tr>
+                <th>Dead Letters</th>
+                <th>Time</th>
+            </tr>
+            </thead>
+            <tbody class="listing" data-bind="foreach: {data: deadLetters}">
+            <tr>
+                <td class="message"><a href="#" data-bind="text: message, attr: { href : traceLink}"></a></td>
+                <td class="timestamp" data-bind="text: timestamp"></td>
+            </tr>
+            </tbody>
 
-        <thead data-bind="visible: deadLetterCount() > 0">
-        <tr>
-            <th>Dead Letters</th>
-            <th>Time</th>
-        </tr>
-        </thead>
-        <tbody class="listing" data-bind="foreach: {data: deadLetters}">
-        <tr>
-            <td class="message"><a href="#" data-bind="text: message, attr: { href : traceLink}"></a></td>
-            <td class="timestamp" data-bind="text: timestamp"></td>
-        </tr>
-        </tbody>
+            <thead data-bind="visible: unhandledMessageCount() > 0">
+            <tr>
+                <th>Unhandled Messages</th>
+                <th>Time</th>
+            </tr>
+            </thead>
+            <tbody class="listing" data-bind="foreach: {data: unhandledMessages}">
+            <tr>
+                <td class="message"><a href="#" data-bind="text: message, attr: { href : traceLink}"></a></td>
+                <td class="timestamp" data-bind="text: timestamp"></td>
+            </tr>
+            </tbody>
 
-        <thead data-bind="visible: unhandledMessageCount() > 0">
-        <tr>
-            <th>Unhandled Messages</th>
-            <th>Time</th>
-        </tr>
-        </thead>
-        <tbody class="listing" data-bind="foreach: {data: unhandledMessages}">
-        <tr>
-            <td class="message"><a href="#" data-bind="text: message, attr: { href : traceLink}"></a></td>
-            <td class="timestamp" data-bind="text: timestamp"></td>
-        </tr>
-        </tbody>
+            <thead data-bind="visible: deadlockCount() > 0">
+            <tr>
+                <th>Deadlocks</th>
+                <th>Time</th>
+            </tr>
+            </thead>
+            <tbody class="listing" data-bind="foreach: {data: deadlocks}">
+            <tr>
+                <td class="message"><a href="#" data-bind="text: message, attr: { href : traceLink}"></a></td>
+                <td class="timestamp" data-bind="text: timestamp"></td>
+            </tr>
+            </tbody>
 
-        <thead data-bind="visible: deadlockCount() > 0">
-        <tr>
-            <th>Deadlocks</th>
-            <th>Time</th>
-        </tr>
-        </thead>
-        <tbody class="listing" data-bind="foreach: {data: deadlocks}">
-        <tr>
-            <td class="message"><a href="#" data-bind="text: message, attr: { href : traceLink}"></a></td>
-            <td class="timestamp" data-bind="text: timestamp"></td>
-        </tr>
-        </tbody>
-
-    </table>
-</article>
+        </table>
+    </article>
+</div>
+<div id="splash" data-bind="visible: deviationCount() == 0">
+    No deviations found. You rock!
+</div>
