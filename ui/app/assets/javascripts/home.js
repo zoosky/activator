@@ -163,10 +163,6 @@ var startApp = function() {
           msg.template = template;
           streams.send(msg);
           toggleWorking();
-
-          try {
-            ga('send', 'event', 'activator', msg.request, msg.template);
-          } catch(err){}
         }
       });
       function toggleDirectoryBrowser() {
