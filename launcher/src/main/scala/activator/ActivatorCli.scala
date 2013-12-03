@@ -11,6 +11,7 @@ import sbt.complete.{ Parser, Parsers }
 import scala.concurrent.Await
 import scala.concurrent.duration._
 import akka.actor.ActorSystem
+import activator.TemplatePopularityContest
 
 object ActivatorCli {
   def apply(configuration: AppConfiguration): Int = try withContextClassloader {
@@ -42,6 +43,10 @@ object ActivatorCli {
         System.out.println(s"""OK, application "$name" is being created using the "${t.name}" template.""")
         System.out.println()
         import scala.concurrent.ExecutionContext.Implicits.global
+
+        // record stats in parallel while we are cloning
+        val statsRecorded = TemplatePopularityContest.recordClonedIgnoringErrors(t.name)
+
         // TODO - Is this duration ok?
         Await.result(
           cloneTemplate(
@@ -53,6 +58,11 @@ object ActivatorCli {
             additionalFiles = UICacheHelper.scriptFilesForCloning),
           Duration(5, MINUTES))
         printUsage(name, projectDir)
+
+        // don't wait too long on this remote call, we ignore the
+        // result anyway; just don't want to exit the JVM too soon.
+        Await.result(statsRecorded, Duration(5, SECONDS))
+
         0
       case _ =>
         sys.error("Could not find template with name: $templateName")
