@@ -79,6 +79,10 @@ define(['text!./actors.html', 'core/pluginapi', '../widget', '../format', '../ho
         }
         return actors;
       });
+      isSystemActor = function(path) {
+        if (path.indexOf("/user") == path.length - 5) return true;
+        return false;
+      };
     },
     dataName: 'actors',
     dataTypes: ['actors'],

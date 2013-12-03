@@ -106,7 +106,7 @@ object JsonHandler {
     (__ \ "actorSystem").readNullable[String] and
     (__ \ "dispatcher").readNullable[String] and
     (__ \ "tag").readNullable[String] and
-    (__ \ "actor").readNullable[String] and
+    (__ \ "actorPath").readNullable[String] and
     (__ \ "playPattern").readNullable[String] and
     (__ \ "playController").readNullable[String])(Scope)
 
@@ -145,7 +145,8 @@ case class Scope(
       "actorPath" -> actorPath,
       "playPattern" -> playPattern,
       "playController" -> playController).
-      map(x => mapify(x._1, x._2)).head
+      map(x => mapify(x._1, x._2)).
+      reduce(_ ++ _)
   }
 }
 

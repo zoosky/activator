@@ -4,11 +4,8 @@
             <thead>
                 <tr>
                     <th rowspan="2" data-bind="click: changeSort('actor'), css: { sortBy: 'actor' == sortBy() }" class="sortBy"><span>Actor</span></th>
-
                     <th rowspan="2" data-bind="click: changeSort('throughput'), css: { sortBy: 'throughput' == sortBy() }" class="right"><span>Throughput</span></th>
-
                     <th colspan="2" class="center">Mailbox</th>
-
                     <th rowspan="2" data-bind="click: changeSort('deviation'), css: { sortBy: 'deviation' == sortBy() }" class="right"><span>Deviations</span></th>
                 </tr>
                 <tr class="legend">
@@ -20,9 +17,14 @@
             <tbody class="listing" data-bind="foreach: actors">
                 <tr>
                     <td class="name">
-                        <a href="#" data-bind="text: path, attr: { href: actorLink, 'data-hover-text': hover }">
-                            <!-- ko foreach: prefix--><!-- ko text: $data--><!-- /ko -->/<wbr><!-- /ko --><strong data-bind="text: name, attr: { 'data-hover-text': hover }"></strong>
-                        </a>
+                        <div data-bind="if: !isSystemActor(actorLink)">
+                            <a href="#" data-bind="text: path, attr: { href: actorLink, 'data-hover-text': hover }">
+                                <!-- ko foreach: prefix--><!-- ko text: $data--><!-- /ko -->/<wbr><!-- /ko --><strong data-bind="text: name, attr: { 'data-hover-text': hover }"></strong>
+                            </a>
+                        </div>
+                        <div data-bind="if: isSystemActor(actorLink)">
+                            <span data-bind="text: path"></span>
+                        </div>
                     </td>
                     <td class="throughput right" data-bind="text: throughput"></td>
                     <td class="maxTimeInMailbox right" data-bind="text: maxTimeInMailbox"></td>

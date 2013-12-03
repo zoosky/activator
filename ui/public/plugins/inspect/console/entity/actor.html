@@ -1,9 +1,9 @@
-<article class="actor">
+<article class="actor" data-bind="with: actor">
     <header>
         <button class="close" data-bind="click: close">BACK</button>
-        <h2 data-bind="text: path"></h2>
+        <h2 data-bind="text: scope.actorPath"></h2>
     </header>
-    <table data-bind="with: actor">
+    <table>
         <thead>
         <tr>
             <th><span>Message Information</span></th>
@@ -23,12 +23,14 @@
         </thead>
         <tbody class="listing">
             <tr><td>Max mailbox size</td><td data-bind="text: maxMailboxSize"></td></tr>
-            <tr><td>Max mailbox size time</td><td data-bind="text: $root.formattedMaxMailboxSizeTimestamp"></td></tr>
-            <tr><td>Max time in mailbox</td><td data-bind="text: $root.formattedMaxTimeInMailbox"></td></tr>
-            <tr><td>Max time in mailbox time</td><td data-bind="text: $root.formattedMaxTimeInMailboxTimestamp"></td></tr>
-            <tr><td>Mean mailbox size</td><td data-bind="text: meanMailboxSize"></td></tr>
-            <tr><td>Mean time in mailbox</td><td data-bind="text: $root.formattedMeanTimeInMailbox"></td></tr>
+            <tr><td>Max mailbox size time</td><td data-bind="text: $root.formatDate(maxMailboxSizeTimestamp)"></td></tr>
+            <tr><td>Max time in mailbox</td><td data-bind="text: $root.formatUnits(maxTimeInMailboxUnit, maxTimeInMailbox)"></td></tr>
+            <tr><td>Max time in mailbox time</td><td data-bind="text: $root.formatDate(maxTimeInMailboxTimestamp)"></td></tr>
+            <tr><td>Mean mailbox size</td><td data-bind="text: $root.shorten(meanMailboxSize)"></td></tr>
+            <tr><td>Mean time in mailbox</td><td data-bind="text: $root.formatUnits(meanTimeInMailboxUnit, meanTimeInMailbox)"></td></tr>
         </tbody>
+
+        <!-- ko if: $data.totalMessageRate -->
         <thead>
         <tr>
             <th><span>Rates</span></th>
@@ -36,12 +38,14 @@
         </tr>
         </thead>
         <tbody class="listing">
-            <tr><td>Total message</td><td data-bind="text: totalMessageRate"></td></tr>
-            <tr><td>Receive</td><td data-bind="text: receiveRate"></td></tr>
-            <tr><td>Tell</td><td data-bind="text: tellRate"></td></tr>
-            <tr><td>Ask</td><td data-bind="text: askRate"></td></tr>
-            <tr><td>Mean processed messages</td><td data-bind="text: $root.formattedMeanProcessedMessageRate"></td></tr>
+            <tr><td>Total message</td><td data-bind="text: $root.shorten(totalMessageRate)"></td></tr>
+            <tr><td>Receive</td><td data-bind="text: $root.shorten(receiveRate)"></td></tr>
+            <tr><td>Tell</td><td data-bind="text: $root.shorten(tellRate)"></td></tr>
+            <tr><td>Ask</td><td data-bind="text: $root.shorten(askRate)"></td></tr>
+            <tr><td>Mean processed messages</td><td data-bind="text: $root.formatUnits(meanProcessedMessageRateUnit, $root.shorten(meanProcessedMessageRate))"></td></tr>
         </tbody>
+        <!-- /ko -->
+
         <thead>
         <tr>
             <th><span>Deviations</span></th>
