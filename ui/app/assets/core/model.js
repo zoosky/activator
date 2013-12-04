@@ -20,32 +20,7 @@ define(['webjars!knockout', './router', 'commons/settings', 'plugins/tutorial/tu
       navigationSneakTimer: 0,
       omnisearchString: ko.observable(""),
       omnisearchActive: ko.observable(false),
-      omnisearchOptions: ko.observableArray([
-        {
-          title: "test",
-          subtitle: "run test command",
-          type: "Command",
-          url: "#code/"
-        },
-        {
-          title: "Test your application",
-          subtitle: "/documentatation/test/",
-          type: "Documentation",
-          url: "#code/"
-        },
-        {
-          title: "Test.scala",
-          subtitle: "/code/app/test/",
-          type: "Code",
-          url: "#code/"
-        },
-        {
-          title: "UnitTest.scala",
-          subtitle: "/code/app/test/",
-          type: "Code",
-          url: "#code/"
-        }
-      ]),
+      omnisearchOptions: ko.observableArray([]),
       omnisearchSelected: ko.observable(0),
       panelDropdownActive: ko.observable(false),
       panelOpened: ko.observable( settings.get("app.panelOpened", false) ),
@@ -111,6 +86,18 @@ define(['webjars!knockout', './router', 'commons/settings', 'plugins/tutorial/tu
             if (this.snap.omnisearchString().length > 0) {
               this.snap.omnisearchActive(true);
               // Talk to backend, update omnisearchOptions with result
+              var results = this.snap.omnisearchOptions;
+              var search = this.snap.omnisearchString();
+              // TODO - Figure out a better way to get this URL!
+              var url = '/app/' + window.serverAppModel.id + '/search/' + search;
+              $.ajax({
+               url: url,
+               dataType: 'json',
+               success: function(values) {
+                 // TODO - Maybe be smarter about how we fill stuff out here?
+                   results(values);
+               }
+              });
             } else {
               this.snap.omnisearchActive(false);
             }

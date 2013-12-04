@@ -117,6 +117,72 @@ object Application extends Controller {
     }
   }
 
+  case class SearchResult(title: String, subtitle: String, url: String, tpe: String)
+  object SearchResult {
+    import play.api.libs.json._
+    implicit object MyFormat extends Writes[SearchResult] {
+      def writes(o: SearchResult): JsValue = {
+        JsObject(Seq(
+          "title" -> JsString(o.title),
+          "subtitle" -> JsString(o.subtitle),
+          "url" -> JsString(o.url),
+          "type" -> JsString(o.tpe)))
+      }
+    }
+  }
+
+  // TODO - Clean this up a bit, maybe add semantic knowledge of the possible return types...
+  // maybe some caching, basically not so naive.
+  def search(id: String, search: String) = Action.async { implicit request =>
+    Logger.debug(s"Searching for actions on app [$id]: $search")
+
+    AppManager.loadApp(id).map { theApp =>
+      val fileResults = searchFileResults(search, theApp.config.location)
+      import play.api.libs.json._
+      Ok(Json toJson fileResults)
+    } recover {
+      case e: Exception =>
+        Logger.error(s"Failed to run search on app $id - $search:  ${e.getMessage}")
+        Ok("")
+    }
+  }
+
+  private def searchFileResults(search: String, base: File): Seq[SearchResult] = {
+    val files = searchFiles(search, base)
+    // TODO - Prioritize these results...
+    for {
+      file <- files
+    } yield SearchResult(
+      title = file.getName,
+      subtitle = file.getAbsolutePath,
+      url = Platform.getClientFriendlyLink(file, base),
+      tpe = "Code")
+  }
+
+  // Ironically, this was a google interview question.
+  private def searchFiles(search: String, base: File): Seq[File] = {
+    import sbt._
+    import sbt.Path._
+    def searchMatches(name: String): Boolean = {
+      var i = 0;
+      var j = 0;
+      while (i < name.length && j < search.length) {
+        if (name.charAt(i) == search.charAt(j)) {
+          j += 1
+        }
+        i += 1
+      }
+      // If we exhausted the search string, we've successfully found the thing
+      (j == search.length)
+    }
+    // TODO - We should filter out stupid files (like more than target/, etc.)
+    for {
+      file <- (base.*** --- base).get
+      if (!file.getAbsolutePath.contains("target"))
+      if searchMatches(file.getName)
+    } yield file
+  }
+
   private def connectionStreams(id: String): Future[(Iteratee[JsValue, _], Enumerator[JsValue])] = {
     Logger.debug(s"Computing connection streams for app ID $id")
     val streamsFuture = AppManager.loadApp(id) flatMap { app =>
