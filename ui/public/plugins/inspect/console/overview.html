@@ -1,19 +1,13 @@
 <ul class="listing">
-    <li class="item" data-bind="visible: actors() > 0, css: { active: active() == 'actors' }">
-        <a href="#inspect/actors">
-            Actors
-        </a>
-        <span class="error counter" data-bind="text: shorten(actors())">&ndash;</span>
+    <li class="item">
+        <a class="test" href="#inspect/requests"><span data-bind="css: { 'active': hasPlayRequests(), 'inactive': !hasPlayRequests()}">Play requests</span></a>
     </li>
-    <li class="item" data-bind="visible: requests() > 0, css: { active: active() == 'requests' }">
-        <a href="#inspect/requests">
-            Play requests
-        </a>
+    <li class="item">
+        <a href="#inspect/actors"><span data-bind="css: { 'active': hasActors(), 'inactive': !hasActors()}">Actors</span></a>
+        <span data-bind="visible: hasActors(), text: shorten(actors())" class="error counter">&ndash;</span>
     </li>
-    <li class="item" data-bind="visible: deviations() > 0, css: { active: active() == 'deviations' }">
-        <a href="#inspect/deviations">
-            Deviations
-        </a>
-        <span class="error counter" data-bind="text: shorten(deviations())">&ndash;</span>
+    <li class="item">
+        <a href="#inspect/deviations"><span data-bind="css: { 'active': hasDeviations(), 'inactive': !hasDeviations()}">Deviations</span></a>
+        <span data-bind="visible: hasDeviations(), text: shorten(deviations())" class="error counter">&ndash;</span>
     </li>
 </ul>

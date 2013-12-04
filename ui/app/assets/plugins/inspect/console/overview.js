@@ -13,6 +13,15 @@ define(['text!./overview.html', 'core/pluginapi', './widget', './format'], funct
       this.actors = ko.observable(0);
       this.requests = ko.observable(0);
       this.deviations = ko.observable(0);
+      this.hasPlayRequests = ko.computed(function() {
+        return self.requests() > 0;
+      });
+      this.hasActors = ko.computed(function() {
+        return self.actors() > 0;
+      });
+      this.hasDeviations = ko.computed(function() {
+        return self.deviations() > 0;
+      });
     },
     active: ko.observable(''),
     dataName: 'overview',
