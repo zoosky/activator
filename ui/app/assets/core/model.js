@@ -18,7 +18,36 @@ define(['webjars!knockout', './router', 'commons/settings', 'plugins/tutorial/tu
       navigationOpened: ko.observable( settings.get("app.navigationOpened", true) ),
       navigationSneak: ko.observable( false ),
       navigationSneakTimer: 0,
-      panelDropdownActive: ko.observable( false ),
+      omnisearchString: ko.observable(""),
+      omnisearchActive: ko.observable(false),
+      omnisearchOptions: ko.observableArray([
+        {
+          title: "test",
+          subtitle: "run test command",
+          type: "Command",
+          url: "#code/"
+        },
+        {
+          title: "Test your application",
+          subtitle: "/documentatation/test/",
+          type: "Documentation",
+          url: "#code/"
+        },
+        {
+          title: "Test.scala",
+          subtitle: "/code/app/test/",
+          type: "Code",
+          url: "#code/"
+        },
+        {
+          title: "UnitTest.scala",
+          subtitle: "/code/app/test/",
+          type: "Code",
+          url: "#code/"
+        }
+      ]),
+      omnisearchSelected: ko.observable(0),
+      panelDropdownActive: ko.observable(false),
       panelOpened: ko.observable( settings.get("app.panelOpened", false) ),
       panelShape: ko.observable( settings.get("app.panelShape", "right1") ),
       pageTitle: ko.observable(),
@@ -49,6 +78,57 @@ define(['webjars!knockout', './router', 'commons/settings', 'plugins/tutorial/tu
         this.snap.navigationSneakTimer = setTimeout(function(){
           navigationSneak(false);
         } ,500);
+      },
+      omnisearch: function(data, event){
+        switch (event.keyCode) {
+          // Escape
+          case 27:
+            event.target.blur();
+            break;
+          // Return
+          case 13:
+            location.href = this.snap.omnisearchOptions()[this.snap.omnisearchSelected()].url;
+            event.target.blur();
+            break;
+          // Up
+          case 38:
+            if (this.snap.omnisearchSelected() > 0) {
+              this.snap.omnisearchSelected(this.snap.omnisearchSelected() - 1);
+            } else {
+              this.snap.omnisearchSelected(this.snap.omnisearchOptions().length - 1);
+            }
+            break;
+          // Down
+          case 40:
+            if (this.snap.omnisearchSelected() < this.snap.omnisearchOptions().length - 1) {
+              this.snap.omnisearchSelected(this.snap.omnisearchSelected() + 1);
+            } else {
+              this.snap.omnisearchSelected(0);
+            }
+            break;
+          default:
+            console.log(this.snap.omnisearchString());
+            if (this.snap.omnisearchString().length > 0) {
+              this.snap.omnisearchActive(true);
+              // Talk to backend, update omnisearchOptions with result
+            } else {
+              this.snap.omnisearchActive(false);
+            }
+            break;
+        }
+        return true;
+      },
+      omnisearchGo: function(data){
+        location.href = data.url;
+      },
+      omnisearchOff: function(data, event){
+        var self = this;
+        // Delay hiding of omnisearch list to catch mouse click on list before it disappears
+        setTimeout(function(){
+          self.snap.omnisearchActive(false);
+          self.snap.omnisearchSelected(0);
+          self.snap.omnisearchString("");
+        }, 100);
       },
       togglePanel: function(){
         this.snap.panelOpened(!this.snap.panelOpened());
