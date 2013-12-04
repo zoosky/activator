@@ -6,6 +6,7 @@ package controllers.api
 import play.api.Logger
 import play.api.mvc._
 import play.api.libs.json._
+import play.filters.csrf._
 import activator._
 import activator.cache.TemplateMetadata
 import scala.concurrent.duration._
@@ -79,14 +80,16 @@ object Templates extends Controller {
     }
   }
 
-  def cloneTemplate = Action.async(parse.json) { request =>
-    val location = new java.io.File((request.body \ "location").as[String])
-    val templateid = (request.body \ "template").as[String]
-    val name = (request.body \ "name").asOpt[String]
-    import scala.concurrent.ExecutionContext.Implicits._
-    val result = doCloneTemplate(templateid, location, name)
-    result.map(x => Ok(request.body)).recover {
-      case e => NotAcceptable(e.getMessage)
+  def cloneTemplate = CSRFCheck {
+    Action.async(parse.json) { request =>
+      val location = new java.io.File((request.body \ "location").as[String])
+      val templateid = (request.body \ "template").as[String]
+      val name = (request.body \ "name").asOpt[String]
+      import scala.concurrent.ExecutionContext.Implicits._
+      val result = doCloneTemplate(templateid, location, name)
+      result.map(x => Ok(request.body)).recover {
+        case e => NotAcceptable(e.getMessage)
+      }
     }
   }
 }
