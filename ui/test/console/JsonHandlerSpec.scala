@@ -26,7 +26,7 @@ class JsonHandlerSpec extends Specification {
               "actorSystem" : "as1",
               "dispatcher" : "d1",
               "tag" : "t1",
-              "actor" : "a1"
+              "actorPath" : "a1"
             }
           }
         """)
@@ -100,7 +100,7 @@ class JsonHandlerSpec extends Specification {
                   "node" : "n3",
                   "actorSystem" : "as3",
                   "dispatcher" : "d3",
-                  "actor" : "a3"
+                  "actorPath" : "a3"
                 }
               }
             ]
