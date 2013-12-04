@@ -5,6 +5,7 @@ import com.typesafe.sbt.packager.Keys.{
   makeBashScript, makeBatScript
 }
 
+import com.typesafe.sbt.license._
 
 package sbt {
   object IvySbtCheater {
@@ -55,14 +56,7 @@ object Packaging {
     localRepoCreated <<= localRepoCreation map (_.location),
     localRepoLicenses <<= (localRepoCreation, streams) map { (config, s) =>
       // Stylize the licenses we used and give an inline report...
-      s.log.info("--- Licenses ---")
-      val badList = Set("and", "the", "license", "revised")
-      def makeSortString(in: String): String =
-        in split ("\\s+") map (_.toLowerCase) filterNot badList mkString ""
-      for(license <- config.licenses sortBy (l => makeSortString(l.name))) {
-        s.log.info(" * " + license.name + " @ " + license.url)
-         s.log.info("    - " + license.deps.mkString(", "))
-      }
+      LicenseReport.dumpReport(LicenseReport(config.licenses, null), println = msg => s.log.info(msg.toString))
     }
   )
   

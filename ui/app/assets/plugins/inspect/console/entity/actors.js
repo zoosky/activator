@@ -83,6 +83,9 @@ define(['text!./actors.html', 'core/pluginapi', '../widget', '../format', '../ho
         if (path.indexOf("/user") == path.length - 5) return true;
         return false;
       };
+      this.hasActors = ko.computed(function() {
+        return self.actors().length > 0;
+      });
     },
     dataName: 'actors',
     dataTypes: ['actors'],
