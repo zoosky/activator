@@ -162,18 +162,20 @@ object Application extends Controller {
    * Connects from an application page to the "stateful" actor/server we use
    * per-application for information.
    */
-  def connectApp(id: String) = WebSocket.async[JsValue] { request =>
-    Logger.debug("Connect request for app id: " + id)
-    // we kill off any previous browser tab
-    AppManager.loadTakingOverApp(id) flatMap { theApp =>
-      val streamsFuture = snap.Akka.retryOverMilliseconds(2000)(connectionStreams(id))
+  def connectApp(id: String) = snap.WebSocketUtil.socketCSRFCheck {
+    WebSocket.async[JsValue] { request =>
+      Logger.debug("Connect request for app id: " + id)
+      // we kill off any previous browser tab
+      AppManager.loadTakingOverApp(id) flatMap { theApp =>
+        val streamsFuture = snap.Akka.retryOverMilliseconds(2000)(connectionStreams(id))
 
-      streamsFuture onFailure {
-        case e: Throwable =>
-          Logger.warn(s"Giving up on opening websocket")
+        streamsFuture onFailure {
+          case e: Throwable =>
+            Logger.warn(s"Giving up on opening websocket")
+        }
+
+        streamsFuture
       }
-
-      streamsFuture
     }
   }
 

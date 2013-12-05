@@ -12,6 +12,7 @@ import play.api._
 import play.api.libs.iteratee._
 import scala.collection.immutable.Queue
 import play.api.mvc.WebSocket.FrameFormatter
+import play.api.mvc._
 
 private case object Ack
 
@@ -237,7 +238,7 @@ object WebSocketActor {
    *  Note: This method is a convenience, and most likely needs tweaking
    *  as we use more websockets.
    */
-  def create[T](system: ActorSystem, creator: => WebSocketActor[T], name: String)(implicit fm: FrameFormatter[T]) =
+  def create[T](system: ActorSystem, creator: => WebSocketActor[T], name: String)(implicit fm: FrameFormatter[T]): WebSocket[T] = WebSocketUtil.socketCSRFCheck {
     WebSocket.async[T] { request =>
       val wsActor = system.actorOf(Props(creator), name = name)
       import system.dispatcher
@@ -250,6 +251,7 @@ object WebSocketActor {
         streams
       }
     }
+  }
 }
 
 private sealed trait ProducerProxyMessage
