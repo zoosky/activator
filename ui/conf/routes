@@ -29,11 +29,6 @@ PUT         /api/local/create                            controllers.api.Local.c
 PUT         /api/local/rename                            controllers.api.Local.renameFile
 PUT         /api/local/delete                            controllers.api.Local.deleteFile
 
-# Events API
-GET         /api/event/stream                            controllers.api.Events.eventSource
-GET         /api/event/test                              controllers.api.Events.test
-GET         /api/event/kill                              controllers.api.Events.kill
-
 # Base flow ->  Select Template -> Running Application.
 GET         /                                            controllers.Application.index
 GET         /home                                        controllers.Application.forceHome

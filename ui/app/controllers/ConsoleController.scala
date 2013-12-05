@@ -13,8 +13,10 @@ object ConsoleController extends ConsoleController {
   /**
    * Connects console websocket.
    */
-  def connectConsole(id: String) = WebSocket.async[JsValue] { req =>
-    console.ClientController.join(id)
+  def connectConsole(id: String) = snap.WebSocketUtil.socketCSRFCheck {
+    WebSocket.async[JsValue] { req =>
+      console.ClientController.join(id)
+    }
   }
 }
 

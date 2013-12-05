@@ -2,6 +2,7 @@
 
 @import activator.properties.ActivatorProperties
 @import play.api.libs.json.Json
+@import snap.WebSocketUtil.webSocketURLWithCSRF
 
 @name(app: snap.AppConfig) = {
   @app.cachedName.getOrElse(app.id)
@@ -14,8 +15,8 @@
     <title>Typesafe Activator</title>
     <link href="@routes.Assets.at("core/main.css")" rel="stylesheet" type="text/css">
     <script type="text/javascript">
-      window.wsUrl = '@routes.Application.connectApp(model.id).webSocketURL()';
-      window.consoleWsUrl = '@routes.ConsoleController.connectConsole(model.id).webSocketURL()';
+      window.wsUrl = '@webSocketURLWithCSRF(routes.Application.connectApp(model.id))';
+      window.consoleWsUrl = '@webSocketURLWithCSRF(routes.ConsoleController.connectConsole(model.id))';
       @* The @Html thing prevents the Json from being escaped *@
       window.serverAppModel = @Html(Json.toJson(model).toString())
       window.serverAppVersion = "@ActivatorProperties.APP_VERSION"
