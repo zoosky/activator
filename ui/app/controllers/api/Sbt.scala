@@ -6,6 +6,7 @@ package controllers.api
 import play.api.libs.json._
 import com.typesafe.sbtrc._
 import play.api.mvc._
+import play.filters.csrf._
 import snap.AppManager
 import akka.pattern._
 import akka.actor._
@@ -120,15 +121,17 @@ object Sbt extends Controller {
     resultFuture
   }
 
-  private def jsonAction(f: JsValue => Future[SimpleResult]): Action[AnyContent] = Action.async { request =>
-    request.body.asJson.map({ json =>
-      try f(json)
-      catch {
-        case e: Exception =>
-          Logger.info("json action failed: " + e.getMessage(), e)
-          Future.successful(BadRequest(e.getClass.getName + ": " + e.getMessage))
-      }
-    }).getOrElse(Future.successful(BadRequest("expecting JSON body")))
+  private def jsonAction(f: JsValue => Future[SimpleResult]): Action[AnyContent] = CSRFCheck {
+    Action.async { request =>
+      request.body.asJson.map({ json =>
+        try f(json)
+        catch {
+          case e: Exception =>
+            Logger.info("json action failed: " + e.getMessage(), e)
+            Future.successful(BadRequest(e.getClass.getName + ": " + e.getMessage))
+        }
+      }).getOrElse(Future.successful(BadRequest("expecting JSON body")))
+    }
   }
 
   private def withTaskActor[T](taskId: String, taskDescription: String, app: snap.App)(body: ActorRef => Future[T]): Future[T] = {

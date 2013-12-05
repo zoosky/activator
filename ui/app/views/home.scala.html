@@ -1,5 +1,7 @@
 @(model: HomeModel, newApp: Form[NewAppForm])(implicit request: RequestHeader)
 
+@import snap.WebSocketUtil.webSocketURLWithCSRF
+
 <!-- Copyright (C) 2013 Typesafe, Inc <http://typesafe.com> -->
 <!DOCTYPE html>
 <html>
@@ -8,7 +10,7 @@
 		<title>Typesafe Activator</title>
 		<!-- Initialize global Javascript values... -->
 		<script type="text/javascript">
-			window.wsUrl = '@routes.Application.homeStream.webSocketURL()';
+			window.wsUrl = '@webSocketURLWithCSRF(routes.Application.homeStream)';
 		</script>
 		<script data-main='@routes.Assets.at("core/home.js")' type='text/javascript' src='@routes.WebJarAssets.requirejs()'></script>
 		<link rel="stylesheet" media="screen" href="@routes.Assets.at("core/home.css")">

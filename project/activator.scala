@@ -78,6 +78,7 @@ object ActivatorBuild {
   def ActivatorPlayProject(name: String): Project = (
     play.Project("activator-" + name, path = file(name))
     settings(activatorDefaults:_*)
+    settings(libraryDependencies += play.Keys.filters)
   )
 
   def ActivatorJavaProject(name: String): Project = (
