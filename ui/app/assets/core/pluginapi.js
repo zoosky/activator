@@ -151,6 +151,22 @@ define([
     newWidget.installKeybindings();
   }
 
+  function arrayGTZero(obs) {
+    return ko.computed(function() {
+      if (obs().length == undefined) {
+        return false;
+      }
+
+      return obs().length > 0
+    });
+  }
+
+  function valueGTZero(obs) {
+    return ko.computed(function() {
+      return obs() > 0
+    });
+  }
+
   return {
     ko: ko,
     sbt: sbt,
@@ -165,6 +181,8 @@ define([
     events: events,
     STATUS_DEFAULT: STATUS_DEFAULT,
     STATUS_BUSY: STATUS_BUSY,
-    STATUS_ERROR: STATUS_ERROR
+    STATUS_ERROR: STATUS_ERROR,
+    arrayGTZero: arrayGTZero,
+    valueGTZero: valueGTZero
   };
 });

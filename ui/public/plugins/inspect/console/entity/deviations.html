@@ -1,7 +1,7 @@
-<div data-bind="visible: hasDeviations()">
+<div data-bind="visible: hasDeviations">
     <article class="deviations">
         <table>
-            <thead data-bind="visible: hasErrors()">
+            <thead data-bind="visible: hasErrors">
                 <tr>
                     <th>Error</th>
                     <th>Time</th>
@@ -14,7 +14,7 @@
             </tr>
             </tbody>
 
-            <thead data-bind="visible: hasWarnings()">
+            <thead data-bind="visible: hasWarnings">
             <tr>
                 <th>Warning</th>
                 <th>Time</th>
@@ -27,7 +27,7 @@
             </tr>
             </tbody>
 
-            <thead data-bind="visible: hasDeadLetters()">
+            <thead data-bind="visible: hasDeadLetters">
             <tr>
                 <th>Dead Letters</th>
                 <th>Time</th>
@@ -40,7 +40,7 @@
             </tr>
             </tbody>
 
-            <thead data-bind="visible: hasUnhandledMessages()">
+            <thead data-bind="visible: hasUnhandledMessages">
             <tr>
                 <th>Unhandled Messages</th>
                 <th>Time</th>
@@ -53,7 +53,7 @@
             </tr>
             </tbody>
 
-            <thead data-bind="visible: hasDeadlocks()">
+            <thead data-bind="visible: hasDeadlocks">
             <tr>
                 <th>Deadlocks</th>
                 <th>Time</th>
@@ -69,6 +69,6 @@
         </table>
     </article>
 </div>
-<div id="splash" data-bind="visible: !hasDeviations()">
+<div id="splash" data-bind="visible: !hasDeviations">
     No deviations found. You rock!
 </div>

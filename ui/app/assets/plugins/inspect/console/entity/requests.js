@@ -13,9 +13,7 @@ define(['text!./requests.html', 'core/pluginapi', './../widget', '../format'], f
       this.data = ko.observable({ 'requests': [], 'total': 0 });
       this.limit = ko.observable('25');
       this.requests = ko.observableArray([]);
-      this.hasRequests = ko.computed(function() {
-        return self.requests().length > 0;
-      });
+      this.hasRequests = api.arrayGTZero(self.requests);
     },
     dataName: 'requests',
     dataTypes: ['requests'],

@@ -158,7 +158,7 @@ object Application extends Controller {
 
       streamsFuture onFailure {
         case e: Throwable =>
-          Logger.warn(s"Giving up on opening websocket")
+          Logger.warn("Giving up on opening websocket")
       }
 
       streamsFuture
