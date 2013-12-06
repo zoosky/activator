@@ -14,7 +14,10 @@ class DeviationsHandler extends RequestHandler {
 
   def handle(receiver: ActorRef, mi: ModuleInformation): Future[(ActorRef, JsValue)] = {
     val params = mi.time.queryParams ++ mi.scope.queryParams
-    val deviationsPromise = call(RequestHandler.deviationsURL, params)
+    val url =
+      if (mi.scope.actorPath.isDefined) RequestHandler.actorURL
+      else RequestHandler.deviationsURL
+    val deviationsPromise = call(url, params)
     for {
       deviations <- deviationsPromise
     } yield {

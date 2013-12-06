@@ -26,10 +26,24 @@ define(['text!./deviations.html', 'core/pluginapi', './../widget', '../format'],
             this.hasDeadLetters = api.valueGTZero(self.deadLetterCount);
             this.hasUnhandledMessages = api.valueGTZero(self.unhandledMessageCount);
             this.hasDeadlocks = api.valueGTZero(self.deadlockCount);
+            this.actorPath = ko.observable("");
+            this.parameters = function(params) {
+              self.actorPath(params.toString().replace(/,/g, "/"));
+            }
         },
         dataName: 'deviations',
         dataTypes: ['deviations'],
         dataScope: {},
+        dataRequest: function() {
+          if (this.actorPath() != "") {
+            var path = this.actorPath();
+            // Resets the actor path after each specific actor path call.
+            // If this is not done then this scope will be used regardless of what link is being clicked.
+            this.actorPath("");
+            return { 'scope': { 'actorPath': path } };
+          }
+          return { 'scope': {} };
+        },
         onData: function(data) {
             var deviations = 0;
             this.formatTimestamp = function(value) {
@@ -37,15 +51,17 @@ define(['text!./deviations.html', 'core/pluginapi', './../widget', '../format'],
             };
             this.format = function(collection, deviationType) {
                 var newCollection = [];
-                for (var i = 0; i < collection.length; i++) {
-                    deviations += 1;
-                    var element = {
-                        'event' : collection[i].event,
-                        'message' : collection[i].message,
-                        'timestamp' : this.formatTimestamp(collection[i].timestamp),
-                        'traceLink' : "#inspect/deviation/" + deviationType + "/" + collection[i].trace.substring(collection[i].trace.lastIndexOf('/') + 1)
-                    };
-                    newCollection.push(element);
+                if (collection != undefined) {
+                    for (var i = 0; i < collection.length; i++) {
+                        deviations += 1;
+                        var element = {
+                            'event' : collection[i].event,
+                            'message' : collection[i].message,
+                            'timestamp' : this.formatTimestamp(collection[i].timestamp),
+                            'traceLink' : "#inspect/deviation/" + deviationType + "/" + collection[i].trace.substring(collection[i].trace.lastIndexOf('/') + 1)
+                        };
+                        newCollection.push(element);
+                    }
                 }
                 return newCollection;
             };

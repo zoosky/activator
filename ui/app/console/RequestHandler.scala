@@ -35,7 +35,6 @@ trait RequestHandler extends Actor with ActorLogging {
       path = path).addQueryParameters(
         (RequestHandler.timestampFormatting ++ params).foldLeft(
           Map.empty[String, Seq[String]])((r, c) => r ++ Map(c._1 -> Seq(c._2))))
-
     WS.url(uri.toASCIIString).get()
   }
 
@@ -101,7 +100,7 @@ object RequestHandler {
   final val scheme = "http"
   final val timestampFormatting = Map("formatTimestamps" -> "off")
 
-  def url(path: String) = ConsoleController.config.getString("console.start-url") + path
+  def url(path: String): String = ConsoleController.config.getString("console.start-url") + path
 
   val metadataURL = url("metadata")
   val actorsURL = url("actors")
