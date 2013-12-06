@@ -14,6 +14,7 @@ import play.Logger
 import play.api.libs.iteratee.{ Iteratee, Enumerator }
 import play.api.Play
 import play.api.Mode
+import play.filters.csrf._
 import java.util.concurrent.atomic.AtomicInteger
 import activator.cache.TemplateMetadata
 
@@ -52,12 +53,14 @@ object Application extends Controller {
    * Our index page.  Either we load an app from the CWD, or we direct
    * to the homepage to create a new app.
    */
-  def index = Action.async {
-    AppManager.loadAppIdFromLocation(cwd) map {
-      case activator.ProcessSuccess(name) => Redirect(routes.Application.app(name))
-      case activator.ProcessFailure(errors) =>
-        // TODO FLASH THE ERROR, BABY
-        Redirect(routes.Application.forceHome)
+  def index = CSRFAddToken {
+    Action.async {
+      AppManager.loadAppIdFromLocation(cwd) map {
+        case activator.ProcessSuccess(name) => Redirect(routes.Application.app(name))
+        case activator.ProcessFailure(errors) =>
+          // TODO FLASH THE ERROR, BABY
+          Redirect(routes.Application.forceHome)
+      }
     }
   }
 
@@ -82,38 +85,47 @@ object Application extends Controller {
       recentApps = config.applications)
   }
 
-  def redirectToApp(id: String) = Action {
-    Redirect(routes.Application.app(id))
-  }
+  def redirectToApp(id: String) = CSRFAddToken {
+    Action {
 
-  /** Loads the homepage, with a blank new-app form. */
-  def forceHome = Action.async { implicit request =>
-    homeModel map { model =>
-      Ok(views.html.home(model, newAppForm))
+      Redirect(routes.Application.app(id))
     }
   }
 
-  def test = Action { implicit request =>
-    import Play.current
-    if (Play.mode == Mode.Dev)
-      Ok(views.html.test())
-    else
-      NotFound
+  /** Loads the homepage, with a blank new-app form. */
+  def forceHome = CSRFAddToken {
+    Action.async { implicit request =>
+      homeModel map { model =>
+        Ok(views.html.home(model, newAppForm))
+      }
+    }
+  }
+
+  def test = CSRFAddToken {
+    Action { implicit request =>
+      import Play.current
+      if (Play.mode == Mode.Dev)
+        Ok(views.html.test())
+      else
+        NotFound
+    }
   }
 
   /** Loads an application model and pushes to the view by id. */
-  def app(id: String) = Action.async { implicit request =>
-    // TODO - Different results of attempting to load the application....
-    Logger.debug("Loading app for /app html page")
-    AppManager.loadApp(id).map { theApp =>
-      Logger.debug(s"loaded for html page: ${theApp}")
-      Ok(views.html.application(getApplicationModel(theApp)))
-    } recover {
-      case e: Exception =>
-        // TODO we need to have an error message and "flash" it then
-        // display it on home screen
-        Logger.error("Failed to load app id " + id + ": " + e.getMessage())
-        Redirect(routes.Application.forceHome)
+  def app(id: String) = CSRFAddToken {
+    Action.async { implicit request =>
+      // TODO - Different results of attempting to load the application....
+      Logger.debug("Loading app for /app html page")
+      AppManager.loadApp(id).map { theApp =>
+        Logger.debug(s"loaded for html page: ${theApp}")
+        Ok(views.html.application(getApplicationModel(theApp)))
+      } recover {
+        case e: Exception =>
+          // TODO we need to have an error message and "flash" it then
+          // display it on home screen
+          Logger.error("Failed to load app id " + id + ": " + e.getMessage())
+          Redirect(routes.Application.forceHome)
+      }
     }
   }
 
@@ -150,18 +162,20 @@ object Application extends Controller {
    * Connects from an application page to the "stateful" actor/server we use
    * per-application for information.
    */
-  def connectApp(id: String) = WebSocket.async[JsValue] { request =>
-    Logger.debug("Connect request for app id: " + id)
-    // we kill off any previous browser tab
-    AppManager.loadTakingOverApp(id) flatMap { theApp =>
-      val streamsFuture = snap.Akka.retryOverMilliseconds(2000)(connectionStreams(id))
+  def connectApp(id: String) = snap.WebSocketUtil.socketCSRFCheck {
+    WebSocket.async[JsValue] { request =>
+      Logger.debug("Connect request for app id: " + id)
+      // we kill off any previous browser tab
+      AppManager.loadTakingOverApp(id) flatMap { theApp =>
+        val streamsFuture = snap.Akka.retryOverMilliseconds(2000)(connectionStreams(id))
 
-      streamsFuture onFailure {
-        case e: Throwable =>
-          Logger.warn(s"Giving up on opening websocket")
+        streamsFuture onFailure {
+          case e: Throwable =>
+            Logger.warn(s"Giving up on opening websocket")
+        }
+
+        streamsFuture
       }
-
-      streamsFuture
     }
   }
 
@@ -191,26 +205,28 @@ object Application extends Controller {
     tutorialConfig.exists
   }
 
-  def appTutorialFile(id: String, location: String) = Action.async { request =>
-    AppManager.loadApp(id) map { theApp =>
-      // If we're debugging locally, pull the local tutorial, otherwise redirect
-      // to the templates tutorial file.
-      if (hasLocalTutorial(theApp)) {
-        // TODO - Don't hardcode tutorial directory name!
-        val localTutorialDir = new File(theApp.config.location, "tutorial")
-        val file = new File(localTutorialDir, location)
-        if (file.exists) Ok sendFile file
-        else NotFound
-      } else theApp.templateID match {
-        case Some(template) => Redirect(api.routes.Templates.tutorial(template, location))
-        case None => NotFound
+  def appTutorialFile(id: String, location: String) = CSRFAddToken {
+    Action.async { request =>
+      AppManager.loadApp(id) map { theApp =>
+        // If we're debugging locally, pull the local tutorial, otherwise redirect
+        // to the templates tutorial file.
+        if (hasLocalTutorial(theApp)) {
+          // TODO - Don't hardcode tutorial directory name!
+          val localTutorialDir = new File(theApp.config.location, "tutorial")
+          val file = new File(localTutorialDir, location)
+          if (file.exists) Ok sendFile file
+          else NotFound
+        } else theApp.templateID match {
+          case Some(template) => Redirect(api.routes.Templates.tutorial(template, location))
+          case None => NotFound
+        }
+      } recover {
+        case e: Exception =>
+          // TODO we need to have an error message and "flash" it then
+          // display it on home screen
+          Logger.error("Failed to find tutorial app id " + id + ": " + e.getMessage(), e)
+          NotFound
       }
-    } recover {
-      case e: Exception =>
-        // TODO we need to have an error message and "flash" it then
-        // display it on home screen
-        Logger.error("Failed to find tutorial app id " + id + ": " + e.getMessage(), e)
-        NotFound
     }
   }
 

@@ -3,12 +3,15 @@
  */
 package controllers.api
 
+import play.api.Logger
 import play.api.mvc._
 import play.api.libs.json._
+import play.filters.csrf._
 import activator._
 import activator.cache.TemplateMetadata
 import scala.concurrent.duration._
 import scala.concurrent.Future
+import scala.util.control.NonFatal
 
 object Templates extends Controller {
   // This will load our template cache and ensure all templates are available for the demo.
@@ -59,6 +62,14 @@ object Templates extends Controller {
     // for now, hardcode that we always filter metadata if it is NOT a templateTemplate, and
     // never do if it is a templateTemplate. this may be a toggle in the UI somehow later.
     templateCache.template(templateId) flatMap { templateOpt =>
+      templateOpt foreach { t =>
+        // kick off async template analytics
+        TemplatePopularityContest.recordCloned(t.metadata.name) recover {
+          case NonFatal(e) =>
+            Logger.info(s"Failed to record a clone of '${t.metadata.name}': ${e.getClass.getName}: ${e.getMessage}")
+            Future.successful(200)
+        }
+      }
       activator.cache.Actions.cloneTemplate(
         templateCache,
         templateId,
@@ -69,14 +80,16 @@ object Templates extends Controller {
     }
   }
 
-  def cloneTemplate = Action.async(parse.json) { request =>
-    val location = new java.io.File((request.body \ "location").as[String])
-    val templateid = (request.body \ "template").as[String]
-    val name = (request.body \ "name").asOpt[String]
-    import scala.concurrent.ExecutionContext.Implicits._
-    val result = doCloneTemplate(templateid, location, name)
-    result.map(x => Ok(request.body)).recover {
-      case e => NotAcceptable(e.getMessage)
+  def cloneTemplate = CSRFCheck {
+    Action.async(parse.json) { request =>
+      val location = new java.io.File((request.body \ "location").as[String])
+      val templateid = (request.body \ "template").as[String]
+      val name = (request.body \ "name").asOpt[String]
+      import scala.concurrent.ExecutionContext.Implicits._
+      val result = doCloneTemplate(templateid, location, name)
+      result.map(x => Ok(request.body)).recover {
+        case e => NotAcceptable(e.getMessage)
+      }
     }
   }
 }

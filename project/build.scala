@@ -9,11 +9,18 @@ import com.typesafe.sbt.SbtNativePackager.Universal
 
 
 object TheActivatorBuild extends Build {
+  
+  def fixFileForURIish(f: File): String = {
+    val uriString = f.toURI.toASCIIString
+    if(uriString startsWith "file://") uriString.drop("file://".length)
+    else uriString.drop("file:".length)
+  }
+
   // ADD sbt launcher support here.
   override def settings = super.settings ++ SbtSupport.buildSettings ++ baseVersions ++ Seq(
     // This is a hack, so the play application will have the right view of the template directory.
     Keys.baseDirectory <<= Keys.baseDirectory apply { bd =>
-      sys.props("activator.home") = bd.getAbsoluteFile.getAbsolutePath  // TODO - Make space friendly
+      sys.props("activator.home") = fixFileForURIish(bd.getAbsoluteFile)
       bd
     }
   ) ++ play.Project.intellijCommandSettings
@@ -67,8 +74,8 @@ object TheActivatorBuild extends Build {
   // runtime.
   lazy val SbtProbesConfig = config("sbtprobes")
   def makeProbeClasspath(update: sbt.UpdateReport): String = {
-     val probeClasspath = update.matching(configurationFilter(SbtProbesConfig.name))
-     Path.makeString(probeClasspath)
+    val probeClasspath = update.matching(configurationFilter(SbtProbesConfig.name))
+    Path.makeString(probeClasspath)
   }
 
   def configureSbtTest(testKey: Scoped) = Seq(
@@ -119,9 +126,9 @@ object TheActivatorBuild extends Build {
         (launcher, update, templateCache) =>
           // We register the location after it's resolved so we have it for running play...
           sys.props("sbtrc.launch.jar") = launcher.getAbsoluteFile.getAbsolutePath
-          // The debug variant of the sbt finder automatically splits the ui + controller jars appart.
+          // The debug variant of the sbt finder automatically splits the ui + controller jars apart.
           sys.props("sbtrc.controller.classpath") = makeProbeClasspath(update)
-          sys.props("activator.template.cache") = templateCache.getAbsolutePath
+          sys.props("activator.template.cache") = fixFileForURIish(templateCache)
           sys.props("activator.runinsbt") = "true"
           System.err.println("Updating sbt launch jar: " + sys.props("sbtrc.launch.jar"))
           System.err.println("Remote probe classpath = " + sys.props("sbtrc.controller.classpath"))

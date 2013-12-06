@@ -9,15 +9,12 @@ import java.io.File
 import play.api.test._
 import play.api.libs.json._
 import play.api.test.Helpers._
-import java.net.URI
-import snap.EnhancedURI._
 import language.implicitConversions
 import play.api.mvc._
 import play.api.http._
 import scala.concurrent.{ Await, Future }
 import akka.util.Timeout
 import java.util.concurrent.TimeUnit
-import play.api.libs.iteratee._
 import snap.AppManager
 import activator.ProcessResult
 import activator.ProcessSuccess
@@ -68,26 +65,10 @@ class SbtTest {
     Json.parse(contentAsString(Future.successful(result))(timeout))
   }
 
-  // we are supposed to fail to "import" an empty directory
-  @Test
-  def testHandleEmptyDirectory(): Unit = {
-    val dummy = makeDummyEmptyDirectory("notAnSbtProject")
-    running(FakeApplication()) {
-      val result = loadAppIdFromLocation(dummy)
-      result match {
-        case ProcessFailure(errors) if errors exists (_.msg contains "Directory does not contain an sbt build") =>
-        case x: ProcessFailure => throw new AssertionError(s"Got wrong error msgs: $x")
-        case _: ProcessSuccess[_] => throw new AssertionError("Should not have found an sbt project.")
-      }
-    }
-  }
-  // TODO - test on both versions of sbt...
   private def childTest(projectMaker: (String, String) => File, projectName: String)(assertions: JsValue => Unit): Unit = {
-    // TODO - Pull sbt version from properties or something...
-    val dummy = projectMaker(projectName, "0.12")
-
+    val project = projectMaker(projectName, "0.13.0")
     running(FakeApplication()) {
-      val appId = loadAppIdFromLocation(dummy) match {
+      val appId = loadAppIdFromLocation(project) match {
         case ProcessSuccess(id) => id
         case whatever => throw new RuntimeException("bad result, got: " + whatever)
       }
@@ -115,6 +96,20 @@ class SbtTest {
         System.err.println("failure: " + e.getClass.getName + ": " + e.getMessage)
         System.err.println("failed on: " + thing)
         throw e
+    }
+  }
+
+  // we are supposed to fail to "import" an empty directory
+  @Test
+  def testHandleEmptyDirectory(): Unit = {
+    val dummy = makeDummyEmptyDirectory("notAnSbtProject")
+    running(FakeApplication()) {
+      val result = loadAppIdFromLocation(dummy)
+      result match {
+        case ProcessFailure(errors) if errors exists (_.msg contains "Directory does not contain an sbt build") =>
+        case x: ProcessFailure => throw new AssertionError(s"Got wrong error msgs: $x")
+        case _: ProcessSuccess[_] => throw new AssertionError("Should not have found an sbt project.")
+      }
     }
   }
 
