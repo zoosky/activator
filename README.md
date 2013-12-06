@@ -27,7 +27,6 @@ There are two types of tests:  Unit tests and integration tests.
 
 To run unit tests, simply:
 
-    sbt> publish-local
     sbt> test
 
 To run the tests of a particular project, simply:
@@ -60,10 +59,9 @@ Generates a distribution in the `dist/target/stage` directory.  This will use a 
 
 ## Building the Distribution
 
-First, make sure to start SBT with a *release version* specified.  By default, activator will created a dated version.  Here's
-an example command line:
+First, make sure to tag the commit you want to release with `vX.Y.Z` and verify that sbt has picked it up using:
 
-    sbt -Dactivator.version=1.0.1
+    sbt> show version
 
 Now, simply run one of the command to create a distribution.
 
@@ -85,11 +83,11 @@ First, make sure your credentials are in an appropriate spot.  For me, that's in
 
 Then you can run simply:
 
-    sbt> activator-dist/s3-upload
+    sbt> activator-dist/s3Upload
 
 *OR*
 
-    sbt> s3-upload
+    sbt> s3Upload
     
 
 ## Publishing NEWS to versions
