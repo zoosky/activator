@@ -36,7 +36,7 @@
         </dd>
       </dl>
 
-      <div id="omnisearch">
+      <div id="omnisearch" data-bind="css: {busy: snap.omnisearchBusy()}">
         <input type="text" name="keywords" placeholder="Type keywords or a command" autocomplete="off" data-bind="value: snap.omnisearchString, valueUpdate: 'keyup', event: {keyup: snap.omnisearch, blur: snap.omnisearchOff}">
         <ul data-bind="css: {active: snap.omnisearchActive()}, foreach: snap.omnisearchOptions">
           <li data-bind="click: $parent.snap.omnisearchGo, css: {selected: $index() == $parent.snap.omnisearchSelected()}">

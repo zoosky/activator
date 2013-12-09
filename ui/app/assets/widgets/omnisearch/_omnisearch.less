@@ -7,6 +7,30 @@
   background: @navy url('/public/images/icons/omnisearch.svg') 15px center no-repeat;
   height: 50px;
   width: 50px;
+  &.busy:after {
+    content: "\27f3";
+    color: @blue;
+    font: 20px icons;
+    line-height: 20px;
+    text-align: right;
+    width: 20px;
+    height: 20px;
+    display: block;
+    position: absolute;
+    top: 15px;
+    right: 110px;
+    z-index: 12;
+    -webkit-animation: spin 1s infinite linear;
+    -moz-animation: spin 1s infinite linear;
+    -ms-animation: spin 1s infinite linear;
+    -o-animation: spin 1s infinite linear;
+    animation: spin 1s infinite linear;
+    -webkit-transform-origin: 45% 50%;
+    -moz-transform-origin: 45% 50%;
+    -ms-transform-origin: 45% 50%;
+    -o-transform-origin: 45% 50%;
+    transform-origin: 45% 50%;
+  }
   input {
     position: absolute;
     top: 0;
@@ -32,15 +56,18 @@
   }
   ul {
     box-shadow: 0 3px 0 rgba(0,0,0,.1);
+    max-height: 600px;
     display: none;
     position: absolute;
     top: 50px;
     left: 50px;
     right: 100px;
-    overflow: hidden;
+    overflow-x: hidden;
+    overflow-y: auto;
     &.active {
       display: block;
     }
+
     li {
       background-color: @navy-dkr;
       line-height: 15px;

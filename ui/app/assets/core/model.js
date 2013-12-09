@@ -19,6 +19,7 @@ define(['webjars!knockout', './router', 'commons/settings', 'plugins/tutorial/tu
       navigationSneak: ko.observable( false ),
       navigationSneakTimer: 0,
       omnisearchString: ko.observable(""),
+      omnisearchBusy: ko.observable(false),
       omnisearchActive: ko.observable(false),
       omnisearchOptions: ko.observableArray([]),
       omnisearchSelected: ko.observable(0),
@@ -62,8 +63,11 @@ define(['webjars!knockout', './router', 'commons/settings', 'plugins/tutorial/tu
             break;
           // Return
           case 13:
-            location.href = this.snap.omnisearchOptions()[this.snap.omnisearchSelected()].url;
-            event.target.blur();
+            var selectedUrl = this.snap.omnisearchOptions()[this.snap.omnisearchSelected()].url;
+            if (selectedUrl) {
+              location.href = selectedUrl;
+              event.target.blur();
+            }
             break;
           // Up
           case 38:
@@ -72,6 +76,7 @@ define(['webjars!knockout', './router', 'commons/settings', 'plugins/tutorial/tu
             } else {
               this.snap.omnisearchSelected(this.snap.omnisearchOptions().length - 1);
             }
+            this.snap.omnisearchScrollToSelected();
             break;
           // Down
           case 40:
@@ -80,13 +85,14 @@ define(['webjars!knockout', './router', 'commons/settings', 'plugins/tutorial/tu
             } else {
               this.snap.omnisearchSelected(0);
             }
+            this.snap.omnisearchScrollToSelected();
             break;
           default:
-            console.log(this.snap.omnisearchString());
-            if (this.snap.omnisearchString().length > 0) {
-              this.snap.omnisearchActive(true);
+            // Don't search until at least two characters are entered
+            if (this.snap.omnisearchString().length >= 2) {
+              this.snap.omnisearchBusy(true);
               // Talk to backend, update omnisearchOptions with result
-              var results = this.snap.omnisearchOptions;
+              var self = this;
               var search = this.snap.omnisearchString();
               // TODO - Figure out a better way to get this URL!
               var url = '/app/' + window.serverAppModel.id + '/search/' + search;
@@ -94,19 +100,42 @@ define(['webjars!knockout', './router', 'commons/settings', 'plugins/tutorial/tu
                url: url,
                dataType: 'json',
                success: function(values) {
+                 // No values returned
+                 if (values.length == 0) {
+                  values = [{
+                    title: "(no results found)",
+                    subtitle: "",
+                    type: "",
+                    url: false
+                  }];
+                 }
                  // TODO - Maybe be smarter about how we fill stuff out here?
-                   results(values);
+                 self.snap.omnisearchOptions(values);
+                 self.snap.omnisearchBusy(false);
+                 self.snap.omnisearchActive(true);
                }
               });
             } else {
+              this.snap.omnisearchBusy(false);
               this.snap.omnisearchActive(false);
             }
             break;
         }
         return true;
       },
+      omnisearchScrollToSelected: function(){
+        var $omnisearch = $('#omnisearch ul');
+        var $selected = $omnisearch.find('li.selected');
+        if ($selected.position().top < 0) {
+          $omnisearch.scrollTop($omnisearch.scrollTop() + $selected.position().top);
+        } else if ($selected.position().top + $selected.outerHeight() >= $omnisearch.height()) {
+          $omnisearch.scrollTop($omnisearch.scrollTop() + $selected.position().top + $selected.outerHeight() - $omnisearch.height());
+        }
+      },
       omnisearchGo: function(data){
-        location.href = data.url;
+        if (data.url) {
+          location.href = data.url;
+        }
       },
       omnisearchOff: function(data, event){
         var self = this;
