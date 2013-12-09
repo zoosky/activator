@@ -1,9 +1,13 @@
-define(['text!./deviation.html', 'core/pluginapi', './../widget', './../format'], function(template, api, ConsoleWidget, formatter) {
+define(['text!./deviation.html', 'core/pluginapi', './../widget', './../format', 'core/templates', 'text!./tracetree.html'], function(template, api, ConsoleWidget, formatter, templates, traceTreeTemplate) {
     var ko = api.ko;
     return api.Class(ConsoleWidget, {
         id: 'console-deviation-widget',
         template: template,
         init: function(args) {
+            // Register trace tree template that is used in the deviation view
+            templates.registerTemplate("traceTreeTemplate", traceTreeTemplate);
+
+            var self = this;
             this.traceId = "unknown";
             this.parameters = function(params) {
                 this.deviationType(params[0]);
@@ -13,7 +17,33 @@ define(['text!./deviation.html', 'core/pluginapi', './../widget', './../format']
             this.deviationTime = ko.observable();
             this.deviationActorPath = ko.observable()
             this.deviationReason = ko.observable();
-            this.events = ko.observableArray([]);
+            this.showSystemMessages = ko.observable(false);
+            this.showNanoSeconds = ko.observable(false);
+            this.showActorSystems = ko.observable(false);
+            this.showTraceInformation = ko.observable(false);
+            this.traceTree = ko.observable();
+
+            // Helper functions for the trace tree template
+            this.isSystemEvent = function(type) {
+                var result = false;
+                if (type.indexOf('Msg') > 0 || type.indexOf('Stream') > 0) result = true;
+                return result;
+            }
+            this.showEvent = function(type) { return !(self.isSystemEvent(type) && !self.showSystemMessages()); }
+            this.formatTime = function(time) { return formatter.formatTime(new Date(time)); }
+            this.extractTrace = function(trace) {
+                var result = "N/A";
+                if (trace != undefined) result = trace.substring(trace.lastIndexOf("/") + 1);
+                return result;
+            }
+            this.isFailureEvent = function(type) { return  type == "ActorFailed"; }
+            this.extractActorPath = function(annotation) {
+                var result = "N/A";
+                if (annotation != undefined && annotation.actorInfo != undefined) result = annotation.actorInfo.actorPath;
+                return result;
+            }
+            // End: Helper functions
+
         },
         dataName: 'deviation',
         dataTypes: ['deviation'],
@@ -22,62 +52,23 @@ define(['text!./deviation.html', 'core/pluginapi', './../widget', './../format']
             return { 'traceId': this.traceId };
         },
         onData: function(data) {
-            this.isSystemEvent = function(type) {
-                if (type.indexOf('Msg') > 0 || type.indexOf('Stream') > 0) {
-                    return 1;
+            this.extractReason = function(json) {
+                var event = json.event;
+                if (event.annotation.reason != undefined) {
+                    this.deviationTime(formatter.formatTime(new Date(event.timestamp)));
+                    this.deviationActorPath(event.annotation.actorInfo.actorPath);
+                    this.deviationReason(event.annotation.reason);
                 } else {
-                    return 0;
+                   if (json.children != undefined && json.children.length > 0) {
+                       for(var i = 0; i < json.children.length; i++) {
+                            this.extractReason(json.children[i]);
+                       }
+                   }
                 }
             }
 
-            this.parseEvent = function(level, event, result) {
-                if (event != undefined) {
-                    var message = "";
-                    var reason = "";
-                    var actorPath = "";
-                    if (event.annotation.message != undefined) {
-                        message = event.annotation.message;
-                    };
-                    if (event.annotation.reason != undefined) {
-                        reason = event.annotation.reason;
-                    }
-                    if (event.annotation.actorInfo != undefined) {
-                        actorPath = event.annotation.actorInfo.actorPath;
-                    }
-                    var eventInfo = {
-                        'paddingSize' : "" + level * 20 + "px",
-                        'type' : event.annotation.type,
-                        'systemEvent' : this.isSystemEvent(event.annotation.type),
-                        'timestamp' : formatter.formatTime(new Date(event.timestamp)),
-                        'actor' : actorPath,
-                        'message' : message,
-                        'reason' : reason
-                    }
-
-                    // Check if this is the main reason of the deviation and if so update the labels
-                    if (event.annotation.reason != undefined) {
-                        this.deviationTime(formatter.formatTime(new Date(event.timestamp)));
-                        this.deviationActorPath(event.annotation.actorInfo.actorPath);
-                        this.deviationReason(event.annotation.reason);
-                    }
-
-                    result.push(eventInfo);
-                }
-            }
-
-            this.parse = function(level, collection, result) {
-                this.parseEvent(level, collection.event, result);
-
-                if (collection.children != undefined && collection.children.length > 0) {
-                    for (var i = 0; i < collection.children.length; i++) {
-                        this.parse(level + 1, collection.children[i], result);
-                    }
-                }
-
-                return result;
-            };
-
-            this.events(this.parse(0, data.deviation, []));
+            this.extractReason(data.deviation);
+            this.traceTree(data.deviation);
         }
     });
 });
