@@ -166,6 +166,15 @@ define(['webjars!knockout', './router', 'commons/settings', 'plugins/tutorial/tu
       var self = this;
       self.widgets = [];
       self.plugins = plugins;
+
+      $(window).on("keyup", function(e) {
+        switch (e.keyCode) {
+          case 84: // T
+            $("#omnisearch input")[0].focus();
+            break;
+        }
+      });
+
       // TODO - initialize plugins in a better way perhaps...
       $.each(self.plugins.list, function(idx,plugin) {
         self.router.registerRoutes(plugin.routes);
