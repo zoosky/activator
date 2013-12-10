@@ -1,13 +1,12 @@
 <article class="actor" data-bind="with: actor">
     <header>
         <button class="close" data-bind="click: close">BACK</button>
-        <h2 data-bind="text: scope.actorPath"></h2>
+        <h2 data-bind="text: $root.actorPath"></h2>
     </header>
     <table>
         <thead>
         <tr>
-            <th><span>Message Information</span></th>
-            <th>&nbsp;</th>
+            <th colspan="2"><span>Message Information</span></th>
         </tr>
         </thead>
         <tbody class="listing">
@@ -17,8 +16,7 @@
         </tbody>
         <thead>
         <tr>
-            <th><span>Mailbox Information</span></th>
-            <th>&nbsp;</th>
+            <th colspan="2"><span>Mailbox Information</span></th>
         </tr>
         </thead>
         <tbody class="listing">
@@ -33,8 +31,7 @@
         <!-- ko if: $data.totalMessageRate -->
         <thead>
         <tr>
-            <th><span>Rates</span></th>
-            <th>&nbsp;</th>
+            <th colspan="2"><span>Rates</span></th>
         </tr>
         </thead>
         <tbody class="listing">
@@ -48,8 +45,14 @@
 
         <thead>
         <tr>
-            <th><span>Deviations</span></th>
-            <th>&nbsp;</th>
+            <th colspan="2">
+                <div data-bind="if: $root.hasDeviations()">
+                    <a class="active" href="#" data-bind="attr: {href: $root.deviationsLink}">Deviations</a>
+                </div>
+                <div data-bind="if: !$root.hasDeviations()">
+                    <span>Deviations</span>
+                </div>
+            </th>
         </tr>
         </thead>
         <tbody class="listing">
