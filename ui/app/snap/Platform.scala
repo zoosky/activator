@@ -20,6 +20,11 @@ private[snap] class Platform(val isWindows: Boolean) {
     new File(name)
   }
 
+  def getClientFriendlyLink(f: File, base: File): String = {
+    val relativeName = sbt.IO.relativize(base, f).getOrElse(sys.error(s"File: $f is not inside of project $base"))
+    s"#code/${mungeWindows(relativeName)}"
+  }
+
   // TODO - Figure out what to do when windows wants a / in the path....
   private def mungeWindows(name: String): String =
     name.replaceAll("\\\\", "/")

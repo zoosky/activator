@@ -37,7 +37,16 @@
         </dd>
       </dl>
 
-      <form id="omnisearch"><input type="text" name="keywords" placeholder="Type keywords or a command"></form>
+      <div id="omnisearch" data-bind="css: {busy: snap.omnisearchBusy()}">
+        <input type="text" name="keywords" placeholder="Type keywords or a command" autocomplete="off" data-bind="value: snap.omnisearchString, valueUpdate: 'keyup', event: {keyup: snap.omnisearch, blur: snap.omnisearchOff}">
+        <ul data-bind="css: {active: snap.omnisearchActive()}, foreach: snap.omnisearchOptions">
+          <li data-bind="click: $parent.snap.omnisearchGo, css: {selected: $index() == $parent.snap.omnisearchSelected()}">
+            <span class="type" data-bind="text: type"></span>
+            <span class="title" data-bind="text: title"></span>
+            <span class="subtitle" data-bind="text: subtitle"></span>
+          </li>
+        </ul>
+      </div>
 
       <div id="breadcrumb" data-bind="text: '&nbsp;'">
         <a href="#"></a>

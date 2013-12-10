@@ -35,6 +35,7 @@ GET         /home                                        controllers.Application
 GET         /test                                        controllers.Application.test
 GET         /app/:id                                     controllers.Application.redirectToApp(id)
 GET         /app/:id/                                    controllers.Application.app(id)
+GET         /app/:id/search/*query                       controllers.Application.search(id, query)
 GET         /app/:id/tutorial/*location                  controllers.Application.appTutorialFile(id, location)
 GET         /home/stream                                 controllers.Application.homeStream
 
