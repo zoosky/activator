@@ -19,6 +19,7 @@ define(['webjars!knockout', './router', 'commons/settings', 'plugins/tutorial/tu
       navigationSneak: ko.observable( false ),
       navigationSneakTimer: 0,
       omnisearchString: ko.observable(""),
+      omnisearchStringLast: "",
       omnisearchBusy: ko.observable(false),
       omnisearchActive: ko.observable(false),
       omnisearchOptions: ko.observableArray([]),
@@ -88,12 +89,12 @@ define(['webjars!knockout', './router', 'commons/settings', 'plugins/tutorial/tu
             this.snap.omnisearchScrollToSelected();
             break;
           default:
-            // Don't search until at least two characters are entered
-            if (this.snap.omnisearchString().length >= 2) {
+            var self = this;
+            var search = this.snap.omnisearchString();
+            // Don't search until at least two characters are entered and search string isn't the same as last
+            if (search.length >= 2 && search != this.snap.omnisearchStringLast) {
               this.snap.omnisearchBusy(true);
               // Talk to backend, update omnisearchOptions with result
-              var self = this;
-              var search = this.snap.omnisearchString();
               // TODO - Figure out a better way to get this URL!
               var url = '/app/' + window.serverAppModel.id + '/search/' + search;
               $.ajax({
@@ -113,6 +114,7 @@ define(['webjars!knockout', './router', 'commons/settings', 'plugins/tutorial/tu
                  self.snap.omnisearchOptions(values);
                  self.snap.omnisearchBusy(false);
                  self.snap.omnisearchActive(true);
+                 self.snap.omnisearchStringLast = search;
                }
               });
             } else {
