@@ -36,7 +36,9 @@ var Widget = utils.Class({
     // the normal knockout "bind everything" magic...
     var element = $(el);
     element.attr('data-bind', 'snapView: $data');
-    ko.applyBindings(this, element.get()[0]);
+    if (element.get()[0]){
+      ko.applyBindings(this, element.get()[0]);
+    }
   }
 });
 
