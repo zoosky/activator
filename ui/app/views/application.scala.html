@@ -72,7 +72,7 @@
     <nav id="navigation" data-bind="event: {mouseover: snap.sneakNavigationShow, mouseout: snap.sneakNavigationHide}">
 
       <dl id="switch" class="dropdown">
-        <dt>Appname</dt>
+        <dt data-bind="text: snap.app.name"></dt>
         <dd>
           <a class="new-app button" href="/home">Manage applications</a>
           @model.recentApps.zipWithIndex.map { case (app, idx) =>
