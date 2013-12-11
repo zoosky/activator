@@ -178,7 +178,7 @@ define(['webjars!knockout', './router', 'commons/settings', 'plugins/tutorial/tu
       };
 
       var globalKeybindings = [
-        [ 't', openSearch, { preventDefault: true } ]
+        [ 'ctrl-k', openSearch, { preventDefault: true } ]
       ];
 
       // scope '' is global scope
