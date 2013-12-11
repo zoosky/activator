@@ -146,7 +146,7 @@ object Application extends Controller {
   // TODO - Clean this up a bit, maybe add semantic knowledge of the possible return types...
   // maybe some caching, basically not so naive.
   def search(id: String, search: String) = Action.async { implicit request =>
-    Logger.debug(s"Searching for actions on app [$id]: $search")
+    // Logger.debug(s"Searching for actions on app [$id]: $search")
 
     AppManager.loadApp(id).map { theApp =>
       val fileResults = searchFileResults(search, theApp.config.location)

@@ -4,13 +4,13 @@
 define([
   'webjars!knockout',
   'services/sbt',
-  'webjars!keymage',
+  './keyboard',
   'commons/utils',
   'commons/events',
   './widget',
   'widgets/editor/acebinding',
   './model'],
-  function(ko, sbt, key, utils, events, Widget, acebinding, model) {
+  function(ko, sbt, keyboard, utils, events, Widget, acebinding, model) {
   var STATUS_DEFAULT = 'default';
   var STATUS_BUSY = 'busy';
   var STATUS_ERROR = 'error;'
@@ -33,20 +33,7 @@ define([
         return;
       }
       this._keyScope = scope;
-      $.each(this.keybindings, function(i, params) {
-        // we need to decide if there's a sub-scope in the parameter list,
-        // which would look like key('scope', 'ctrl-c', function(){})
-        var adjusted = null;
-        if (params.length > 2 && typeof(params[2]) == 'function') {
-          adjusted = params.slice(0);
-          adjusted[0] = scope + '.' + params[0];
-        } else {
-          adjusted = params.slice(0);
-          adjusted.unshift(scope);
-        }
-        console.log("creating keybinding ", adjusted);
-        key.apply(null, adjusted);
-      });
+      keyboard.installBindingsInScope(scope, this.keybindings)
     },
     // automatically called when widget becomes active
     installKeybindings: function() {
@@ -59,12 +46,12 @@ define([
         return;
       }
       this._keysInstalled = true;
-      key.pushScope(this._keyScope);
+      keyboard.pushScope(this._keyScope);
     },
     // automatically called when widget becomes inactive
     uninstallKeybindings: function() {
       this._keysInstalled = false;
-      key.popScope(this._keyScope);
+      keyboard.popScope(this._keyScope);
     }
   });
 

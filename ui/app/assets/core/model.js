@@ -1,7 +1,8 @@
 /*
  Copyright (C) 2013 Typesafe, Inc <http://typesafe.com>
  */
-define(['webjars!knockout', './router', 'commons/settings', 'plugins/tutorial/tutorial', 'widgets/log/log', 'services/build'], function(ko, router, settings, Tutorial, log, build) {
+define(['webjars!knockout', './router', 'commons/settings', 'plugins/tutorial/tutorial', 'widgets/log/log', 'services/build', './keyboard'],
+    function(ko, router, settings, Tutorial, log, build, keyboard) {
   // Model for the whole app view; created in two parts
   // so that this first part is available during construction
   // of the second part.
@@ -169,13 +170,19 @@ define(['webjars!knockout', './router', 'commons/settings', 'plugins/tutorial/tu
       self.widgets = [];
       self.plugins = plugins;
 
-      $(window).on("keyup", function(e) {
-        switch (e.keyCode) {
-          case 84: // T
-            $("#omnisearch input")[0].focus();
-            break;
-        }
-      });
+      var openSearch = function(e, ctx) {
+        $("#omnisearch input")[0].focus();
+        // TODO nothing connects to this?
+        $.event.trigger("search.open");
+        return true;
+      };
+
+      var globalKeybindings = [
+        [ 't', openSearch, { preventDefault: true } ]
+      ];
+
+      // scope '' is global scope
+      keyboard.installBindingsInScope('', globalKeybindings);
 
       // TODO - initialize plugins in a better way perhaps...
       $.each(self.plugins.list, function(idx,plugin) {
