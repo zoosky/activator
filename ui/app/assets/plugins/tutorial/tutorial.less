@@ -5,6 +5,10 @@
 
 #panels {
   background: #fff;
+  -webkit-user-select: all;
+  -moz-user-select: all;
+  -ms-user-select: all;
+  user-select: all;
   header {
     background: @red;
     color: white;
@@ -19,7 +23,7 @@
   }
   nav {
     background: @light;
-    border-bottom: 2px solid @break-ltr;
+    border-bottom: 1px solid @break-ltr;
     height: 50px;
     -webkit-user-select: none;
     .previous, .next {
@@ -38,17 +42,17 @@
       }
       &.disabled {
         background: none;
-        color: @break;
+        color: fade(@break, 25);
         cursor: default;
       }
     }
     .previous {
       float: left;
-      border-right: 2px solid @break-ltr;
+      border-right: 1px solid @break-ltr;
     }
     .next {
       float: right;
-      border-left: 2px solid @break-ltr;
+      border-left: 1px solid @break-ltr;
     }
     h1 {
       font-size: 16px;
@@ -121,7 +125,8 @@
     overflow: auto;
     background: none;
     color: #6F7F89;
-    line-height: 20px;
+    line-height: 1.3em;
+    font-size: 13.5px;
     a {
       color: #E25758;
     }
@@ -144,7 +149,7 @@
     }
     .monospace {
       font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', 'Consolas', 'source-code-pro', monospace;
-      font-size: 10px;
+      font-size: 13px;
     }
     code {
       .monospace;
@@ -157,6 +162,7 @@
       border-width: 1px 0;
     }
     h1, h2, h3 {
+      background-color: transparent;
       color: #364550;
       font-weight: bold;
       padding: 0;
@@ -197,35 +203,15 @@
     strong {
       font-weight: bold;
     }
+    img {
+      max-width: 100%;
+      height: auto;
+      cursor: pointer;
+    }
   }
   span.tutorialreload {
     font-size: 1.0em;
     cursor: hand;
     cursor: pointer;
-  }
-  &.collapsed {
-    background: #E4EAEF;
-    width: 50px;
-    header {
-      span {
-        position: absolute;
-        top: 70px;
-        left: -23px;
-        float: none;
-        display: inline-block;
-        -webkit-transform: rotate(90deg);
-        -moz-transform: rotate(90deg);
-        -ms-transform: rotate(90deg);
-        -o-transform: rotate(90deg);
-      }
-      .collapse {
-        &:after {
-          content: "";
-        }
-      }
-    }
-    nav, a.button, article {
-      display: none;
-    }
   }
 }
