@@ -74,7 +74,7 @@
       <dl id="switch" class="dropdown">
         <dt>Appname</dt>
         <dd>
-          <button class="new-app">Manage applications</button>
+          <a class="new-app button" href="/home">Manage applications</a>
           @model.recentApps.zipWithIndex.map { case (app, idx) =>
           <a href="@routes.Application.app(app.id)">
             @name(app)
