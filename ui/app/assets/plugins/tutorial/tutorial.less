@@ -5,6 +5,10 @@
 
 #panels {
   background: #fff;
+  -webkit-user-select: all;
+  -moz-user-select: all;
+  -ms-user-select: all;
+  user-select: all;
   header {
     background: @red;
     color: white;
@@ -19,7 +23,7 @@
   }
   nav {
     background: @light;
-    border-bottom: 2px solid @break-ltr;
+    border-bottom: 1px solid @break-ltr;
     height: 50px;
     -webkit-user-select: none;
     .previous, .next {
@@ -44,11 +48,11 @@
     }
     .previous {
       float: left;
-      border-right: 2px solid @break-ltr;
+      border-right: 1px solid @break-ltr;
     }
     .next {
       float: right;
-      border-left: 2px solid @break-ltr;
+      border-left: 1px solid @break-ltr;
     }
     h1 {
       font-size: 16px;
