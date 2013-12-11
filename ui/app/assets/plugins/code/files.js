@@ -177,11 +177,13 @@ define(['core/pluginapi'], function(api) {
       var self = this;
       save(self.location, self.contents()).done(function(){
         self.isContentsDirty(false);
-        if (onDone) onDone();
+        if (typeof(onDone) === 'function')
+          onDone();
       }).error(function(){
         //TODO - figure out alerting!
         alert('Failed to save file: '+ self.location)
-        if (onCancel) onCancel();
+        if (typeof(onCancel) === 'function')
+          onCancel();
       });
     },
     toString: function() {
