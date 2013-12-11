@@ -148,9 +148,10 @@ define(['css!./tutorial', 'text!./tutorial.html', 'text!./page.html', 'webjars!k
     },
     onRender: function(children) {
       var tuts = $(children[0]).parent();
-      tuts.on("click", "header .collapse", function(event) {
-        tuts.toggleClass("collapsed");
-        $('body').toggleClass("right-collapsed")
+      tuts.on("click", "article img", function(event) {
+        $('<img />').attr('src', $(this).attr('src')).wrap('<div id="overlay"></div>').parent().one('click', function() {
+          $(this).remove();
+        }).prependTo('body');
       });
       this.node = tuts;
     }

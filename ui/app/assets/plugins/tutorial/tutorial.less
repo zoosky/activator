@@ -38,7 +38,7 @@
       }
       &.disabled {
         background: none;
-        color: @break;
+        color: fade(@break, 25);
         cursor: default;
       }
     }
@@ -144,7 +144,7 @@
     }
     .monospace {
       font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', 'Consolas', 'source-code-pro', monospace;
-      font-size: 10px;
+      font-size: 13px;
     }
     code {
       .monospace;
@@ -157,6 +157,7 @@
       border-width: 1px 0;
     }
     h1, h2, h3 {
+      background-color: transparent;
       color: #364550;
       font-weight: bold;
       padding: 0;
@@ -197,35 +198,15 @@
     strong {
       font-weight: bold;
     }
+    img {
+      max-width: 100%;
+      height: auto;
+      cursor: pointer;
+    }
   }
   span.tutorialreload {
     font-size: 1.0em;
     cursor: hand;
     cursor: pointer;
-  }
-  &.collapsed {
-    background: #E4EAEF;
-    width: 50px;
-    header {
-      span {
-        position: absolute;
-        top: 70px;
-        left: -23px;
-        float: none;
-        display: inline-block;
-        -webkit-transform: rotate(90deg);
-        -moz-transform: rotate(90deg);
-        -ms-transform: rotate(90deg);
-        -o-transform: rotate(90deg);
-      }
-      .collapse {
-        &:after {
-          content: "";
-        }
-      }
-    }
-    nav, a.button, article {
-      display: none;
-    }
   }
 }
