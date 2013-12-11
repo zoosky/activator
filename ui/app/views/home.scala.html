@@ -1,5 +1,7 @@
 @(model: HomeModel, newApp: Form[NewAppForm], json: play.api.libs.json.JsValue)(implicit request: RequestHeader)
 
+@import snap.WebSocketUtil.webSocketURLWithCSRF
+
 <!-- Copyright (C) 2013 Typesafe, Inc <http://typesafe.com> -->
 <!DOCTYPE html>
 <html>
@@ -13,6 +15,7 @@
       var debug = false;
 			var wsUrl = '@routes.Application.homeStream.webSocketURL()';
 			var baseFolder = "@model.userHome/";
+			window.wsUrl = '@webSocketURLWithCSRF(routes.Application.homeStream)';
 
 			var templates = @Html(json.toString);
 		</script>
