@@ -28,8 +28,7 @@
     <header id="header">
       <button class="toggleNavigation" data-bind="click: snap.toggleNavigation, event: {mouseover: snap.sneakNavigationOn}"></button>
 
-      <!-- remove the method testCallBinding from the JS when removing this -->
-      <dl id="layoutManager" class="dropdown dropdownNoEvent" data-bind="css: {active: snap.panelDropdownActive}, call: snap.testCallBinding">
+      <dl id="layoutManager" class="dropdown dropdownNoEvent" data-bind="css: {active: snap.panelDropdownActive}">
         <dt data-bind="click: snap.togglePanel"><span class="all-options" data-bind="click: snap.togglePanelDropdown"></span></dt>
         <dd>
           <button class="right1" data-panel-shape="right1" data-bind="click: snap.togglePanelShape"></button>
@@ -85,14 +84,6 @@
       </dl>
 
       <div id="appStatus">
-        <button class="running" data-bind="toggle: snap.build.startApp, css: {active: snap.build.startApp}"></button>
-        <span class="tooltip running" data-bind="text: snap.build.startApp() ? 'App runnning':'App stopped' "></span>
-        <button class="refresh" data-bind="toggle: snap.build.rerunOnBuild, css: {active: snap.build.rerunOnBuild}"></button>
-        <span class="tooltip refresh" data-bind="text: snap.build.rerunOnBuild() ? 'Autocompile on':'Autocompile off' "></span>
-        <button class="console" data-bind="toggle: snap.build.runInConsole, css: {active: snap.build.consoleOn}"></button>
-        <span class="tooltip console" data-bind="text: snap.build.runInConsole() ? 'Console on':'Console off' "></span>
-        <button class="testing" data-bind="toggle: snap.build.retestOnSuccessfulBuild, css: {active: snap.build.retestOnSuccessfulBuild}"></button>
-        <span class="tooltip testing" data-bind="text: snap.build.retestOnSuccessfulBuild() ? 'Autotest on':'Autotest off' "></span>
       </div>
 
       <dl id="rockets">

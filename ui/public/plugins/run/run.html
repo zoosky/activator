@@ -33,7 +33,13 @@
     <section class="wrapper">
         <article class="content" data-bind="css: { consoleAvailable: app.atmosCompatible }">
             <div class="output">
-                <div data-bind="snapView: app.outputModel" class="runapp">
+                <ul class="logsList" data-bind="foreach: logs.logGroups">
+                    <!-- ko foreach: $data -->
+                    <li data-bind="css: level, compilerMessage: $data"></li>
+                    <!-- /ko -->
+                </ul>
+
+                <div style="display:none;" data-bind="snapView: app.outputModel" class="runapp">
                 </div>
             </div>
         </article>

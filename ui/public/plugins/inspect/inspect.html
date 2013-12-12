@@ -2,29 +2,29 @@
     <header>
       <h1>Inspect</h1>
       <div class="subheader">
-          <p data-bind="visible: application.runningWithoutAtmosBecauseDisabled">
+          <p data-bind="visible: app.runningWithoutAtmosBecauseDisabled">
               Typesafe Console: Disabled
-              <button data-bind="click: application.restartWithAtmos">Restart With Inspector</button>
+              <button data-bind="click: restartWithAtmos">Restart With Inspector</button>
           </p>
-          <p data-bind="visible: application.runningWithoutAtmosButEnabled">
+          <p data-bind="visible: app.runningWithoutAtmosButEnabled">
               Typesafe Console: Enabled (waiting for launch)
-              <button data-bind="click: application.restartWithoutAtmos">Restart Without Inspector</button>
+              <button data-bind="click: restartWithoutAtmos">Restart Without Inspector</button>
           </p>
-          <p data-bind="visible: application.runningWithAtmos">
+          <p data-bind="visible: app.runningWithAtmos">
               Typesafe Console: Running...
-             <button data-bind="click: application.restartWithoutAtmos">Restart Without Console</button>
+             <button data-bind="click: restartWithoutAtmos">Restart Without Console</button>
           </p>
-          <p data-bind="visible: application.notSignedIn">
+          <p data-bind="visible: app.notSignedIn">
               Typesafe Console: Free Typesafe.com Account Required (<a href="http://typesafe.com/platform/runtime/console#licensing" target="_blank">why?</a>)
-              <button class="do-pop-over" data-bind="click: application.showLogin">Login</button>
+              <button class="do-pop-over" data-bind="click: showLogin">Login</button>
           </p>
-          <p data-bind="visible: application.notRunningAndSignedInAndAtmosEnabled">
+          <p data-bind="visible: app.notRunningAndSignedInAndAtmosEnabled">
               Typesafe Console: Enabled
-              <button data-bind="click: application.disableAtmos">Turn Off Console</button>
+              <button data-bind="click: disableAtmos">Turn Off Console</button>
           </p>
-          <p data-bind="visible: application.notRunningAndSignedInAndAtmosDisabled">
+          <p data-bind="visible: app.notRunningAndSignedInAndAtmosDisabled">
               Typesafe Console: Disabled
-              <button data-bind="click: application.enableAtmos">Turn On Console</button>
+              <button data-bind="click: enableAtmos">Turn On Console</button>
           </p>
       </div>
     </header>

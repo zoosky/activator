@@ -1,8 +1,8 @@
 /*
  Copyright (C) 2013 Typesafe, Inc <http://typesafe.com>
  */
-define(['webjars!knockout', './router', 'commons/settings', 'plugins/tutorial/tutorial', 'widgets/log/log', 'services/build', './keyboard'],
-    function(ko, router, settings, Tutorial, log, build, keyboard) {
+define(['webjars!knockout', './router', 'commons/settings', 'plugins/tutorial/tutorial', 'widgets/log/log', './keyboard'],
+    function(ko, router, settings, Tutorial, log, keyboard) {
   // Model for the whole app view; created in two parts
   // so that this first part is available during construction
   // of the second part.
@@ -11,10 +11,6 @@ define(['webjars!knockout', './router', 'commons/settings', 'plugins/tutorial/tu
     router: router,
     tutorial: new Tutorial(),
     snap: {
-      // TODO this needs to be removed after it's no longer used
-      // in application.scala.html
-      testCallBinding: function(a,b,c,d){
-      },
       activeWidget: ko.observable(""),
       navigationOpened: ko.observable( settings.get("app.navigationOpened", true) ),
       navigationSneak: ko.observable( false ),
@@ -26,12 +22,11 @@ define(['webjars!knockout', './router', 'commons/settings', 'plugins/tutorial/tu
       omnisearchOptions: ko.observableArray([]),
       omnisearchSelected: ko.observable(0),
       panelDropdownActive: ko.observable(false),
-      panelOpened: ko.observable( settings.get("app.panelOpened", true) ),
+      panelOpened: ko.observable( settings.get("app.panelOpened", false) ),
       panelShape: ko.observable( settings.get("app.panelShape", "right1") ),
       pageTitle: ko.observable(),
       // TODO load last value from somewhere until we get a message from the iframe
       signedIn: ko.observable(false),
-      build: build,
       app: {
         name: ko.observable(window.serverAppModel.name ? window.serverAppModel.name : window.serverAppModel.id),
         hasAkka: ko.observable(false),
@@ -191,8 +186,8 @@ define(['webjars!knockout', './router', 'commons/settings', 'plugins/tutorial/tu
           self.widgets.push(widget);
         });
       });
-      self.router.init();
       ko.applyBindings(self, window.body);
+      self.router.init();
     }
   };
 });

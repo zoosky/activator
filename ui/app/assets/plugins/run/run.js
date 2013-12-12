@@ -1,7 +1,7 @@
 /*
  Copyright (C) 2013 Typesafe, Inc <http://typesafe.com>
  */
-define(['services/application', 'core/model', 'text!./run.html', 'core/pluginapi', 'css!./run.css'], function(application, model, template, api, css){
+define(['services/application', 'services/logs', 'core/model', 'text!./run.html', 'core/pluginapi', 'css!./run.css'], function(application, logs, model, template, api, css){
 
   var ko = api.ko;
   var sbt = api.sbt;
@@ -12,6 +12,7 @@ define(['services/application', 'core/model', 'text!./run.html', 'core/pluginapi
     init: function(parameters){
       var self = this
       this.app = application;
+      this.logs = logs;
     },
     update: function(parameters){
     },
@@ -24,11 +25,7 @@ define(['services/application', 'core/model', 'text!./run.html', 'core/pluginapi
         // start
         self.app.doRun();
       }
-    },
-    showLogin: function(self) {
-      $('#user').addClass("open");
     }
-
   });
 
   return api.Plugin({

@@ -7,11 +7,26 @@ define(['services/application','core/pluginapi', './console/console', 'text!./in
     id: 'inspect-console-widget',
     template: template,
     init: function() {
-      this.application = application;
+      this.app = application;
       this.consoleWidget = new Console();
     },
     route: function(path) {
       this.consoleWidget.route(path);
+    },
+    showLogin: function(self) {
+      $('#user').addClass("open");
+    },
+    restartWithAtmos: function(self) {
+      self.app.restartWithAtmos();
+    },
+    restartWithoutAtmos: function(self) {
+      self.app.restartWithoutAtmos();
+    },
+    disableAtmos: function(self) {
+
+    },
+    enableAtmos: function(self) {
+
     }
   });
 
