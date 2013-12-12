@@ -2,47 +2,38 @@
     <header>
         <nav>
             <button class="start groupLeft" data-bind="click: startStopButtonClicked">
-                <span class="icon" data-bind="visible: !haveActiveTask()">&#x25b6;</span>
-                <span class="icon" data-bind="visible: haveActiveTask">&#x25a0;</span>
-                <span data-bind="text: startStopLabel"></span>
+                <span class="icon" data-bind="visible: !app.haveActiveTask()">&#x25b6;</span>
+                <span class="icon" data-bind="visible: app.haveActiveTask()">&#x25a0;</span>
+                <span data-bind="text: app.startStopLabel"></span>
             </button>
-            <button class="restart groupMid" data-bind="enable: haveActiveTask() && !restartPending(), click: restartButtonClicked"><span class="icon">&#x27f3;</span>Restart</button>
-            <!--<span data-bind="visible: !haveMainClass()">(no main class)</span>-->
-            <dl class="dropdown groupMid" data-bind="visible: haveMainClass()">
-                <dt>Main class: <span data-bind="text: currentMainClass">&nbsp;</span></dt>
+            <button class="restart groupMid" data-bind="enable: app.haveActiveTask() && !app.restartPending(), click: app.restartButtonClicked"><span class="icon">&#x27f3;</span>Restart</button>
+            <!--<span data-bind="visible: !app.haveMainClass()">(no main class)</span>-->
+            <dl class="dropdown groupMid" data-bind="visible: app.haveMainClass()">
+                <dt>Main class: <span data-bind="text: app.currentMainClass">&nbsp;</span></dt>
                 <dd>
-                    <!-- ko foreach: mainClasses -->
+                    <!-- ko foreach: app.mainClasses -->
                     <label><input type="radio" name="mainClass" data-bind="value: $data"><span data-bind="text: $data"></span></label>
                     <!-- /ko -->
                 </dd>
             </dl>
-            <!--<span data-bind="visible: haveMainClass()">Main class: <select data-bind="options: mainClasses, value: currentMainClass"></select></span>-->
+            <!--<span data-bind="visible: app.haveMainClass()">Main class: <select data-bind="options: app.mainClasses, value: app.currentMainClass"></select></span>-->
             <dl class="dropdown dropdownRightAlign groupRight">
                 <dt><span class="icon">&#x2699;</span></dt>
                 <dd>
-                    <input type="checkbox" id="reloadOnChange" class="styled dark" data-bind="checked: rerunOnBuild"><label for="reloadOnChange"><span></span>Re-run on successful build</label>
+                    <input type="checkbox" id="reloadOnChange" class="styled dark" data-bind="checked: app.rerunOnBuild"><label for="reloadOnChange"><span></span>Re-run on successful build</label>
                 </dd>
             </dl>
         </nav>
         <h1>Run</h1>
-        <div class="subheader" data-bind="css: { consoleAvailable: atmosCompatible }">
-            <p data-bind="text: status"></p>
-            <p data-bind="visible: playAppStarted">Open the app: <a data-bind="attr: {href: playAppLink}, text: playAppLink" target="_blank"></a></p>
+        <div class="subheader">
+            <p data-bind="text: app.status"></p>
+            <p data-bind="visible: app.playAppStarted">Open the app: <a data-bind="attr: {href: app.playAppLink}, text: app.playAppLink" target="_blank"></a></p>
         </div>
     </header>
     <section class="wrapper">
-        <header class="subheader subsubheader" data-bind="visible: atmosCompatible, css: { consoleAvailable: atmosCompatible }">
-            <span data-bind="visible: runningWithoutAtmosBecauseDisabled"><p>Typesafe Console: Disabled</p> <button data-bind="click: restartWithAtmos">Restart With Console</button></span>
-            <span data-bind="visible: runningWithoutAtmosButEnabled"><p>Typesafe Console: Enabled (waiting for launch)</p> <button data-bind="click: restartWithoutAtmos">Restart Without Console</button></span>
-            <span data-bind="visible: runningWithAtmos"><p>Typesafe Console: Running...</p>
-            <button data-bind="click: restartWithoutAtmos">Restart Without Console</button></span>
-            <span data-bind="visible: notSignedIn"><p>Typesafe Console: Free Typesafe.com Account Required (<a href="http://typesafe.com/platform/runtime/console#licensing" target="_blank">why?</a>)</p> <button class="do-pop-over" data-bind="click: showLogin">Login</button></span>
-            <span data-bind="visible: notRunningAndSignedInAndAtmosEnabled"><p>Typesafe Console: Enabled</p> <button data-bind="click: disableAtmos">Turn Off Console</button></span>
-            <span data-bind="visible: notRunningAndSignedInAndAtmosDisabled"><p>Typesafe Console: Disabled</p> <button data-bind="click: enableAtmos">Turn On Console</button></span>
-        </header>
-        <article class="content" data-bind="css: { consoleAvailable: atmosCompatible }">
+        <article class="content" data-bind="css: { consoleAvailable: app.atmosCompatible }">
             <div class="output">
-                <div data-bind="snapView: outputModel" class="runapp">
+                <div data-bind="snapView: app.outputModel" class="runapp">
                 </div>
             </div>
         </article>

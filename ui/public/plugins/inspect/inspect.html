@@ -1,6 +1,32 @@
 <article class="inspect">
     <header>
-        <h1>Inspect</h1>
+      <h1>Inspect</h1>
+      <div class="subheader">
+          <p data-bind="visible: application.runningWithoutAtmosBecauseDisabled">
+              Typesafe Console: Disabled
+              <button data-bind="click: application.restartWithAtmos">Restart With Inspector</button>
+          </p>
+          <p data-bind="visible: application.runningWithoutAtmosButEnabled">
+              Typesafe Console: Enabled (waiting for launch)
+              <button data-bind="click: application.restartWithoutAtmos">Restart Without Inspector</button>
+          </p>
+          <p data-bind="visible: application.runningWithAtmos">
+              Typesafe Console: Running...
+             <button data-bind="click: application.restartWithoutAtmos">Restart Without Console</button>
+          </p>
+          <p data-bind="visible: application.notSignedIn">
+              Typesafe Console: Free Typesafe.com Account Required (<a href="http://typesafe.com/platform/runtime/console#licensing" target="_blank">why?</a>)
+              <button class="do-pop-over" data-bind="click: application.showLogin">Login</button>
+          </p>
+          <p data-bind="visible: application.notRunningAndSignedInAndAtmosEnabled">
+              Typesafe Console: Enabled
+              <button data-bind="click: application.disableAtmos">Turn Off Console</button>
+          </p>
+          <p data-bind="visible: application.notRunningAndSignedInAndAtmosDisabled">
+              Typesafe Console: Disabled
+              <button data-bind="click: application.enableAtmos">Turn On Console</button>
+          </p>
+      </div>
     </header>
     <section>
         <div data-bind="snapView: consoleWidget"></div>

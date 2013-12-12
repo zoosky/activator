@@ -1,12 +1,13 @@
 /*
  Copyright (C) 2013 Typesafe, Inc <http://typesafe.com>
  */
-define(['core/pluginapi', './console/console', 'text!./inspect.html', 'css!./inspect.css'], function(api, Console, template){
+define(['services/application','core/pluginapi', './console/console', 'text!./inspect.html', 'css!./inspect.css'], function(application,api, Console, template){
 
   var inspectConsole = api.PluginWidget({
     id: 'inspect-console-widget',
     template: template,
     init: function() {
+      this.application = application;
       this.consoleWidget = new Console();
     },
     route: function(path) {
