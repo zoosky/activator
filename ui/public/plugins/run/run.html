@@ -34,7 +34,8 @@
         <header class="subheader subsubheader" data-bind="visible: atmosCompatible, css: { consoleAvailable: atmosCompatible }">
             <span data-bind="visible: runningWithoutAtmosBecauseDisabled"><p>Typesafe Console: Disabled</p> <button data-bind="click: restartWithAtmos">Restart With Console</button></span>
             <span data-bind="visible: runningWithoutAtmosButEnabled"><p>Typesafe Console: Enabled (waiting for launch)</p> <button data-bind="click: restartWithoutAtmos">Restart Without Console</button></span>
-            <span data-bind="visible: runningWithAtmos"><p>Typesafe Console: Running... <a data-bind="attr: {href: atmosLink}" target="_blank">Open the Console</a></p> <button data-bind="click: restartWithoutAtmos">Restart Without Console</button></span>
+            <span data-bind="visible: runningWithAtmos"><p>Typesafe Console: Running...</p>
+            <button data-bind="click: restartWithoutAtmos">Restart Without Console</button></span>
             <span data-bind="visible: notSignedIn"><p>Typesafe Console: Free Typesafe.com Account Required (<a href="http://typesafe.com/platform/runtime/console#licensing" target="_blank">why?</a>)</p> <button class="do-pop-over" data-bind="click: showLogin">Login</button></span>
             <span data-bind="visible: notRunningAndSignedInAndAtmosEnabled"><p>Typesafe Console: Enabled</p> <button data-bind="click: disableAtmos">Turn Off Console</button></span>
             <span data-bind="visible: notRunningAndSignedInAndAtmosDisabled"><p>Typesafe Console: Disabled</p> <button data-bind="click: enableAtmos">Turn On Console</button></span>
