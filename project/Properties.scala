@@ -40,14 +40,27 @@ object Properties {
   }
   
 
-  def makeJavaPropertiesString(version: String, sbtDefaultVersion: String, scalaVersion: String, configVersion: String, previousConfigVersion: String): String =
-    """|app.version=%s
-       |sbt.default.version=%s
-       |app.scala.version=%s
-       |app.config.version=%s
-       |app.config.previousVersion=%s
-       |sbt.Xmx=512M
-       |sbt.PermSize=128M
-       |""".stripMargin format (version, sbtDefaultVersion, scalaVersion, configVersion, previousConfigVersion)
-  
+  def makeJavaPropertiesString(version: String, sbtDefaultVersion: String, scalaVersion: String, configVersion: String, previousConfigVersion: String): String = {
+    val base =
+      """|app.version=%s
+         |sbt.default.version=%s
+         |app.scala.version=%s
+         |app.config.version=%s
+         |app.config.previousVersion=%s
+         |sbt.Xmx=512M
+         |sbt.PermSize=128M
+         |""".stripMargin format (version, sbtDefaultVersion, scalaVersion, configVersion, previousConfigVersion)
+    val launcherGeneration = {
+      // if we're building a git snapshot, we don't want to ever downgrade
+      // to "latest" according to typesafe.com
+      val hyphenHex = ".*-([a-f0-9]+)$".r
+      version match {
+        case hyphenHex(gitCommit) if gitCommit.length == 40 =>
+          "\nactivator.launcher.generation=123456789\n"
+        case _ =>
+          ""
+      }
+    }
+    base + launcherGeneration
+  }
 }
