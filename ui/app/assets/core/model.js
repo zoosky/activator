@@ -26,7 +26,7 @@ define(['webjars!knockout', './router', 'commons/settings', 'plugins/tutorial/tu
       omnisearchOptions: ko.observableArray([]),
       omnisearchSelected: ko.observable(0),
       panelDropdownActive: ko.observable(false),
-      panelOpened: ko.observable( settings.get("app.panelOpened", false) ),
+      panelOpened: ko.observable( settings.get("app.panelOpened", true) ),
       panelShape: ko.observable( settings.get("app.panelShape", "right1") ),
       pageTitle: ko.observable(),
       // TODO load last value from somewhere until we get a message from the iframe
