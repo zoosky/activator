@@ -9,11 +9,11 @@
   dd {
     display: none;
     position: absolute;
-    z-index: 10;
+    z-index: 9999;
     box-shadow: 0 3px 4px rgba(0,0,0,.4);
   }
   &.open, &.active {
-    z-index: 9999;
+    z-index: 999;
     dd {
       display: block;
     }
@@ -24,6 +24,7 @@
       .trbl(0);
     }
   }
+
 }
 
 article header dl.dropdown {
@@ -56,9 +57,9 @@ article header dl.dropdown {
     display: block;
   }
   a, button {
+    display: block;
     margin: 0;
     color: #53cdec;
-    display: block;
     padding: 4px 0;
     &:hover {
       color: #246C7E;
