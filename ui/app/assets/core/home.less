@@ -14,17 +14,6 @@
   font-weight: 700;
 }
 
-// Icons
-@font-face {
-  font-family: 'icons';
-  src: url('/public/icons/entypo.eot');
-  src: url('/public/icons/entypo.ttf') format('truetype'),
-       url('/public/icons/entypo.woff') format('woff'),
-       url('/public/icons/entypo.svg') format('svg');
-  font-weight: normal;
-  font-style: normal;
-}
-
 body {
   font: 13px "Helvetica Neue", sans-serif;
   background: #384046 url("/public/images/home.png");
@@ -47,7 +36,17 @@ h1 {
   font-size: 50px;
   color: #6F7F89;
   line-height: 45px;
-  margin: 25px;
+  margin: 25px 15px;
+  strong {
+    font-weight: 600;
+  }
+  .typesafe:before {
+    content: "\e000";
+    font-family: logos;
+    vertical-align: -10%;
+    padding-right: .2em;
+    display: inline-block;
+  }
 }
 
 h2 {
