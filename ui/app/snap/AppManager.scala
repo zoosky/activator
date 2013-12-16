@@ -279,7 +279,12 @@ object AppManager {
             name
         } flatMap { name =>
           RootConfig.rewriteUser { root =>
-            val config = AppConfig(id = newIdFromName(root, name), cachedName = Some(name), location = location)
+            val oldConfig = root.applications.find(_.location == location)
+            val now = System.currentTimeMillis
+            val createdTime = oldConfig.flatMap(_.createdTime).getOrElse(now)
+            val usedTime = now
+            val config = AppConfig(id = newIdFromName(root, name), cachedName = Some(name),
+              createdTime = Some(createdTime), usedTime = Some(usedTime), location = location)
             val newApps = root.applications.filterNot(_.location == config.location) :+ config
             root.copy(applications = newApps)
           } map { Unit =>
