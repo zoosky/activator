@@ -12,7 +12,8 @@ import activator.properties.ActivatorProperties.ACTIVATOR_PREVIOUS_USER_CONFIG_F
 import scala.concurrent.duration._
 import sbt.IO
 
-case class AppConfig(location: File, id: String, cachedName: Option[String] = None)
+// createdTime and usedTime are only optional due to legacy config files
+case class AppConfig(location: File, id: String, createdTime: Option[Long], usedTime: Option[Long], cachedName: Option[String] = None)
 
 object AppConfig {
   import play.api.data.validation.ValidationError
