@@ -36,6 +36,7 @@ h1 {
   font-size: 50px;
   color: #6F7F89;
   line-height: 45px;
+  white-space: nowrap;
   margin: 25px 15px;
   strong {
     font-weight: 600;
@@ -724,4 +725,94 @@ form {
   }
 }
 
+@media (max-width: 1023px) {
+  body {
+    overflow: visible;
+  }
+  section {
+    position: static;
+  }
+  #license {
+    display: block;
+    width: auto;
+  }
 
+  #working {
+    width: auto;
+  }
+
+  #open {
+    margin: 0 auto;
+    width: 700px;
+    position: static;
+  }
+  #openAppForm {
+    margin: 0 auto;
+    width: 700px;
+    height: 170px;
+    position: static;
+  }
+  #openAppLocationBrowser {
+    .fileselection {
+      position: relative;
+      top: 0;
+      height: 170px;
+      overflow-y: auto;
+    }
+    .listing {
+      position: static;
+    }
+  }
+
+  #new {
+    margin: 40px auto 20px auto;
+    width: 700px;
+    position: static;
+    article {
+      position: static;
+    }
+  }
+
+  .half {
+    position: static;
+    float: left;
+  }
+  ul.list {
+    max-height: 420px;
+  }
+  #filter {
+    position: relative;
+  }
+  #welcome {
+    background-color: white;
+    height: 500px;
+  }
+
+  #viewTemplate{
+    padding: 0;
+    position: static;
+    #newApp {
+      position: static;
+      height: 150px;
+    }
+    .template {
+      padding: 20px;
+      height: 350px;
+      overflow-y: auto;
+    }
+  }
+
+  #working {
+    margin: 0 auto;
+    width: 700px;
+    position: static;
+  }
+
+  .console {
+    p {
+      position: static;
+      width: 700px;
+      margin: 0 auto;
+    }
+  }
+}
