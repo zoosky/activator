@@ -5,10 +5,10 @@ package console
 
 import akka.actor.{ Props, ActorLogging, Actor }
 import console.handler._
-import console.parser.{ SpanParser, TimeParser, TimeQuery }
 import play.api.libs.iteratee.Concurrent
 import play.api.libs.json._
 import scala.collection.Seq
+import activator.analytics.data.{ TimeRange, Scope }
 
 class ClientHandler extends Actor with ActorLogging {
   import ClientController._
@@ -75,25 +75,36 @@ class JsonHandler extends Actor with ActorLogging {
   }
 
   def parseRequest(js: JsValue): Seq[ModuleInformation] = {
-    val time = TimeParser.parseTime(
-      (js \ "time" \ "start").asOpt[String],
-      (js \ "time" \ "end").asOpt[String],
-      (js \ "time" \ "rolling").asOpt[String],
-      Some(log))
+    val time = toTimeRange((js \ "time" \ "rolling").asOpt[String])
 
-    val span = (js \ "span").asOpt[String].getOrElse(SpanParser.DefaultSpanType)
     val innerModules = (js \ "modules").as[List[InnerModuleInformation]]
     innerModules map { i =>
       ModuleInformation(
         name = i.name,
-        scope = i.scope,
+        scope = toScope(i.scope),
         time = time,
-        span = span,
         pagingInformation = i.pagingInformation,
         dataFrom = i.dataFrom,
         sortCommand = i.sortCommand,
         traceId = i.traceId)
     }
+  }
+
+  def toScope(i: InternalScope): Scope =
+    Scope(
+      path = i.actorPath,
+      tag = i.tag,
+      node = i.node,
+      dispatcher = i.dispatcher,
+      actorSystem = i.actorSystem,
+      playPattern = i.playPattern,
+      playController = i.playController)
+
+  def toTimeRange(rolling: Option[String]): TimeRange = rolling match {
+    case RollingMinutePattern(value) => TimeRange.minuteRange(System.currentTimeMillis, value.toInt)
+    case x =>
+      log.warning("Can not use parsed time range (using default 20 minutes instead): %s", x)
+      TimeRange.minuteRange(System.currentTimeMillis, 20)
   }
 }
 
@@ -108,7 +119,7 @@ object JsonHandler {
     (__ \ "tag").readNullable[String] and
     (__ \ "actorPath").readNullable[String] and
     (__ \ "playPattern").readNullable[String] and
-    (__ \ "playController").readNullable[String])(Scope)
+    (__ \ "playController").readNullable[String])(InternalScope)
 
   implicit val pagingReads = (
     (__ \ "offset").read[Int] and
@@ -120,12 +131,14 @@ object JsonHandler {
     (__ \ "paging").readNullable[PagingInformation] and
     (__ \ "sortCommand").readNullable[String] and
     (__ \ "dataFrom").readNullable[Long] and
-    (__ \ "scope").read[Scope])(InnerModuleInformation)
+    (__ \ "scope").read[InternalScope])(InnerModuleInformation)
+
+  final val RollingMinutePattern = """^.*rolling=([1-9][0-9]?)minute[s]?.*""".r
 }
 
 case class RegisterModules(moduleInformation: Seq[ModuleInformation])
 
-case class Scope(
+case class InternalScope(
   node: Option[String] = None,
   actorSystem: Option[String] = None,
   dispatcher: Option[String] = None,
@@ -133,21 +146,6 @@ case class Scope(
   actorPath: Option[String] = None,
   playPattern: Option[String] = None,
   playController: Option[String] = None) {
-
-  import RequestHandler.mapify
-
-  def queryParams: Map[String, String] = {
-    Seq(
-      "node" -> node,
-      "actorSystem" -> actorSystem,
-      "dispatcher" -> dispatcher,
-      "tag" -> tag,
-      "actorPath" -> actorPath,
-      "playPattern" -> playPattern,
-      "playController" -> playController).
-      map(x => mapify(x._1, x._2)).
-      reduce(_ ++ _)
-  }
 }
 
 case class InnerModuleInformation(
@@ -156,13 +154,12 @@ case class InnerModuleInformation(
   pagingInformation: Option[PagingInformation],
   sortCommand: Option[String],
   dataFrom: Option[Long],
-  scope: Scope)
+  scope: InternalScope)
 
 case class ModuleInformation(
   name: String,
   scope: Scope,
-  time: TimeQuery,
-  span: String,
+  time: TimeRange,
   pagingInformation: Option[PagingInformation] = None,
   sortCommand: Option[String] = None,
   dataFrom: Option[Long] = None,

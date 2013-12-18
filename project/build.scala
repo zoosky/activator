@@ -103,7 +103,7 @@ object TheActivatorBuild extends Build {
     ActivatorPlayProject("ui")
     dependsOnRemote(
       webjarsPlay3, requirejs, jquery, knockout, ace, requireCss, requireText, keymage,
-      commonsIo, mimeUtil, slf4jLog4j,
+      commonsIo, mimeUtil, slf4jLog4j, activatorAnalytics,
       sbtLauncherInterface % "provided",
       sbtrcRemoteController % "compile;test->test",
       // Here we hack our probes into the UI project.

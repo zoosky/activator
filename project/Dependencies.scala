@@ -16,21 +16,22 @@ object Dependencies {
   val slickVersion = "1.0.1"
   val atmosVersion = "1.3.1"
   val atmosPluginVersion = "0.3.2"
+  val activatorAnalyticsVersion = "0.1-SNAPSHOT"
+  val aspectJVersion = "1.7.3"
 
   val atmosArtifacts = Seq(
-    "com.typesafe.atmos" % "atmos-dev" % atmosVersion,
-    "com.typesafe.atmos" % "atmos-sigar-libs" % atmosVersion,
-    "com.typesafe.atmos" % "trace-akka-2.2.1_2.10" % atmosVersion,
-    "com.typesafe.atmos" % "trace-play-2.2.0" % atmosVersion,
-    "com.typesafe.atmos" % "trace-play-common" % atmosVersion,
-    "com.typesafe.atmos" % "trace-scala-2.10.2" % atmosVersion,
-    "com.typesafe.console" % "console-solo" % atmosVersion,
-    "org.aspectj" % "aspectjweaver" % "1.7.3"
+    "com.typesafe.atmos"      % "atmos-dev" % atmosVersion,
+    "com.typesafe.atmos"      % "atmos-sigar-libs" % atmosVersion,
+    "com.typesafe.atmos"      % "trace-akka-2.2.1_2.10" % atmosVersion,
+    "com.typesafe.atmos"      % "trace-play-2.2.0" % atmosVersion,
+    "com.typesafe.atmos"      % "trace-play-common" % atmosVersion,
+    "com.typesafe.atmos"      % "trace-scala-2.10.2" % atmosVersion,
+    "com.typesafe.console"    % "console-solo" % atmosVersion,
+    "org.aspectj"             % "aspectjweaver" % aspectJVersion
   )
 
   val activatorCommon      = "com.typesafe.activator" % "activator-common" % templateCacheVersion
   val templateCache        = "com.typesafe.activator" % "activator-templates-cache" % templateCacheVersion
-
 
   val sbtIo210             = "org.scala-sbt" % "io" % sbtSnapshotVersion
   val sbtLauncherInterface = "org.scala-sbt" % "launcher-interface" % sbtVersion
@@ -87,6 +88,8 @@ object Dependencies {
   val requireText      = "org.webjars" % "requirejs-text" % "2.0.10"
   val keymage          = "org.webjars" % "keymage" % "1.0.1"
 
+  // Analyzers used by Inspect
+  val activatorAnalytics = "com.typesafe.activator"  %% "analytics" % activatorAnalyticsVersion
 
   // Mini DSL
   // DSL for adding remote deps like local deps.

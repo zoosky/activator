@@ -13,7 +13,7 @@ class JsonHandlerSpec extends Specification {
           }
         """)
       implicit val parser = JsonHandler.scopeReads
-      val scope = (json \ "scope").as[Scope]
+      val scope = (json \ "scope").as[LScope]
       scope.node must equalTo(None)
     }
 
@@ -31,7 +31,7 @@ class JsonHandlerSpec extends Specification {
           }
         """)
       implicit val parser = JsonHandler.scopeReads
-      val scope = (json \ "scope").as[Scope]
+      val scope = (json \ "scope").as[LScope]
       scope.node must equalTo(Some("n1"))
       scope.actorSystem must equalTo(Some("as1"))
       scope.dispatcher must equalTo(Some("d1"))

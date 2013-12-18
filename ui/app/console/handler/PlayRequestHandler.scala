@@ -5,14 +5,19 @@ package console.handler
 
 import console.{ ModuleInformation, RequestHandler }
 import scala.concurrent.{ Future, ExecutionContext }
-import akka.actor.ActorRef
-import play.api.libs.json.{ JsString, JsObject, JsValue }
-import console.Responses.{ ErrorResponse, InvalidLicense, ValidResponse }
+import akka.actor.{ Actor, ActorRef }
 
 class PlayRequestHandler extends RequestHandler {
-  import ExecutionContext.Implicits.global
 
-  def handle(receiver: ActorRef, mi: ModuleInformation): Future[(ActorRef, JsValue)] = {
+  type Payload = Any
+
+  def receive = {
+    case _ =>
+  }
+
+  /*
+  def handle(receiver: ActorRef, mi: ModuleInformation): (ActorRef, JsValue) = {
+
     val params = mi.scope.queryParams
     val playRequestPromise = call(RequestHandler.playRequestURL + mi.traceId.get, params)
     for {
@@ -30,5 +35,9 @@ class PlayRequestHandler extends RequestHandler {
 
       (receiver, result)
     }
-  }
+
+  (receiver, JsObject(Seq("playRequestSummary" -> JsString("todo"))))
+}
+    */
+
 }

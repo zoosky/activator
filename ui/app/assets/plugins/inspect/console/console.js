@@ -30,18 +30,7 @@ define(['text!./console.html', 'css!./console.css', 'core/pluginapi', './connect
         return self.updateView(self.crumbs());
       });
 
-      api.events.subscribe(
-         function(event) {
-           return event.type == "AtmosStarted" || event.type == "RunStopped";
-         },
-         function(event) {
-           if (event.type == "AtmosStarted") {
-             self.atmosStarted();
-           } else if (event.type == "RunStopped") {
-             if (self.connected()) self.runStopped();
-           }
-         }
-      );
+      this.atmosStarted();
     },
 
     atmosStarted: function() {

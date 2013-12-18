@@ -1,6 +1,7 @@
 <ul class="listing">
     <li class="item">
         <a class="test" href="#inspect/requests"><span data-bind="css: { 'active': hasPlayRequests(), 'inactive': !hasPlayRequests()}">Play requests</span></a>
+        <span data-bind="visible: hasPlayRequests(), text: shorten(requests())" class="error counter">&ndash;</span>
     </li>
     <li class="item">
         <a href="#inspect/actors"><span data-bind="css: { 'active': hasActors(), 'inactive': !hasActors()}">Actors</span></a>
