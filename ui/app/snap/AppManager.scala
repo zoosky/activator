@@ -23,11 +23,13 @@ import activator._
 sealed trait AppCacheRequest
 
 case class GetApp(id: String) extends AppCacheRequest
+case class ForgetApp(id: String) extends AppCacheRequest
 case object Cleanup extends AppCacheRequest
 
 sealed trait AppCacheReply
 
 case class GotApp(app: snap.App) extends AppCacheReply
+case object ForgotApp extends AppCacheReply
 
 class AppCacheActor extends Actor with ActorLogging {
   var appCache: Map[String, Future[snap.App]] = Map.empty
@@ -95,6 +97,18 @@ class AppCacheActor extends Actor with ActorLogging {
 
             appFuture.map(GotApp(_)).pipeTo(sender)
           }
+        }
+      case ForgetApp(id) =>
+        appCache.get(id) match {
+          case Some(_) =>
+            log.debug("Attempt to forget in-use app")
+            sender ! Status.Failure(new Exception("This app is currently in use"))
+          case None =>
+            RootConfig.rewriteUser { root =>
+              root.copy(applications = root.applications.filterNot(_.id == id))
+            } map { _ =>
+              ForgotApp
+            } pipeTo sender
         }
       case Cleanup =>
         cleanup(None)
@@ -233,6 +247,11 @@ object AppManager {
         doInitialAppAnalysis(location, eventHandler) map { _.map(_.id) }
       }
     }
+  }
+
+  def forgetApp(id: String): Future[Unit] = {
+    implicit val timeout = Akka.longTimeoutThatIsAProblem
+    (appCache ? ForgetApp(id)).map(_ => ())
   }
 
   // choose id "name", "name-1", "name-2", etc.
