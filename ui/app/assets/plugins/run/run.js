@@ -28,7 +28,12 @@ define(['core/model', 'text!./run.html', 'core/pluginapi', 'widgets/log/log', 'c
         return self.activeTask() != "";
       }, this);
       this.haveActiveTask.subscribe(function(active) {
-        if (!active) api.events.send({ 'type' : 'RunStopped' });
+        if (active && self.runWithInspect())
+          api.events.send({ 'type' : 'RunWithInspectStarted' });
+        else if (active)
+          api.events.send({ 'type' : 'RunStarted' });
+        else
+          api.events.send({ 'type' : 'RunStopped' });
       });
       this.startStopLabel = ko.computed(function() {
         if (self.haveActiveTask())
@@ -37,7 +42,8 @@ define(['core/model', 'text!./run.html', 'core/pluginapi', 'widgets/log/log', 'c
           return "Start";
       }, this);
       this.rerunOnBuild = ko.observable(true);
-      this.runInConsole = ko.observable(false);
+      this.inspectCompatible = model.snap.app.hasEcho;
+      this.runWithInspect = ko.observable(true);
       this.restartPending = ko.observable(false);
       this.reloadMainClassPending = ko.observable(true);
       // last task ID we tried to stop
@@ -55,26 +61,6 @@ define(['core/model', 'text!./run.html', 'core/pluginapi', 'widgets/log/log', 'c
       this.outputScroll = this.outputModel.findScrollState();
       this.playAppLink = ko.observable('');
       this.playAppStarted = ko.computed(function() { return this.haveActiveTask() && this.playAppLink() != ''; }, this);
-      this.atmosLink = ko.observable('');
-      this.atmosCompatible = model.snap.app.hasConsole;
-      this.runningWithAtmos = ko.computed(function() {
-        return this.haveActiveTask() && this.atmosLink() != '' && model.snap.signedIn();
-      }, this);
-      this.runningWithoutAtmosButEnabled = ko.computed(function() {
-        return this.haveActiveTask() && this.atmosLink() == '' && model.snap.signedIn() && this.runInConsole();
-      }, this);
-      this.runningWithoutAtmosBecauseDisabled = ko.computed(function() {
-        return this.haveActiveTask() && this.atmosLink() == '' && model.snap.signedIn() && !this.runInConsole();
-      }, this);
-      this.notSignedIn = ko.computed(function() {
-        return !model.snap.signedIn();
-      }, this);
-      this.notRunningAndSignedInAndAtmosEnabled = ko.computed(function() {
-        return !this.haveActiveTask() && this.runInConsole() && model.snap.signedIn();
-      }, this);
-      this.notRunningAndSignedInAndAtmosDisabled = ko.computed(function() {
-        return !this.haveActiveTask() && !this.runInConsole() && model.snap.signedIn();
-      }, this);
       this.status = ko.observable('Application is stopped.');
     },
     update: function(parameters){
@@ -306,7 +292,6 @@ define(['core/model', 'text!./run.html', 'core/pluginapi', 'widgets/log/log', 'c
       var self = this;
       self.activeTask("");
       self.playAppLink("");
-      self.atmosLink("");
       if (self.restartPending()) {
         self.doRun();
       }
@@ -329,8 +314,10 @@ define(['core/model', 'text!./run.html', 'core/pluginapi', 'widgets/log/log', 'c
         task.task = 'run';
       }
 
-      if (self.runInConsole()) {
-        task.task = 'atmos:' + task.task;
+      if (self.runWithInspect()) {
+        task.task = 'echo:' + task.task;
+        // TODO: get trace port from elucidator running in activator
+        task.params.tracePort = 28667;
       }
 
       var taskId = sbt.runTask({
@@ -353,9 +340,6 @@ define(['core/model', 'text!./run.html', 'core/pluginapi', 'widgets/log/log', 'c
             var port = event.params.port;
             var url = 'http://localhost:' + port;
             self.playAppLink(url);
-          } else if (event.id == 'atmosStarted') {
-            self.atmosLink(event.params.uri);
-            api.events.send({ 'type' : 'AtmosStarted' });
           } else {
             self.logModel.leftoverEvent(event);
           }
@@ -430,20 +414,6 @@ define(['core/model', 'text!./run.html', 'core/pluginapi', 'widgets/log/log', 'c
     },
     onPostActivate: function() {
       this.outputModel.applyScrollState(this.outputScroll);
-    },
-    restartWithAtmos: function(self) {
-      this.runInConsole(true);
-      this.doRestart();
-    },
-    restartWithoutAtmos: function(self) {
-      this.runInConsole(false);
-      this.doRestart();
-    },
-    enableAtmos: function(self) {
-      this.runInConsole(true);
-    },
-    disableAtmos: function(self) {
-      this.runInConsole(false);
     },
     showLogin: function(self) {
       $('#user').addClass("open");

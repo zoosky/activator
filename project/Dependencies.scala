@@ -9,22 +9,20 @@ object Dependencies {
   val sbtSnapshotVersion = "0.13.0"
   val luceneVersion = "4.2.1"
   val templateCacheVersion = "1.0-824c0759d90d52bf3fc7cd07795c49e05affc87a"
-  val sbtRcVersion = "1.0-2c8e80f5d3e1dba2418210b43b0e372cf331a8cd"
+  val sbtRcVersion = "1.0-4299219016f4c609b94993c98bbc0655623739b8"
   val playVersion = "2.2.1"
   val webJarsVersion = "2.2.0"
   val akkaVersion = "2.1.2"
   val slickVersion = "1.0.1"
-  val atmosVersion = "1.3.1"
-  val atmosPluginVersion = "0.3.2"
+  val echoVersion = "0.1.0"
+  val echoPluginVersion = "0.1.0"
 
-  val atmosArtifacts = Seq(
-    "com.typesafe.atmos" % "atmos-dev" % atmosVersion,
-    "com.typesafe.atmos" % "atmos-sigar-libs" % atmosVersion,
-    "com.typesafe.atmos" % "trace-akka-2.2.1_2.10" % atmosVersion,
-    "com.typesafe.atmos" % "trace-play-2.2.0" % atmosVersion,
-    "com.typesafe.atmos" % "trace-play-common" % atmosVersion,
-    "com.typesafe.atmos" % "trace-scala-2.10.2" % atmosVersion,
-    "com.typesafe.console" % "console-solo" % atmosVersion,
+  val echoArtifacts = Seq(
+    "com.typesafe.trace" % "trace-sigar-libs" % echoVersion,
+    "com.typesafe.trace" % "trace-akka-2.2.1_2.10" % echoVersion,
+    "com.typesafe.trace" % "trace-play-2.2.0" % echoVersion,
+    "com.typesafe.trace" % "trace-play-common" % echoVersion,
+    "com.typesafe.trace" % "trace-scala-2.10.2" % echoVersion,
     "org.aspectj" % "aspectjweaver" % "1.7.3"
   )
 
@@ -68,8 +66,8 @@ object Dependencies {
   val playSbt13Plugin        =  Defaults.sbtPluginExtra("com.typesafe.play" % "sbt-plugin" % playVersion, "0.13", "2.10")
   val eclipseSbt13Plugin     =  Defaults.sbtPluginExtra("com.typesafe.sbteclipse" % "sbteclipse-plugin" % "2.2.0", "0.13", "2.10")
   val ideaSbt13Plugin        =  Defaults.sbtPluginExtra("com.github.mpeltonen" % "sbt-idea" % "1.5.2", "0.13", "2.10")
-  val atmosSbt13Plugin       =  Defaults.sbtPluginExtra("com.typesafe.sbt" % "sbt-atmos-play" % atmosPluginVersion, "0.13", "2.10")
-  val atmosPlaySbt13Plugin   =  Defaults.sbtPluginExtra("com.typesafe.sbt" % "sbt-atmos" % atmosPluginVersion, "0.13", "2.10")
+  val echoSbt13Plugin       =  Defaults.sbtPluginExtra("com.typesafe.sbt" % "sbt-echo-play" % echoPluginVersion, "0.13", "2.10")
+  val echoPlaySbt13Plugin   =  Defaults.sbtPluginExtra("com.typesafe.sbt" % "sbt-echo" % echoPluginVersion, "0.13", "2.10")
 
   // Embedded databases / index
   val lucene = "org.apache.lucene" % "lucene-core" % luceneVersion

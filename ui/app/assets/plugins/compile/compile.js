@@ -91,12 +91,12 @@ define(['text!./compile.html', 'core/pluginapi', 'core/model', 'css!./compile.cs
           app.name(result.params.name);
           app.hasAkka(result.params.hasAkka === true);
           app.hasPlay(result.params.hasPlay === true);
-          app.hasConsole(result.params.hasConsole === true);
+          app.hasEcho(result.params.hasEcho === true);
 
           model.logModel.debug("name=" + app.name() +
               " hasAkka=" + app.hasAkka() +
               " hasPlay=" + app.hasPlay() +
-              " hasConsole=" + app.hasConsole());
+              " hasEcho=" + app.hasEcho());
 
           self.compileAfterReloadProjectInfo();
         },

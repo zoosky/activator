@@ -32,11 +32,11 @@ define(['text!./console.html', 'css!./console.css', 'core/pluginapi', './connect
 
       api.events.subscribe(
          function(event) {
-           return event.type == "AtmosStarted" || event.type == "RunStopped";
+           return event.type == "RunWithInspectStarted" || event.type == "RunStopped";
          },
          function(event) {
-           if (event.type == "AtmosStarted") {
-             self.atmosStarted();
+           if (event.type == "RunWithInspectStarted") {
+             self.runStarted();
            } else if (event.type == "RunStopped") {
              if (self.connected()) self.runStopped();
            }
@@ -44,7 +44,7 @@ define(['text!./console.html', 'css!./console.css', 'core/pluginapi', './connect
       );
     },
 
-    atmosStarted: function() {
+    runStarted: function() {
       var self = this;
       Connection.open(consoleWsUrl, function() {
         self.connected(true);
