@@ -96,13 +96,6 @@ var startApp = function() {
 
 
 
-
-
-
-
-
-
-
       // Create log widget before we start recording websocket events...
       var logs = new log.Log();
       logs.renderTo($('#loading-logs'));
@@ -118,7 +111,7 @@ var startApp = function() {
       });
 
       function toggleWorking() {
-        $('#homePage, #workingPage').toggle();
+        $('#working, #open, #new').toggle();
       }
       streams.subscribe(function(event) {
         // Handle all the remote events here...
@@ -147,7 +140,6 @@ var startApp = function() {
         }
       });
       // Save these lookups so we don't have to do them repeatedly.
-      var newButton = $('#newButton');
       var appNameInput = $('#newappName');
       var appLocationInput = $('#newappLocation');
       var homeDir = appLocationInput.attr('placeholder');
@@ -166,19 +158,6 @@ var startApp = function() {
         checkFormReady();
         updateAppLocation();
       });
-      function checkFormReady() {
-        // if there's a template name then we should have filled in
-        // at least placeholders for the other two fields.
-        if (appTemplateName.val().length > 0) {
-          newButton.prop("disabled", false);
-          return true;
-        }
-        else {
-          // form is not ready
-          newButton.prop("disabled", true);
-          return false;
-        }
-      }
       // Helper method to rip out form values appropriately...
       // TODO - This probably belongs in util.
       function formToJson(form) {
@@ -197,27 +176,23 @@ var startApp = function() {
         return o;
       };
       // Hook Submissions to send to the websocket.
-      $('form#newApp').on('submit', function(event) {
+      $('#new').on('submit', "#newApp", function(event) {
         event.preventDefault();
 
-        if (checkFormReady()) {
-          // disable the create button
-          newButton.prop("disabled", true);
+        // use the placeholder values, unless one was manually specified
+        if(!appLocationInput.val())
+          appLocationInput.val(appLocationInput.attr('placeholder'));
+        if (!appNameInput.val())
+          appNameInput.val(appNameInput.attr('placeholder'));
 
-          // use the placeholder values, unless one was manually specified
-          if(!appLocationInput.val())
-            appLocationInput.val(appLocationInput.attr('placeholder'));
-          if (!appNameInput.val())
-            appNameInput.val(appNameInput.attr('placeholder'));
+        // Now we find our sneaky saved template id.
+        // var template = appTemplateName.attr('data-template-id');
+        var msg = formToJson(event.currentTarget);
+        msg.request = 'CreateNewApplication';
+        streams.send(msg);
+        toggleWorking();
 
-          // Now we find our sneaky saved template id.
-          var template = appTemplateName.attr('data-template-id');
-          var msg = formToJson(event.currentTarget);
-          msg.request = 'CreateNewApplication';
-          msg.template = template;
-          streams.send(msg);
-          toggleWorking();
-        }
+        return false;
       });
       function toggleDirectoryBrowser() {
         $('#newAppForm, #newAppLocationBrowser').toggle();
@@ -234,8 +209,8 @@ var startApp = function() {
         selectText: 'Select this Folder',
         onSelect: function(file) {
           // Update our store...
-          updateAppLocation(file);
-          toggleDirectoryBrowser();
+          $("#newAppLocationBrowser .close").trigger("click");
+          $("#newappLocation").val(file +"/"+ $("#appName").val());
         },
         onCancel: function() {
           toggleDirectoryBrowser();
@@ -315,10 +290,6 @@ var startApp = function() {
         // TODO - Better way to do this?
         window.location.href = url;
       })
-
-
-
-
 
     });
   })

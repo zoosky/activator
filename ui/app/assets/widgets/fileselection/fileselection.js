@@ -110,6 +110,10 @@ define(['css!./fileselection.css', 'text!./fileselection.html', 'webjars!knockou
 
       self.renderTo(config.dom)
     },
+    chooseCurrent: function() {
+      var self = this;
+      self.onSelect(self.shownDirectory());
+    },
     gotoParent: function() {
       var self = this;
       self.load("/" + self.shownDirectory().split("/").slice(1,-1).join("/"));

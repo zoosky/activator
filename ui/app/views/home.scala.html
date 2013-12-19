@@ -86,16 +86,19 @@
 					<ul class="tags" data-bind="foreach: tags">
 						<li data-bind="text: $data"></li>
 					</ul>
-					<p data-bind="text: description">Builds simple Actor-based REST server. Demonstrates the usage of Spray to build the RESTful API layer; as well as general structure of such REST actor-based applications. Includes tests for the API layer.</p>
-					<div class="author">
+					<p data-bind="text: description"></p>
+<!--
+ 					<div class="author">
 						<cite>by John Doe (<a href="">@@johndoe</a>)</cite>
 						<a href="#" class="source">github.com/johndoe/activator-akka-spray</a>
 					</div>
-				</div>
+ -->
+ 				</div>
 				@helper.form(action = routes.Application.forceHome, 'id -> "newApp") {
-					<h4>Create the app from this template</h4>
-					<input type="hidden" id="newAppTemplateName" name="template-name" required data-bind="value: id">
-					<input type="hidden" id="newappName" name="name" required data-bind="value: name">
+					<h4>Create an app from this template</h4>
+					<input type="hidden" name="template-name" data-bind="value: id">
+					<input type="hidden" name="template" data-bind="value: id">
+					<input type="hidden" id="appName" name="name" data-bind="value: name">
 					<p>
 					<a href="#" id="browseAppLocation"></a>
 					<input type="text" id="newappLocation" name="location" data-bind="value: baseFolder + name">
@@ -123,7 +126,7 @@
 					<li>Give it a name and location</li>
 					<li>Hack!</li>
 				</ol>
-				<h4>Try these template searches</h4>
+				<h4>Find some inspiration...</h4>
 				<ul class="inspiration tags">
 					@model.tags.map { i =>
 						<li>@i</li>
