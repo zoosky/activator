@@ -44,7 +44,7 @@
 			</header>
 			<article id="openAppForm">
 				<ul class="list">
-					@model.recentApps.map { app =>
+					@model.recentApps.sortBy(_.usedTime).map { app =>
 						<li class="recentApp">
 							<h3><a href="@routes.Application.app(app.id)">@app.cachedName.getOrElse(app.id)</a></h3>
 							<p class="path"><span>@app.location</span></p>
