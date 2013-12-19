@@ -245,13 +245,6 @@ define(['core/model', 'text!./run.html', 'core/pluginapi', 'widgets/log/log', 'c
         // SUCCESS
         console.log("GOT main class info ", data);
 
-        // hack because run-main doesn't work on Play right now.
-        if (model.snap.app.hasPlay()) {
-          console.log("OVERRIDING main class info due to Play app; dropping it all");
-          data.name = '';
-          data.names = [];
-        }
-
         self.defaultMainClass(data.name);
         console.log("Set default main class to " + self.defaultMainClass());
         // ensure the default configured class is in the menu
@@ -321,8 +314,16 @@ define(['core/model', 'text!./run.html', 'core/pluginapi', 'widgets/log/log', 'c
 
       self.beforeRun();
 
+      // as a special-case, exclude Play's main class since running
+      // it "by hand" with run-main does not work. But people can
+      // still pick it in the dropdown to mean "play run"
+      var mainClassIsPlayServer =
+        self.currentMainClass() == 'play.core.server.NettyServer';
+      if (mainClassIsPlayServer)
+        self.logModel.debug("Using 'run' rather than 'run-main' for Play's server class")
+
       var task = {};
-      if (self.haveMainClass()) {
+      if (self.haveMainClass() && !mainClassIsPlayServer) {
         task.task = 'run-main';
         task.params = { mainClass: self.currentMainClass() };
       } else {
