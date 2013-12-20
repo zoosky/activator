@@ -197,6 +197,7 @@ object Packaging {
   components: xsbti
 
 [repositories]
+  local
   activator-local: file://${activator.local.repository-${activator.home-${user.home}/.activator}/repository}, [organization]/[module]/(scala_[scalaVersion]/)(sbt_[sbtVersion]/)[revision]/[type]s/[artifact](-[classifier]).[ext]
   maven-central
   typesafe-releases: http://typesafe.artifactoryonline.com/typesafe/releases
