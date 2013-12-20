@@ -99,8 +99,8 @@ object Application extends Controller {
     Action.async { implicit request =>
       homeModel map { model =>
         import controllers.api.Templates.Protocol
-        val tempates = play.api.libs.json.Json.toJson(model.templates)
-        Ok(views.html.home(model, newAppForm, tempates))
+        val templates = play.api.libs.json.Json.toJson(model.templates)
+        Ok(views.html.home(model, newAppForm, templates))
       }
     }
   }

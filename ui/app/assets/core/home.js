@@ -19,7 +19,6 @@ require.config({
   }
 });
 
-// var hidden = document[hidden] = false;
 require([
   // Vendors
   '../../webjars/requirejs-text/2.0.10/text',
@@ -234,17 +233,6 @@ var startApp = function() {
         dom: '#openAppLocationBrowser'
       });
 
-      // One method to handle template selection, regardless of popup.
-      function updateSelectedTemplate(template) {
-        // appTemplateName.val(template.name);
-        // // Set id for the template on a hidden attribute...
-        // appTemplateName.attr('data-template-id', template.id)
-        // var dirname = template.name.replace(' ', '-').replace(/[^A-Za-z0-9_-]/g, '').toLowerCase();
-        // appNameInput.attr('placeholder', dirname);
-        // updateAppLocation();
-        // checkFormReady()
-      }
-
       // Register fancy radio button controls.
       $('#new').on('click', 'li.template', function(event) {
         var template = {
@@ -253,9 +241,6 @@ var startApp = function() {
         }
         // TODO - Remove this bit here
         $('input:radio', this).prop('checked',true);
-
-        // Now call the generic update selected template method.
-        updateSelectedTemplate(template);
       })
       .on('click', '#browseAppLocation', function(event) {
         event.preventDefault();
@@ -263,7 +248,7 @@ var startApp = function() {
       });
       $('#open').on('click', '#openButton', function(event) {
         event.preventDefault();
-        $('#openButton').toggleClass("openned");
+        $('#openButton').toggleClass("opened");
         toggleAppBrowser();
       });
 
@@ -277,7 +262,6 @@ var startApp = function() {
         onTemplateSelected: function(template) {
           toggleSelectTemplateBrowser();
           // Telegate to generic "select template" method.
-          updateSelectedTemplate(template);
         }
       });
       showTemplateWidget.renderTo('#templatePage');

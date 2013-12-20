@@ -11,11 +11,8 @@
 		<!-- Initialize global Javascript values... -->
 		<script type="text/javascript">
       // Gobal configuration
-      var logging = false;
-      var debug = false;
-			var wsUrl = '@routes.Application.homeStream.webSocketURL()';
 			var baseFolder = "@model.userHome/";
-			window.wsUrl = '@webSocketURLWithCSRF(routes.Application.homeStream)';
+			var wsUrl = '@webSocketURLWithCSRF(routes.Application.homeStream)';
 
 			var templates = @Html(json.toString);
 		</script>
