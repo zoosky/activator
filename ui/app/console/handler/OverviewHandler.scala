@@ -4,17 +4,13 @@
 package console
 package handler
 
-import console.handler.rest.OverviewParser
-import console.handler.rest.OverviewParser.Result
+import console.handler.rest.OverviewJsonBuilder.OverviewResult
 import akka.actor.{ ActorRef, Props }
 import scala.concurrent._
-import scala.concurrent.duration._
 import ExecutionContext.Implicits.global
 import activator.analytics.data.{ ErrorStats, MetadataStats, MetadataStatsMetrics }
 
 object OverviewHandler {
-
-  // Pure function.  Don't wrap up in an actor.  Much easier to test on its own.
   def mergeMetadata(spanStatMetadata: MetadataStats, metadataStats: MetadataStats, limit: Int): MetadataStats = {
     val allPaths = spanStatMetadata.metrics.paths ++ metadataStats.metrics.paths
     val limitedPaths = allPaths.toSeq.sortWith((a, b) ⇒ a < b).take(limit).toSet
@@ -57,15 +53,10 @@ trait OverviewHandlerBase extends RequestHandler {
 
 }
 
-
-// Q: Why put Props here instead of hard-coding what Props we want?
-// A: To make it easy to test in isolation.
-// Now we can pass in Props of *anything* we want - so we can pass in Props to something that has access to
-// The promise end of a future so we can test that the message is passed through as expected.
 class OverviewHandler(builderProps: Props) extends OverviewHandlerBase {
   val builder = context.actorOf(builderProps, "overviewBuilder")
   def useMetadataStats(sender: ActorRef, stats: MetadataStats, errorStats: ErrorStats): Unit = {
-    builder ! Result(receiver = sender,
+    builder ! OverviewResult(receiver = sender,
       metadata = stats,
       deviations = errorStats)
   }

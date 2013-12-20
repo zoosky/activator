@@ -4,39 +4,52 @@
 package console
 package handler
 
-class ActorsHandler extends RequestHandler {
+import akka.actor.{ ActorRef, Props }
+import console.handler.rest.ActorsJsonBuilder.ActorsResult
+import activator.analytics.repository.ActorStatsSorted
+import activator.analytics.data.{ ActorStatsSorts, ActorStatsSort }
+import activator.analytics.data.Sorting.SortDirection
 
-  type Payload = Any
+object ActorsHandler {
+  def extractSortOn(sortCommand: Option[String]): ActorStatsSort = sortCommand match {
+    case Some(sort) ⇒ sort match {
+      case "deviation" ⇒ ActorStatsSorts.DeviationsSort
+      case "maxTimeInMailbox" ⇒ ActorStatsSorts.MaxTimeInMailboxSort
+      case "maxMailboxSize" ⇒ ActorStatsSorts.MaxMailboxSizeSort
+      case "actorPath" ⇒ ActorStatsSorts.ActorPath
+      case "actorName" ⇒ ActorStatsSorts.ActorName
+      case _ ⇒ ActorStatsSorts.ProcessedMessagesSort
+    }
+    case _ ⇒ ActorStatsSorts.ProcessedMessagesSort
+  }
+}
+
+trait ActorsHandlerBase extends RequestHandler {
+  import ActorsHandler._
+
+  def useActorStats(sender: ActorRef, stats: ActorStatsSorted): Unit
 
   def receive = {
-    case _ =>
+    case mi: ModuleInformation => onModuleInformation(sender, mi)
   }
 
-  /*
-def handle(receiver: ActorRef, mi: ModuleInformation): (ActorRef, JsValue) = {
-  val params =
-    mi.time.queryParams ++
-      mi.scope.queryParams ++
-      mapifyF("offset", mi.pagingInformation, { pi: PagingInformation => pi.offset }) ++
-      mapifyF("limit", mi.pagingInformation, { pi: PagingInformation => pi.limit }) ++
-      mapify("sortOn", mi.sortCommand)
-  val actorsStatsPromise = call(RequestHandler.actorsURL, params)
-  for {
-    actorsStats <- actorsStatsPromise
-  } yield {
-    val result = validateResponse(actorsStats) match {
-      case ValidResponse =>
-        val data = JsObject(Seq("actors" -> actorsStats.json))
-        JsObject(Seq(
-          "type" -> JsString("actors"),
-          "data" -> data))
-      case InvalidLicense(jsonLicense) => jsonLicense
-      case ErrorResponse(jsonErrorCodes) => jsonErrorCodes
-    }
-
-    (receiver, result)
+  def onModuleInformation(sender: ActorRef, mi: ModuleInformation): Unit = {
+    // TODO : add anonymous + temporary actors info to ModuleInformation
+    val anonymous = true
+    val temporary = true
+    val offset = mi.pagingInformation.map(_.offset).getOrElse(0)
+    val limit = mi.pagingInformation.map(_.limit).getOrElse(100)
+    val sortOn = extractSortOn(mi.sortCommand)
+    // TODO : add sorting direction to ModuleInformation
+    val sortDirection = new SortDirection("desc")
+    useActorStats(sender, repository.actorStatsRepository.findSorted(mi.time, mi.scope, anonymous, temporary, offset, limit, sortOn, sortDirection))
   }
-    (receiver, JsObject(Seq("actors" -> JsString("todo"))))
 }
-  */
+
+class ActorsHandler(builderProps: Props) extends ActorsHandlerBase {
+  val builder = context.actorOf(builderProps, "actorsBuilder")
+
+  def useActorStats(sender: ActorRef, stats: ActorStatsSorted): Unit = {
+    builder ! ActorsResult(sender, stats)
+  }
 }

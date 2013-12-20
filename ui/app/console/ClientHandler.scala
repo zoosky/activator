@@ -9,6 +9,7 @@ import play.api.libs.iteratee.Concurrent
 import play.api.libs.json._
 import scala.collection.Seq
 import activator.analytics.data.{ TimeRange, Scope }
+import console.handler.rest._
 
 class ClientHandler extends Actor with ActorLogging {
   import ClientController._
@@ -18,13 +19,13 @@ class ClientHandler extends Actor with ActorLogging {
   val (enum, channel) = Concurrent.broadcast[JsValue]
 
   val jsonHandler = context.actorOf(Props[JsonHandler], "jsonHandler")
-  val overviewHandler = context.actorOf(Props[OverviewHandler], "overviewHandler")
-  val actorsHandler = context.actorOf(Props[ActorsHandler], "actorsHandler")
-  val actorHandler = context.actorOf(Props[ActorHandler], "actorHandler")
-  val playRequestsHandler = context.actorOf(Props[PlayRequestsHandler], "playRequestsHandler")
-  val playRequestHandler = context.actorOf(Props[PlayRequestHandler], "playRequestHandler")
-  val deviationsHandler = context.actorOf(Props[DeviationsHandler], "deviationsHandler")
-  val deviationHandler = context.actorOf(Props[DeviationHandler], "deviationHandler")
+  val overviewHandler = context.actorOf(Props(new OverviewHandler(Props[OverviewJsonBuilder])), "overviewHandler")
+  val actorsHandler = context.actorOf(Props(new ActorsHandler(Props[ActorsJsonBuilder])), "actorsHandler")
+  val actorHandler = context.actorOf(Props(new ActorHandler(Props[ActorJsonBuilder])), "actorHandler")
+  val playRequestsHandler = context.actorOf(Props(new PlayRequestsHandler(Props[PlayRequestsJsonBuilder])), "playRequestsHandler")
+  val playRequestHandler = context.actorOf(Props(new PlayRequestHandler(Props[PlayRequestJsonBuilder])), "playRequestHandler")
+  val deviationsHandler = context.actorOf(Props(new DeviationsHandler(Props[DeviationsJsonBuilder])), "deviationsHandler")
+  val deviationHandler = context.actorOf(Props(new DeviationHandler(Props[DeviationJsonBuilder])), "deviationHandler")
 
   // Add the name of handlers that should only be invoked once to this collection
   val oneTimeHandlers = Seq(RequestModule, DeviationModule)

@@ -5,5 +5,5 @@ package console.handler.rest
 
 import akka.actor.{ ActorLogging, Actor }
 
-trait ParserActor extends Actor with ActorLogging {
+trait JsonBuilderActor extends Actor with ActorLogging {
 }

@@ -1,40 +1,25 @@
 /**
  * Copyright (C) 2013 Typesafe <http://typesafe.com/>
  */
-package console.handler
+package console
+package handler
 
-import console.RequestHandler
+import akka.actor.{ ActorRef, Props }
+import activator.analytics.data.ActorStats
 
-class DeviationsHandler extends RequestHandler {
-  type Payload = Any
-
+trait DeviationsHandlerBase extends RequestHandler {
   def receive = {
-    case _ =>
+    case mi: ModuleInformation => onModuleInformation(sender, mi)
   }
 
-  /*
-def handle(receiver: ActorRef, mi: ModuleInformation): (ActorRef, JsValue) = {
-  val params = mi.time.queryParams ++ mi.scope.queryParams
-  val url =
-    if (mi.scope.actorPath.isDefined) RequestHandler.actorURL
-    else RequestHandler.deviationsURL
-  val deviationsPromise = call(url, params)
-  for {
-    deviations <- deviationsPromise
-  } yield {
-    val result = validateResponse(deviations) match {
-      case ValidResponse =>
-        val data = JsObject(Seq("deviations" -> deviations.json))
-        JsObject(Seq(
-          "type" -> JsString("deviations"),
-          "data" -> data))
-      case InvalidLicense(jsonLicense) => jsonLicense
-      case ErrorResponse(jsonErrorCodes) => jsonErrorCodes
-    }
-
-    (receiver, result)
+  def onModuleInformation(sender: ActorRef, mi: ModuleInformation): Unit = {
   }
-    (receiver, JsObject(Seq("deviations" -> JsString("todo"))))
 }
-  */
+
+class DeviationsHandler(builderProps: Props) extends ActorHandlerBase {
+  val builder = context.actorOf(builderProps, "deviationsBuilder")
+
+  def useActorStats(sender: ActorRef, stats: ActorStats): Unit = {
+
+  }
 }

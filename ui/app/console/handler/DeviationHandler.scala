@@ -1,36 +1,25 @@
 /**
  * Copyright (C) 2013 Typesafe <http://typesafe.com/>
  */
-package console.handler
+package console
+package handler
 
-import console.RequestHandler
+import akka.actor.{ ActorRef, Props }
+import activator.analytics.data.ActorStats
 
-class DeviationHandler extends RequestHandler {
-  type Payload = Any
-
+trait DeviationHandlerBase extends RequestHandler {
   def receive = {
-    case _ =>
+    case mi: ModuleInformation => onModuleInformation(sender, mi)
   }
 
-  /*
-def handle(receiver: ActorRef, mi: ModuleInformation): (ActorRef, JsValue) = {
-  val deviationPromise = call(RequestHandler.traceTreeURL + mi.traceId.get, Map.empty[String, String])
-  for {
-    deviation <- deviationPromise
-  } yield {
-    val result = validateResponse(deviation) match {
-      case ValidResponse =>
-        val data = JsObject(Seq("deviation" -> deviation.json))
-        JsObject(Seq(
-          "type" -> JsString("deviation"),
-          "data" -> data))
-      case InvalidLicense(jsonLicense) => jsonLicense
-      case ErrorResponse(jsonErrorCodes) => jsonErrorCodes
-    }
-
-    (receiver, result)
+  def onModuleInformation(sender: ActorRef, mi: ModuleInformation): Unit = {
   }
-    (receiver, JsObject(Seq("deviation" -> JsString("todo"))))
 }
-  */
+
+class DeviationHandler(builderProps: Props) extends ActorHandlerBase {
+  val builder = context.actorOf(builderProps, "deviationBuilder")
+
+  def useActorStats(sender: ActorRef, stats: ActorStats): Unit = {
+
+  }
 }

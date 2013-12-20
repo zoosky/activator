@@ -4,33 +4,26 @@
 package console
 package handler
 
-class ActorHandler extends RequestHandler {
-  type Payload = Any
+import akka.actor.{ ActorRef, Props }
+import activator.analytics.data.ActorStats
+import console.handler.rest.ActorJsonBuilder.ActorResult
+
+trait ActorHandlerBase extends RequestHandler {
+  def useActorStats(sender: ActorRef, stats: ActorStats): Unit
 
   def receive = {
-    case _ =>
+    case mi: ModuleInformation => onModuleInformation(sender, mi)
   }
 
-  /*
-def handle(receiver: ActorRef, mi: ModuleInformation): (ActorRef, JsValue) = {
-  val params = mi.time.queryParams ++ mi.scope.queryParams
-  val actorStatsPromise = call(RequestHandler.actorURL, params)
-  for {
-    actorStats <- actorStatsPromise
-  } yield {
-    val result = validateResponse(actorStats) match {
-      case ValidResponse =>
-        val data = JsObject(Seq("actor" -> actorStats.json))
-        JsObject(Seq(
-          "type" -> JsString("actor"),
-          "data" -> data))
-      case InvalidLicense(jsonLicense) => jsonLicense
-      case ErrorResponse(jsonErrorCodes) => jsonErrorCodes
-    }
-
-    (receiver, result)
+  def onModuleInformation(sender: ActorRef, mi: ModuleInformation): Unit = {
+    useActorStats(sender, ActorStats.concatenate(repository.actorStatsRepository.findWithinTimePeriod(mi.time, mi.scope), mi.time, mi.scope))
   }
-    (receiver, JsObject(Seq("actor" -> JsString("todo"))))
 }
-  */
+
+class ActorHandler(builderProps: Props) extends ActorHandlerBase {
+  val builder = context.actorOf(builderProps, "actorBuilder")
+
+  def useActorStats(sender: ActorRef, stats: ActorStats): Unit = {
+    builder ! ActorResult(sender, stats)
+  }
 }

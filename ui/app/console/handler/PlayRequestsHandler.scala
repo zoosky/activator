@@ -1,41 +1,25 @@
 /**
  * Copyright (C) 2013 Typesafe <http://typesafe.com/>
  */
-package console.handler
+package console
+package handler
 
-import console.RequestHandler
+import akka.actor.{ ActorRef, Props }
+import activator.analytics.data.ActorStats
 
-class PlayRequestsHandler extends RequestHandler {
-  type Payload = Any
-
+trait PlayRequestsHandlerBase extends RequestHandler {
   def receive = {
-    case _ =>
+    case mi: ModuleInformation => onModuleInformation(sender, mi)
   }
 
-  /*
-def handle(receiver: ActorRef, mi: ModuleInformation): (ActorRef, JsValue) = {
-  val params =
-    mi.time.queryParams ++
-      mi.scope.queryParams ++
-      mapifyF("offset", mi.pagingInformation, { pi: PagingInformation => pi.offset }) ++
-      mapifyF("limit", mi.pagingInformation, { pi: PagingInformation => pi.limit })
-  val playRequestsPromise = call(RequestHandler.playRequestsURL, params)
-  for {
-    playRequests <- playRequestsPromise
-  } yield {
-    val result = validateResponse(playRequests) match {
-      case ValidResponse =>
-        val data = JsObject(Seq("playRequestSummaries" -> playRequests.json))
-        JsObject(Seq(
-          "type" -> JsString("requests"),
-          "data" -> data))
-      case InvalidLicense(jsonLicense) => jsonLicense
-      case ErrorResponse(jsonErrorCodes) => jsonErrorCodes
-    }
-
-    (receiver, result)
+  def onModuleInformation(sender: ActorRef, mi: ModuleInformation): Unit = {
   }
-    (receiver, JsObject(Seq("playRequestSummaries" -> JsString("todo"))))
 }
-  */
+
+class PlayRequestsHandler(builderProps: Props) extends ActorHandlerBase {
+  val builder = context.actorOf(builderProps, "playRequestsBuilder")
+
+  def useActorStats(sender: ActorRef, stats: ActorStats): Unit = {
+
+  }
 }
