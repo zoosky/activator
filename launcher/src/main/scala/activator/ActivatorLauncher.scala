@@ -6,7 +6,7 @@ package activator
 import xsbti.{ AppMain, AppConfiguration }
 import activator.properties.ActivatorProperties._
 import java.io.File
-import java.net.HttpURLConnection
+import java.net.{ InetSocketAddress, HttpURLConnection }
 import scala.util.control.NonFatal
 import java.util.Properties
 import java.io.FileOutputStream
@@ -67,13 +67,23 @@ class ActivatorLauncher extends AppMain {
   def downloadLatestVersion(): Option[String] = {
     System.out.println(s"Checking for a newer version of Activator (current version ${APP_VERSION})...")
     try {
-      val connection = latestUrl.openConnection() match {
+
+      val maybeProxyConnection = (sys.props.get("http.proxyHost"), sys.props.get("http.proxyPort")) match {
+        case (Some(proxyHost), Some(proxyPort)) =>
+          val proxy = new java.net.Proxy(java.net.Proxy.Type.HTTP, new InetSocketAddress(proxyHost, proxyPort.toInt))
+          latestUrl.openConnection(proxy)
+        case _ =>
+          latestUrl.openConnection()
+      }
+
+      val connection = maybeProxyConnection match {
         case c: HttpURLConnection => c
         case whatever =>
           throw new Exception(s"Unknown connection type: ${whatever.getClass.getName}")
       }
       // we don't want to wait too long
       val timeout = 4000 // milliseconds
+
       connection.setConnectTimeout(timeout)
       connection.setReadTimeout(timeout)
       connection.connect()
