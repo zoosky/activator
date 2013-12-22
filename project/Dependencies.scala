@@ -8,7 +8,7 @@ object Dependencies {
   val scalaVersion = "2.10.2"
   val sbtSnapshotVersion = "0.13.0"
   val luceneVersion = "4.2.1"
-  val templateCacheVersion = "1.0-824c0759d90d52bf3fc7cd07795c49e05affc87a"
+  val templateCacheVersion = "0.3.0"
   val sbtRcVersion = "1.0-2c8e80f5d3e1dba2418210b43b0e372cf331a8cd"
   val playVersion = "2.2.1"
   val webJarsVersion = "2.2.0"
@@ -57,9 +57,7 @@ object Dependencies {
 
   val commonsIo            = "commons-io" % "commons-io" % "2.0.1"
 
-  val mimeUtil             = "eu.medsea.mimeutil" % "mime-util" % "2.1.1"
-  // need to manually set this to override an incompatible old version
-  val slf4jLog4j           = "org.slf4j" % "slf4j-log4j12" % "1.6.6"
+  val mimeUtil             = "eu.medsea.mimeutil" % "mime-util" % "2.1.1" exclude("org.slf4j", "slf4j-log4j12") exclude("org.slf4j", "slf4j-api") exclude("log4j", "log4j")
 
   val junitInterface       = "com.novocode" % "junit-interface" % "0.7"
   //val specs2               = "org.specs2" % "specs2_2.10" % "1.13"
