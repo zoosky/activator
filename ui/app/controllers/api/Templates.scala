@@ -29,6 +29,7 @@ object Templates extends Controller {
           "title" -> JsString(o.title),
           "timestamp" -> JsNumber(o.timeStamp),
           "description" -> JsString(o.description),
+          "featured" -> JsBoolean(o.featured),
           "tags" -> JsArray(o.tags map JsString.apply)))
     //We don't need reads, really
     def reads(json: JsValue): JsResult[TemplateMetadata] =

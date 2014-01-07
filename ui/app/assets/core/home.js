@@ -13,8 +13,8 @@ require.config({
   paths: {
     commons:  'commons',
     core:     'core',
-    plugins:  'plugins',
     services: 'services',
+    plugins:  'plugins',
     widgets:  'widgets'
   }
 });
@@ -25,7 +25,6 @@ require([
   '../../webjars/require-css/0.0.7/css',
   'webjars!jquery',
   'webjars!knockout',
-  'webjars!keymage',
   'commons/visibility'
 ],function() {
   if (!document[hidden]) {
@@ -34,7 +33,7 @@ require([
   else {
     document.addEventListener(visibilityChange, handleVisibilityChange, false)
   }
-})
+});
 
 var handleVisibilityChange = function() {
   if (!document[hidden]) {
@@ -48,9 +47,54 @@ var startApp = function() {
   'core/streams',
   'widgets/fileselection/fileselection',
   'widgets/log/log',
-  'widgets/lists/templatelist'], function(streams, FileSelection, log, TemplateList) {
+  'webjars!knockout',
+  'widgets/lists/templatelist'], function(streams, FileSelection, log, ko, TemplateList) {
     // Register handlers on the UI.
     $(function() {
+
+      // App Model
+      var model = function(){
+        var self = this;
+
+        self.filteredTemplates = ko.observableArray(templates);
+        self.currentApp = ko.observable();
+        self.currentAppId = ko.computed(function(){
+          return !!self.currentApp()?self.currentApp().id:"";
+        });
+        self.browseAppLocation = ko.observable(false);
+        self.browseAppLocation = ko.observable(false);
+
+        self.chooseTemplate = function(app){
+          self.currentApp(app)
+        }
+        self.closeTemplate = function(){
+          self.currentApp("")
+        }
+        self.clearSearch = function(){
+          filterInput.val("").trigger("keyup")[0].focus();
+        }
+        self.search = function(model,evt){
+          value = evt.currentTarget.value.toLowerCase();
+          self.filteredTemplates(templates.filter(function(o){
+            return JSON.stringify(o).indexOf(value) >= 0
+          }));
+        }
+        self.closeNewBrowser = function() {
+          $("#newAppLocationBrowser").hide();
+        }
+      };
+
+      // Bind everything
+      ko.applyBindings(new model());
+
+      // Some tasks are simpler to achive with jquery
+      var filterInput = $("#filter input");
+      $(document).on("click", ".tags li", function(e){
+        filterInput.val(e.currentTarget.innerHTML).trigger("keyup");
+      });
+
+
+
       // Create log widget before we start recording websocket events...
       var logs = new log.Log();
       logs.renderTo($('#loading-logs'));
@@ -66,7 +110,7 @@ var startApp = function() {
       });
 
       function toggleWorking() {
-        $('#homePage, #workingPage').toggle();
+        $('#working, #open, #new').toggle();
       }
       streams.subscribe(function(event) {
         // Handle all the remote events here...
@@ -95,7 +139,6 @@ var startApp = function() {
         }
       });
       // Save these lookups so we don't have to do them repeatedly.
-      var newButton = $('#newButton');
       var appNameInput = $('#newappName');
       var appLocationInput = $('#newappLocation');
       var homeDir = appLocationInput.attr('placeholder');
@@ -114,19 +157,6 @@ var startApp = function() {
         checkFormReady();
         updateAppLocation();
       });
-      function checkFormReady() {
-        // if there's a template name then we should have filled in
-        // at least placeholders for the other two fields.
-        if (appTemplateName.val().length > 0) {
-          newButton.prop("disabled", false);
-          return true;
-        }
-        else {
-          // form is not ready
-          newButton.prop("disabled", true);
-          return false;
-        }
-      }
       // Helper method to rip out form values appropriately...
       // TODO - This probably belongs in util.
       function formToJson(form) {
@@ -145,27 +175,23 @@ var startApp = function() {
         return o;
       };
       // Hook Submissions to send to the websocket.
-      $('form#newApp').on('submit', function(event) {
+      $('#new').on('submit', "#newApp", function(event) {
         event.preventDefault();
 
-        if (checkFormReady()) {
-          // disable the create button
-          newButton.prop("disabled", true);
+        // use the placeholder values, unless one was manually specified
+        if(!appLocationInput.val())
+          appLocationInput.val(appLocationInput.attr('placeholder'));
+        if (!appNameInput.val())
+          appNameInput.val(appNameInput.attr('placeholder'));
 
-          // use the placeholder values, unless one was manually specified
-          if(!appLocationInput.val())
-            appLocationInput.val(appLocationInput.attr('placeholder'));
-          if (!appNameInput.val())
-            appNameInput.val(appNameInput.attr('placeholder'));
+        // Now we find our sneaky saved template id.
+        // var template = appTemplateName.attr('data-template-id');
+        var msg = formToJson(event.currentTarget);
+        msg.request = 'CreateNewApplication';
+        streams.send(msg);
+        toggleWorking();
 
-          // Now we find our sneaky saved template id.
-          var template = appTemplateName.attr('data-template-id');
-          var msg = formToJson(event.currentTarget);
-          msg.request = 'CreateNewApplication';
-          msg.template = template;
-          streams.send(msg);
-          toggleWorking();
-        }
+        return false;
       });
       function toggleDirectoryBrowser() {
         $('#newAppForm, #newAppLocationBrowser').toggle();
@@ -182,14 +208,14 @@ var startApp = function() {
         selectText: 'Select this Folder',
         onSelect: function(file) {
           // Update our store...
-          updateAppLocation(file);
-          toggleDirectoryBrowser();
+          $("#newAppLocationBrowser .close").trigger("click");
+          $("#newappLocation").val(file +"/"+ $("#appName").val());
         },
         onCancel: function() {
           toggleDirectoryBrowser();
-        }
+        },
+        dom: '#newAppLocationBrowser .list'
       });
-      fs.renderTo('#newAppLocationBrowser');
       var openFs = new FileSelection({
         selectText: 'Open this Project',
         initialDir: homeDir,
@@ -203,20 +229,9 @@ var startApp = function() {
             location: file
           });
           toggleWorking();
-        }
+        },
+        dom: '#openAppLocationBrowser'
       });
-      openFs.renderTo('#openAppLocationBrowser');
-
-      // One method to handle template selection, regardless of popup.
-      function updateSelectedTemplate(template) {
-        appTemplateName.val(template.name);
-        // Set id for the template on a hidden attribute...
-        appTemplateName.attr('data-template-id', template.id)
-        var dirname = template.name.replace(' ', '-').replace(/[^A-Za-z0-9_-]/g, '').toLowerCase();
-        appNameInput.attr('placeholder', dirname);
-        updateAppLocation();
-        checkFormReady()
-      }
 
       // Register fancy radio button controls.
       $('#new').on('click', 'li.template', function(event) {
@@ -226,9 +241,6 @@ var startApp = function() {
         }
         // TODO - Remove this bit here
         $('input:radio', this).prop('checked',true);
-
-        // Now call the generic update selected template method.
-        updateSelectedTemplate(template);
       })
       .on('click', '#browseAppLocation', function(event) {
         event.preventDefault();
@@ -236,6 +248,7 @@ var startApp = function() {
       });
       $('#open').on('click', '#openButton', function(event) {
         event.preventDefault();
+        $('#openButton').toggleClass("opened");
         toggleAppBrowser();
       });
 
@@ -249,7 +262,6 @@ var startApp = function() {
         onTemplateSelected: function(template) {
           toggleSelectTemplateBrowser();
           // Telegate to generic "select template" method.
-          updateSelectedTemplate(template);
         }
       });
       showTemplateWidget.renderTo('#templatePage');
@@ -262,6 +274,7 @@ var startApp = function() {
         // TODO - Better way to do this?
         window.location.href = url;
       })
+
     });
   })
 }
