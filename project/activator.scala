@@ -46,6 +46,7 @@ object ActivatorBuild {
       // TODO - Publish to ivy for sbt plugins, maven central otherwise?
       publishTo := Some(typesafeIvyReleases),
       publishMavenStyle := false,
+      publish := { throw new RuntimeException("use publishSigned instead of plain publish") },
       scalacOptions <<= (scalaVersion) map { sv =>
         Seq("-unchecked", "-deprecation") ++
           { if (sv.startsWith("2.9")) Seq.empty else Seq("-feature") }
