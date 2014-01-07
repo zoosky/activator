@@ -8,11 +8,12 @@ import akka.actor.{ ActorRef, Props }
 import console.handler.rest.ActorsJsonBuilder.ActorsResult
 import activator.analytics.repository.ActorStatsSorted
 import activator.analytics.data.{ ActorStatsSorts, ActorStatsSort }
+import activator.analytics.data.Sorting
 import activator.analytics.data.Sorting.SortDirection
 
 object ActorsHandler {
-  def extractSortOn(sortCommand: Option[String]): ActorStatsSort = sortCommand match {
-    case Some(sort) ⇒ sort match {
+  def extractSortOn(sortInformation: Option[SortInformation]): ActorStatsSort = sortInformation match {
+    case Some(sort) ⇒ sort.command match {
       case "deviation" ⇒ ActorStatsSorts.DeviationsSort
       case "maxTimeInMailbox" ⇒ ActorStatsSorts.MaxTimeInMailboxSort
       case "maxMailboxSize" ⇒ ActorStatsSorts.MaxMailboxSizeSort
@@ -21,6 +22,14 @@ object ActorsHandler {
       case _ ⇒ ActorStatsSorts.ProcessedMessagesSort
     }
     case _ ⇒ ActorStatsSorts.ProcessedMessagesSort
+  }
+
+  def extractSortDirection(sortInformation: Option[SortInformation]): SortDirection = sortInformation match {
+    case Some(sort) => sort.direction match {
+      case "asc" => Sorting.ascendingSort
+      case _ => Sorting.descendingSort
+    }
+    case _ => Sorting.descendingSort
   }
 }
 
@@ -34,15 +43,15 @@ trait ActorsHandlerBase extends RequestHandler {
   }
 
   def onModuleInformation(sender: ActorRef, mi: ModuleInformation): Unit = {
-    // TODO : add anonymous + temporary actors info to ModuleInformation
-    val anonymous = true
-    val temporary = true
+    val anonymous = mi.actorInformation.map(_.includeAnonymous).getOrElse(false)
+    val temporary = mi.actorInformation.map(_.includeTemporary).getOrElse(false)
     val offset = mi.pagingInformation.map(_.offset).getOrElse(0)
     val limit = mi.pagingInformation.map(_.limit).getOrElse(100)
-    val sortOn = extractSortOn(mi.sortCommand)
-    // TODO : add sorting direction to ModuleInformation
-    val sortDirection = new SortDirection("desc")
-    useActorStats(sender, repository.actorStatsRepository.findSorted(mi.time, mi.scope, anonymous, temporary, offset, limit, sortOn, sortDirection))
+    val sortOn = extractSortOn(mi.sortInformation)
+    val sortDirection = extractSortDirection(mi.sortInformation)
+    useActorStats(
+      sender,
+      repository.actorStatsRepository.findSorted(mi.time, mi.scope, anonymous, temporary, offset, limit, sortOn, sortDirection))
   }
 }
 

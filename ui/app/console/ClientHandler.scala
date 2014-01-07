@@ -85,8 +85,9 @@ class JsonHandler extends Actor with ActorLogging {
         scope = toScope(i.scope),
         time = time,
         pagingInformation = i.pagingInformation,
+        actorInformation = i.actorInformation,
         dataFrom = i.dataFrom,
-        sortCommand = i.sortCommand,
+        sortInformation = i.sortInformation,
         traceId = i.traceId)
     }
   }
@@ -126,11 +127,20 @@ object JsonHandler {
     (__ \ "offset").read[Int] and
     (__ \ "limit").read[Int])(PagingInformation)
 
+  implicit val actorInformationReads = (
+    (__ \ "includeTemporary").read[Boolean] and
+    (__ \ "includeAnonymous").read[Boolean])(ActorInformation)
+
+  implicit val sortInformationReads = (
+    (__ \ "command").read[String] and
+    (__ \ "direction").read[String])(SortInformation)
+
   val innerModuleReads = (
     (__ \ "name").read[String] and
     (__ \ "traceId").readNullable[String] and
     (__ \ "paging").readNullable[PagingInformation] and
-    (__ \ "sortCommand").readNullable[String] and
+    (__ \ "actorInformation").readNullable[ActorInformation] and
+    (__ \ "sortInformation").readNullable[SortInformation] and
     (__ \ "dataFrom").readNullable[Long] and
     (__ \ "scope").read[InternalScope])(InnerModuleInformation)
 
@@ -153,7 +163,8 @@ case class InnerModuleInformation(
   name: String,
   traceId: Option[String],
   pagingInformation: Option[PagingInformation],
-  sortCommand: Option[String],
+  actorInformation: Option[ActorInformation],
+  sortInformation: Option[SortInformation],
   dataFrom: Option[Long],
   scope: InternalScope)
 
@@ -162,8 +173,13 @@ case class ModuleInformation(
   scope: Scope,
   time: TimeRange,
   pagingInformation: Option[PagingInformation] = None,
-  sortCommand: Option[String] = None,
+  actorInformation: Option[ActorInformation] = None,
+  sortInformation: Option[SortInformation] = None,
   dataFrom: Option[Long] = None,
   traceId: Option[String] = None)
 
 case class PagingInformation(offset: Int, limit: Int)
+
+case class ActorInformation(includeTemporary: Boolean = true, includeAnonymous: Boolean = true)
+
+case class SortInformation(command: String, direction: String)

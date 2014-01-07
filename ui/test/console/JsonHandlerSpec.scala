@@ -13,7 +13,7 @@ class JsonHandlerSpec extends Specification {
           }
         """)
       implicit val parser = JsonHandler.scopeReads
-      val scope = (json \ "scope").as[LScope]
+      val scope = (json \ "scope").as[InternalScope]
       scope.node must equalTo(None)
     }
 
@@ -31,7 +31,7 @@ class JsonHandlerSpec extends Specification {
           }
         """)
       implicit val parser = JsonHandler.scopeReads
-      val scope = (json \ "scope").as[LScope]
+      val scope = (json \ "scope").as[InternalScope]
       scope.node must equalTo(Some("n1"))
       scope.actorSystem must equalTo(Some("as1"))
       scope.dispatcher must equalTo(Some("d1"))
@@ -65,7 +65,7 @@ class JsonHandlerSpec extends Specification {
       innerModule.head.pagingInformation must not be empty
       innerModule.head.pagingInformation.get.offset must equalTo(101)
       innerModule.head.pagingInformation.get.limit must equalTo(11)
-      innerModule.head.sortCommand must equalTo(None)
+      innerModule.head.sortInformation must equalTo(None)
       innerModule.head.scope.actorPath must equalTo(None)
     }
 
@@ -76,7 +76,6 @@ class JsonHandlerSpec extends Specification {
             "modules" : [
               {
                 "name" : "name1",
-                "sortCommand" : "sortOnThis",
                 "traceId" : "traceId1",
                 "scope" : {
                   "node" : "n1"
@@ -87,6 +86,10 @@ class JsonHandlerSpec extends Specification {
                 "scope" : {
                   "node" : "n2",
                   "actorSystem" : "as2"
+                },
+                "sortInformation" : {
+                  "command" : "sortMeOnThis",
+                  "direction" : "desc"
                 }
               },
               {
@@ -95,7 +98,10 @@ class JsonHandlerSpec extends Specification {
                   "offset" : 1,
                   "limit" : 1000
                 },
-                "sortCommand" : "sortMeOnThis",
+                "actorInformation" : {
+                  "includeTemporary" : true,
+                  "includeAnonymous" : true
+                },
                 "scope" : {
                   "node" : "n3",
                   "actorSystem" : "as3",
@@ -112,21 +118,26 @@ class JsonHandlerSpec extends Specification {
       innerModules(0).name must equalTo("name1")
       innerModules(0).traceId must equalTo(Some("traceId1"))
       innerModules(0).scope.node must equalTo(Some("n1"))
-      innerModules(0).sortCommand must equalTo(Some("sortOnThis"))
       innerModules(0).scope.tag must equalTo(None)
+      innerModules(0).pagingInformation must equalTo(None)
+      innerModules(0).actorInformation must equalTo(None)
+      innerModules(0).sortInformation must equalTo(None)
 
       innerModules(1).name must equalTo("name2")
       innerModules(1).traceId must equalTo(None)
       innerModules(1).scope.node must equalTo(Some("n2"))
       innerModules(1).scope.actorSystem must equalTo(Some("as2"))
       innerModules(1).scope.tag must equalTo(None)
+      innerModules(1).sortInformation.get.command must equalTo("sortMeOnThis")
+      innerModules(1).sortInformation.get.direction must equalTo("desc")
 
       innerModules(2).name must equalTo("name3")
       innerModules(2).traceId must equalTo(None)
       innerModules(2).pagingInformation must not be empty
       innerModules(2).pagingInformation.get.offset must equalTo(1)
       innerModules(2).pagingInformation.get.limit must equalTo(1000)
-      innerModules(2).sortCommand must equalTo(Some("sortMeOnThis"))
+      innerModules(2).actorInformation.get.includeTemporary must equalTo(true)
+      innerModules(2).actorInformation.get.includeAnonymous must equalTo(true)
       innerModules(2).scope.node must equalTo(Some("n3"))
       innerModules(2).scope.actorSystem must equalTo(Some("as3"))
       innerModules(2).scope.dispatcher must equalTo(Some("d3"))

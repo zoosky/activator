@@ -34,9 +34,10 @@ trait OverviewHandlerBase extends RequestHandler {
   import OverviewHandler._
   def useMetadataStats(sender: ActorRef, stats: MetadataStats, errorStats: ErrorStats): Unit
   def onModuleInformation(sender: ActorRef, mi: ModuleInformation): Unit = {
-    // TODO : define include of temp and anonymous actors
-    val metadataFuture = future { repository.metadataStatsRepository.findFiltered(mi.time, mi.scope, true, true) }
-    val spanFuture = future { repository.summarySpanStatsRepository.findMetadata(mi.time, mi.scope, true, true) }
+    val anonymous = mi.actorInformation.map(_.includeAnonymous).getOrElse(false)
+    val temporary = mi.actorInformation.map(_.includeTemporary).getOrElse(false)
+    val metadataFuture = future { repository.metadataStatsRepository.findFiltered(mi.time, mi.scope, anonymous, temporary) }
+    val spanFuture = future { repository.summarySpanStatsRepository.findMetadata(mi.time, mi.scope, anonymous, temporary) }
     val deviationFuture = future { repository.errorStatsRepository.findWithinTimePeriod(mi.time, mi.scope.node, mi.scope.actorSystem) }
     // TODO : use configurable limit
     val limit = mi.pagingInformation.map(p => p.limit).getOrElse(100)
