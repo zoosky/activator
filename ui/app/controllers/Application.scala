@@ -254,6 +254,17 @@ object Application extends Controller {
     Ok(Json.toJson(RootConfig.user.applications))
   }
 
+  def forgetApp(id: String) = Action.async { request =>
+    AppManager.forgetApp(id) map { _ =>
+      Logger.debug(s"Forgot app $id from app history")
+      Ok
+    } recover {
+      case e: Exception =>
+        Logger.warn(s"Failed to forget $id: ${e.getClass.getName}: ${e.getMessage}")
+        Forbidden(e.getMessage)
+    }
+  }
+
   /**
    * Returns the application model (for rendering the page) based on
    * the current snap App.
