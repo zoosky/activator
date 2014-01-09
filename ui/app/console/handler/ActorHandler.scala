@@ -5,17 +5,22 @@ package console
 package handler
 
 import akka.actor.{ ActorRef, Props }
-import activator.analytics.data.ActorStats
+import activator.analytics.data.{ TimeRange, Scope, ActorStats }
 import console.handler.rest.ActorJsonBuilder.ActorResult
 
-trait ActorHandlerBase extends RequestHandler {
+object ActorHandler {
+  case class ActorModuleInfo(scope: Scope,
+    modifiers: ScopeModifiers,
+    time: TimeRange,
+    dataFrom: Option[Long],
+    traceId: Option[String]) extends ModuleInformationBase
+}
+
+trait ActorHandlerBase extends RequestHandler[ActorHandler.ActorModuleInfo] {
+  import ActorHandler._
   def useActorStats(sender: ActorRef, stats: ActorStats): Unit
 
-  def receive = {
-    case mi: ModuleInformation => onModuleInformation(sender, mi)
-  }
-
-  def onModuleInformation(sender: ActorRef, mi: ModuleInformation): Unit = {
+  def onModuleInformation(sender: ActorRef, mi: ActorModuleInfo): Unit = {
     useActorStats(sender, ActorStats.concatenate(repository.actorStatsRepository.findWithinTimePeriod(mi.time, mi.scope), mi.time, mi.scope))
   }
 }

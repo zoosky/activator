@@ -5,14 +5,20 @@ package console
 package handler
 
 import akka.actor.{ ActorRef, Props }
-import activator.analytics.data.ActorStats
+import activator.analytics.data.{ TimeRange, Scope, ActorStats }
 
-trait PlayRequestHandlerBase extends RequestHandler {
-  def receive = {
-    case mi: ModuleInformation => onModuleInformation(sender, mi)
-  }
+object PlayRequestHandler {
+  case class PlayRequestModuleInfo(scope: Scope,
+    modifiers: ScopeModifiers,
+    time: TimeRange,
+    dataFrom: Option[Long],
+    traceId: Option[String]) extends ModuleInformationBase
+}
 
-  def onModuleInformation(sender: ActorRef, mi: ModuleInformation): Unit = {
+trait PlayRequestHandlerBase extends RequestHandler[PlayRequestHandler.PlayRequestModuleInfo] {
+  import PlayRequestHandler._
+
+  def onModuleInformation(sender: ActorRef, mi: PlayRequestModuleInfo): Unit = {
   }
 }
 

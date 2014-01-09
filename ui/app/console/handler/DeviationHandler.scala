@@ -5,14 +5,20 @@ package console
 package handler
 
 import akka.actor.{ ActorRef, Props }
-import activator.analytics.data.ActorStats
+import activator.analytics.data.{ TimeRange, Scope, ActorStats }
 
-trait DeviationHandlerBase extends RequestHandler {
-  def receive = {
-    case mi: ModuleInformation => onModuleInformation(sender, mi)
-  }
+object DeviationHandler {
+  case class DeviationModuleInfo(scope: Scope,
+    modifiers: ScopeModifiers,
+    time: TimeRange,
+    dataFrom: Option[Long],
+    traceId: Option[String]) extends ModuleInformationBase
+}
 
-  def onModuleInformation(sender: ActorRef, mi: ModuleInformation): Unit = {
+trait DeviationHandlerBase extends RequestHandler[DeviationHandler.DeviationModuleInfo] {
+  import DeviationHandler._
+
+  def onModuleInformation(sender: ActorRef, mi: DeviationModuleInfo): Unit = {
   }
 }
 
