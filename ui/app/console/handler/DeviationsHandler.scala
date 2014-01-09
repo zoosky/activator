@@ -5,21 +5,38 @@ package console
 package handler
 
 import akka.actor.{ ActorRef, Props }
-import activator.analytics.data.ActorStats
+import activator.analytics.data.{ TimeRange, Scope, ActorStats }
+import activator.analytics.rest.http.SortingHelpers.SortDirection
 
-trait DeviationsHandlerBase extends RequestHandler {
-  def receive = {
-    case mi: ModuleInformation => onModuleInformation(sender, mi)
-  }
+object DeviationsHandler {
+  case class DeviationsModuleInfo(scope: Scope,
+    modifiers: ScopeModifiers,
+    time: TimeRange,
+    pagingInformation: Option[PagingInformation],
+    sortOn: DeviationsSort,
+    sortDirection: SortDirection,
+    dataFrom: Option[Long],
+    traceId: Option[String]) extends MultiValueModuleInformation[DeviationsSort]
 
-  def onModuleInformation(sender: ActorRef, mi: ModuleInformation): Unit = {
+  def extractSortOn(in: Option[String]): DeviationsSort = DeviationsSorts.DefineMe
+}
+
+trait DeviationsHandlerBase extends RequestHandler[DeviationsHandler.DeviationsModuleInfo] {
+  import DeviationsHandler._
+
+  def onModuleInformation(sender: ActorRef, mi: DeviationsModuleInfo): Unit = {
   }
 }
 
-class DeviationsHandler(builderProps: Props) extends ActorHandlerBase {
+class DeviationsHandler(builderProps: Props, val defaultLimit: Int) extends ActorHandlerBase {
   val builder = context.actorOf(builderProps, "deviationsBuilder")
 
   def useActorStats(sender: ActorRef, stats: ActorStats): Unit = {
 
   }
+}
+
+sealed trait DeviationsSort
+object DeviationsSorts {
+  case object DefineMe extends DeviationsSort
 }

@@ -8,9 +8,23 @@ import console.handler.rest.OverviewJsonBuilder.OverviewResult
 import akka.actor.{ ActorRef, Props }
 import scala.concurrent._
 import ExecutionContext.Implicits.global
-import activator.analytics.data.{ ErrorStats, MetadataStats, MetadataStatsMetrics }
+import activator.analytics.data._
+import activator.analytics.data.MetadataStatsMetrics
+import console.handler.rest.OverviewJsonBuilder.OverviewResult
+import activator.analytics.data.MetadataStats
+import console.ScopeModifiers
+import activator.analytics.rest.http.SortingHelpers.SortDirection
 
 object OverviewHandler {
+  case class OverviewModuleInfo(scope: Scope,
+    modifiers: ScopeModifiers,
+    time: TimeRange,
+    pagingInformation: Option[PagingInformation],
+    sortOn: OverviewSort,
+    sortDirection: SortDirection,
+    dataFrom: Option[Long],
+    traceId: Option[String]) extends MultiValueModuleInformation[OverviewSort]
+
   def mergeMetadata(spanStatMetadata: MetadataStats, metadataStats: MetadataStats, limit: Int): MetadataStats = {
     val allPaths = spanStatMetadata.metrics.paths ++ metadataStats.metrics.paths
     val limitedPaths = allPaths.toSeq.sortWith((a, b) ⇒ a < b).take(limit).toSet
@@ -28,32 +42,28 @@ object OverviewHandler {
         playPatterns = metadataStats.metrics.playPatterns,
         playControllers = metadataStats.metrics.playControllers))
   }
+
+  def extractSortOn(in: Option[String]): OverviewSort = OverviewSorts.DefineMe
 }
 
-trait OverviewHandlerBase extends RequestHandler {
+trait OverviewHandlerBase extends PagingRequestHandler[OverviewSort, OverviewHandler.OverviewModuleInfo] {
   import OverviewHandler._
+
   def useMetadataStats(sender: ActorRef, stats: MetadataStats, errorStats: ErrorStats): Unit
-  def onModuleInformation(sender: ActorRef, mi: ModuleInformation): Unit = {
+  def onModuleInformation(sender: ActorRef, mi: OverviewModuleInfo): Unit = withPagingDefaults(mi) { (offset, limit) =>
     // TODO : define include of temp and anonymous actors
     val metadataFuture = future { repository.metadataStatsRepository.findFiltered(mi.time, mi.scope, true, true) }
     val spanFuture = future { repository.summarySpanStatsRepository.findMetadata(mi.time, mi.scope, true, true) }
     val deviationFuture = future { repository.errorStatsRepository.findWithinTimePeriod(mi.time, mi.scope.node, mi.scope.actorSystem) }
-    // TODO : use configurable limit
-    val limit = mi.pagingInformation.map(p => p.limit).getOrElse(100)
     for {
       metadata <- metadataFuture
       spans <- spanFuture
       deviations <- deviationFuture
     } useMetadataStats(sender, mergeMetadata(spans, metadata, limit), ErrorStats.concatenate(deviations, mi.time, mi.scope.node, mi.scope.actorSystem))
   }
-
-  def receive = {
-    case mi: ModuleInformation => onModuleInformation(sender, mi)
-  }
-
 }
 
-class OverviewHandler(builderProps: Props) extends OverviewHandlerBase {
+class OverviewHandler(builderProps: Props, val defaultLimit: Int) extends OverviewHandlerBase {
   val builder = context.actorOf(builderProps, "overviewBuilder")
   def useMetadataStats(sender: ActorRef, stats: MetadataStats, errorStats: ErrorStats): Unit = {
     builder ! OverviewResult(receiver = sender,
@@ -61,4 +71,9 @@ class OverviewHandler(builderProps: Props) extends OverviewHandlerBase {
       deviations = errorStats)
   }
 
+}
+
+sealed trait OverviewSort
+object OverviewSorts {
+  case object DefineMe extends OverviewSort
 }
