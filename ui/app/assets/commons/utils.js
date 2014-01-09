@@ -126,7 +126,18 @@ define([], function() {
   };
 
   var Singleton = function(base, o) {
-    var ctor = Class(base, o);
+    var baseclass;
+    var o;
+    if (arguments.length == 2) {
+      baseclass = arguments[0];
+      o = arguments[1];
+    } else if (arguments.length == 1) {
+      baseclass = Object;
+      o = arguments[0];
+    } else {
+      throw new Error("wrong number of parameters", arguments);
+    }
+    var ctor = Class(baseclass, o);
     return new ctor();
   };
 
