@@ -23,7 +23,7 @@
     </script>
     <script data-main='@routes.Assets.at("core/application.js")' type='text/javascript' src='@routes.WebJarAssets.requirejs()'></script>
   </head>
-  <body data-bind="css: {navigationOpened: snap.navigationOpened, navigationSneak: snap.navigationSneak, panelOpened: snap.panelOpened}, attr: { 'data-shape': snap.panelShape }">
+  <body data-bind="css: {navigationOpened: settings.app.navigationOpened, navigationSneak: snap.navigationSneak, panelOpened: settings.app.panelOpened}, attr: { 'data-shape': settings.app.panelShape }">
 
     <header id="header">
       <button class="toggleNavigation" data-bind="click: snap.toggleNavigation, event: {mouseover: snap.sneakNavigationOn}"></button>
@@ -85,10 +85,10 @@
       </dl>
 
       <div id="appStatus">
-        <button class="running" data-bind="toggle: snap.build.startApp, css: {active: snap.build.startApp}"></button>
-        <button class="refresh" data-bind="toggle: snap.build.rerunOnBuild, css: {active: snap.build.rerunOnBuild}"></button>
-        <button class="console" data-bind="toggle: snap.build.runInConsole, css: {active: snap.build.runInConsole}"></button>
-        <button class="testing" data-bind="toggle: snap.build.retestOnSuccessfulBuild, css: {active: snap.build.retestOnSuccessfulBuild}"></button>
+        <button class="running" data-bind="toggle: settings.build.startApp, css: {active: settings.build.startApp}"></button>
+        <button class="refresh" data-bind="toggle: settings.build.rerunOnBuild, css: {active: settings.build.rerunOnBuild}"></button>
+        <button class="console" data-bind="toggle: settings.build.runInConsole, css: {active: settings.build.runInConsole}"></button>
+        <button class="testing" data-bind="toggle: settings.build.retestOnSuccessfulBuild, css: {active: settings.build.retestOnSuccessfulBuild}"></button>
       </div>
 
       <dl id="rockets">
