@@ -4,6 +4,7 @@ import play.Project._
 import com.typesafe.sbt.SbtScalariform
 import com.typesafe.sbt.SbtScalariform.ScalariformKeys
 import com.typesafe.sbt.SbtGit
+import com.typesafe.sbt.SbtPgp.PgpKeys
 
 object ActivatorBuild {
   // Don't calculate versions EVERYWHERE, just in global...
@@ -70,22 +71,66 @@ object ActivatorBuild {
       publishMavenStyle := false
     )
 
+  implicit class RelocatePgp(val project: Project) extends AnyVal {
+    def relocatePgp: Project = {
+      // the default is autoSettings(userSettings, allPlugins, defaultSbtFiles)
+      // userSettings = Project.settings
+      // we want to push PGP before userSettings so we can override
+      // publishSigned and publishLocalSigned,
+      // but we leave other plugins alone to avoid confusing ourselves.
+      def isPgp(plugin: Plugin): Boolean =
+        plugin.getClass.getName.startsWith("com.typesafe.sbt.SbtPgp")
+      import AddSettings._
+      project.autoSettings(plugins(isPgp),
+                           userSettings,
+                           plugins(!isPgp(_)),
+                           defaultSbtFiles)
+    }
+  }
+
+  implicit class DoNotPublish(val project: Project) extends AnyVal {
+    def doNotPublish: Project = {
+      project.settings(
+        // this won't work if the project doesn't have PGP relocated (see above)
+        PgpKeys.publishSigned := { streams.value.log(s"publishSigned disabled for ${name.value}") },
+        PgpKeys.publishLocalSigned := { streams.value.log(s"publishLocalSigned disabled for ${name.value}") },
+        publish := { streams.value.log(s"publish disabled for ${name.value}") },
+        publishLocal := { streams.value.log(s"publishLocal disabled for ${name.value}") }
+      )
+    }
+  }
+
+  def toReferences(projects: Seq[Project]): Seq[ProjectReference] =
+    NoProjectImplicitsHere.toReferences(projects)
+
   def ActivatorProject(name: String): Project = (
     Project("activator-" + name, file(name))
+    .relocatePgp
     settings(activatorDefaults:_*)
   )
 
   def ActivatorPlayProject(name: String): Project = (
     play.Project("activator-" + name, path = file(name))
+    .relocatePgp
     settings(activatorDefaults:_*)
     settings(libraryDependencies += play.Keys.filters)
   )
 
   def ActivatorJavaProject(name: String): Project = (
     Project("activator-" + name, file(name))
+    .relocatePgp
     settings(activatorDefaults:_*)
     settings(
         autoScalaLibrary := false
     )
   )
+}
+
+// The ".project" macro on Project somehow breaks
+// if invoked with the DoNotPublish / RelocatePgp
+// implicits in scope, so this is a hack.
+// Obviously there's some better fix somewhere.
+private object NoProjectImplicitsHere {
+  def toReferences(projects: Seq[Project]): Seq[ProjectReference] =
+    projects.map(_.project)
 }

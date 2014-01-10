@@ -4,12 +4,13 @@ import Dependencies._
 import Packaging.localRepoArtifacts
 import com.typesafe.sbt.S3Plugin._
 import com.typesafe.sbt.SbtNativePackager.Universal
+import com.typesafe.sbt.SbtPgp.PgpKeys
 // NOTE - This file is only used for SBT 0.12.x, in 0.13.x we'll use build.sbt and scala libraries.
 // As such try to avoid putting stuff in here so we can see how good build.sbt is without build.scala.
 
 
 object TheActivatorBuild extends Build {
-  
+
   def fixFileForURIish(f: File): String = {
     val uriString = f.toURI.toASCIIString
     if(uriString startsWith "file://") uriString.drop("file://".length)
@@ -27,13 +28,10 @@ object TheActivatorBuild extends Build {
 
   val root = (
     Project("root", file("."))  // TODO - Oddities with clean..
-    aggregate((publishedProjects.map(_.project) ++
-              Seq(dist.project, it.project, localTemplateRepo.project, offlinetests.project)):_*)
-    settings(
-      // Stub out commands we run frequently but don't want them to really do anything.
-      Keys.publish := {},
-      Keys.publishLocal := {}
-    )
+    .relocatePgp
+    .doNotPublish
+    aggregate(toReferences(publishedProjects ++
+                           Seq(dist, it, localTemplateRepo, offlinetests)): _*)
   )
 
   lazy val news: Project = (
@@ -44,10 +42,10 @@ object TheActivatorBuild extends Build {
   // This project helps us isolate creating the local template repository for testing.
   lazy val localTemplateRepo: Project = (
     Project("template-repository", file("template-repository"))
+    .relocatePgp
+    .doNotPublish
     settings(LocalTemplateRepo.settings:_*)
-    settings(Keys.publishLocal := {},
-             Keys.publish := {},
-             Keys.resolvers += typesafeIvyReleases)
+    settings(Keys.resolvers += typesafeIvyReleases)
   )
 
   // These are the projects we want in the local repository we deploy.
@@ -159,12 +157,11 @@ object TheActivatorBuild extends Build {
   // A hack project just for convenient IvySBT when resolving artifacts into new local repositories.
   lazy val dontusemeresolvers = (
     ActivatorProject("dontuseme")
+    .doNotPublish
     settings(
       // This hack removes the project resolver so we don't resolve stub artifacts.
       Keys.fullResolvers <<= (Keys.externalResolvers, Keys.sbtResolver) map (_ :+ _),
-      Keys.resolvers += Resolver.url("sbt-plugin-releases", new URL("http://repo.scala-sbt.org/scalasbt/sbt-plugin-releases/"))(Resolver.ivyStylePatterns),
-      Keys.publish := {},
-      Keys.publishLocal := {}
+      Keys.resolvers += Resolver.url("sbt-plugin-releases", new URL("http://repo.scala-sbt.org/scalasbt/sbt-plugin-releases/"))(Resolver.ivyStylePatterns)
     )
   )
   lazy val it = (
@@ -174,27 +171,25 @@ object TheActivatorBuild extends Build {
       dependsOn(props)
       settings(
         org.sbtidea.SbtIdeaPlugin.ideaIgnoreModule := true,
-        Keys.publish := {}
+        // we don't use doNotPublish because we want to publishLocal
+        Keys.publish := {},
+        PgpKeys.publishSigned := {}
       )
   )
 
   lazy val offlinetests = (
     ActivatorProject("offline-tests")
-    settings(
-      Keys.publish := {},
-      Keys.publishLocal := {}
-    )
+    .doNotPublish
     settings(offline.settings:_*)
   )
 
   lazy val dist = (
     ActivatorProject("dist")
+    // TODO - Should publish be pushing the S3 upload?
+    .doNotPublish
     settings(Packaging.settings:_*)
     settings(s3Settings:_*)
     settings(
-      // TODO - Should publish be pushing the S3 upload?
-      Keys.publish := {},
-      Keys.publishLocal := {},
       Keys.scalaBinaryVersion <<= Keys.scalaBinaryVersion in ui,
       Keys.resolvers ++= Seq(
         "Typesafe repository" at "http://repo.typesafe.com/typesafe/releases/",
