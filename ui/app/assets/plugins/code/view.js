@@ -61,6 +61,14 @@ define(["text!./viewWrapper.html", "text!./viewDefault.html", "./imageView", "./
         }
         return new DefaultView(args);
       });
+      self.canSwitchTheme = ko.computed(function() {
+        var sub = self.subView();
+        return 'switchTheme' in sub;
+      });
+      self.canSetFontSize = ko.computed(function() {
+        var sub = self.subView();
+        return 'setFontSize' in sub;
+      });
       self.title = ko.computed(function() {
         return self.file().relative();
       });
@@ -132,6 +140,12 @@ define(["text!./viewWrapper.html", "text!./viewDefault.html", "./imageView", "./
       } else {
         if (onDone) onDone();
       }
+    },
+    onSwitchTheme: function(data, event) {
+      this.subView().switchTheme(event.target.innerText);
+    },
+    onSetFontSize: function(data, event) {
+      this.subView().setFontSize(event.target.dataset.fontSize);
     }
   });
 

@@ -80,13 +80,13 @@ define(["text!./viewCode.html", 'core/pluginapi', 'commons/settings'], function(
         console.error("No editor to scroll to? bug");
       }
     },
-    switchTheme: function(data, event) {
-      this.subView().theme(event.target.innerText);
-      settings.set('editor.theme', event.target.innerText);
+    switchTheme: function(name) {
+      this.theme(name);
+      settings.set('editor.theme', name);
     },
-    setFontSize: function(data, event) {
-      this.subView().fontSize(event.target.dataset.fontSize);
-      settings.set('editor.fontSize', event.target.dataset.fontSize);
+    setFontSize: function(size) {
+      this.fontSize(size);
+      settings.set('editor.fontSize', size);
     }
   });
   return CodeView;
