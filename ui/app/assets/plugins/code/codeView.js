@@ -1,7 +1,7 @@
 /*
  Copyright (C) 2013 Typesafe, Inc <http://typesafe.com>
  */
-define(["text!./viewCode.html", 'core/pluginapi'], function(template, api){
+define(["text!./viewCode.html", 'core/pluginapi', 'commons/settings'], function(template, api, settings){
   var ko = api.ko;
 
   function endsWith(str, suffix) {
@@ -60,6 +60,8 @@ define(["text!./viewCode.html", 'core/pluginapi'], function(template, api){
       // TODO - Grab the extension for now to figure out highlighting...
       this.highlight = highlightModeFor(args.file().name());
       this.file().loadContents();
+      this.theme = ko.observable(settings.get('editor.theme', false));
+      this.fontSize = ko.observable(settings.get('editor.fontSize', false));
     },
     load: function() {
       this.file().loadContents();
@@ -77,6 +79,14 @@ define(["text!./viewCode.html", 'core/pluginapi'], function(template, api){
       } else {
         console.error("No editor to scroll to? bug");
       }
+    },
+    switchTheme: function(name) {
+      this.theme(name);
+      settings.set('editor.theme', name);
+    },
+    setFontSize: function(size) {
+      this.fontSize(size);
+      settings.set('editor.fontSize', size);
     }
   });
   return CodeView;
