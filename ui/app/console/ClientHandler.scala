@@ -77,22 +77,22 @@ class JsonHandler extends Actor with ActorLogging with RequestHelpers {
   implicit val reader = innerModuleReads
 
   def receive = {
-    case HandleRequest(js) => sender ! RegisterModules(parseRequest(js))
+    case HandleRequest(js) => sender ! RegisterModules(parseRequest(js, log))
   }
 }
 
 trait RequestHelpers { this: ActorLogging =>
   import JsonHandler._
 
-  def parseRequest(js: JsValue): Seq[RawModuleInformation] = {
-    val time = toTimeRange((js \ "time" \ "rolling").asOpt[String])
+  def parseRequest(js: JsValue, log: LoggingAdapter): Seq[RawModuleInformation] = {
+    val time = toTimeRange((js \ "time" \ "rolling").asOpt[String], log)
 
     val innerModules = (js \ "modules").as[List[InnerModuleInformation]]
     innerModules map { i =>
       ClientModuleHandler.fromString(i.name) match {
         case Some(name) => RawModuleInformation(
           module = name,
-          scope = toScope(i.scope),
+          scope = toScope(i.scope, log),
           time = time,
           pagingInformation = i.pagingInformation,
           dataFrom = i.dataFrom,
@@ -104,7 +104,7 @@ trait RequestHelpers { this: ActorLogging =>
     }
   }
 
-  def toScope(i: InternalScope): Scope =
+  def toScope(i: InternalScope, log: LoggingAdapter): Scope =
     Scope(
       path = i.actorPath,
       tag = i.tag,
@@ -114,7 +114,7 @@ trait RequestHelpers { this: ActorLogging =>
       playPattern = i.playPattern,
       playController = i.playController)
 
-  def toTimeRange(rolling: Option[String]): TimeRange = rolling match {
+  def toTimeRange(rolling: Option[String], log: LoggingAdapter): TimeRange = rolling match {
     case RollingMinutePattern(value) => TimeRange.minuteRange(System.currentTimeMillis, value.toInt)
     case x =>
       log.warning("Can not use parsed time range (using default 20 minutes instead): %s", x)
