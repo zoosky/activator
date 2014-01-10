@@ -14,33 +14,7 @@ import console.ScopeModifiers
 import java.util.concurrent.TimeUnit
 
 object ActorHandlerSpec {
-  def genActorScopes(paths: Set[ActorPath],
-    tags: Set[String],
-    hosts: Set[String],
-    dispatchers: Set[String],
-    systems: Set[String]): Set[Scope] =
-    for {
-      path <- paths
-      tag <- tags.map(x => Some(x): Option[String]).union(Set(None))
-      host <- hosts
-      dispatcher <- dispatchers
-      system <- systems
-    } yield Scope(Some(path.toString), tag, Some(host), Some(dispatcher), Some(system), None, None)
-
-  def genTimeRanges(start: Int, end: Int, incr: Int, rangeType: TimeRangeType): Seq[TimeRange] =
-    Range(start, end, incr).map(TimeRange.rangeFor(_, rangeType))
-
-  def genActorStats(scopes: Set[Scope], timeRanges: Seq[TimeRange])(body: (Int, Scope, TimeRange) => ActorStats): Seq[ActorStats] = {
-    var index: Int = 1
-    for {
-      scope <- scopes.toSeq
-      range <- timeRanges
-    } yield {
-      val r = body(index, scope, range)
-      index += 1
-      r
-    }
-  }
+  import Generators._
 
   val minuteTimeRanges = genTimeRanges(0, 30.minutes.toMillis.toInt, 1.minute.toMillis.toInt, TimeRangeType.Minutes)
   val hourTimeRanges = genTimeRanges(0, 30.hours.toMillis.toInt, 1.hour.toMillis.toInt, TimeRangeType.Hours)

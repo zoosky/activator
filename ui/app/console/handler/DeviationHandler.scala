@@ -6,26 +6,29 @@ package handler
 
 import akka.actor.{ ActorRef, Props }
 import activator.analytics.data.{ TimeRange, Scope, ActorStats }
+import com.typesafe.trace.uuid.UUID
+import com.typesafe.trace.TraceEvent
+import console.handler.rest.DeviationJsonBuilder.DeviationResult
 
 object DeviationHandler {
-  case class DeviationModuleInfo(scope: Scope,
-    modifiers: ScopeModifiers,
-    time: TimeRange,
-    dataFrom: Option[Long],
-    traceId: Option[String]) extends ModuleInformationBase
+  case class DeviationModuleInfo(eventID: UUID) extends ModuleInformationBase
 }
 
-trait DeviationHandlerBase extends RequestHandler[DeviationHandler.DeviationModuleInfo] {
+trait DeviationHandlerBase extends RequestHandlerLike[DeviationHandler.DeviationModuleInfo] {
   import DeviationHandler._
 
+  def useDeviation(sender: ActorRef, eventId: UUID, traces: Seq[TraceEvent]): Unit
+
   def onModuleInformation(sender: ActorRef, mi: DeviationModuleInfo): Unit = {
+    useDeviation(sender, mi.eventID, repository.traceRepository.event(mi.eventID).map(ed => repository.traceRepository.trace(ed.trace))
+      .getOrElse(Seq.empty[TraceEvent]))
   }
 }
 
-class DeviationHandler(builderProps: Props) extends DeviationHandlerBase {
+class DeviationHandler(builderProps: Props) extends RequestHandler[DeviationHandler.DeviationModuleInfo] with DeviationHandlerBase {
   val builder = context.actorOf(builderProps, "deviationBuilder")
 
-  def useActorStats(sender: ActorRef, stats: ActorStats): Unit = {
-
+  def useDeviation(sender: ActorRef, eventId: UUID, traces: Seq[TraceEvent]): Unit = {
+    builder ! DeviationResult(sender, eventId, traces)
   }
 }

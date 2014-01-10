@@ -72,23 +72,15 @@ object ClientModuleHandler {
 
   implicit def toDeviationModuleInfo(in: RawModuleInformation): Try[DeviationModuleInfo] =
     Try {
-      DeviationModuleInfo(in.scope,
-        in.modifiers,
-        in.time,
-        in.dataFrom,
-        in.traceId)
+      DeviationModuleInfo(in.eventId.get)
     }
 
   implicit def toDeviationsModuleInfo(in: RawModuleInformation): Try[DeviationsModuleInfo] =
     Try {
       DeviationsModuleInfo(in.scope,
-        in.modifiers,
         in.time,
-        in.pagingInformation,
-        DeviationsHandler.extractSortOn(in.sortCommand),
-        in.sortDirection.getOrElse(Ascending),
         in.dataFrom,
-        in.traceId)
+        in.chunkRange)
     }
 
   implicit def toPlayRequestModuleInfo(in: RawModuleInformation): Try[PlayRequestModuleInfo] =

@@ -17,6 +17,8 @@ class ActorJsonBuilder extends JsonBuilderActor {
 }
 
 object ActorJsonBuilder {
+  import ScopeJsonBuilder._
+
   case class ActorResult(receiver: ActorRef, stats: ActorStats)
 
   def createJson(stats: ActorStats): JsObject = {
@@ -66,23 +68,5 @@ object ActorJsonBuilder {
       "meanBytesReadRateUnit" -> "bytes/second",
       "meanBytesWrittenRate" -> stats.meanBytesWrittenRate,
       "meanBytesWrittenRateUnit" -> "bytes/second")
-  }
-
-  def createScopeJson(scope: Scope): JsObject = {
-    val node = scope.node.getOrElse("")
-    val actorSystem = scope.actorSystem.getOrElse("")
-    val path = scope.path.getOrElse("")
-    val dispatcher = scope.dispatcher.getOrElse("")
-    val tag = scope.tag.getOrElse("")
-    val playPattern = scope.playPattern.getOrElse("")
-    val playController = scope.playController.getOrElse("")
-    Json.obj(
-      "node" -> node,
-      "actorSystem" -> actorSystem,
-      "actorPath" -> path,
-      "dispatcher" -> dispatcher,
-      "tag" -> tag,
-      "playPattern" -> playPattern,
-      "playController" -> playController)
   }
 }
