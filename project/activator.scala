@@ -4,6 +4,7 @@ import play.Project._
 import com.typesafe.sbt.SbtScalariform
 import com.typesafe.sbt.SbtScalariform.ScalariformKeys
 import com.typesafe.sbt.SbtGit
+import com.typesafe.sbt.SbtPgp
 import com.typesafe.sbt.SbtPgp.PgpKeys
 
 object ActivatorBuild {
@@ -61,7 +62,7 @@ object ActivatorBuild {
       makeFixWhitespace(Test),
       compileInputs in (Compile, compile) <<= (compileInputs in (Compile, compile)) dependsOn (fixWhitespace in Compile),
       compileInputs in (Test, compile) <<= (compileInputs in (Test, compile)) dependsOn (fixWhitespace in Test)
-    ) ++ JavaVersionCheck.javacVersionCheckSettings
+    ) ++ JavaVersionCheck.javacVersionCheckSettings ++ SbtPgp.settings
 
   def sbtShimPluginSettings: Seq[Setting[_]] =
     activatorDefaults ++
@@ -72,8 +73,8 @@ object ActivatorBuild {
       publishMavenStyle := false
     )
 
-  implicit class RelocatePgp(val project: Project) extends AnyVal {
-    def relocatePgp: Project = {
+  implicit class NoAutoPgp(val project: Project) extends AnyVal {
+    def noAutoPgp: Project = {
       // the default is autoSettings(userSettings, allPlugins, defaultSbtFiles)
       // userSettings = Project.settings
       // we want to push PGP before userSettings so we can override
@@ -82,8 +83,7 @@ object ActivatorBuild {
       def isPgp(plugin: Plugin): Boolean =
         plugin.getClass.getName.startsWith("com.typesafe.sbt.SbtPgp")
       import AddSettings._
-      project.autoSettings(plugins(isPgp),
-                           userSettings,
+      project.autoSettings(userSettings,
                            plugins(!isPgp(_)),
                            defaultSbtFiles)
     }
@@ -106,20 +106,20 @@ object ActivatorBuild {
 
   def ActivatorProject(name: String): Project = (
     Project("activator-" + name, file(name))
-    .relocatePgp
+    .noAutoPgp
     settings(activatorDefaults:_*)
   )
 
   def ActivatorPlayProject(name: String): Project = (
     play.Project("activator-" + name, path = file(name))
-    .relocatePgp
+    .noAutoPgp
     settings(activatorDefaults:_*)
     settings(libraryDependencies += play.Keys.filters)
   )
 
   def ActivatorJavaProject(name: String): Project = (
     Project("activator-" + name, file(name))
-    .relocatePgp
+    .noAutoPgp
     settings(activatorDefaults:_*)
     settings(
         autoScalaLibrary := false
