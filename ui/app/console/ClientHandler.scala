@@ -13,7 +13,6 @@ import activator.analytics.data.{ TimeRange, Scope }
 import scala.reflect.ClassTag
 import activator.analytics.rest.http.SortingHelpers.{ Descending, Ascending, SortDirection }
 import scala.util.{ Failure, Success, Try }
-import console.ClientModuleHandler.{ DeviationModule, RequestModule }
 import akka.event.LoggingAdapter
 import scala.util.matching.Regex
 
@@ -216,12 +215,6 @@ case class RawModuleInformation(
   sortDirection: Option[SortDirection],
   dataFrom: Option[Long] = None,
   traceId: Option[String] = None) extends ModuleInformationBase {
-  def toModuleInformation[T <: ModuleInformationBase](implicit conv: RawModuleInformation => Try[T]): Try[T] = conv(this)
-  def sendAs[T <: ModuleInformationBase](to: ActorRef, log: akka.event.LoggingAdapter)(implicit conv: RawModuleInformation => Try[T], ct: ClassTag[T]): Unit =
-    this.toModuleInformation[T] match {
-      case Success(x) => to ! x
-      case Failure(f) => log.error(s"could not convert $this into a value of type ${ct.toString}. Error: ${f.getMessage}")
-    }
 }
 
 case class PagingInformation(offset: Int, limit: Int)

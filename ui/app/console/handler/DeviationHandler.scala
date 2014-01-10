@@ -22,7 +22,7 @@ trait DeviationHandlerBase extends RequestHandler[DeviationHandler.DeviationModu
   }
 }
 
-class DeviationHandler(builderProps: Props) extends ActorHandlerBase {
+class DeviationHandler(builderProps: Props) extends DeviationHandlerBase {
   val builder = context.actorOf(builderProps, "deviationBuilder")
 
   def useActorStats(sender: ActorRef, stats: ActorStats): Unit = {

@@ -28,7 +28,7 @@ trait DeviationsHandlerBase extends RequestHandler[DeviationsHandler.DeviationsM
   }
 }
 
-class DeviationsHandler(builderProps: Props, val defaultLimit: Int) extends ActorHandlerBase {
+class DeviationsHandler(builderProps: Props, val defaultLimit: Int) extends DeviationsHandlerBase {
   val builder = context.actorOf(builderProps, "deviationsBuilder")
 
   def useActorStats(sender: ActorRef, stats: ActorStats): Unit = {

@@ -37,7 +37,7 @@ object ActorsHandler {
   }
 }
 
-trait ActorsHandlerBase extends PagingRequestHandler[ActorStatsSort, ActorsHandler.ActorsModuleInfo] {
+trait ActorsHandlerBase extends PagingRequestHandlerLike[ActorStatsSort, ActorsHandler.ActorsModuleInfo] {
   import ActorsHandler._
   import SortDirections._
 
@@ -56,7 +56,7 @@ trait ActorsHandlerBase extends PagingRequestHandler[ActorStatsSort, ActorsHandl
   }
 }
 
-class ActorsHandler(builderProps: Props, val defaultLimit: Int) extends ActorsHandlerBase {
+class ActorsHandler(builderProps: Props, val defaultLimit: Int) extends PagingRequestHandler[ActorStatsSort, ActorsHandler.ActorsModuleInfo] with ActorsHandlerBase {
   val builder = context.actorOf(builderProps, "actorsBuilder")
 
   def useActorStats(sender: ActorRef, stats: ActorStatsSorted): Unit = {
