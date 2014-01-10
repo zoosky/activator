@@ -4,6 +4,7 @@ import Dependencies._
 import Packaging.localRepoArtifacts
 import com.typesafe.sbt.S3Plugin._
 import com.typesafe.sbt.SbtNativePackager.Universal
+import com.typesafe.sbt.SbtPgp
 import com.typesafe.sbt.SbtPgp.PgpKeys
 // NOTE - This file is only used for SBT 0.12.x, in 0.13.x we'll use build.sbt and scala libraries.
 // As such try to avoid putting stuff in here so we can see how good build.sbt is without build.scala.
@@ -28,7 +29,7 @@ object TheActivatorBuild extends Build {
 
   val root = (
     Project("root", file("."))  // TODO - Oddities with clean..
-    .relocatePgp
+    .noAutoPgp
     .doNotPublish
     aggregate(toReferences(publishedProjects ++
                            Seq(dist, it, localTemplateRepo, offlinetests)): _*)
@@ -42,7 +43,7 @@ object TheActivatorBuild extends Build {
   // This project helps us isolate creating the local template repository for testing.
   lazy val localTemplateRepo: Project = (
     Project("template-repository", file("template-repository"))
-    .relocatePgp
+    .noAutoPgp
     .doNotPublish
     settings(LocalTemplateRepo.settings:_*)
     settings(Keys.resolvers += typesafeIvyReleases)
