@@ -44,7 +44,7 @@ var handleVisibilityChange = function() {
 
 var startApp = function() {
   require([
-  'core/streams',
+  'commons/streams',
   'widgets/fileselection/fileselection',
   'widgets/log/log',
   'webjars!knockout',

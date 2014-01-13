@@ -3,7 +3,7 @@
  */
 
 // Sort of MVC (Module, Grid, Router)
-define(['./model', './pluginapi', './streams', './plugin', './globalEventHandlers'], function(model, api, streams, plugins, globalEventHandlers) {
+define(['./model', './pluginapi', 'commons/streams', './plugin', './globalEventHandlers'], function(model, api, streams, plugins, globalEventHandlers) {
 
   var ko = api.ko;
 
