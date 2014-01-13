@@ -1,7 +1,7 @@
 /*
  Copyright (C) 2013 Typesafe, Inc <http://typesafe.com>
  */
-define(["text!./viewCode.html", 'core/pluginapi', 'commons/settings'], function(template, api, settings){
+define(["text!./viewCode.html", 'main/pluginapi', 'commons/settings'], function(template, api, settings){
   var ko = api.ko;
 
   function endsWith(str, suffix) {

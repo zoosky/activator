@@ -13,7 +13,7 @@
 <html>
   <head>
     <title>Typesafe Activator</title>
-    <link href="@routes.Assets.at("core/main.css")" rel="stylesheet" type="text/css">
+    <link href="@routes.Assets.at("main/main.css")" rel="stylesheet" type="text/css">
     <script type="text/javascript">
       window.wsUrl = '@webSocketURLWithCSRF(routes.Application.connectApp(model.id))';
       window.consoleWsUrl = '@webSocketURLWithCSRF(routes.ConsoleController.connectConsole(model.id))';
@@ -21,7 +21,7 @@
       window.serverAppModel = @Html(Json.toJson(model).toString())
       window.serverAppVersion = "@ActivatorProperties.APP_VERSION"
     </script>
-    <script data-main='@routes.Assets.at("core/application.js")' type='text/javascript' src='@routes.WebJarAssets.requirejs()'></script>
+    <script data-main='@routes.Assets.at("main/application.js")' type='text/javascript' src='@routes.WebJarAssets.requirejs()'></script>
   </head>
   <body data-bind="css: {navigationOpened: settings.app.navigationOpened, navigationSneak: snap.navigationSneak, panelOpened: settings.app.panelOpened}, attr: { 'data-shape': settings.app.panelShape }">
 

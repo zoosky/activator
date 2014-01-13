@@ -12,7 +12,7 @@ require.config({
   },
   paths: {
     commons:  'commons',
-    core:     'core',
+    main:     'main',
     plugins:  'plugins',
     services: 'services',
     widgets:  'widgets'
@@ -34,7 +34,7 @@ var startApp = function() {
       'commons/utils',
       'services/sbt'
     ], function() {
-      require(['core/snap'])
+      require(['main/snap'])
     })
   })
 }

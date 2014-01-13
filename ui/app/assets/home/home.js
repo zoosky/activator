@@ -12,7 +12,7 @@ require.config({
   },
   paths: {
     commons:  'commons',
-    core:     'core',
+    home:     'home',
     services: 'services',
     plugins:  'plugins',
     widgets:  'widgets'

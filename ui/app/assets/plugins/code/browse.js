@@ -1,7 +1,7 @@
 /*
  Copyright (C) 2013 Typesafe, Inc <http://typesafe.com>
  */
-define(['text!./browse.html', 'core/pluginapi', './files'], function(template, api, files) {
+define(['text!./browse.html', 'main/pluginapi', './files'], function(template, api, files) {
 
   var ko = api.ko;
 

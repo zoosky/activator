@@ -1,4 +1,4 @@
-define(['text!./deviation.html', 'core/pluginapi', './../widget', './../format', 'commons/templates', 'text!./tracetree.html'], function(template, api, ConsoleWidget, formatter, templates, traceTreeTemplate) {
+define(['text!./deviation.html', 'main/pluginapi', './../widget', './../format', 'commons/templates', 'text!./tracetree.html'], function(template, api, ConsoleWidget, formatter, templates, traceTreeTemplate) {
     var ko = api.ko;
     return api.Class(ConsoleWidget, {
         id: 'console-deviation-widget',
