@@ -28,7 +28,7 @@ var handleVisibilityChange = function() {
 }
 
 var startApp = function() {
-  require(['core/templates'], function() {
+  require(['commons/templates'], function() {
     require([
       'commons/effects',
       'commons/utils',
