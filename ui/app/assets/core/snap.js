@@ -3,7 +3,7 @@
  */
 
 // Sort of MVC (Module, Grid, Router)
-define(['./model', './pluginapi', './streams', './plugin', './navigation'], function(model, api, streams, plugins, navigation) {
+define(['./model', './pluginapi', './streams', './plugin', './globalEventHandlers'], function(model, api, streams, plugins, globalEventHandlers) {
 
   var ko = api.ko;
 
@@ -19,7 +19,7 @@ define(['./model', './pluginapi', './streams', './plugin', './navigation'], func
 
   // Here's the app initialization ordering!
   model.init(plugins);
-  navigation.init();
+  globalEventHandlers.init();
 
   var receiveMessage = function(event) {
     if (event.origin !== "https://typesafe.com") { // TODO change to typesafe.com
