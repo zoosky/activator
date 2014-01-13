@@ -122,7 +122,7 @@ object Application extends Controller {
       Logger.debug("Loading app for /app html page")
       AppManager.loadApp(id).map { theApp =>
         Logger.debug(s"loaded for html page: ${theApp}")
-        Ok(views.html.application(getApplicationModel(theApp)))
+        Ok(views.html.main(getApplicationModel(theApp)))
       } recover {
         case e: Exception =>
           // TODO we need to have an error message and "flash" it then
