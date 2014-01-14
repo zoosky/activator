@@ -23,10 +23,10 @@
     </script>
     <script data-main='@routes.Assets.at("main/main.js")' type='text/javascript' src='@routes.WebJarAssets.requirejs()'></script>
   </head>
-  <body data-bind="css: {navigationOpened: settings.app.navigationOpened, navigationSneak: snap.navigationSneak, panelOpened: settings.app.panelOpened}, attr: { 'data-shape': settings.app.panelShape }">
+  <body data-bind="css: {navigationOpened: settings.app.navigationOpened, navigationSneak: navigation.sneak, panelOpened: settings.app.panelOpened}, attr: { 'data-shape': settings.app.panelShape }">
 
     <header id="header">
-      <button class="toggleNavigation" data-bind="click: snap.toggleNavigation, event: {mouseover: snap.sneakNavigationOn}"></button>
+      <button class="toggleNavigation" data-bind="click: navigation.toggle.bind(navigation), event: {mouseover: navigation.sneakOn.bind(navigation)}"></button>
 
       <!-- remove the method testCallBinding from the JS when removing this -->
       <dl id="layoutManager" class="dropdown dropdownNoEvent" data-bind="css: {active: snap.panelDropdownActive}, call: snap.testCallBinding">
@@ -69,7 +69,7 @@
       </dl>
     </header>
 
-    <nav id="navigation" data-bind="event: {mouseover: snap.sneakNavigationShow, mouseout: snap.sneakNavigationHide}">
+    <nav id="navigation" data-bind="event: {mouseover: navigation.sneakShow.bind(navigation), mouseout: navigation.sneakHide.bind(navigation)}">
 
       <dl id="switch" class="dropdown">
         <dt data-bind="text: snap.app.name"></dt>

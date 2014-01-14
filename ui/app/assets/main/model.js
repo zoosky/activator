@@ -1,10 +1,11 @@
 /*
  Copyright (C) 2013 Typesafe, Inc <http://typesafe.com>
  */
-define(['webjars!knockout', './router', 'commons/settings', 'plugins/tutorial/tutorial', 'widgets/log/log', 'services/build', './keyboard', './omnisearch'],
-    function(ko, router, settings, Tutorial, log, build, keyboard, omnisearch) {
+define(['webjars!knockout', './router', 'commons/settings', 'plugins/tutorial/tutorial', 'widgets/log/log', 'services/build', './keyboard', './omnisearch',
+        './navigation'],
+    function(ko, router, settings, Tutorial, log, build, keyboard, omnisearch,
+        navigation) {
 
-  settings.register("app.navigationOpened", true);
   settings.register("app.panelOpened", false);
   settings.register("app.panelShape", "right1");
 
@@ -22,8 +23,6 @@ define(['webjars!knockout', './router', 'commons/settings', 'plugins/tutorial/tu
       testCallBinding: function(a,b,c,d){
       },
       activeWidget: ko.observable(""),
-      navigationSneak: ko.observable( false ),
-      navigationSneakTimer: 0,
       panelDropdownActive: ko.observable(false),
       pageTitle: ko.observable(),
       // TODO load last value from somewhere until we get a message from the iframe
@@ -33,24 +32,6 @@ define(['webjars!knockout', './router', 'commons/settings', 'plugins/tutorial/tu
         hasAkka: ko.observable(false),
         hasPlay: ko.observable(false),
         hasConsole: ko.observable(false)
-      },
-      toggleNavigation: function(){
-        settings.app.navigationOpened(!settings.app.navigationOpened());
-        this.snap.navigationSneak(settings.app.navigationOpened());
-      },
-      sneakNavigationOn: function(){
-        if (!settings.app.navigationOpened()) {
-          this.snap.navigationSneak(true);
-        }
-      },
-      sneakNavigationShow: function(){
-        clearTimeout(this.snap.navigationSneakTimer);
-      },
-      sneakNavigationHide: function(){
-        var navigationSneak = this.snap.navigationSneak;
-        this.snap.navigationSneakTimer = setTimeout(function(){
-          navigationSneak(false);
-        } ,500);
       },
       togglePanel: function(){
         settings.app.panelOpened(!settings.app.panelOpened());
@@ -66,6 +47,7 @@ define(['webjars!knockout', './router', 'commons/settings', 'plugins/tutorial/tu
     },
     // make this available in knockout bindings
     omnisearch: omnisearch,
+    navigation: navigation,
     logModel: new log.Log(),
     // This is the initialization of the application...
     init: function(plugins) {
