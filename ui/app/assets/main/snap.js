@@ -28,7 +28,7 @@ define(['./model', './pluginapi', 'commons/streams', './plugin', './globalEventH
       var obj = JSON.parse(event.data);
       if ('signedIn' in obj && typeof(obj.signedIn) == 'boolean') {
         console.log("receiveMessage: signedIn=", obj.signedIn);
-        model.snap.signedIn(obj.signedIn);
+        model.signedIn(obj.signedIn);
       } else {
         console.log("receiveMessage: did not understand message ", event, " parsed ", obj);
       }

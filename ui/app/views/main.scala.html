@@ -29,7 +29,7 @@
       <button class="toggleNavigation" data-bind="click: navigation.toggle.bind(navigation), event: {mouseover: navigation.sneakOn.bind(navigation)}"></button>
 
       <!-- remove the method testCallBinding from the JS when removing this -->
-      <dl id="layoutManager" class="dropdown dropdownNoEvent" data-bind="css: {active: panel.dropdownActive}, call: snap.testCallBinding">
+      <dl id="layoutManager" class="dropdown dropdownNoEvent" data-bind="css: {active: panel.dropdownActive}, call: testCallBinding">
         <dt data-bind="click: panel.toggle.bind(panel)"><span class="all-options" data-bind="click: panel.toggleDropdown.bind(panel)"></span></dt>
         <dd>
           <button class="right1" data-panel-shape="right1" data-bind="click: panel.toggleShape.bind(panel)"></button>
@@ -72,7 +72,7 @@
     <nav id="navigation" data-bind="event: {mouseover: navigation.sneakShow.bind(navigation), mouseout: navigation.sneakHide.bind(navigation)}">
 
       <dl id="switch" class="dropdown">
-        <dt data-bind="text: snap.app.name"></dt>
+        <dt data-bind="text: app.name"></dt>
         <dd>
           <a class="new-app button" href="/home">Manage applications</a>
           @model.recentApps.zipWithIndex.map { case (app, idx) =>
@@ -130,8 +130,8 @@
         <a href="/" class="infos">i</a>
       </div>
     </nav>
-    <main id="wrapper" data-bind="foreach: { data: widgets }, visible: snap.activeWidget() != undefined">
-      <div class="widget" data-bind="snapView: $data, visible: id == $parent.snap.activeWidget()"></div>
+    <main id="wrapper" data-bind="foreach: { data: widgets }, visible: activeWidget() != undefined">
+      <div class="widget" data-bind="snapView: $data, visible: id == $parent.activeWidget()"></div>
     </main>
     <div id="panels" data-bind="snapView: tutorial">
       <header></header>

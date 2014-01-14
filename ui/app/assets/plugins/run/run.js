@@ -56,24 +56,24 @@ define(['main/model', 'text!./run.html', 'main/pluginapi', 'widgets/log/log', 'c
       this.playAppLink = ko.observable('');
       this.playAppStarted = ko.computed(function() { return this.haveActiveTask() && this.playAppLink() != ''; }, this);
       this.atmosLink = ko.observable('');
-      this.atmosCompatible = model.snap.app.hasConsole;
+      this.atmosCompatible = model.app.hasConsole;
       this.runningWithAtmos = ko.computed(function() {
-        return this.haveActiveTask() && this.atmosLink() != '' && model.snap.signedIn();
+        return this.haveActiveTask() && this.atmosLink() != '' && model.signedIn();
       }, this);
       this.runningWithoutAtmosButEnabled = ko.computed(function() {
-        return this.haveActiveTask() && this.atmosLink() == '' && model.snap.signedIn() && this.runInConsole();
+        return this.haveActiveTask() && this.atmosLink() == '' && model.signedIn() && this.runInConsole();
       }, this);
       this.runningWithoutAtmosBecauseDisabled = ko.computed(function() {
-        return this.haveActiveTask() && this.atmosLink() == '' && model.snap.signedIn() && !this.runInConsole();
+        return this.haveActiveTask() && this.atmosLink() == '' && model.signedIn() && !this.runInConsole();
       }, this);
       this.notSignedIn = ko.computed(function() {
-        return !model.snap.signedIn();
+        return !model.signedIn();
       }, this);
       this.notRunningAndSignedInAndAtmosEnabled = ko.computed(function() {
-        return !this.haveActiveTask() && this.runInConsole() && model.snap.signedIn();
+        return !this.haveActiveTask() && this.runInConsole() && model.signedIn();
       }, this);
       this.notRunningAndSignedInAndAtmosDisabled = ko.computed(function() {
-        return !this.haveActiveTask() && !this.runInConsole() && model.snap.signedIn();
+        return !this.haveActiveTask() && !this.runInConsole() && model.signedIn();
       }, this);
       this.status = ko.observable('Application is stopped.');
     },

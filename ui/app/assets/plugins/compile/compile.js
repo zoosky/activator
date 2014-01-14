@@ -35,7 +35,7 @@ define(['text!./compile.html', 'main/pluginapi', 'main/model', 'css!./compile.cs
       },
       function(event) {
         if (self.recompileOnChange()) {
-          if (model.snap.app.hasPlay()) {
+          if (model.app.hasPlay()) {
             console.log("files changed but it's a Play app so not recompiling.")
             self.logModel.info("Some of your files may have changed; reload in the browser or click \"Start compiling\" above to recompile.")
             self.logModel.info("  (for Play apps, Activator does not auto-recompile because it may conflict with compilation on reload in the browser.)")
@@ -87,7 +87,7 @@ define(['text!./compile.html', 'main/pluginapi', 'main/model', 'css!./compile.cs
           console.log("name task results ", result);
           self.activeTask("");
 
-          var app = model.snap.app;
+          var app = model.app;
           app.name(result.params.name);
           app.hasAkka(result.params.hasAkka === true);
           app.hasPlay(result.params.hasPlay === true);
