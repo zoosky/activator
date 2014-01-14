@@ -1,9 +1,9 @@
 /*
  Copyright (C) 2013 Typesafe, Inc <http://typesafe.com>
  */
-define(['webjars!knockout', './router', 'commons/settings', 'plugins/tutorial/tutorial', 'widgets/log/log', 'services/build', './keyboard', './omnisearch',
+define(['webjars!knockout', './router', 'commons/settings', 'plugins/tutorial/tutorial', 'services/build', './keyboard', './omnisearch',
         './navigation', './panel'],
-    function(ko, router, settings, Tutorial, log, build, keyboard, omnisearch,
+    function(ko, router, settings, Tutorial, build, keyboard, omnisearch,
         navigation, panel) {
 
   // This is the model for HTML which is directly in main.scala.html.
@@ -25,17 +25,11 @@ define(['webjars!knockout', './router', 'commons/settings', 'plugins/tutorial/tu
     pageTitle: ko.observable(),
     // TODO load last value from somewhere until we get a message from the iframe
     signedIn: ko.observable(false),
-    app: {
-      name: ko.observable(window.serverAppModel.name ? window.serverAppModel.name : window.serverAppModel.id),
-      hasAkka: ko.observable(false),
-      hasPlay: ko.observable(false),
-      hasConsole: ko.observable(false)
-    },
     // make this available in knockout bindings
     omnisearch: omnisearch,
     navigation: navigation,
     panel: panel,
-    logModel: new log.Log(),
+    build: build,
     // This is the initialization of the application...
     init: function(plugins) {
       var self = this;

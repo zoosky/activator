@@ -1,7 +1,8 @@
 /*
  Copyright (C) 2013 Typesafe, Inc <http://typesafe.com>
  */
-define(['main/model', 'text!./run.html', 'main/pluginapi', 'widgets/log/log', 'css!./run.css'], function(model, template, api, log, css){
+define(['services/build', 'main/model', 'text!./run.html', 'main/pluginapi', 'widgets/log/log', 'css!./run.css'],
+    function(build, model, template, api, log, css){
 
   var ko = api.ko;
   var sbt = api.sbt;
@@ -50,13 +51,13 @@ define(['main/model', 'text!./run.html', 'main/pluginapi', 'widgets/log/log', 'c
         self.onCompileSucceeded(event);
       });
 
-      this.logModel = model.logModel;
+      this.logModel = build.log;
       this.outputModel = new log.Log();
       this.outputScroll = this.outputModel.findScrollState();
       this.playAppLink = ko.observable('');
       this.playAppStarted = ko.computed(function() { return this.haveActiveTask() && this.playAppLink() != ''; }, this);
       this.atmosLink = ko.observable('');
-      this.atmosCompatible = model.app.hasConsole;
+      this.atmosCompatible = build.app.hasConsole;
       this.runningWithAtmos = ko.computed(function() {
         return this.haveActiveTask() && this.atmosLink() != '' && model.signedIn();
       }, this);

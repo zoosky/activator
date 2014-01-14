@@ -1,7 +1,7 @@
 /*
  Copyright (C) 2013 Typesafe, Inc <http://typesafe.com>
  */
-define(['text!./compile.html', 'main/pluginapi', 'main/model', 'css!./compile.css'], function(template, api, model){
+define(['text!./compile.html', 'main/pluginapi', 'services/build', 'css!./compile.css'], function(template, api, build){
 
   var ko = api.ko;
   var sbt = api.sbt;
@@ -26,8 +26,8 @@ define(['text!./compile.html', 'main/pluginapi', 'main/model', 'css!./compile.cs
 
       this.needCompile = ko.observable(false);
       this.recompileOnChange = ko.observable(true);
-      this.logModel = model.logModel;
-      this.logScroll = model.logModel.findScrollState();
+      this.log = build.log;
+      this.logScroll = build.log.findScrollState();
       this.status = ko.observable(api.STATUS_DEFAULT);
 
       api.events.subscribe(function(event) {
@@ -35,10 +35,10 @@ define(['text!./compile.html', 'main/pluginapi', 'main/model', 'css!./compile.cs
       },
       function(event) {
         if (self.recompileOnChange()) {
-          if (model.app.hasPlay()) {
+          if (build.app.hasPlay()) {
             debug && console.log("files changed but it's a Play app so not recompiling.")
-            self.logModel.info("Some of your files may have changed; reload in the browser or click \"Start compiling\" above to recompile.")
-            self.logModel.info("  (for Play apps, Activator does not auto-recompile because it may conflict with compilation on reload in the browser.)")
+            self.log.info("Some of your files may have changed; reload in the browser or click \"Start compiling\" above to recompile.")
+            self.log.info("  (for Play apps, Activator does not auto-recompile because it may conflict with compilation on reload in the browser.)")
           } else {
             debug && console.log("files changed, doing a recompile");
             // doCompile just marks a compile pending if one is already
@@ -65,16 +65,16 @@ define(['text!./compile.html', 'main/pluginapi', 'main/model', 'css!./compile.cs
     update: function(parameters){
     },
     logEvent: function(event) {
-      if (model.logModel.event(event)) {
+      if (build.log.event(event)) {
         // logged already
       } else {
-        model.logModel.leftoverEvent(event);
+        build.log.leftoverEvent(event);
       }
     },
     reloadProjectInfoThenCompile: function() {
       var self = this;
 
-      model.logModel.info("Loading details of this project...");
+      build.log.info("Loading details of this project...");
 
       self.status(api.STATUS_BUSY);
       var taskId = api.sbt.runTask({
@@ -87,13 +87,13 @@ define(['text!./compile.html', 'main/pluginapi', 'main/model', 'css!./compile.cs
           debug && console.log("name task results ", result);
           self.activeTask("");
 
-          var app = model.app;
+          var app = build.app;
           app.name(result.params.name);
           app.hasAkka(result.params.hasAkka === true);
           app.hasPlay(result.params.hasPlay === true);
           app.hasConsole(result.params.hasConsole === true);
 
-          model.logModel.debug("name=" + app.name() +
+          build.log.debug("name=" + app.name() +
               " hasAkka=" + app.hasAkka() +
               " hasPlay=" + app.hasPlay() +
               " hasConsole=" + app.hasConsole());
@@ -103,7 +103,7 @@ define(['text!./compile.html', 'main/pluginapi', 'main/model', 'css!./compile.cs
         failure: function(status, message) {
           debug && console.log("loading project info failed", message);
           self.activeTask("");
-          model.logModel.warn("Failed to load project details: " + message);
+          build.log.warn("Failed to load project details: " + message);
           self.status(api.STATUS_ERROR);
         }
       });
@@ -113,7 +113,7 @@ define(['text!./compile.html', 'main/pluginapi', 'main/model', 'css!./compile.cs
     reloadSources: function(after) {
       var self = this;
 
-      model.logModel.info("Refreshing list of source files to watch for changes...");
+      build.log.info("Refreshing list of source files to watch for changes...");
       // Are we busy when watching sources? I think so...
       self.status(api.STATUS_BUSY);
       sbt.watchSources({
@@ -124,13 +124,13 @@ define(['text!./compile.html', 'main/pluginapi', 'main/model', 'css!./compile.cs
         success: function(data) {
           debug && console.log("watching sources result", data);
           self.status(api.STATUS_DEFAULT);
-          model.logModel.info("Will watch " + data.count + " source files.");
+          build.log.info("Will watch " + data.count + " source files.");
           if (typeof(after) === 'function')
             after();
         },
         failure: function(status, message) {
           debug && console.log("watching sources failed", message);
-          model.logModel.warn("Failed to reload source file list: " + message);
+          build.log.warn("Failed to reload source file list: " + message);
           // WE should modify our status here!
           self.status(api.STATUS_ERROR);
           if (typeof(after) === 'function')
@@ -167,13 +167,13 @@ define(['text!./compile.html', 'main/pluginapi', 'main/model', 'css!./compile.cs
       if (self.needCompile()) {
         // asked to restart while loading the project info; so bail out here
         // without starting the actual compile task.
-        model.logModel.info('Recompile requested.');
+        build.log.info('Recompile requested.');
         self.afterCompile(false);
         return;
       }
 
       self.status(api.STATUS_BUSY);
-      model.logModel.info("Compiling...");
+      build.log.info("Compiling...");
       var task = { task: 'compile' };
       var taskId = sbt.runTask({
         task: task,
@@ -184,16 +184,16 @@ define(['text!./compile.html', 'main/pluginapi', 'main/model', 'css!./compile.cs
           debug && console.log("compile result: ", data);
           self.activeTask("");
           if (data.type == 'GenericResponse') {
-            model.logModel.info('Compile complete.');
+            build.log.info('Compile complete.');
           } else {
-            model.logModel.error('Unexpected reply: ' + JSON.stringify(data));
+            build.log.error('Unexpected reply: ' + JSON.stringify(data));
           }
           self.afterCompile(true); // true=success
         },
         failure: function(status, message) {
           debug && console.log("compile failed: ", status, message)
           self.activeTask("");
-          model.logModel.error("Request failed: " + status + ": " + message);
+          build.log.error("Request failed: " + status + ": " + message);
           self.afterCompile(false); // false=failed
         }
       });
@@ -208,7 +208,7 @@ define(['text!./compile.html', 'main/pluginapi', 'main/model', 'css!./compile.cs
         return;
       }
 
-      model.logModel.clear();
+      build.log.clear();
       self.reloadProjectInfoThenCompile();
     },
     startStopButtonClicked: function(self) {
@@ -221,7 +221,7 @@ define(['text!./compile.html', 'main/pluginapi', 'main/model', 'css!./compile.cs
           },
           failure: function(status, message) {
             debug && console.log("kill failed: ", status, message)
-            model.logModel.error("Killing task failed: " + status + ": " + message)
+            build.log.error("Killing task failed: " + status + ": " + message)
           }
         });
       } else {
@@ -229,10 +229,10 @@ define(['text!./compile.html', 'main/pluginapi', 'main/model', 'css!./compile.cs
       }
     },
     onPreDeactivate: function() {
-      this.logScroll = model.logModel.findScrollState();
+      this.logScroll = build.log.findScrollState();
     },
     onPostActivate: function() {
-      model.logModel.applyScrollState(this.logScroll);
+      build.log.applyScrollState(this.logScroll);
     }
   });
 
