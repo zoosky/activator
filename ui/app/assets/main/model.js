@@ -6,9 +6,12 @@ define(['webjars!knockout', './router', 'commons/settings', 'plugins/tutorial/tu
     function(ko, router, settings, Tutorial, log, build, keyboard, omnisearch,
         navigation, panel) {
 
-  // Model for the whole app view; created in two parts
-  // so that this first part is available during construction
-  // of the second part.
+  // This is the model for HTML which is directly in main.scala.html.
+  // In many cases it's better to create a widget, which has its own
+  // HTML file, rather than stuffing all the code and HTML into this file
+  // and main.scala.html.
+  // This can also be kept tidy by using separate files for related
+  // functionality (see omnisearch, navigation, panel below for examples).
   return {
     plugins: null, // filled in by init
     router: router,
