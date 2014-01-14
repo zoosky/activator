@@ -2,12 +2,9 @@
  Copyright (C) 2013 Typesafe, Inc <http://typesafe.com>
  */
 define(['webjars!knockout', './router', 'commons/settings', 'plugins/tutorial/tutorial', 'widgets/log/log', 'services/build', './keyboard', './omnisearch',
-        './navigation'],
+        './navigation', './panel'],
     function(ko, router, settings, Tutorial, log, build, keyboard, omnisearch,
-        navigation) {
-
-  settings.register("app.panelOpened", false);
-  settings.register("app.panelShape", "right1");
+        navigation, panel) {
 
   // Model for the whole app view; created in two parts
   // so that this first part is available during construction
@@ -23,7 +20,6 @@ define(['webjars!knockout', './router', 'commons/settings', 'plugins/tutorial/tu
       testCallBinding: function(a,b,c,d){
       },
       activeWidget: ko.observable(""),
-      panelDropdownActive: ko.observable(false),
       pageTitle: ko.observable(),
       // TODO load last value from somewhere until we get a message from the iframe
       signedIn: ko.observable(false),
@@ -32,22 +28,12 @@ define(['webjars!knockout', './router', 'commons/settings', 'plugins/tutorial/tu
         hasAkka: ko.observable(false),
         hasPlay: ko.observable(false),
         hasConsole: ko.observable(false)
-      },
-      togglePanel: function(){
-        settings.app.panelOpened(!settings.app.panelOpened());
-      },
-      togglePanelShape: function(data, event){
-        settings.app.panelShape(event.target.dataset.panelShape);
-        this.snap.panelDropdownActive( false );
-      },
-      togglePanelDropdown: function(data, event){
-        event.stopPropagation();
-        this.snap.panelDropdownActive(!this.snap.panelDropdownActive());
       }
     },
     // make this available in knockout bindings
     omnisearch: omnisearch,
     navigation: navigation,
+    panel: panel,
     logModel: new log.Log(),
     // This is the initialization of the application...
     init: function(plugins) {

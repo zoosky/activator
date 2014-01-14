@@ -29,11 +29,11 @@
       <button class="toggleNavigation" data-bind="click: navigation.toggle.bind(navigation), event: {mouseover: navigation.sneakOn.bind(navigation)}"></button>
 
       <!-- remove the method testCallBinding from the JS when removing this -->
-      <dl id="layoutManager" class="dropdown dropdownNoEvent" data-bind="css: {active: snap.panelDropdownActive}, call: snap.testCallBinding">
-        <dt data-bind="click: snap.togglePanel"><span class="all-options" data-bind="click: snap.togglePanelDropdown"></span></dt>
+      <dl id="layoutManager" class="dropdown dropdownNoEvent" data-bind="css: {active: panel.dropdownActive}, call: snap.testCallBinding">
+        <dt data-bind="click: panel.toggle.bind(panel)"><span class="all-options" data-bind="click: panel.toggleDropdown.bind(panel)"></span></dt>
         <dd>
-          <button class="right1" data-panel-shape="right1" data-bind="click: snap.togglePanelShape"></button>
-          <button class="bottom1" data-panel-shape="bottom1" data-bind="click: snap.togglePanelShape"></button>
+          <button class="right1" data-panel-shape="right1" data-bind="click: panel.toggleShape.bind(panel)"></button>
+          <button class="bottom1" data-panel-shape="bottom1" data-bind="click: panel.toggleShape.bind(panel)"></button>
         </dd>
       </dl>
 
