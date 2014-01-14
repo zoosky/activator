@@ -1,7 +1,7 @@
 /*
  Copyright (C) 2013 Typesafe, Inc <http://typesafe.com>
  */
-define(['text!./test.html', 'css!./test.css', 'main/pluginapi', 'main/model'], function(template, css, api, model) {
+define(['text!./test.html', 'css!./test.css', 'main/pluginapi', 'services/build'], function(template, css, api, build) {
   var ko = api.ko;
   var sbt = api.sbt;
 
@@ -44,7 +44,7 @@ define(['text!./test.html', 'css!./test.css', 'main/pluginapi', 'main/model'], f
       var self = this;
       self.results = ko.observableArray();
       self.testStatus = ko.observable('Waiting to test');
-      self.logModel = model.logModel;
+      self.log = build.log;
       // TODO - Store state beyond the scope of this widget!
       // We should probably be listening to tests *always*
       // and displaying latest status *always*.
@@ -131,16 +131,16 @@ define(['text!./test.html', 'css!./test.css', 'main/pluginapi', 'main/model'], f
     doTest: function(triggeredByBuild) {
       var self = this;
 
-      self.logModel.clear();
+      self.log.clear();
       self.results.removeAll();
       self.testStatus('Running tests...')
 
       if (triggeredByBuild) {
-        self.logModel.info("Build succeeded, testing...");
+        self.log.info("Build succeeded, testing...");
       } else if (self.restartPending()) {
-        self.logModel.info("Restarting...");
+        self.log.info("Restarting...");
       } else {
-        self.logModel.info("Testing...");
+        self.log.info("Testing...");
       }
 
       self.restartPending(false);
@@ -151,7 +151,7 @@ define(['text!./test.html', 'css!./test.css', 'main/pluginapi', 'main/model'], f
       var taskId = sbt.runTask({
         task: 'test',
         onmessage: function(event) {
-          if (self.logModel.event(event)) {
+          if (self.log.event(event)) {
             // nothing
           } else if (event.type == 'GenericEvent' &&
               event.task == 'test' &&
@@ -160,17 +160,17 @@ define(['text!./test.html', 'css!./test.css', 'main/pluginapi', 'main/model'], f
           } else if (event.type == 'Started') {
             // this is expected when we start a new sbt, but we don't do anything with it
           } else {
-            self.logModel.leftoverEvent(event);
+            self.log.leftoverEvent(event);
           }
         },
         success: function(data) {
           debug && console.log("test result: ", data);
 
           if (data.type == 'GenericResponse') {
-            self.logModel.info('Testing complete.');
+            self.log.info('Testing complete.');
             self.testStatus('Testing complete.');
           } else {
-            self.logModel.error('Unexpected reply: ' + JSON.stringify(data));
+            self.log.error('Unexpected reply: ' + JSON.stringify(data));
             self.testStatus("Unexpected: " + JSON.stringify(data));
           }
           self.lastTaskFailed(false);
@@ -178,7 +178,7 @@ define(['text!./test.html', 'css!./test.css', 'main/pluginapi', 'main/model'], f
         },
         failure: function(status, message) {
           debug && console.log("test failed: ", status, message)
-          self.logModel.error("Failed: " + status + ": " + message);
+          self.log.error("Failed: " + status + ": " + message);
           self.testStatus('Testing error: ' + message);
           self.lastTaskFailed(true);
           self.doAfterTest();
@@ -213,7 +213,7 @@ define(['text!./test.html', 'css!./test.css', 'main/pluginapi', 'main/model'], f
           },
           failure: function(status, message) {
             debug && console.log("kill failed: ", status, message)
-            self.logModel.error("HTTP request to kill task failed: " + message)
+            self.log.error("HTTP request to kill task failed: " + message)
           }
         });
       }
