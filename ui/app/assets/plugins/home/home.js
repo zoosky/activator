@@ -23,11 +23,11 @@ define(['text!./home.html', 'css!./home.css', 'main/pluginapi' ], function(templ
           jsonpCallback: 'setNewsJson',
           dataType: 'jsonp' // return type
         };
-        console.log("sending ajax news request ", areq)
+        debug && console.log("sending ajax news request ", areq)
         return $.ajax(areq);
     },
     setNewsJson: function(json) {
-      console.log("setting news json to ", json);
+      debug && console.log("setting news json to ", json);
       if ('html' in json) {
         this.newsHtml(json.html);
       } else {

@@ -89,10 +89,10 @@ define(['main/pluginapi', 'text!./home.html', './files', './browse', './view', '
     setCrumbsAfterSave: function(crumbs) {
       var self = this;
       this.viewer.saveBeforeSwitchFiles(function() {
-        console.log("Saved before switching to new file");
+        debug && console.log("Saved before switching to new file");
         self.setCrumbs(crumbs);
       }, function() {
-        console.log("File switch canceled or save failed");
+        debug && console.log("File switch canceled or save failed");
         // re-select the previous file
         self.currentFile().select();
       });

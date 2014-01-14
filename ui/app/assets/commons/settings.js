@@ -3,16 +3,16 @@ define(['webjars!knockout'], function(ko) {
     var initial;
     if (window.localStorage.getItem(label) != null) {
       initial = JSON.parse(window.localStorage.getItem(label));
-      console.log("Loaded saved setting ", label, "=", initial);
+      debug && console.log("Loaded saved setting ", label, "=", initial);
     } else {
       initial = def;
-      console.log("Using default for setting ", label);
+      debug && console.log("Using default for setting ", label);
     }
     var o = ko.observable(initial);
     // save the value when it changes
     o.subscribe(function(newValue) {
       window.localStorage.setItem(label, JSON.stringify(newValue));
-      console.log("Persisted new setting value ", label, "=", newValue);
+      debug && console.log("Persisted new setting value ", label, "=", newValue);
     });
     return o;
   };

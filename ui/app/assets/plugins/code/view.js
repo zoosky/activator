@@ -37,7 +37,7 @@ define(["text!./viewWrapper.html", "text!./viewDefault.html", "./imageView", "./
       });
     },
     afterRender: function(a,b,c){
-      //console.log('abc', a,b,c)
+      //debug && console.log('abc', a,b,c)
     },
     scrollToLine: function(line) {
     }
@@ -106,7 +106,7 @@ define(["text!./viewWrapper.html", "text!./viewDefault.html", "./imageView", "./
       var self = this;
       var loc =self.file().location;
       open(loc).success(function() {}).error(function(err) {
-        console.log('Failed to open file in browser: ', err)
+        debug && console.log('Failed to open file in browser: ', err)
         alert('Failed to open file.  This may be unsupported by your system.');
       });
     },
@@ -118,10 +118,10 @@ define(["text!./viewWrapper.html", "text!./viewDefault.html", "./imageView", "./
       var result = window.confirm('Delete "' + self.file().name() + '"?');
       if (result) {
         deleteFile(self.file().location).done(function() {
-          console.log("deleted OK");
+          debug && console.log("deleted OK");
           self.file().reloadParent();
         }).fail(function(err) {
-          console.log("Failed to delete file: ", err);
+          debug && console.log("Failed to delete file: ", err);
           alert('Failed to delete file: ' + err.responseText);
         });
       }

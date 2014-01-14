@@ -79,7 +79,7 @@ define(['css!./fileselection.css', 'text!./fileselection.html', 'webjars!knockou
       }
 
       var timer;
-      console.log(config.dom);
+      debug && console.log(config.dom);
       $(config.dom)
         .on("click", ".directories li", function(e){
           e.preventDefault();

@@ -41,7 +41,7 @@ define(['webjars!knockout'], function(ko) {
   // This is our default errorRoute.  Right now it just logs an error and displays an alert.
   var errorRoute = {
       action: function(args) {
-        console.log('Failed to find router for ', args)
+        debug && console.log('Failed to find router for ', args)
         alert("This is not a valid link: #" + args.path);
       }
   }
