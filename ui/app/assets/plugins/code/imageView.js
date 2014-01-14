@@ -1,7 +1,7 @@
 /*
  Copyright (C) 2013 Typesafe, Inc <http://typesafe.com>
  */
-define(["text!./viewImage.html", 'core/pluginapi'], function(template, api){
+define(["text!./viewImage.html", 'main/pluginapi'], function(template, api){
 
   var ImageView = api.Class(api.Widget, {
     id: 'code-image-view',

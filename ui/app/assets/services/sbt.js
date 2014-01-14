@@ -1,7 +1,7 @@
 /*
  Copyright (C) 2013 Typesafe, Inc <http://typesafe.com>
  */
-define(['core/streams', 'commons/events', 'commons/utils'], function(streams, events, utils) {
+define(['commons/streams', 'commons/events', 'commons/utils'], function(streams, events, utils) {
 
   // Internal list of subscribers for task events.
   var taskSubscribers = [];

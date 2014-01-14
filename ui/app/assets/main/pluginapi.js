@@ -7,7 +7,7 @@ define([
   './keyboard',
   'commons/utils',
   'commons/events',
-  './widget',
+  'commons/widget',
   'widgets/editor/acebinding',
   './model'],
   function(ko, sbt, keyboard, utils, events, Widget, acebinding, model) {

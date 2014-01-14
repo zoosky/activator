@@ -1,7 +1,7 @@
 /*
  Copyright (C) 2013 Typesafe, Inc <http://typesafe.com>
  */
-define(['css!./tutorial', 'text!./tutorial.html', 'text!./page.html', 'webjars!knockout', 'commons/utils', 'core/widget'], function(css, template, pageTemplate, ko, utils, Widget) {
+define(['css!./tutorial', 'text!./tutorial.html', 'text!./page.html', 'webjars!knockout', 'commons/utils', 'commons/widget'], function(css, template, pageTemplate, ko, utils, Widget) {
   var Page = utils.Class(Widget, {
     id: 'page-widget',
     template: pageTemplate,

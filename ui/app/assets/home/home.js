@@ -12,7 +12,7 @@ require.config({
   },
   paths: {
     commons:  'commons',
-    core:     'core',
+    home:     'home',
     services: 'services',
     plugins:  'plugins',
     widgets:  'widgets'
@@ -44,7 +44,7 @@ var handleVisibilityChange = function() {
 
 var startApp = function() {
   require([
-  'core/streams',
+  'commons/streams',
   'widgets/fileselection/fileselection',
   'widgets/log/log',
   'webjars!knockout',

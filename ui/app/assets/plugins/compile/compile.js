@@ -1,7 +1,7 @@
 /*
  Copyright (C) 2013 Typesafe, Inc <http://typesafe.com>
  */
-define(['text!./compile.html', 'core/pluginapi', 'core/model', 'css!./compile.css'], function(template, api, model){
+define(['text!./compile.html', 'main/pluginapi', 'main/model', 'css!./compile.css'], function(template, api, model){
 
   var ko = api.ko;
   var sbt = api.sbt;

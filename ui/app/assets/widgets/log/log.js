@@ -1,7 +1,7 @@
 /*
  Copyright (C) 2013 Typesafe, Inc <http://typesafe.com>
  */
-define(['text!./log.html', 'webjars!knockout', 'core/widget', 'commons/utils', 'commons/markers'], function(template, ko, Widget, utils, markers){
+define(['text!./log.html', 'webjars!knockout', 'commons/widget', 'commons/utils', 'commons/markers'], function(template, ko, Widget, utils, markers){
 
   // TODO we should move both the ANSI stripping and the heuristic
   // parseLogLevel to the server side. We could also use
