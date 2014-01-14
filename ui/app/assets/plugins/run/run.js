@@ -52,8 +52,8 @@ define(['services/build', 'main/model', 'text!./run.html', 'main/pluginapi', 'wi
       });
 
       this.logModel = build.log;
-      this.outputModel = new log.Log();
-      this.outputScroll = this.outputModel.findScrollState();
+      this.outputLog = new log.Log();
+      this.outputScroll = this.outputLog.findScrollState();
       this.playAppLink = ko.observable('');
       this.playAppStarted = ko.computed(function() { return this.haveActiveTask() && this.playAppLink() != ''; }, this);
       this.atmosLink = ko.observable('');
@@ -308,7 +308,7 @@ define(['services/build', 'main/model', 'text!./run.html', 'main/pluginapi', 'wi
     doRunWithoutMainClassLoad: function(clearLogs) {
       var self = this;
 
-      self.outputModel.clear();
+      self.outputLog.clear();
 
       if (clearLogs)
         self.logModel.clear();
@@ -341,7 +341,7 @@ define(['services/build', 'main/model', 'text!./run.html', 'main/pluginapi', 'wi
           if (event.type == 'LogEvent') {
             var logType = event.entry.type;
             if (logType == 'stdout' || logType == 'stderr') {
-              self.outputModel.event(event);
+              self.outputLog.event(event);
             } else {
               self.logModel.event(event);
             }
@@ -350,7 +350,7 @@ define(['services/build', 'main/model', 'text!./run.html', 'main/pluginapi', 'wi
             // we may not get this event if an sbt was recycled.
             // we move "output" to "logs" because the output is probably
             // just sbt startup messages that were not redirected.
-            self.logModel.moveFrom(self.outputModel);
+            self.logModel.moveFrom(self.outputLog);
           } else if (event.id == 'playServerStarted') {
             var port = event.params.port;
             var url = 'http://localhost:' + port;
@@ -428,10 +428,10 @@ define(['services/build', 'main/model', 'text!./run.html', 'main/pluginapi', 'wi
       self.doRestart();
     },
     onPreDeactivate: function() {
-      this.outputScroll = this.outputModel.findScrollState();
+      this.outputScroll = this.outputLog.findScrollState();
     },
     onPostActivate: function() {
-      this.outputModel.applyScrollState(this.outputScroll);
+      this.outputLog.applyScrollState(this.outputScroll);
     },
     restartWithAtmos: function(self) {
       this.runInConsole(true);
