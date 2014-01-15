@@ -15,6 +15,7 @@
     <title>Typesafe Activator</title>
     <link href="@routes.Assets.at("main/main.css")" rel="stylesheet" type="text/css">
     <script type="text/javascript">
+      window.debug = true;
       window.wsUrl = '@webSocketURLWithCSRF(routes.Application.connectApp(model.id))';
       window.consoleWsUrl = '@webSocketURLWithCSRF(routes.ConsoleController.connectConsole(model.id))';
       @* The @Html thing prevents the Json from being escaped *@
@@ -23,17 +24,17 @@
     </script>
     <script data-main='@routes.Assets.at("main/main.js")' type='text/javascript' src='@routes.WebJarAssets.requirejs()'></script>
   </head>
-  <body data-bind="css: {navigationOpened: settings.app.navigationOpened, navigationSneak: snap.navigationSneak, panelOpened: settings.app.panelOpened}, attr: { 'data-shape': settings.app.panelShape }">
+  <body data-bind="css: {navigationOpened: settings.app.navigationOpened, navigationSneak: navigation.sneak, panelOpened: settings.app.panelOpened}, attr: { 'data-shape': settings.app.panelShape }">
 
     <header id="header">
-      <button class="toggleNavigation" data-bind="click: snap.toggleNavigation, event: {mouseover: snap.sneakNavigationOn}"></button>
+      <button class="toggleNavigation" data-bind="click: navigation.toggle.bind(navigation), event: {mouseover: navigation.sneakOn.bind(navigation)}"></button>
 
       <!-- remove the method testCallBinding from the JS when removing this -->
-      <dl id="layoutManager" class="dropdown dropdownNoEvent" data-bind="css: {active: snap.panelDropdownActive}, call: snap.testCallBinding">
-        <dt data-bind="click: snap.togglePanel"><span class="all-options" data-bind="click: snap.togglePanelDropdown"></span></dt>
+      <dl id="layoutManager" class="dropdown dropdownNoEvent" data-bind="css: {active: panel.dropdownActive}, call: testCallBinding">
+        <dt data-bind="click: panel.toggle.bind(panel)"><span class="all-options" data-bind="click: panel.toggleDropdown.bind(panel)"></span></dt>
         <dd>
-          <button class="right1" data-panel-shape="right1" data-bind="click: snap.togglePanelShape"></button>
-          <button class="bottom1" data-panel-shape="bottom1" data-bind="click: snap.togglePanelShape"></button>
+          <button class="right1" data-panel-shape="right1" data-bind="click: panel.toggleShape.bind(panel)"></button>
+          <button class="bottom1" data-panel-shape="bottom1" data-bind="click: panel.toggleShape.bind(panel)"></button>
         </dd>
       </dl>
 
@@ -69,10 +70,10 @@
       </dl>
     </header>
 
-    <nav id="navigation" data-bind="event: {mouseover: snap.sneakNavigationShow, mouseout: snap.sneakNavigationHide}">
+    <nav id="navigation" data-bind="event: {mouseover: navigation.sneakShow.bind(navigation), mouseout: navigation.sneakHide.bind(navigation)}">
 
       <dl id="switch" class="dropdown">
-        <dt data-bind="text: snap.app.name"></dt>
+        <dt data-bind="text: app.name"></dt>
         <dd>
           <a class="new-app button" href="/home">Manage applications</a>
           @model.recentApps.zipWithIndex.map { case (app, idx) =>
@@ -130,8 +131,8 @@
         <a href="/" class="infos">i</a>
       </div>
     </nav>
-    <main id="wrapper" data-bind="foreach: { data: widgets }, visible: snap.activeWidget() != undefined">
-      <div class="widget" data-bind="snapView: $data, visible: id == $parent.snap.activeWidget()"></div>
+    <main id="wrapper" data-bind="foreach: { data: widgets }, visible: activeWidget() != undefined">
+      <div class="widget" data-bind="snapView: $data, visible: id == $parent.activeWidget()"></div>
     </main>
     <div id="panels" data-bind="snapView: tutorial">
       <header></header>

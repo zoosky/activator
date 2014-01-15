@@ -10,7 +10,7 @@ define(['commons/streams', 'commons/events', 'commons/utils'], function(streams,
     var oldSubscribers = taskSubscribers;
 
     if (obj.event.type == "TaskComplete") {
-      console.log("task " + obj.taskId + " complete, removing its subscribers");
+      debug && console.log("task " + obj.taskId + " complete, removing its subscribers");
       // $.grep callback takes value,index while $.each takes index,value
       // awesome?
       taskSubscribers = $.grep(taskSubscribers, function(subscriber, index) {
@@ -26,7 +26,7 @@ define(['commons/streams', 'commons/events', 'commons/utils'], function(streams,
         try {
           subscriber.handler(obj.event);
         } catch(e) {
-          console.log("handler for " + subscriber.taskId + " failed", e);
+          debug && console.log("handler for " + subscriber.taskId + " failed", e);
         }
       }
     });
@@ -112,15 +112,15 @@ define(['commons/streams', 'commons/events', 'commons/utils'], function(streams,
     },
     _onAjaxSuccess: function(data) {
       if ('type' in data && data.type == 'ErrorResponse') {
-        console.log("ajax ErrorResponse ", data);
+        debug && console.log("ajax ErrorResponse ", data);
         this.fail('error', data.error);
       } else {
-        console.log("ajax success ", data);
+        debug && console.log("ajax success ", data);
         this.succeed(data);
       }
     },
     _onAjaxError: function(xhr, status, message) {
-      console.log("ajax error ", status, message)
+      debug && console.log("ajax error ", status, message)
       this.fail(status, message);
     },
     send: function() {
@@ -134,7 +134,7 @@ define(['commons/streams', 'commons/events', 'commons/utils'], function(streams,
       areq.success = this._onAjaxSuccess.bind(this);
       areq.error = this._onAjaxError.bind(this);
 
-      console.log("sending ajax request ", this.request)
+      debug && console.log("sending ajax request ", this.request)
       return $.ajax(areq);
     }
   });
@@ -213,7 +213,7 @@ define(['commons/streams', 'commons/events', 'commons/utils'], function(streams,
         // drop all events if we're already
         // completed (should not happen really)
         if (this.completed) {
-          console.log("Task already completed so dropping event", event);
+          debug && console.log("Task already completed so dropping event", event);
         } else {
           this.onMessage(event);
         }
@@ -231,7 +231,7 @@ define(['commons/streams', 'commons/events', 'commons/utils'], function(streams,
         // do nothing, this is expected; wait for TaskComplete event
         // to fire the success callback.
       } else {
-        console.log("Unexpected ajax call result ", data);
+        debug && console.log("Unexpected ajax call result ", data);
       }
     },
     _onAjaxError: function(status, message) {

@@ -34,7 +34,7 @@ var startApp = function() {
       'commons/utils',
       'services/sbt'
     ], function() {
-      require(['main/snap'])
+      require(['main/init'])
     })
   })
 }

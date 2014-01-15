@@ -2,11 +2,12 @@
  Copyright (C) 2013 Typesafe, Inc <http://typesafe.com>
  */
 define([
+  'commons/settings',
   'webjars!knockout',
   'webjars!ace',
   'commons/markers',
   'css!./theme.css'],
-  function(ko, ignore_ace, markers) {
+  function(settings, ko, ignore_ace, markers) {
 
   // This is how you change theme path for Ace, but
   //ace.config.set('themePath', '/public/ace/themes/');
@@ -15,6 +16,9 @@ define([
     Dark: 'ace/theme/solarized_dark',
     Light: 'ace/theme/solarized_light'
   };
+  settings.register("editor.theme", "Dark");
+  settings.register("editor.fontSize", 12);
+
 
   function refreshFileMarkers(editor, markers) {
     var annotations = [];
@@ -104,10 +108,10 @@ define([
       // when file changes, subscribe to the new markers array
       if (fileMarkers !== oldMarkers) {
         if (markersSub !== null) {
-          console.log("editor dropping watch on old file markers: ", oldMarkers());
+          debug && console.log("editor dropping watch on old file markers: ", oldMarkers());
           markersSub.dispose();
         }
-        console.log("editor watching file markers for " + file + ": ", fileMarkers());
+        debug && console.log("editor watching file markers for " + file + ": ", fileMarkers());
         editor.fileMarkers = fileMarkers;
         editor.fileMarkersSub = fileMarkers.subscribe(function(newMarkers) {
           refreshFileMarkers(editor, newMarkers);
@@ -126,11 +130,11 @@ define([
         }
       }
       // Switch theme
-      if (options.theme() in aceThemes && editor.getTheme() != aceThemes[options.theme()]) {
-        editor.setTheme(aceThemes[options.theme()]);
+      if (options.theme in aceThemes && editor.getTheme != aceThemes[options.theme]) {
+        editor.setTheme(aceThemes[options.theme]);
       }
       // Set font size
-      editor.setFontSize(options.fontSize());
+      settings.editor.fontSize(options.fontSize);
     }
   };
   return {};

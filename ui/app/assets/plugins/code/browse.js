@@ -69,7 +69,7 @@ define(['text!./browse.html', 'main/pluginapi', './files'], function(template, a
       var self = this;
       var loc = self.directory().location;
       open(loc).success(function() {}).error(function(err) {
-        console.log('Failed to open directory in browser: ', err)
+        debug && console.log('Failed to open directory in browser: ', err)
         alert('Failed to open directory.  This may be unsupported by your system.');
       });
     },
@@ -77,7 +77,7 @@ define(['text!./browse.html', 'main/pluginapi', './files'], function(template, a
       var self = this;
       var loc = self.rootAppPath;
       open(loc).success(function() {}).error(function(err) {
-        console.log('Failed to open directory in browser: ', err)
+        debug && console.log('Failed to open directory in browser: ', err)
         alert('Failed to open directory.  This may be unsupported by your system.');
       });
     },
@@ -91,9 +91,9 @@ define(['text!./browse.html', 'main/pluginapi', './files'], function(template, a
       var name = window.prompt(message);
       if (typeof(name) == 'string' && name.length > 0) {
         var full = this.directory().location + "/" + name;
-        console.log('Creating file or folder: ', full);
+        debug && console.log('Creating file or folder: ', full);
         create(full, isDirectory).done(function () {
-          console.log('Success creating file or folder');
+          debug && console.log('Success creating file or folder');
           // reload (since we don't watch for changes...)
           self.directory().loadInfo();
 
@@ -105,11 +105,11 @@ define(['text!./browse.html', 'main/pluginapi', './files'], function(template, a
             fm.select();
           }
         }).fail(function(err) {
-          console.log('Failed to create: ', err);
+          debug && console.log('Failed to create: ', err);
           alert(err.responseText);
         });
       } else {
-        console.log('No name entered, got: ', name)
+        debug && console.log('No name entered, got: ', name)
       }
     },
     newFile: function() {
