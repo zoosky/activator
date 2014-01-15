@@ -85,12 +85,10 @@ define(["text!./viewCode.html", 'main/pluginapi', 'commons/settings'], function(
       }
     },
     switchTheme: function(name) {
-      this.theme(name);
-      settings.set('editor.theme', name);
+      settings.editor.theme(name);
     },
     setFontSize: function(size) {
-      this.fontSize(size);
-      settings.set('editor.fontSize', size);
+      settings.editor.fontSize(size);
     }
   });
   return CodeView;
