@@ -13,92 +13,12 @@ import activator.analytics.data.{ TimeRange, Scope }
 import scala.reflect.ClassTag
 import activator.analytics.rest.http.SortingHelpers.{ Descending, Ascending, SortDirection }
 import scala.util.{ Failure, Success, Try }
+import console.ClientModuleHandler.{ DeviationModule, RequestModule }
+import akka.event.LoggingAdapter
+import scala.util.matching.Regex
 
-object ClientHandlerBase {
-  import OverviewHandler.OverviewModuleInfo, ActorHandler.ActorModuleInfo, ActorsHandler.ActorsModuleInfo, DeviationHandler.DeviationModuleInfo
-  import DeviationsHandler.DeviationsModuleInfo, PlayRequestHandler.PlayRequestModuleInfo, PlayRequestsHandler.PlayRequestsModuleInfo
-  import activator.analytics.rest.http.SortingHelpers._
-
-  implicit def toOverviewModuleInfo(in: RawModuleInformation): Try[OverviewModuleInfo] =
-    Try {
-      OverviewModuleInfo(in.scope,
-        in.modifiers,
-        in.time,
-        in.pagingInformation,
-        OverviewHandler.extractSortOn(in.sortCommand),
-        in.sortDirection.getOrElse(Descending),
-        in.dataFrom,
-        in.traceId)
-    }
-
-  implicit def toActorModuleInfo(in: RawModuleInformation): Try[ActorModuleInfo] =
-    Try {
-      ActorModuleInfo(in.scope,
-        in.modifiers,
-        in.time,
-        in.dataFrom,
-        in.traceId)
-    }
-
-  implicit def toActorsModuleInfo(in: RawModuleInformation): Try[ActorsModuleInfo] =
-    Try {
-      ActorsModuleInfo(in.scope,
-        in.modifiers,
-        in.time,
-        in.pagingInformation,
-        ActorsHandler.extractSortOn(in.sortCommand),
-        in.sortDirection.getOrElse(Ascending),
-        in.dataFrom,
-        in.traceId)
-    }
-
-  implicit def toDeviationModuleInfo(in: RawModuleInformation): Try[DeviationModuleInfo] =
-    Try {
-      DeviationModuleInfo(in.scope,
-        in.modifiers,
-        in.time,
-        in.dataFrom,
-        in.traceId)
-    }
-
-  implicit def toDeviationsModuleInfo(in: RawModuleInformation): Try[DeviationsModuleInfo] =
-    Try {
-      DeviationsModuleInfo(in.scope,
-        in.modifiers,
-        in.time,
-        in.pagingInformation,
-        DeviationsHandler.extractSortOn(in.sortCommand),
-        in.sortDirection.getOrElse(Ascending),
-        in.dataFrom,
-        in.traceId)
-    }
-
-  implicit def toPlayRequestModuleInfo(in: RawModuleInformation): Try[PlayRequestModuleInfo] =
-    Try {
-      PlayRequestModuleInfo(in.scope,
-        in.modifiers,
-        in.time,
-        in.dataFrom,
-        in.traceId)
-    }
-
-  implicit def toPlayRequestsModuleInfo(in: RawModuleInformation): Try[PlayRequestsModuleInfo] =
-    Try {
-      PlayRequestsModuleInfo(in.scope,
-        in.modifiers,
-        in.time,
-        in.pagingInformation,
-        PlayRequestsHandler.extractSortOn(in.sortCommand),
-        in.sortDirection.getOrElse(Ascending),
-        in.dataFrom,
-        in.traceId)
-    }
-}
-
-trait ClientHandlerBase extends Actor with ActorLogging {
+trait ClientHandlerBase extends Actor with ActorLogging with ClientModuleHandler {
   import ClientController._
-  import ClientHandler._
-  import ClientHandlerBase._
 
   def jsonHandlerProps: Props
   def overviewHandlerProps: Props
@@ -121,11 +41,16 @@ trait ClientHandlerBase extends Actor with ActorLogging {
   val deviationsHandler = context.actorOf(deviationsHandlerProps, "deviationsHandler")
   val deviationHandler = context.actorOf(deviationHandlerProps, "deviationHandler")
 
-  // Add the name of handlers that should only be invoked once to this collection
-  val oneTimeHandlers = Seq(RequestModule, DeviationModule)
+  def onOverviewRequest(in: OverviewHandler.OverviewModuleInfo): Unit = overviewHandler ! in
+  def onActorsRequest(in: ActorsHandler.ActorsModuleInfo): Unit = actorsHandler ! in
+  def onActorRequest(in: ActorHandler.ActorModuleInfo): Unit = actorHandler ! in
+  def onPlayRequestsRequest(in: PlayRequestsHandler.PlayRequestsModuleInfo): Unit = playRequestsHandler ! in
+  def onPlayRequestRequest(in: PlayRequestHandler.PlayRequestModuleInfo): Unit = playRequestHandler ! in
+  def onDeviationsRequest(in: DeviationsHandler.DeviationsModuleInfo): Unit = deviationsHandler ! in
+  def onDeviationRequest(in: DeviationHandler.DeviationModuleInfo): Unit = deviationHandler ! in
 
   def receive = {
-    case Tick => modules filter { m => !oneTimeHandlers.contains(m.module) } foreach callHandler
+    case Tick => modules filter { m => !ClientModuleHandler.oneTimeHandlers.contains(m.module) } foreach callHandler
     case Update(js) => channel.push(js)
     case r: HandleRequest => jsonHandler ! r
     case mi: RawModuleInformation => callHandler(mi)
@@ -133,19 +58,6 @@ trait ClientHandlerBase extends Actor with ActorLogging {
     case RegisterModules(newModules) =>
       modules = newModules
       for { mi <- newModules } self ! mi
-  }
-
-  def callHandler(mi: RawModuleInformation) {
-    mi.module match {
-      case OverviewModule => mi.sendAs[OverviewHandler.OverviewModuleInfo](overviewHandler, log)
-      case ActorsModule => mi.sendAs[ActorsHandler.ActorsModuleInfo](actorsHandler, log)
-      case ActorModule => mi.sendAs[ActorHandler.ActorModuleInfo](actorHandler, log)
-      case RequestsModule => mi.sendAs[PlayRequestsHandler.PlayRequestsModuleInfo](playRequestsHandler, log)
-      case RequestModule => mi.sendAs[PlayRequestHandler.PlayRequestModuleInfo](playRequestHandler, log)
-      case DeviationsModule => mi.sendAs[DeviationsHandler.DeviationsModuleInfo](deviationsHandler, log)
-      case DeviationModule => mi.sendAs[DeviationHandler.DeviationModuleInfo](deviationHandler, log)
-      case _ => log.debug("Unknown module name: {}", mi.module)
-    }
   }
 }
 
@@ -158,33 +70,7 @@ class ClientHandler(val jsonHandlerProps: Props,
   val deviationsHandlerProps: Props,
   val deviationHandlerProps: Props) extends ClientHandlerBase
 
-object ClientHandler {
-
-  sealed class Handler(val name: String) {
-    override def toString: String = name
-  }
-
-  case object OverviewModule extends Handler("overview")
-  case object ActorsModule extends Handler("actors")
-  case object ActorModule extends Handler("actor")
-  case object RequestsModule extends Handler("requests")
-  case object RequestModule extends Handler("request")
-  case object DeviationsModule extends Handler("deviations")
-  case object DeviationModule extends Handler("deviation")
-
-  def fromString(in: String): Option[Handler] = in match {
-    case "overview" => Some(OverviewModule)
-    case "actors" => Some(ActorsModule)
-    case "actor" => Some(ActorModule)
-    case "requests" => Some(RequestsModule)
-    case "request" => Some(RequestModule)
-    case "deviations" => Some(DeviationsModule)
-    case "deviation" => Some(DeviationModule)
-    case _ => None
-  }
-}
-
-class JsonHandler extends Actor with ActorLogging {
+class JsonHandler extends Actor with ActorLogging with RequestHelpers {
   import ClientController._
   import JsonHandler._
 
@@ -193,13 +79,17 @@ class JsonHandler extends Actor with ActorLogging {
   def receive = {
     case HandleRequest(js) => sender ! RegisterModules(parseRequest(js))
   }
+}
+
+trait RequestHelpers { this: ActorLogging =>
+  import JsonHandler._
 
   def parseRequest(js: JsValue): Seq[RawModuleInformation] = {
     val time = toTimeRange((js \ "time" \ "rolling").asOpt[String])
 
     val innerModules = (js \ "modules").as[List[InnerModuleInformation]]
     innerModules map { i =>
-      ClientHandler.fromString(i.name) match {
+      ClientModuleHandler.fromString(i.name) match {
         case Some(name) => RawModuleInformation(
           module = name,
           scope = toScope(i.scope),
@@ -250,7 +140,7 @@ object JsonHandler {
     (__ \ "offset").read[Int] and
     (__ \ "limit").read[Int])(PagingInformation)
 
-  val innerModuleReads = (
+  implicit val innerModuleReads = (
     (__ \ "name").read[String] and
     (__ \ "traceId").readNullable[String] and
     (__ \ "paging").readNullable[PagingInformation] and
@@ -317,7 +207,7 @@ trait MultiValueModuleInformation[S] extends ModuleInformationBase {
 }
 
 case class RawModuleInformation(
-  module: ClientHandler.Handler,
+  module: ClientModuleHandler.Handler,
   scope: Scope,
   modifiers: ScopeModifiers = ScopeModifiers(),
   time: TimeRange,

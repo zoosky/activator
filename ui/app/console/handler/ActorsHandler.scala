@@ -44,7 +44,15 @@ trait ActorsHandlerBase extends PagingRequestHandler[ActorStatsSort, ActorsHandl
   def useActorStats(sender: ActorRef, stats: ActorStatsSorted): Unit
 
   def onModuleInformation(sender: ActorRef, mi: ActorsModuleInfo): Unit = withPagingDefaults(mi) { (offset, limit) =>
-    useActorStats(sender, repository.actorStatsRepository.findSorted(mi.time, mi.scope, mi.modifiers.anonymous, mi.modifiers.temporary, offset, limit, mi.sortOn, mi.sortDirection.toLegacy))
+    useActorStats(sender,
+      repository.actorStatsRepository.findSorted(mi.time,
+        mi.scope,
+        mi.modifiers.anonymous,
+        mi.modifiers.temporary,
+        offset,
+        limit,
+        mi.sortOn,
+        mi.sortDirection.toLegacy))
   }
 }
 
