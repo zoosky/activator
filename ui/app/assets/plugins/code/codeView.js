@@ -4,6 +4,10 @@
 define(["text!./viewCode.html", 'main/pluginapi', 'commons/settings'], function(template, api, settings){
   var ko = api.ko;
 
+  // !settings.editor.theme && settings.register("editor.theme", false);
+  // !settings.editor.fontSize && settings.register("editor.fontSize", false);
+
+
   function endsWith(str, suffix) {
     return str.indexOf(suffix, str.length - suffix.length) !== -1;
   }
@@ -60,8 +64,8 @@ define(["text!./viewCode.html", 'main/pluginapi', 'commons/settings'], function(
       // TODO - Grab the extension for now to figure out highlighting...
       this.highlight = highlightModeFor(args.file().name());
       this.file().loadContents();
-      this.theme = ko.observable(settings.get('editor.theme', false));
-      this.fontSize = ko.observable(settings.get('editor.fontSize', false));
+      this.theme = settings.editor.theme();
+      this.fontSize = settings.editor.fontSize();
     },
     load: function() {
       this.file().loadContents();

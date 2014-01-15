@@ -2,11 +2,12 @@
  Copyright (C) 2013 Typesafe, Inc <http://typesafe.com>
  */
 define([
+  'commons/settings',
   'webjars!knockout',
   'webjars!ace',
   'commons/markers',
   'css!./theme.css'],
-  function(ko, ignore_ace, markers) {
+  function(settings, ko, ignore_ace, markers) {
 
   // This is how you change theme path for Ace, but
   //ace.config.set('themePath', '/public/ace/themes/');
@@ -15,6 +16,9 @@ define([
     Dark: 'ace/theme/solarized_dark',
     Light: 'ace/theme/solarized_light'
   };
+  settings.register("editor.theme", false);
+  settings.register("editor.fontSize", false);
+
 
   function refreshFileMarkers(editor, markers) {
     var annotations = [];
@@ -126,11 +130,12 @@ define([
         }
       }
       // Switch theme
-      if (options.theme() in aceThemes && editor.getTheme() != aceThemes[options.theme()]) {
-        editor.setTheme(aceThemes[options.theme()]);
+      console.log(">>>>>>>",options);
+      if (options.theme in aceThemes && editor.getTheme != aceThemes[options.theme]) {
+        editor.setTheme(aceThemes[options.theme]);
       }
       // Set font size
-      editor.setFontSize(options.fontSize());
+      settings.editor.fontSize(options.fontSize);
     }
   };
   return {};
