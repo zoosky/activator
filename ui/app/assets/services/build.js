@@ -2,14 +2,14 @@
  Copyright (C) 2013 Typesafe, Inc <http://typesafe.com>
  */
 define(['webjars!knockout', 'commons/settings', 'widgets/log/log', 'commons/utils', 'commons/events', './sbt'],
-    function(ko, settings, log, utils, events, sbt){
+    function(ko, settings, logModule, utils, events, sbt){
   settings.register("build.startApp", true);
   settings.register("build.rerunOnBuild", true);
   settings.register("build.runInConsole", false);
   settings.register("build.retestOnSuccessfulBuild", false);
   settings.register("build.recompileOnChange", true);
 
-  var log = new log.Log();
+  var log = new logModule.Log();
 
   // properties of the application we are building
   var app = {
@@ -80,7 +80,7 @@ define(['webjars!knockout', 'commons/settings', 'widgets/log/log', 'commons/util
         task: 'name',
         onmessage: function(event) {
           debug && console.log("event from name task ", event);
-          logEvent(event);
+          self.logEvent(event);
         },
         success: function(result) {
           debug && console.log("name task results ", result);
@@ -119,7 +119,7 @@ define(['webjars!knockout', 'commons/settings', 'widgets/log/log', 'commons/util
       sbt.watchSources({
         onmessage: function(event) {
           debug && console.log("event watching sources", event);
-          logEvent(event);
+          self.logEvent(event);
         },
         success: function(data) {
           debug && console.log("watching sources result", data);
@@ -184,7 +184,7 @@ define(['webjars!knockout', 'commons/settings', 'widgets/log/log', 'commons/util
       var taskId = sbt.runTask({
         task: task,
         onmessage: function(event) {
-          logEvent(event);
+          self.logEvent(event);
         },
         success: function(data) {
           debug && console.log("compile result: ", data);
