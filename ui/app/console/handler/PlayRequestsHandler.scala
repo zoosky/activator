@@ -28,7 +28,7 @@ trait PlayRequestsHandlerBase extends RequestHandler[PlayRequestsHandler.PlayReq
   }
 }
 
-class PlayRequestsHandler(builderProps: Props, val defaultLimit: Int) extends ActorHandlerBase {
+class PlayRequestsHandler(builderProps: Props, val defaultLimit: Int) extends PlayRequestsHandlerBase {
   val builder = context.actorOf(builderProps, "playRequestsBuilder")
 
   def useActorStats(sender: ActorRef, stats: ActorStats): Unit = {

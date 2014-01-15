@@ -16,7 +16,7 @@ object ActorHandler {
     traceId: Option[String]) extends ModuleInformationBase
 }
 
-trait ActorHandlerBase extends RequestHandler[ActorHandler.ActorModuleInfo] {
+trait ActorHandlerBase extends RequestHandlerLike[ActorHandler.ActorModuleInfo] {
   import ActorHandler._
   def useActorStats(sender: ActorRef, stats: ActorStats): Unit
 
@@ -25,7 +25,7 @@ trait ActorHandlerBase extends RequestHandler[ActorHandler.ActorModuleInfo] {
   }
 }
 
-class ActorHandler(builderProps: Props) extends ActorHandlerBase {
+class ActorHandler(builderProps: Props) extends RequestHandler[ActorHandler.ActorModuleInfo] with ActorHandlerBase {
   val builder = context.actorOf(builderProps, "actorBuilder")
 
   def useActorStats(sender: ActorRef, stats: ActorStats): Unit = {
