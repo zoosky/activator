@@ -27,8 +27,9 @@ trait ClientHandlerBase extends Actor with ActorLogging with ClientModuleHandler
   def playRequestHandlerProps: Props
   def deviationsHandlerProps: Props
   def deviationHandlerProps: Props
+  def lifecycleHandlerProps: Props
 
-  var modules = Seq.empty[RawModuleInformation]
+  var handlers = Seq.empty[RawInformationBase]
   val (enum, channel) = Concurrent.broadcast[JsValue]
 
   val jsonHandler = context.actorOf(jsonHandlerProps, "jsonHandler")
@@ -39,6 +40,7 @@ trait ClientHandlerBase extends Actor with ActorLogging with ClientModuleHandler
   val playRequestHandler = context.actorOf(playRequestHandlerProps, "playRequestHandler")
   val deviationsHandler = context.actorOf(deviationsHandlerProps, "deviationsHandler")
   val deviationHandler = context.actorOf(deviationHandlerProps, "deviationHandler")
+  val lifecycleHandler = context.actorOf(lifecycleHandlerProps, "lifecycleHandler")
 
   def onOverviewRequest(in: OverviewHandler.OverviewModuleInfo): Unit = overviewHandler ! in
   def onActorsRequest(in: ActorsHandler.ActorsModuleInfo): Unit = actorsHandler ! in
@@ -47,16 +49,20 @@ trait ClientHandlerBase extends Actor with ActorLogging with ClientModuleHandler
   def onPlayRequestRequest(in: PlayRequestHandler.PlayRequestModuleInfo): Unit = playRequestHandler ! in
   def onDeviationsRequest(in: DeviationsHandler.DeviationsModuleInfo): Unit = deviationsHandler ! in
   def onDeviationRequest(in: DeviationHandler.DeviationModuleInfo): Unit = deviationHandler ! in
+  def onLifecycleRequest(in: LifecycleHandler.LifecycleModuleInfo): Unit = lifecycleHandler ! in
 
   def receive = {
-    case Tick => modules filter { m => !ClientModuleHandler.oneTimeHandlers.contains(m.module) } foreach callHandler
+    case Tick => handlers filter { m => !ClientModuleHandler.oneTimeHandlers.contains(m.handler) } foreach callHandler
     case Update(js) => channel.push(js)
     case r: HandleRequest => jsonHandler ! r
-    case mi: RawModuleInformation => callHandler(mi)
+    case mi: RawInformationBase => callHandler(mi)
     case InitializeCommunication => sender ! Connection(self, enum)
-    case RegisterModules(newModules) =>
-      modules = newModules
-      for { mi <- newModules } self ! mi
+    case RegisterHandlers(newHandlers) =>
+      // Only module handlers should be registered -
+      // commands should not because they will only be invoked once and should not affect the module handlers.
+      val moduleHandlers = newHandlers.filterNot { _.isInstanceOf[RawCommandInformation] }
+      if (moduleHandlers.nonEmpty) handlers = moduleHandlers
+      for { mi <- newHandlers } self ! mi
   }
 }
 
@@ -67,40 +73,58 @@ class ClientHandler(val jsonHandlerProps: Props,
   val playRequestsHandlerProps: Props,
   val playRequestHandlerProps: Props,
   val deviationsHandlerProps: Props,
-  val deviationHandlerProps: Props) extends ClientHandlerBase
+  val deviationHandlerProps: Props,
+  val lifecycleHandlerProps: Props) extends ClientHandlerBase
 
 class JsonHandler extends Actor with ActorLogging with RequestHelpers {
   import ClientController._
-  import JsonHandler._
-
-  implicit val reader = innerModuleReads
 
   def receive = {
-    case HandleRequest(js) => sender ! RegisterModules(parseRequest(js, log))
+    case HandleRequest(js) => sender ! RegisterHandlers(parseRequest(js, log))
   }
 }
 
 trait RequestHelpers { this: ActorLogging =>
   import JsonHandler._
 
-  def parseRequest(js: JsValue, log: LoggingAdapter): Seq[RawModuleInformation] = {
+  implicit val modules = innerModuleReads
+  implicit val commands = commandReads
+
+  def parseRequest(js: JsValue, log: LoggingAdapter): Seq[RawInformationBase] = {
+    def parseCommands(commands: List[InnerModuleCommand]): Seq[RawInformationBase] =
+      commands map { i =>
+        ClientModuleHandler.fromString(i.module) match {
+          case Some(m) =>
+            RawCommandInformation(
+              handler = m,
+              command = i.command)
+          case None => sys.error("Could not find requested command module: ${i.module}")
+        }
+      }
+
     val time = toTimeRange((js \ "time" \ "rolling").asOpt[String], log)
 
-    val innerModules = (js \ "modules").as[List[InnerModuleInformation]]
-    innerModules map { i =>
-      ClientModuleHandler.fromString(i.name) match {
-        case Some(name) => RawModuleInformation(
-          module = name,
-          scope = toScope(i.scope, log),
-          time = time,
-          pagingInformation = i.pagingInformation,
-          dataFrom = i.dataFrom,
-          sortCommand = i.sortCommand,
-          sortDirection = i.sortDirection,
-          traceId = i.traceId)
-        case None => sys.error(s"Could not find requested module: ${i.name}")
+    def parseModules(modules: List[InnerModuleInformation]): Seq[RawInformationBase] =
+      modules map { i =>
+        ClientModuleHandler.fromString(i.module) match {
+          case Some(m) => RawModuleInformation(
+            handler = m,
+            scope = toScope(i.scope, log),
+            time = time,
+            pagingInformation = i.pagingInformation,
+            dataFrom = i.dataFrom,
+            sortCommand = i.sortCommand,
+            sortDirection = i.sortDirection,
+            traceId = i.traceId)
+          case None => sys.error(s"Could not find requested module: ${i.module}")
+        }
       }
-    }
+
+    val commands = (js \ "commands").asOpt[List[InnerModuleCommand]]
+    val commandModules = parseCommands(commands.getOrElse(List.empty[InnerModuleCommand]))
+    val modules = (js \ "modules").asOpt[List[InnerModuleInformation]]
+    val informationModules = parseModules(modules.getOrElse(List.empty[InnerModuleInformation]))
+    commandModules ++ informationModules
   }
 
   def toScope(i: InternalScope, log: LoggingAdapter): Scope =
@@ -148,10 +172,14 @@ object JsonHandler {
     (__ \ "dataFrom").readNullable[Long] and
     (__ \ "scope").read[InternalScope])(InnerModuleInformation)
 
+  implicit val commandReads = (
+    (__ \ "module").read[String] and
+    (__ \ "command").read[String])(InnerModuleCommand)
+
   final val RollingMinutePattern = """^.*rolling=([1-9][0-9]?)minute[s]?.*""".r
 }
 
-case class RegisterModules(moduleInformation: Seq[RawModuleInformation])
+case class RegisterHandlers(moduleInformation: Seq[RawInformationBase])
 
 case class ScopeModifiers(
   anonymous: Boolean = false,
@@ -167,14 +195,22 @@ case class InternalScope(
   playController: Option[String] = None) {
 }
 
+trait InnerModuleBase {
+  def module: String
+}
+
 case class InnerModuleInformation(
-  name: String,
+  module: String,
   traceId: Option[String],
   pagingInformation: Option[PagingInformation],
   sortCommand: Option[String],
   sortDirection: Option[SortDirection],
   dataFrom: Option[Long],
-  scope: InternalScope)
+  scope: InternalScope) extends InnerModuleBase {
+}
+
+case class InnerModuleCommand(module: String, command: String) extends InnerModuleBase {
+}
 
 trait ModuleInformationBase
 
@@ -207,8 +243,12 @@ trait MultiValueModuleInformation[S] extends ModuleInformationBase {
   def sortDirection: SortDirection
 }
 
+trait RawInformationBase {
+  def handler: ClientModuleHandler.Handler
+}
+
 case class RawModuleInformation(
-  module: ClientModuleHandler.Handler,
+  handler: ClientModuleHandler.Handler,
   scope: Scope,
   modifiers: ScopeModifiers = ScopeModifiers(),
   time: TimeRange,
@@ -216,7 +256,12 @@ case class RawModuleInformation(
   sortCommand: Option[String],
   sortDirection: Option[SortDirection],
   dataFrom: Option[Long] = None,
-  traceId: Option[String] = None) extends ModuleInformationBase {
+  traceId: Option[String] = None) extends RawInformationBase {
+}
+
+case class RawCommandInformation(
+  handler: ClientModuleHandler.Handler,
+  command: String) extends RawInformationBase {
 }
 
 case class PagingInformation(offset: Int, limit: Int)

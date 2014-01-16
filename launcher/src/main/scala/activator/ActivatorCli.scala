@@ -11,7 +11,6 @@ import sbt.complete.{ Parser, Parsers }
 import scala.concurrent.Await
 import scala.concurrent.duration._
 import akka.actor.ActorSystem
-import activator.TemplatePopularityContest
 
 object ActivatorCli {
   def apply(configuration: AppConfiguration): Int = try withContextClassloader {

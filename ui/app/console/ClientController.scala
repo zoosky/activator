@@ -12,6 +12,8 @@ import scala.concurrent.duration._
 import scala.concurrent.{ Future, ExecutionContext }
 import controllers.ConsoleController
 import play.api.Play.current
+import console.handler._
+import console.handler.rest._
 
 class ClientController extends Actor with ActorLogging {
   import ClientController._
@@ -23,9 +25,22 @@ class ClientController extends Actor with ActorLogging {
     self,
     Tick)
 
+  // TODO : REPLACE WITH PROPER VALUE
+  val defaultLimit = 100
+
   def receive = {
     case CreateClient(id) =>
-      if (context.child(id).isEmpty) context.actorOf(Props[ClientHandler], id) forward InitializeCommunication
+      if (context.child(id).isEmpty)
+        context.actorOf(Props(new ClientHandler(
+          jsonHandlerProps = Props[JsonHandler],
+          overviewHandlerProps = Props(new OverviewHandler(Props[OverviewJsonBuilder], defaultLimit)),
+          actorsHandlerProps = Props(new ActorsHandler(Props[ActorsJsonBuilder], defaultLimit)),
+          actorHandlerProps = Props(new ActorHandler(Props[ActorJsonBuilder])),
+          playRequestsHandlerProps = Props(new PlayRequestsHandler(Props[PlayRequestsJsonBuilder], defaultLimit)),
+          playRequestHandlerProps = Props(new PlayRequestHandler(Props[PlayRequestJsonBuilder])),
+          deviationsHandlerProps = Props(new DeviationsHandler(Props[DeviationsJsonBuilder], defaultLimit)),
+          deviationHandlerProps = Props(new DeviationHandler(Props[DeviationJsonBuilder])),
+          lifecycleHandlerProps = Props[LifecycleHandler])), id) forward InitializeCommunication
     case Tick => context.children foreach { _ ! Tick }
   }
 }

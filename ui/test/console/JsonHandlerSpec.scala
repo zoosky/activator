@@ -60,7 +60,7 @@ class JsonHandlerSpec extends Specification {
       implicit val parser = JsonHandler.innerModuleReads
       val innerModule = (json \ "modules").as[List[InnerModuleInformation]]
       innerModule.size must equalTo(1)
-      innerModule.head.name must equalTo("name1")
+      innerModule.head.module must equalTo("name1")
       innerModule.head.scope.node must equalTo(Some("n1"))
       innerModule.head.pagingInformation must not be empty
       innerModule.head.pagingInformation.get.offset must equalTo(101)
@@ -109,19 +109,19 @@ class JsonHandlerSpec extends Specification {
       implicit val parser = JsonHandler.innerModuleReads
       val innerModules = (json \ "modules").as[List[InnerModuleInformation]]
       innerModules.size must equalTo(3)
-      innerModules(0).name must equalTo("name1")
+      innerModules(0).module must equalTo("name1")
       innerModules(0).traceId must equalTo(Some("traceId1"))
       innerModules(0).scope.node must equalTo(Some("n1"))
       innerModules(0).sortCommand must equalTo(Some("sortOnThis"))
       innerModules(0).scope.tag must equalTo(None)
 
-      innerModules(1).name must equalTo("name2")
+      innerModules(1).module must equalTo("name2")
       innerModules(1).traceId must equalTo(None)
       innerModules(1).scope.node must equalTo(Some("n2"))
       innerModules(1).scope.actorSystem must equalTo(Some("as2"))
       innerModules(1).scope.tag must equalTo(None)
 
-      innerModules(2).name must equalTo("name3")
+      innerModules(2).module must equalTo("name3")
       innerModules(2).traceId must equalTo(None)
       innerModules(2).pagingInformation must not be empty
       innerModules(2).pagingInformation.get.offset must equalTo(1)
@@ -132,6 +132,50 @@ class JsonHandlerSpec extends Specification {
       innerModules(2).scope.dispatcher must equalTo(Some("d3"))
       innerModules(2).scope.actorPath must equalTo(Some("a3"))
       innerModules(2).scope.tag must equalTo(None)
+    }
+
+    "parse a command" in {
+      val json = Json.parse(
+        """
+          {
+            "commands" : [
+              {
+                "module": "m1",
+                "command": "cmd1"
+              }
+            ]
+          }
+        """)
+      implicit val parser = JsonHandler.commandReads
+      val commands = (json \ "commands").as[List[InnerModuleCommand]]
+      commands.size must equalTo(1)
+      commands(0).module must equalTo("m1")
+      commands(0).command must equalTo("cmd1")
+    }
+
+    "parse multiple commands" in {
+      val json = Json.parse(
+        """
+          {
+            "commands" : [
+              {
+                "module": "m1",
+                "command": "cmd1"
+              },
+              {
+                "module": "m2",
+                "command": "cmd2"
+              }
+            ]
+          }
+        """)
+      implicit val parser = JsonHandler.commandReads
+      val commands = (json \ "commands").as[List[InnerModuleCommand]]
+      commands.size must equalTo(2)
+      commands(0).module must equalTo("m1")
+      commands(0).command must equalTo("cmd1")
+      commands(1).module must equalTo("m2")
+      commands(1).command must equalTo("cmd2")
     }
   }
 }

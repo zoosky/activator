@@ -47,6 +47,7 @@ define ->
 
     send: (message) ->
       json = JSON.stringify message
+      console.log "SENDING : " + json
       if @connected
         @websocket.send json
       else

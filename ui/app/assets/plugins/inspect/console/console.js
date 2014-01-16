@@ -32,7 +32,6 @@ define(['text!./console.html', 'css!./console.css', 'core/pluginapi', './connect
 
       this.atmosStarted();
     },
-
     atmosStarted: function() {
       var self = this;
       Connection.open(consoleWsUrl, function() {
