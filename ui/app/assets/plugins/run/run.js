@@ -1,7 +1,8 @@
 /*
  Copyright (C) 2013 Typesafe, Inc <http://typesafe.com>
  */
-define(['main/model', 'text!./run.html', 'main/pluginapi', 'widgets/log/log', 'css!./run.css'], function(model, template, api, log, css){
+define(['services/build', 'main/model', 'text!./run.html', 'main/pluginapi', 'widgets/log/log', 'css!./run.css'],
+    function(build, model, template, api, log, css){
 
   var ko = api.ko;
   var sbt = api.sbt;
@@ -50,13 +51,13 @@ define(['main/model', 'text!./run.html', 'main/pluginapi', 'widgets/log/log', 'c
         self.onCompileSucceeded(event);
       });
 
-      this.logModel = model.logModel;
-      this.outputModel = new log.Log();
-      this.outputScroll = this.outputModel.findScrollState();
+      this.log = build.log;
+      this.outputLog = new log.Log();
+      this.outputScroll = this.outputLog.findScrollState();
       this.playAppLink = ko.observable('');
       this.playAppStarted = ko.computed(function() { return this.haveActiveTask() && this.playAppLink() != ''; }, this);
       this.atmosLink = ko.observable('');
-      this.atmosCompatible = model.app.hasConsole;
+      this.atmosCompatible = build.app.hasConsole;
       this.runningWithAtmos = ko.computed(function() {
         return this.haveActiveTask() && this.atmosLink() != '' && model.signedIn();
       }, this);
@@ -93,14 +94,14 @@ define(['main/model', 'text!./run.html', 'main/pluginapi', 'widgets/log/log', 'c
 
         if (self.restartPending()) {
           debug && console.log("Need to start over due to restart");
-          self.logModel.debug("Restarting...");
+          self.log.debug("Restarting...");
           self.restartPending(false);
           self.loadMainClasses(success, failure);
           // true = abort abort
           return true;
         } else if (weWereStopped) {
           debug && console.log("Stopped, restart not requested");
-          self.logModel.debug("Stopped");
+          self.log.debug("Stopped");
           // true = abort abort
           return true;
         } else {
@@ -109,12 +110,12 @@ define(['main/model', 'text!./run.html', 'main/pluginapi', 'widgets/log/log', 'c
         }
       }
 
-      self.logModel.debug("launching discoveredMainClasses task");
+      self.log.debug("launching discoveredMainClasses task");
       var taskId = sbt.runTask({
         task: 'discovered-main-classes',
         onmessage: function(event) {
           debug && console.log("event discovering main classes", event);
-          self.logModel.event(event);
+          self.log.event(event);
         },
         success: function(data) {
           debug && console.log("discovered main classes result", data);
@@ -125,26 +126,26 @@ define(['main/model', 'text!./run.html', 'main/pluginapi', 'widgets/log/log', 'c
           var names = [];
           if (data.type == 'GenericResponse') {
             names = data.params.names;
-            self.logModel.debug("Discovered main classes: " + names);
+            self.log.debug("Discovered main classes: " + names);
           } else {
-            self.logModel.debug("No main classes discovered");
+            self.log.debug("No main classes discovered");
           }
-          self.logModel.debug("Got auto-discovered main classes, looking for a default mainClass setting if any");
+          self.log.debug("Got auto-discovered main classes, looking for a default mainClass setting if any");
           function noDefaultMainClassLogging(message) {
             if (names.length > 0) {
-              self.logModel.debug("Didn't find a default mainClass setting, we'll just pick one of: " + names);
+              self.log.debug("Didn't find a default mainClass setting, we'll just pick one of: " + names);
             } else {
               if (message)
-                self.logModel.error(message);
-              self.logModel.error("Didn't auto-discover a main class, and no mainClass was set");
+                self.log.error(message);
+              self.log.error("Didn't auto-discover a main class, and no mainClass was set");
             }
           }
-          self.logModel.debug("launching mainClass task");
+          self.log.debug("launching mainClass task");
           var taskId = sbt.runTask({
             task: 'main-class',
             onmessage: function(event) {
               debug && console.log("event getting default main class", event);
-              self.logModel.event(event);
+              self.log.event(event);
             },
             success: function(data) {
               debug && console.log("default main class result", data);
@@ -156,7 +157,7 @@ define(['main/model', 'text!./run.html', 'main/pluginapi', 'widgets/log/log', 'c
               // 'name' won't be in here if mainClass was unset
               if (data.type == 'GenericResponse' && 'name' in data.params) {
                 name = data.params.name;
-                self.logModel.debug("Default main class is '" + name + "'");
+                self.log.debug("Default main class is '" + name + "'");
               } else {
                 // this isn't what really happens if it's not configured, I think
                 // sbt just tries to ask the user to pick, which fails, and we
@@ -186,7 +187,7 @@ define(['main/model', 'text!./run.html', 'main/pluginapi', 'widgets/log/log', 'c
           if (taskCompleteShouldWeAbort())
             return;
 
-          self.logModel.debug("Failed to discover main classes: " + message);
+          self.log.debug("Failed to discover main classes: " + message);
           failure(status, message);
         }
       });
@@ -208,11 +209,11 @@ define(['main/model', 'text!./run.html', 'main/pluginapi', 'widgets/log/log', 'c
     beforeRun: function() {
       var self = this;
       if (self.reloadMainClassPending()) {
-        self.logModel.info("Loading main class information...");
+        self.log.info("Loading main class information...");
         self.status('Loading main class...');
       } else {
         self.status('Running...');
-        self.logModel.info("Running...");
+        self.log.info("Running...");
       }
 
       self.restartPending(false);
@@ -224,7 +225,7 @@ define(['main/model', 'text!./run.html', 'main/pluginapi', 'widgets/log/log', 'c
       var self = this;
 
       // we clear logs here then ask doRunWithoutMainClassLoad not to.
-      self.logModel.clear();
+      self.log.clear();
 
       self.beforeRun();
 
@@ -235,7 +236,7 @@ define(['main/model', 'text!./run.html', 'main/pluginapi', 'widgets/log/log', 'c
         self.reloadMainClassPending(false);
 
         if (shouldWeRun) {
-          self.logModel.debug("Done loading main classes - now running the project");
+          self.log.debug("Done loading main classes - now running the project");
           self.doRunWithoutMainClassLoad(false /* clearLogs */);
         }
       }
@@ -307,10 +308,10 @@ define(['main/model', 'text!./run.html', 'main/pluginapi', 'widgets/log/log', 'c
     doRunWithoutMainClassLoad: function(clearLogs) {
       var self = this;
 
-      self.outputModel.clear();
+      self.outputLog.clear();
 
       if (clearLogs)
-        self.logModel.clear();
+        self.log.clear();
 
       self.beforeRun();
 
@@ -320,7 +321,7 @@ define(['main/model', 'text!./run.html', 'main/pluginapi', 'widgets/log/log', 'c
       var mainClassIsPlayServer =
         self.currentMainClass() == 'play.core.server.NettyServer';
       if (mainClassIsPlayServer)
-        self.logModel.debug("Using 'run' rather than 'run-main' for Play's server class")
+        self.log.debug("Using 'run' rather than 'run-main' for Play's server class")
 
       var task = {};
       if (self.haveMainClass() && !mainClassIsPlayServer) {
@@ -340,16 +341,16 @@ define(['main/model', 'text!./run.html', 'main/pluginapi', 'widgets/log/log', 'c
           if (event.type == 'LogEvent') {
             var logType = event.entry.type;
             if (logType == 'stdout' || logType == 'stderr') {
-              self.outputModel.event(event);
+              self.outputLog.event(event);
             } else {
-              self.logModel.event(event);
+              self.log.event(event);
             }
           } else if (event.type == 'Started') {
             // our request went to a fresh sbt, and we witnessed its startup.
             // we may not get this event if an sbt was recycled.
             // we move "output" to "logs" because the output is probably
             // just sbt startup messages that were not redirected.
-            self.logModel.moveFrom(self.outputModel);
+            self.log.moveFrom(self.outputLog);
           } else if (event.id == 'playServerStarted') {
             var port = event.params.port;
             var url = 'http://localhost:' + port;
@@ -358,23 +359,23 @@ define(['main/model', 'text!./run.html', 'main/pluginapi', 'widgets/log/log', 'c
             self.atmosLink(event.params.uri);
             api.events.send({ 'type' : 'AtmosStarted' });
           } else {
-            self.logModel.leftoverEvent(event);
+            self.log.leftoverEvent(event);
           }
         },
         success: function(data) {
           debug && console.log("run result: ", data);
           if (data.type == 'GenericResponse') {
-            self.logModel.info('Run complete.');
+            self.log.info('Run complete.');
             self.status('Run complete');
           } else {
-            self.logModel.error('Unexpected reply: ' + JSON.stringify(data));
+            self.log.error('Unexpected reply: ' + JSON.stringify(data));
           }
           self.doAfterRun();
         },
         failure: function(status, message) {
           debug && console.log("run failed: ", status, message)
           self.status('Run failed');
-          self.logModel.error("Failed: " + status + ": " + message);
+          self.log.error("Failed: " + status + ": " + message);
           self.doAfterRun();
         }
       });
@@ -398,7 +399,7 @@ define(['main/model', 'text!./run.html', 'main/pluginapi', 'widgets/log/log', 'c
           failure: function(status, message) {
             debug && console.log("kill failed: ", status, message)
             self.status('Unable to stop');
-            self.logModel.error("HTTP request to kill task failed: " + message)
+            self.log.error("HTTP request to kill task failed: " + message)
           }
         });
       }
@@ -427,10 +428,10 @@ define(['main/model', 'text!./run.html', 'main/pluginapi', 'widgets/log/log', 'c
       self.doRestart();
     },
     onPreDeactivate: function() {
-      this.outputScroll = this.outputModel.findScrollState();
+      this.outputScroll = this.outputLog.findScrollState();
     },
     onPostActivate: function() {
-      this.outputModel.applyScrollState(this.outputScroll);
+      this.outputLog.applyScrollState(this.outputScroll);
     },
     restartWithAtmos: function(self) {
       this.runInConsole(true);
