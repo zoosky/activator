@@ -6,7 +6,7 @@ package activator
 import xsbti.{ AppMain, AppConfiguration }
 import activator.properties.ActivatorProperties._
 import java.io.File
-import java.net.{ InetSocketAddress, HttpURLConnection }
+import java.net.{ PasswordAuthentication, Authenticator, InetSocketAddress, HttpURLConnection }
 import scala.util.control.NonFatal
 import java.util.Properties
 import java.io.FileOutputStream
@@ -71,6 +71,17 @@ class ActivatorLauncher extends AppMain {
       val maybeProxyConnection = (sys.props.get("http.proxyHost"), sys.props.get("http.proxyPort")) match {
         case (Some(proxyHost), Some(proxyPort)) =>
           val proxy = new java.net.Proxy(java.net.Proxy.Type.HTTP, new InetSocketAddress(proxyHost, proxyPort.toInt))
+
+          sys.props.get("http.proxyUser").flatMap { proxyUser =>
+            sys.props.get("http.proxyPassword").map { proxyPassword =>
+              Authenticator.setDefault(
+                new Authenticator() {
+                  override def getPasswordAuthentication: PasswordAuthentication =
+                    new PasswordAuthentication(proxyUser, proxyPassword.toCharArray)
+                })
+            }
+          }
+
           latestUrl.openConnection(proxy)
         case _ =>
           latestUrl.openConnection()
