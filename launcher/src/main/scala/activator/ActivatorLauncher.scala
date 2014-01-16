@@ -14,6 +14,7 @@ import java.io.BufferedReader
 import java.io.InputStreamReader
 import java.nio.charset.Charset
 import java.util.concurrent.TimeUnit
+import java.net.Authenticator.RequestorType
 
 /** Expose for SBT launcher support. */
 class ActivatorLauncher extends AppMain {
@@ -77,7 +78,10 @@ class ActivatorLauncher extends AppMain {
               Authenticator.setDefault(
                 new Authenticator() {
                   override def getPasswordAuthentication: PasswordAuthentication =
-                    new PasswordAuthentication(proxyUser, proxyPassword.toCharArray)
+                    if (getRequestorType == RequestorType.PROXY)
+                      new PasswordAuthentication(proxyUser, proxyPassword.toCharArray)
+                    else
+                      null
                 })
             }
           }
