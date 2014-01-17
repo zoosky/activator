@@ -8,32 +8,22 @@ import activator.properties.ActivatorProperties.SCRIPT_NAME
 import activator.cache.Actions.cloneTemplate
 import java.io.File
 import sbt.complete.{ Parser, Parsers }
-import scala.concurrent.{ TimeoutException, Await }
+import scala.concurrent.Await
 import scala.concurrent.duration._
 import akka.actor.ActorSystem
-import scala.Some
-import com.typesafe.config.ConfigFactory
-import scala.collection.JavaConverters._
+import java.util.concurrent.TimeoutException
 
 object ActivatorCli {
   def apply(configuration: AppConfiguration): Int = try withContextClassloader {
     System.out.println()
     val name = getApplicationName()
 
-    val akkaConfig = ConfigFactory.parseMap(Map("akka.log-dead-letters" -> "off", "akka.log-dead-letters-during-shutdown" -> "off").asJava)
+    val system = ActorSystem("default")
 
-    val system = ActorSystem("default", akkaConfig)
+    val defaultDuration = Duration(system.settings.config.getMilliseconds("activator.timeout"), MILLISECONDS)
+
     val projectDir = new File(name).getAbsoluteFile
     // Ok, now we load the template cache...
-
-    val defaultDuration: FiniteDuration = sys.props.get("activator.timeout").flatMap { timeoutString =>
-      val duration = Duration(timeoutString)
-      if (duration.isFinite()) {
-        Some(FiniteDuration(duration.length, duration.unit))
-      } else {
-        None
-      }
-    } getOrElse Duration(10, SECONDS)
 
     implicit val timeout = akka.util.Timeout(defaultDuration)
 
@@ -55,7 +45,7 @@ object ActivatorCli {
         System.out.println("Check your proxy settings or increase the timeout.  For more details see:\nhttp://typesafe.com/activator/docs")
         System.out.println()
 
-        val localOnlyCache = UICacheHelper.makeLocalOnlyCache(ActorSystem("fallback", akkaConfig))
+        val localOnlyCache = UICacheHelper.makeLocalOnlyCache(ActorSystem("fallback"))
         Await.result(localOnlyCache.metadata, defaultDuration)
     }
     val templateNames = metadata.map(_.name).toSeq.distinct
@@ -98,7 +88,6 @@ object ActivatorCli {
   } catch {
     case e: Exception =>
       System.err.println(e.getMessage)
-      e.printStackTrace()
       1
   }
 
