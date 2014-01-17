@@ -31,7 +31,7 @@ define(['text!./test.html', 'css!./test.css', 'main/pluginapi', 'services/build'
       self.displayedResults = ko.computed(function() {
         if(self.testFilter() == 'failures') {
           return ko.utils.arrayFilter(self.results(), function(item) {
-            return item.outcome() != Outcome.PASSED;
+            return item.outcome() != build.TestOutcome.PASSED;
           });
         }
         return self.results();
@@ -43,7 +43,7 @@ define(['text!./test.html', 'css!./test.css', 'main/pluginapi', 'services/build'
             failed: 0
         };
         $.each(self.results(), function(idx, result) {
-          if(result.outcome() != Outcome.PASSED) {
+          if(result.outcome() != build.TestOutcome.PASSED) {
             results.failed = results.failed + 1;
           } else {
             results.passed = results.passed + 1;
