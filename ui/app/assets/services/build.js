@@ -610,13 +610,186 @@ define(['webjars!knockout', 'commons/settings', 'widgets/log/log', 'commons/util
     }
   });
 
+  var TestOutcome = {
+    PASSED: 'passed',
+    FAILED: 'failed',
+    ERROR: 'error',
+    SKIPPED: 'skipped',
+    // PENDING doesn't arrive from server, it's just a state we use locally
+    PENDING: 'pending'
+  };
+
+  var TestResult = utils.Class({
+    init: function(config) {
+      var self = this;
+      self.name = config.name;
+      self.outcome = ko.observable(config.outcome);
+      self.description = ko.observable(config.description);
+      self.outcomeClass = ko.computed(function() {
+        var current = self.outcome();
+        if (current === TestOutcome.PASSED || current === TestOutcome.PENDING) {
+          return current;
+        } else {
+          return TestOutcome.FAILED;
+        }
+      });
+    },
+    // Update our state from an event.
+    update: function(event) {
+      this.description(event.description);
+      this.outcome(event.outcome);
+    }
+  });
+
+  var test = utils.Singleton({
+    init: function() {
+      var self = this;
+
+      this.results = ko.observableArray();
+      this.testStatus = ko.observable('Waiting to test');
+      // TODO - Store state beyond the scope of this widget!
+      // We should probably be listening to tests *always*
+      // and displaying latest status *always*.
+      self.hasResults = ko.computed(function() {
+        return self.results().length > 0;
+      });
+      this.activeTask = ko.observable(""); // empty string or taskId
+      this.haveActiveTask = ko.computed(function() {
+        return self.activeTask() != "";
+      }, this);
+      this.rerunOnBuild = settings.build.retestOnSuccessfulBuild;
+      this.restartPending = ko.observable(false);
+      this.lastTaskFailed = ko.observable(false);
+      this.status = ko.computed(function() {
+        /*
+        var anyFailures = this.lastTaskFailed() || this.resultStats().failed > 0;
+
+        if (this.haveActiveTask())
+          return api.STATUS_BUSY;
+        else if (anyFailures)
+          return api.STATUS_ERROR;
+        else
+          return api.STATUS_DEFAULT;
+          */
+        return "FOO"; // TODO
+      }, this);
+
+      events.subscribe(function(event) {
+        return event.type == 'CompileSucceeded';
+      },
+      function(event) {
+        self.onCompileSucceeded(event);
+      });
+    },
+    doAfterTest: function() {
+      var self = this;
+      self.activeTask("");
+      if (self.restartPending()) {
+        self.doTest(false); // false=!triggeredByBuild
+      }
+    },
+    doTest: function(triggeredByBuild) {
+      var self = this;
+
+      log.clear();
+      self.results.removeAll();
+      self.testStatus('Running tests...')
+
+      if (triggeredByBuild) {
+        log.info("Build succeeded, testing...");
+      } else if (self.restartPending()) {
+        log.info("Restarting...");
+      } else {
+        log.info("Testing...");
+      }
+
+      self.restartPending(false);
+
+      // TODO - Do we want to clear the test data we had previously
+      // or append?  Tests may disappear and we'd never know...
+
+      var taskId = sbt.runTask({
+        task: 'test',
+        onmessage: function(event) {
+          if (log.event(event)) {
+            // nothing
+          } else if (event.type == 'GenericEvent' &&
+              event.task == 'test' &&
+              event.id == 'result') {
+            self.updateTest(event.params);
+          } else if (event.type == 'Started') {
+            // this is expected when we start a new sbt, but we don't do anything with it
+          } else {
+            log.leftoverEvent(event);
+          }
+        },
+        success: function(data) {
+          debug && console.log("test result: ", data);
+
+          if (data.type == 'GenericResponse') {
+            log.info('Testing complete.');
+            self.testStatus('Testing complete.');
+          } else {
+            log.error('Unexpected reply: ' + JSON.stringify(data));
+            self.testStatus("Unexpected: " + JSON.stringify(data));
+          }
+          self.lastTaskFailed(false);
+          self.doAfterTest();
+        },
+        failure: function(status, message) {
+          debug && console.log("test failed: ", status, message)
+          log.error("Failed: " + status + ": " + message);
+          self.testStatus('Testing error: ' + message);
+          self.lastTaskFailed(true);
+          self.doAfterTest();
+        }
+      });
+      self.activeTask(taskId);
+    },
+    updateTest: function(params) {
+      var match = ko.utils.arrayFirst(this.results(), function(item) {
+        return params.name === item.name;
+      });
+      if(!match) {
+        var test = new TestResult(params);
+        this.results.push(test);
+      } else {
+        match.update(params);
+      }
+    },
+    onCompileSucceeded: function(event) {
+      var self = this;
+      if (self.rerunOnBuild() && !self.haveActiveTask()) {
+        self.doTest(true); // true=triggeredByBuild
+      }
+    },
+    doStop: function() {
+      var self = this;
+      if (self.haveActiveTask()) {
+        sbt.killTask({
+          taskId: self.activeTask(),
+          success: function(data) {
+            debug && console.log("kill success: ", data)
+          },
+          failure: function(status, message) {
+            debug && console.log("kill failed: ", status, message)
+            log.error("HTTP request to kill task failed: " + message)
+          }
+        });
+      }
+    }
+  });
+
   var build = utils.Singleton({
     init: function() {
     },
     log: log,
     app: app,
     compile: compile,
-    run: run
+    run: run,
+    test: test,
+    TestOutcome: TestOutcome,
+    TestResult: TestResult
   });
 
   return build;
