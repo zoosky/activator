@@ -19,6 +19,21 @@ or just
     sbt "activator-ui/run"
 
 
+## Running from the Launcher
+
+1. Stage the distribution:
+
+        sbt stage
+
+2. Force the launcer to use the newly built launcher:
+
+        rm -r ~/.activator
+
+3. Run Activator:
+
+        dist/target/stage/activator
+
+
 ## Testing
 
 There are two types of tests:  Unit tests and integration tests.
