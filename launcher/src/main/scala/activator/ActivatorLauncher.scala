@@ -73,17 +73,34 @@ class ActivatorLauncher extends AppMain {
         case (Some(proxyHost), Some(proxyPort)) =>
           val proxy = new java.net.Proxy(java.net.Proxy.Type.HTTP, new InetSocketAddress(proxyHost, proxyPort.toInt))
 
-          sys.props.get("http.proxyUser").flatMap { proxyUser =>
-            sys.props.get("http.proxyPassword").map { proxyPassword =>
-              Authenticator.setDefault(
-                new Authenticator() {
-                  override def getPasswordAuthentication: PasswordAuthentication =
-                    if (getRequestorType == RequestorType.PROXY)
-                      new PasswordAuthentication(proxyUser, proxyPassword.toCharArray)
-                    else
-                      null
-                })
+          // proxy auth handling
+
+          def maybeOriginalAuthenticator: Option[Authenticator] = {
+            try {
+              val f = classOf[Authenticator].getDeclaredField("theAuthenticator")
+              f.setAccessible(true)
+              Some(f.get(null).asInstanceOf[Authenticator])
+            } catch {
+              case _: Throwable => None
             }
+          }
+
+          // only create a new authenticator if there isn't one already
+          val maybeNewAuthenticator = for {
+            proxyUser <- sys.props.get("http.proxyUser")
+            proxyPassword <- sys.props.get("http.proxyPassword")
+            if maybeOriginalAuthenticator.isEmpty
+          } yield new Authenticator() {
+            override def getPasswordAuthentication: PasswordAuthentication =
+              if (getRequestorType == RequestorType.PROXY)
+                new PasswordAuthentication(proxyUser, proxyPassword.toCharArray)
+              else
+                null
+          }
+
+          maybeNewAuthenticator.map {
+            println("setting up our authenticator")
+            Authenticator.setDefault
           }
 
           latestUrl.openConnection(proxy)
