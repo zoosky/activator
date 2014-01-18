@@ -98,10 +98,7 @@ class ActivatorLauncher extends AppMain {
                 null
           }
 
-          maybeNewAuthenticator.map {
-            println("setting up our authenticator")
-            Authenticator.setDefault
-          }
+          maybeNewAuthenticator.map(Authenticator.setDefault)
 
           latestUrl.openConnection(proxy)
         case _ =>
