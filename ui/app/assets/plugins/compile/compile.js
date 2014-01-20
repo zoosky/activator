@@ -1,8 +1,8 @@
 /*
  Copyright (C) 2013 Typesafe, Inc <http://typesafe.com>
  */
-define(['text!./compile.html', 'main/pluginapi', 'services/build', 'commons/settings', 'css!./compile.css'],
-    function(template, api, build, settings){
+define(['text!./compile.html', 'main/pluginapi', 'services/build', 'commons/settings', 'widgets/log/log', 'css!./compile.css'],
+    function(template, api, build, settings, log) {
 
   var ko = api.ko;
 
@@ -20,13 +20,13 @@ define(['text!./compile.html', 'main/pluginapi', 'services/build', 'commons/sett
           return "Start compiling";
       }, this);
 
-      this.logScroll = build.log.findScrollState();
+      this.logView = new log.LogView(build.log);
+      this.logScroll = this.logView.findScrollState();
       // TODO get rid of per-plugin status
       this.status = ko.observable(api.STATUS_DEFAULT);
 
-      // these two are aliased here so our html template can find them
+      // aliased here so our html template can find it
       this.recompileOnChange = settings.build.recompileOnChange;
-      this.log = build.log;
     },
     update: function(parameters){
     },
@@ -39,10 +39,10 @@ define(['text!./compile.html', 'main/pluginapi', 'services/build', 'commons/sett
       }
     },
     onPreDeactivate: function() {
-      this.logScroll = build.log.findScrollState();
+      this.logScroll = this.logView.findScrollState();
     },
     onPostActivate: function() {
-      build.log.applyScrollState(this.logScroll);
+      this.logView.applyScrollState(this.logScroll);
     }
   });
 

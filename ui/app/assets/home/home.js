@@ -97,7 +97,8 @@ var startApp = function() {
 
       // Create log widget before we start recording websocket events...
       var logs = new log.Log();
-      logs.renderTo($('#loading-logs'));
+      var logView = new log.LogView(logs);
+      logView.renderTo($('#loading-logs'));
       // Register webSocket error handler
       streams.subscribe({
         handler: function(event) {

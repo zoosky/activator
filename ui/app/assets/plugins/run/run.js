@@ -1,8 +1,8 @@
 /*
  Copyright (C) 2013 Typesafe, Inc <http://typesafe.com>
  */
-define(['services/build', 'main/model', 'text!./run.html', 'main/pluginapi', 'commons/settings', 'css!./run.css'],
-    function(build, model, template, api, settings, css){
+define(['services/build', 'main/model', 'text!./run.html', 'main/pluginapi', 'commons/settings', 'widgets/log/log', 'css!./run.css'],
+    function(build, model, template, api, settings, log, css){
 
   var ko = api.ko;
 
@@ -25,7 +25,7 @@ define(['services/build', 'main/model', 'text!./run.html', 'main/pluginapi', 'co
       // 'build' or something then refer to these.
       // But doing this to keep changes in one commit smaller.
       // We want to just change the whole 'build' API anyway.
-      this.outputLog = build.run.outputLog;
+      this.outputLogView = new log.LogView(build.run.outputLog);
       this.playAppLink = build.run.playAppLink;
       this.playAppStarted = build.run.playAppStarted;
       this.atmosLink = build.run.atmosLink;
@@ -56,7 +56,7 @@ define(['services/build', 'main/model', 'text!./run.html', 'main/pluginapi', 'co
         return !build.run.haveActiveTask() && !settings.build.runInConsole() && model.signedIn();
       }, this);
 
-      this.outputScroll = this.outputLog.findScrollState();
+      this.outputScroll = this.outputLogView.findScrollState();
     },
     update: function(parameters){
     },
@@ -76,10 +76,10 @@ define(['services/build', 'main/model', 'text!./run.html', 'main/pluginapi', 'co
       build.run.doRestart();
     },
     onPreDeactivate: function() {
-      this.outputScroll = this.outputLog.findScrollState();
+      this.outputScroll = this.outputLogView.findScrollState();
     },
     onPostActivate: function() {
-      this.outputLog.applyScrollState(this.outputScroll);
+      this.outputLogView.applyScrollState(this.outputScroll);
     },
     restartWithAtmos: function(self) {
       settings.build.runInConsole(true);

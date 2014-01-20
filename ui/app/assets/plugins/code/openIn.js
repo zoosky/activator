@@ -26,6 +26,7 @@ function(eclipseTemplate, ideaTemplate, api, Overlay, log){
         css: this.overlayClass
       });
       self.log = new log.Log();
+      self.logView = new log.LogView(self.log);
       self.haveProjectFiles = ko.observable(false);
       self.workingStatus = ko.observable("");
       self.projectDirectory = ko.observable(serverAppModel.location);
