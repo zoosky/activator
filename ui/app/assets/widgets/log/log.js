@@ -185,14 +185,20 @@ define(['text!./log.html', 'webjars!knockout', 'commons/widget', 'commons/utils'
       }
     },
     _pushAll: function(toPush) {
-      var self = this;
+      if (toPush.length == 0)
+        return;
+
       // we don't use ko.utils.arrayPushAll because
       // it replaces the entire array and forces
-      // knockout to do a diff. push should be
-      // O(1) in Knockout 3.0.
+      // knockout to do a diff. We don't use
+      // push() because knockout seems to be able to
+      // optimize a bulk splice much better (even though
+      // the push is O(1) in theory with Knockout 3.0).
+      var spliceParams = [ this.entries().length, 0 ];
       $.each(toPush, function(i, entry) {
-        self.entries.push(entry);
+        spliceParams.push(entry);
       });
+      this.entries.splice.apply(this.entries, spliceParams);
     },
     flush: function() {
       if (this.queue.length > 0) {
