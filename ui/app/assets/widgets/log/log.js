@@ -132,7 +132,8 @@ define(['text!./log.html', 'webjars!knockout', 'commons/widget', 'commons/utils'
       nextMarkerOwner += 1;
     },
     _pushAll: function(toPush) {
-      if (toPush.length == 0)
+      var length = toPush.length;
+      if (length == 0)
         return;
 
       // we don't use ko.utils.arrayPushAll because
@@ -141,11 +142,21 @@ define(['text!./log.html', 'webjars!knockout', 'commons/widget', 'commons/utils'
       // push() because knockout seems to be able to
       // optimize a bulk splice much better (even though
       // the push is O(1) in theory with Knockout 3.0).
-      var spliceParams = [ this.entries().length, 0 ];
-      $.each(toPush, function(i, entry) {
-        spliceParams.push(entry);
-      });
-      this.entries.splice.apply(this.entries, spliceParams);
+      // the CHUNK stuff is because browsers have some limit
+      // on the number of function arguments. The limit is pretty
+      // large for some (like MAXSHORT or something) but we
+      // keep it lower in case some browser out there is lame.
+      var CHUNK = 255;
+      var i = 0;
+      for (; i < length; i += CHUNK) {
+        var spliceParams = [ this.entries().length, 0 ];
+        var j = i;
+        var stop = Math.min(j + CHUNK, length);
+        for (; j < stop; j += 1) {
+          spliceParams.push(toPush[j]);
+        }
+        this.entries.splice.apply(this.entries, spliceParams);
+      }
     },
     flush: function() {
       if (this.queue.length > 0) {
