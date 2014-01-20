@@ -124,8 +124,7 @@ define(['text!./log.html', 'webjars!knockout', 'commons/widget', 'commons/utils'
       // needs linear time in array size to update
       // the view, so we are using lots of little
       // arrays.
-      this.currentLog = ko.observableArray();
-      this.logGroups = ko.observableArray([ this.currentLog ]);
+      this.entries = ko.observableArray();
       this.queue = [];
       this.boundFlush = this.flush.bind(this);
       this.node = null;
@@ -185,36 +184,30 @@ define(['text!./log.html', 'webjars!knockout', 'commons/widget', 'commons/utils'
         }
       }
     },
+    _pushAll: function(toPush) {
+      var self = this;
+      // we don't use ko.utils.arrayPushAll because
+      // it replaces the entire array and forces
+      // knockout to do a diff. push should be
+      // O(1) in Knockout 3.0.
+      $.each(toPush, function(i, entry) {
+        self.entries.push(entry);
+      });
+    },
     flush: function() {
       if (this.queue.length > 0) {
         var state = this.findScrollState();
 
         var toPush = this.queue;
         this.queue = [];
-        ko.utils.arrayPushAll(this.currentLog(), toPush);
-        this.currentLog.valueHasMutated();
-
-        // 100 could probably be higher, but already lets
-        // us scale the logs up by probably 100x what they
-        // could be otherwise by keeping observable arrays
-        // small enough.
-        if (this.currentLog().length > 100) {
-          this.currentLog = ko.observableArray();
-          this.logGroups.push(this.currentLog);
-        }
+        this._pushAll(toPush);
 
         this.applyScrollState(state);
       }
     },
     log: function(level, message) {
-      // because knockout array modifications are linear
-      // time and space in array size (it computes a diff
-      // every time), we try to batch them up and minimize
-      // the problem. Unfortunately the diff can still end
-      // up taking a long time but batching makes it an
-      // annoying rather than disastrous issue for users.
-      // The main mitigation for the problem is our nested array
-      // (logGroups) but this helps a bit too perhaps.
+      // queuing puts a cap on frequency of the scroll state update,
+      // so adding one log message is in theory always cheap.
       this.queue.push({ level: level, message: message, markerOwner: this.markerOwner });
 
       if (this.queue.length == 1) {
@@ -244,19 +237,16 @@ define(['text!./log.html', 'webjars!knockout', 'commons/widget', 'commons/utils'
     },
     clear: function() {
       this.flush(); // be sure we collect the queue
-      this.currentLog = ko.observableArray();
-      this.logGroups.removeAll();
+      this.entries.removeAll();
       markers.clearFileMarkers(this.markerOwner);
-      this.logGroups.push(this.currentLog);
     },
     moveFrom: function(other) {
       // "other" is another logs widget
       other.flush();
       this.flush();
-      var removed = other.logGroups.removeAll();
+      var removed = other.entries.removeAll();
       markers.clearFileMarkers(other.markerOwner);
-      ko.utils.arrayPushAll(this.logGroups(), removed);
-      this.logGroups.valueHasMutated();
+      this._pushAll(removed);
     },
     // returns true if it was a log event
     event: function(event) {
