@@ -1,0 +1,70 @@
+#appStatus {
+  text-align: center;
+  padding: 10px 0 5px;
+  width: @drawer-width;
+  position: absolute;
+  top: 50px;
+  button {
+    display: inline-block;
+    .square(30px);
+    background: url(/public/images/icons/console.svg) 5px 5px no-repeat;
+    &:hover {
+      opacity: .7;
+      + .tooltip {
+        display: block;
+      }
+    }
+    &.active {
+      opacity: 1;
+    }
+  }
+  .tooltip {
+    display: none;
+    position: absolute;
+    top: 45px;
+    left: 10px;
+    right: 10px;
+    padding: 5px;
+    background: @grey-dkr;
+    color: #fff;
+    border-radius: 2px;
+    z-index: 9;
+    font-size: 12px;
+    text-transform: uppercase;
+    box-shadow: 0 3px 5px rgba(0,0,0,.4);
+    &:before {
+      content: " ";
+      position: absolute;
+      top: -5px;
+      width: 0; 
+      height: 0; 
+      border-left: 5px solid transparent;
+      border-right: 5px solid transparent;
+      border-bottom: 5px solid @grey-dkr;
+    }
+  }
+  button.running {
+    .makeStatus(5px);
+  }
+  .running.tooltip:before {
+    left: 20px;
+  }
+  button.refresh {
+    .makeStatus(-25px);
+  }
+  .refresh.tooltip:before {
+    left: 55px;
+  }
+  button.console {
+    .makeStatus(-55px);
+  }
+  .console.tooltip:before {
+    left: 90px;
+  }
+  button.testing {
+    .makeStatus(-85px);
+  }
+  .testing.tooltip:before {
+    left: 120px;
+  }
+}

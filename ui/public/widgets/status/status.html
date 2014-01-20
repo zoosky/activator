@@ -1,0 +1,11 @@
+  <button class="running" data-bind="click: toggleStartApp, css: {active: startApp}"></button>
+  <span class="tooltip running" data-bind="text: startApp() ? 'App runnning':'App stopped' "></span>
+
+  <button class="refresh" data-bind="click: toggleRerunOnBuild, css: {active: rerunOnBuild}"></button>
+  <span class="tooltip refresh" data-bind="text: rerunOnBuild() ? 'Autocompile on':'Autocompile off' "></span>
+
+  <button class="console" data-bind="click: toggleRunInConsole, css: {active: consoleOn}"></button>
+  <span class="tooltip console" data-bind="text: runInConsole() ? 'Console on':'Console off' "></span>
+
+  <button class="testing" data-bind="toggle: retestOnSuccessfulBuild, css: {active: retestOnSuccessfulBuild}"></button>
+  <span class="tooltip testing" data-bind="text: retestOnSuccessfulBuild() ? 'Autotest on':'Autotest off' "></span>
