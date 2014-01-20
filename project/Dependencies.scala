@@ -79,7 +79,7 @@ object Dependencies {
   val webjarsPlay3     = "org.webjars" %% "webjars-play" % Dependencies.webJarsVersion
   val requirejs        = "org.webjars" % "requirejs" % "2.1.8"
   val jquery           = "org.webjars" % "jquery" % "2.0.3"
-  val knockout         = "org.webjars" % "knockout" % "2.2.1"
+  val knockout         = "org.webjars" % "knockout" % "3.0.0"
   val ace              = "org.webjars" % "ace" % "04.09.2013"
   val requireCss       = "org.webjars" % "require-css" % "0.0.7-3"
   val requireText      = "org.webjars" % "requirejs-text" % "2.0.10"
