@@ -2,9 +2,9 @@
  Copyright (C) 2013 Typesafe, Inc <http://typesafe.com>
  */
 define(['webjars!knockout', './router', 'commons/settings', 'plugins/tutorial/tutorial', 'services/build', './keyboard', './omnisearch',
-        './navigation', './panel'],
+        './navigation', './panel', 'widgets/notifications/notifications'],
     function(ko, router, settings, Tutorial, build, keyboard, omnisearch,
-        navigation, panel) {
+        navigation, panel, Notifications) {
 
   // This is the model for HTML which is directly in main.scala.html.
   // In many cases it's better to create a widget, which has its own
@@ -30,6 +30,7 @@ define(['webjars!knockout', './router', 'commons/settings', 'plugins/tutorial/tu
     navigation: navigation,
     panel: panel,
     build: build,
+    notifications: new Notifications(),
     // This is the initialization of the application...
     init: function(plugins) {
       var self = this;

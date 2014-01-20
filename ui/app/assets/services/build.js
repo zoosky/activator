@@ -9,6 +9,40 @@ define(['webjars!knockout', 'commons/settings', 'widgets/log/log', 'commons/util
   settings.register("build.retestOnSuccessfulBuild", false);
   settings.register("build.recompileOnChange", true);
 
+  var Error = utils.Class({
+    init: function(fields) {
+      this.message = ko.observable(fields.message);
+      this.kind = ko.observable(fields.kind);
+      this.href = ko.observable(fields.href);
+      // owner is a tag used to allow us to remove only
+      // errors/warnings from a particular task
+      this.owner = ko.observable(fields.owner);
+    }
+  });
+  Error.WARNING = "WARNING";
+  Error.ERROR = "ERROR";
+
+  var errorList = ko.observableArray();
+  errorList.addError = function(owner, message, href) {
+    this.push(new Error({ kind: Error.ERROR, owner: owner, message: message, href: href }));
+  };
+  errorList.addWarning = function(owner, message, href) {
+    this.push(new Error({ kind: Error.WARNING, owner: owner, message: message, href: href }));
+  };
+  errorList.clear = function() {
+    this.removeAll();
+  };
+  errorList.clearByOwner = function(owner) {
+    this.remove(function(item) {
+      return item.owner === owner;
+    });
+  };
+
+  // Bogus data for testing
+  errorList.addError("testing123", "This is a sample error", "/");
+  errorList.addError("testing123", "This is another error", "/");
+  errorList.addWarning("testing123", "This is a sample warning", "/");
+
   var log = new logModule.Log();
 
   // properties of the application we are building
@@ -783,13 +817,20 @@ define(['webjars!knockout', 'commons/settings', 'widgets/log/log', 'commons/util
   var build = utils.Singleton({
     init: function() {
     },
+    // These APIs are (relatively) reasonable
+    Error: Error,
+    errorList: errorList,
     log: log,
     app: app,
+    TestOutcome: TestOutcome,
+    TestResult: TestResult,
+    // these three are the old clunky APIs, probably
+    // best to wrap them with a new nicer API above,
+    // rather than use directly. The problem with these
+    // is that they are fragile and side-effecty.
     compile: compile,
     run: run,
-    test: test,
-    TestOutcome: TestOutcome,
-    TestResult: TestResult
+    test: test
   });
 
   return build;
