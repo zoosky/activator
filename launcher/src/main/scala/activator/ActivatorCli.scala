@@ -11,25 +11,43 @@ import sbt.complete.{ Parser, Parsers }
 import scala.concurrent.Await
 import scala.concurrent.duration._
 import akka.actor.ActorSystem
-import activator.TemplatePopularityContest
+import java.util.concurrent.TimeoutException
 
 object ActivatorCli {
   def apply(configuration: AppConfiguration): Int = try withContextClassloader {
     System.out.println()
     val name = getApplicationName()
-    val system = ActorSystem()
+
+    val system = ActorSystem("default")
+
+    val defaultDuration = Duration(system.settings.config.getMilliseconds("activator.timeout"), MILLISECONDS)
+
     val projectDir = new File(name).getAbsoluteFile
     // Ok, now we load the template cache...
 
-    // TODO - Configurable durations in some config file somewhere.
-    val defaultDuration = Duration(6, SECONDS)
     implicit val timeout = akka.util.Timeout(defaultDuration)
+
     // Create our default cache
     // TODO - move this into a common shared location between CLI and GUI.
     val cache = UICacheHelper.makeDefaultCache(system)
     // Get all possible names.
     // TODO - Drive this whole thing through futures, if we feel SAUCY enough, rather than waiting for results.
-    val metadata = Await.result(cache.metadata, defaultDuration)
+    System.out.println()
+    System.out.println("Fetching the latest list of templates...")
+    System.out.println()
+    val metadata = try {
+      Await.result(cache.metadata, defaultDuration)
+    } catch {
+      case e: TimeoutException =>
+        // fall back to just using whatever we have in the local cache
+        System.out.println()
+        System.out.println("Could not fetch the updated list of templates.  Using the local cache.")
+        System.out.println("Check your proxy settings or increase the timeout.  For more details see:\nhttp://typesafe.com/activator/docs")
+        System.out.println()
+
+        val localOnlyCache = UICacheHelper.makeLocalOnlyCache(ActorSystem("fallback"))
+        Await.result(localOnlyCache.metadata, defaultDuration)
+    }
     val templateNames = metadata.map(_.name).toSeq.distinct
     System.out.println()
     System.out.println(s"The new application will be created in ${projectDir.getAbsolutePath}")
@@ -70,7 +88,6 @@ object ActivatorCli {
   } catch {
     case e: Exception =>
       System.err.println(e.getMessage)
-      e.printStackTrace()
       1
   }
 
@@ -104,8 +121,8 @@ object ActivatorCli {
       import Parsers._
       token(any.* map { _ mkString "" }, "<template name>").examples(possible.toSet, false)
     }
-
-    System.out.println("Enter a template name, or hit tab to see a list of possible templates")
+    System.out.println("Browse the list of templates: http://typesafe.com/activator/templates")
+    System.out.println("Enter a template name, or hit tab to see a list")
     readLine(templateNameParser) filterNot (_.isEmpty) getOrElse sys.error("No template name specified.")
   }
 
