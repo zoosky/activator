@@ -26,7 +26,12 @@ define(['commons/streams', 'commons/events', 'commons/utils'], function(streams,
         try {
           subscriber.handler(obj.event);
         } catch(e) {
-          debug && console.log("handler for " + subscriber.taskId + " failed", e);
+          var stack;
+          if ('stack' in e)
+            stack = e.stack;
+          else
+            stack = null;
+          console.error("handler for " + subscriber.taskId + " failed", e, stack, subscriber.handler, obj);
         }
       }
     });
