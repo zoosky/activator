@@ -70,6 +70,17 @@ define(['webjars!knockout', 'commons/settings', 'widgets/log/log', 'commons/util
   errorList.addWarning("inspect", "This is a sample Inspect warning", "#inspect");
   errorList.addWarning("run", "This is a sample Run warning", "#run");
 
+  var Status = {
+      COMPILING: "COMPILING",
+      RUNNING: "RUNNING",
+      TESTING: "TESTING",
+      INSPECTING: "INSPECTING",
+      BUSY: "BUSY",
+      IDLE: "IDLE",
+      FAILED: "FAILED",
+      RESTARTING: "RESTARTING"
+  };
+
   var log = new logModule.Log();
 
   // properties of the application we are building
@@ -84,6 +95,7 @@ define(['webjars!knockout', 'commons/settings', 'widgets/log/log', 'commons/util
     init: function() {
       var self = this;
 
+      this.status = ko.observable(Status.IDLE);
       this.activeTask = ko.observable(""); // empty string or taskId
       this.haveActiveTask = ko.computed(function() {
         return self.activeTask() != "";
@@ -135,8 +147,7 @@ define(['webjars!knockout', 'commons/settings', 'widgets/log/log', 'commons/util
 
       log.info("Loading details of this project...");
 
-      // TODO indicate status
-      //self.status(api.STATUS_BUSY);
+      self.status(Status.COMPILING);
       var taskId = sbt.runTask({
         task: 'name',
         onmessage: function(event) {
@@ -163,8 +174,7 @@ define(['webjars!knockout', 'commons/settings', 'widgets/log/log', 'commons/util
           debug && console.log("loading project info failed", message);
           self.activeTask("");
           log.warn("Failed to load project details: " + message);
-          // TODO set status properly
-          //self.status(api.STATUS_ERROR);
+          self.status(Status.FAILED);
         }
       });
       self.activeTask(taskId);
@@ -174,9 +184,7 @@ define(['webjars!knockout', 'commons/settings', 'widgets/log/log', 'commons/util
       var self = this;
 
       log.info("Refreshing list of source files to watch for changes...");
-      // Are we busy when watching sources? I think so...
-      // TODO communicate status
-      //self.status(api.STATUS_BUSY);
+      self.status(Status.STATUS_BUSY);
       sbt.watchSources({
         onmessage: function(event) {
           debug && console.log("event watching sources", event);
@@ -184,8 +192,7 @@ define(['webjars!knockout', 'commons/settings', 'widgets/log/log', 'commons/util
         },
         success: function(data) {
           debug && console.log("watching sources result", data);
-          // TODO set status somewhere
-          //self.status(api.STATUS_DEFAULT);
+          self.status(Status.IDLE);
           log.info("Will watch " + data.count + " source files.");
           if (typeof(after) === 'function')
             after();
@@ -193,9 +200,7 @@ define(['webjars!knockout', 'commons/settings', 'widgets/log/log', 'commons/util
         failure: function(status, message) {
           debug && console.log("watching sources failed", message);
           log.warn("Failed to reload source file list: " + message);
-          // WE should modify our status here!
-          // TODO status
-          // self.status(api.STATUS_ERROR);
+          self.status(Status.FAILED);
           if (typeof(after) === 'function')
             after();
         }
@@ -204,13 +209,10 @@ define(['webjars!knockout', 'commons/settings', 'widgets/log/log', 'commons/util
     afterCompile: function(succeeded) {
       var self = this;
 
-      // TODO fix status
-      /*
       if (succeeded)
-        self.status(api.STATUS_DEFAULT);
+        self.status(Status.IDLE);
       else
-        self.status(api.STATUS_ERROR);
-        */
+        self.status(Status.FAILED);
 
       if (self.needCompile()) {
         debug && console.log("need to recompile because something changed while we were compiling");
@@ -238,8 +240,7 @@ define(['webjars!knockout', 'commons/settings', 'widgets/log/log', 'commons/util
         return;
       }
 
-      // TODO status
-      //self.status(api.STATUS_BUSY);
+      self.status(Status.COMPILING);
       log.info("Compiling...");
       var task = { task: 'compile' };
       var taskId = sbt.runTask({
@@ -330,8 +331,12 @@ define(['webjars!knockout', 'commons/settings', 'widgets/log/log', 'commons/util
       this.playAppLink = ko.observable('');
       this.playAppStarted = ko.computed(function() { return self.haveActiveTask() && self.playAppLink() != ''; }, this);
       this.atmosLink = ko.observable('');
+      this.inspecting = ko.computed(function() {
+        return this.atmosLink() != '';
+      }, this);
 
-      this.status = ko.observable('Application is stopped.');
+      this.status = ko.observable(Status.IDLE);
+      this.statusMessage = ko.observable('Application is stopped.');
       this.outputLog = new logModule.Log();
     },
     loadMainClasses: function(success, failure) {
@@ -466,9 +471,11 @@ define(['webjars!knockout', 'commons/settings', 'widgets/log/log', 'commons/util
       var self = this;
       if (self.reloadMainClassPending()) {
         log.info("Loading main class information...");
-        self.status('Loading main class...');
+        self.statusMessage('Loading main class...');
+        self.status(Status.BUSY);
       } else {
-        self.status('Running...');
+        self.statusMessage('Running...');
+        self.status(Status.RUNNING);
         log.info("Running...");
       }
 
@@ -623,7 +630,8 @@ define(['webjars!knockout', 'commons/settings', 'widgets/log/log', 'commons/util
           debug && console.log("run result: ", data);
           if (data.type == 'GenericResponse') {
             log.info('Run complete.');
-            self.status('Run complete');
+            self.statusMessage('Run complete');
+            self.status(Status.IDLE);
           } else {
             log.error('Unexpected reply: ' + JSON.stringify(data));
           }
@@ -631,7 +639,8 @@ define(['webjars!knockout', 'commons/settings', 'widgets/log/log', 'commons/util
         },
         failure: function(status, message) {
           debug && console.log("run failed: ", status, message)
-          self.status('Run failed');
+          self.statusMessage('Run failed');
+          self.status(Status.FAILED);
           log.error("Failed: " + status + ": " + message);
           self.doAfterRun();
         }
@@ -652,10 +661,12 @@ define(['webjars!knockout', 'commons/settings', 'widgets/log/log', 'commons/util
           taskId: self.activeTask(),
           success: function(data) {
             debug && console.log("kill success: ", data);
+            self.status(Status.IDLE);
           },
           failure: function(status, message) {
             debug && console.log("kill failed: ", status, message)
-            self.status('Unable to stop');
+            self.statusMessage('Unable to stop');
+            self.status(Status.IDLE);
             log.error("HTTP request to kill task failed: " + message)
           }
         });
@@ -665,6 +676,7 @@ define(['webjars!knockout', 'commons/settings', 'widgets/log/log', 'commons/util
       if (this.haveActiveTask()) {
         this.doStop();
         this.restartPending(true);
+        self.status(Status.RESTARTING);
       } else {
         this.doRun();
       }
@@ -721,18 +733,30 @@ define(['webjars!knockout', 'commons/settings', 'widgets/log/log', 'commons/util
       this.rerunOnBuild = settings.build.retestOnSuccessfulBuild;
       this.restartPending = ko.observable(false);
       this.lastTaskFailed = ko.observable(false);
+      // Rollup results.
+      this.resultStats = ko.computed(function() {
+        var results = {
+            passed: 0,
+            failed: 0
+        };
+        $.each(self.results(), function(idx, result) {
+          if(result.outcome() != build.TestOutcome.PASSED) {
+            results.failed = results.failed + 1;
+          } else {
+            results.passed = results.passed + 1;
+          }
+        });
+        return results;
+      });
       this.status = ko.computed(function() {
-        /*
         var anyFailures = this.lastTaskFailed() || this.resultStats().failed > 0;
 
         if (this.haveActiveTask())
-          return api.STATUS_BUSY;
+          return Status.BUSY;
         else if (anyFailures)
-          return api.STATUS_ERROR;
+          return Status.FAILED;
         else
-          return api.STATUS_DEFAULT;
-          */
-        return "FOO"; // TODO
+          return Status.IDLE;
       }, this);
 
       events.subscribe(function(event) {
@@ -841,12 +865,60 @@ define(['webjars!knockout', 'commons/settings', 'widgets/log/log', 'commons/util
     }
   });
 
+  // TODO do this for real like the other ones
+  var inspect = {
+    status : ko.computed(function() {
+      if (run.inspecting())
+        return Status.INSPECTING;
+      else
+        return Status.IDLE;
+    })
+  };
+
+  var statuses = {
+    all: ko.computed(function() {
+      // grab all of these always so that ko.computed
+      // knows our dependencies
+      var haveErrors = errorList().length > 0;
+      var runStatus = run.status();
+      var compileStatus = compile.status();
+      var testStatus = test.status();
+      var inspectStatus = inspect.status();
+
+      if (inspectStatus == Status.INSPECTING)
+        return Status.INSPECTING;
+      else if (runStatus === Status.RUNNING)
+        return Status.RUNNING;
+      else if (testStatus === Status.TESTING)
+        return Status.TESTING;
+      else if (compileStatus == Status.COMPILING)
+        return Status.COMPILING;
+      else if (runStatus === Status.RESTARTING)
+        return Status.RESTARTING;
+      else if (inspectStatus === Status.BUSY ||
+          runStatus === Status.BUSY ||
+          testStatus === Status.BUSY ||
+          compileStatus == Status.BUSY)
+        return Status.BUSY;
+      else if (haveErrors)
+        return Status.FAILED;
+      else
+        return Status.IDLE;
+    }),
+    compile: compile.status,
+    test: test.status,
+    run: run.status,
+    inspect: inspect.status
+  };
+
   var build = utils.Singleton({
     init: function() {
     },
     // These APIs are (relatively) reasonable
     Error: Error,
-    errors: errors,
+    errors: errors, // errors.{compile,run,etc} = observable array of Error
+    Status: Status,
+    status: statuses, // status.{compile,run,etc} = observable Status.FOO strings
     log: log,
     app: app,
     TestOutcome: TestOutcome,

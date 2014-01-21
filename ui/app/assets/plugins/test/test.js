@@ -20,6 +20,7 @@ define(['text!./test.html', 'css!./test.css', 'main/pluginapi', 'services/build'
       self.haveActiveTask = build.test.haveActiveTask;
       self.rerunOnBuild = build.test.rerunOnBuild;
       self.restartPending = build.test.restartPending;
+      self.resultStats = build.test.resultStats;
 
       self.testFilter = ko.observable('all');
       self.filterTestsText = ko.computed(function() {
@@ -35,21 +36,6 @@ define(['text!./test.html', 'css!./test.css', 'main/pluginapi', 'services/build'
           });
         }
         return self.results();
-      });
-      // Rollup results.
-      self.resultStats = ko.computed(function() {
-        var results = {
-            passed: 0,
-            failed: 0
-        };
-        $.each(self.results(), function(idx, result) {
-          if(result.outcome() != build.TestOutcome.PASSED) {
-            results.failed = results.failed + 1;
-          } else {
-            results.passed = results.passed + 1;
-          }
-        });
-        return results;
       });
 
       this.startStopLabel = ko.computed(function() {

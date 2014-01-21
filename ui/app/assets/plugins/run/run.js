@@ -29,7 +29,7 @@ define(['services/build', 'main/model', 'text!./run.html', 'main/pluginapi', 'co
       this.playAppLink = build.run.playAppLink;
       this.playAppStarted = build.run.playAppStarted;
       this.atmosLink = build.run.atmosLink;
-      this.status = build.run.status;
+      this.statusMessage = build.run.statusMessage;
       this.atmosCompatible = build.app.hasConsole;
       this.haveActiveTask = build.run.haveActiveTask;
       this.haveMainClass = build.run.haveMainClass;
