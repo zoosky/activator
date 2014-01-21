@@ -13,7 +13,7 @@ object Dependencies {
   val playVersion = "2.2.1"
   val webJarsVersion = "2.2.0"
   val akkaVersion = "2.1.2"
-  val slickVersion = "1.0.1"
+  val slickVersion = "2.0.0"
   val atmosVersion = "1.3.1"
   val atmosPluginVersion = "0.3.2"
 

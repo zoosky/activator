@@ -225,7 +225,7 @@ object TheActivatorBuild extends Build {
         "com.typesafe.akka" % "akka-actor_2.10" % "2.2.1",
         "com.typesafe.akka" % "akka-testkit_2.10" % "2.2.1",
         "com.typesafe.akka" % "akka-slf4j_2.10" % "2.2.1",
-        "org.scalatest" % "scalatest_2.10" % "1.9.1",
+        "org.scalatest" % "scalatest_2.10" % "2.0",
         "junit" % "junit" % "4.11",
         "org.fusesource.jansi" % "jansi" % "1.11",
         "com.novocode" % "junit-interface" % "0.7",
@@ -237,7 +237,7 @@ object TheActivatorBuild extends Build {
         "com.typesafe.play" % "play-docs_2.10" % Dependencies.playVersion,
         "com.typesafe.slick" % "slick_2.10" % Dependencies.slickVersion,
         "org.slf4j" % "slf4j-nop" % "1.6.4",
-        "com.h2database" % "h2" % "1.3.166",
+        "com.h2database" % "h2" % "1.3.170",
         // failed transatives
         "junit" % "junit" % "3.8.1",
         "com.jcraft" % "jsch" % "0.1.44-1",
