@@ -116,21 +116,158 @@ define(['text!./log.html', 'webjars!knockout', 'commons/widget', 'commons/utils'
 
   var nextMarkerOwner = 1;
 
-  var Log = utils.Class(Widget, {
-    id: 'log-widget',
-    template: template,
+  var Log = utils.Class({
     init: function(parameters) {
       // we keep an array of arrays because Knockout
       // needs linear time in array size to update
       // the view, so we are using lots of little
       // arrays.
-      this.currentLog = ko.observableArray();
-      this.logGroups = ko.observableArray([ this.currentLog ]);
+      this.entries = ko.observableArray();
       this.queue = [];
       this.boundFlush = this.flush.bind(this);
-      this.node = null;
       this.markerOwner = 'log-' + nextMarkerOwner;
+      // on 0 to 1, scrolling state should be saved;
+      // on 1 to 0, restored.
+      this.scrollFreeze = ko.observable(0);
       nextMarkerOwner += 1;
+    },
+    _pushAll: function(toPush) {
+      var length = toPush.length;
+      if (length == 0)
+        return;
+
+      // we don't use ko.utils.arrayPushAll because
+      // it replaces the entire array and forces
+      // knockout to do a diff. We don't use
+      // push() because knockout seems to be able to
+      // optimize a bulk splice much better (even though
+      // the push is O(1) in theory with Knockout 3.0).
+      // the CHUNK stuff is because browsers have some limit
+      // on the number of function arguments. The limit is pretty
+      // large for some (like MAXSHORT or something) but we
+      // keep it lower in case some browser out there is lame.
+      var CHUNK = 255;
+      var i = 0;
+      for (; i < length; i += CHUNK) {
+        var spliceParams = [ this.entries().length, 0 ];
+        var j = i;
+        var stop = Math.min(j + CHUNK, length);
+        for (; j < stop; j += 1) {
+          spliceParams.push(toPush[j]);
+        }
+        this.entries.splice.apply(this.entries, spliceParams);
+      }
+    },
+    flush: function() {
+      if (this.queue.length > 0) {
+        this.scrollFreeze(this.scrollFreeze() + 1);
+
+        var toPush = this.queue;
+        this.queue = [];
+        this._pushAll(toPush);
+
+        this.scrollFreeze(this.scrollFreeze() - 1);
+      }
+    },
+    log: function(level, message) {
+      // queuing puts a cap on frequency of the scroll state update,
+      // so adding one log message is in theory always cheap.
+      this.queue.push({ level: level, message: message, markerOwner: this.markerOwner });
+
+      if (this.queue.length == 1) {
+        // 100ms = threshold for user-perceptible slowness
+        // in general but nobody has much expectation for
+        // the exact moment a log message appears.
+        setTimeout(this.boundFlush, 150);
+      }
+    },
+    debug: function(message) {
+      this.log("debug", message);
+    },
+    info: function(message) {
+      this.log("info", message);
+    },
+    warn: function(message) {
+      this.log("warn", message);
+    },
+    error: function(message) {
+      this.log("error", message);
+    },
+    stderr: function(message) {
+      this.log("stderr", message);
+    },
+    stdout: function(message) {
+      this.log("stdout", message);
+    },
+    clear: function() {
+      this.flush(); // be sure we collect the queue
+      this.entries.removeAll();
+      markers.clearFileMarkers(this.markerOwner);
+    },
+    moveFrom: function(other) {
+      // "other" is another logs widget
+      other.flush();
+      this.flush();
+      var removed = other.entries.removeAll();
+      markers.clearFileMarkers(other.markerOwner);
+      this._pushAll(removed);
+    },
+    // returns true if it was a log event
+    event: function(event) {
+      if (event.type == 'LogEvent') {
+        var message = event.entry.message;
+        var logType = event.entry.type;
+        if (logType == 'message') {
+          this.log(event.entry.level, stripAnsiCodes(message));
+        } else {
+          if (logType == 'success') {
+            this.log(logType, stripAnsiCodes(message));
+          } else {
+            // sometimes we get stuff on stdout/stderr before
+            // we've intercepted sbt's logger, so try to parse
+            // the log level out of the [info] that sbt prepends.
+            var m = parseLogLevel(logType, message);
+            this.log(m.level, stripAnsiCodes(m.message));
+          }
+        }
+        return true;
+      } else {
+        return false;
+      }
+    },
+    leftoverEvent: function(event) {
+      if (event.type == 'RequestReceivedEvent' || event.type == 'Started' || event.type == 'TaskComplete') {
+        // not interesting
+      } else {
+        this.warn("ignored event: " + JSON.stringify(event));
+      }
+    }
+  });
+
+
+  var LogView = utils.Class(Widget, {
+    id: 'log-widget',
+    template: template,
+    init: function(log) {
+      var self = this;
+
+      if (!(log instanceof Log))
+        throw new Error("Must provide a log to LogView, not " + typeof(log) + " " + log + " arguments=" + arguments);
+
+      this.log = log;
+      this.node = null;
+
+      this.savedScrollState = null;
+      // this subscription would need cleanup if we ever have
+      // a LogView which can be destroyed.
+      this.log.scrollFreeze.subscribe(function(newCount) {
+        if (newCount == 1) {
+          self.savedScrollState = self.findScrollState();
+        } else if (newCount == 0 && self.savedScrollState !== null) {
+          self.applyScrollState(self.savedScrollState);
+          self.savedScrollState = null;
+        }
+      });
     },
     onRender: function(childNodes) {
       this.node = $(childNodes).parent();
@@ -184,111 +321,9 @@ define(['text!./log.html', 'webjars!knockout', 'commons/widget', 'commons/utils'
           element.scrollTop = state.scrollTop;
         }
       }
-    },
-    flush: function() {
-      if (this.queue.length > 0) {
-        var state = this.findScrollState();
-
-        var toPush = this.queue;
-        this.queue = [];
-        ko.utils.arrayPushAll(this.currentLog(), toPush);
-        this.currentLog.valueHasMutated();
-
-        // 100 could probably be higher, but already lets
-        // us scale the logs up by probably 100x what they
-        // could be otherwise by keeping observable arrays
-        // small enough.
-        if (this.currentLog().length > 100) {
-          this.currentLog = ko.observableArray();
-          this.logGroups.push(this.currentLog);
-        }
-
-        this.applyScrollState(state);
-      }
-    },
-    log: function(level, message) {
-      // because knockout array modifications are linear
-      // time and space in array size (it computes a diff
-      // every time), we try to batch them up and minimize
-      // the problem. Unfortunately the diff can still end
-      // up taking a long time but batching makes it an
-      // annoying rather than disastrous issue for users.
-      // The main mitigation for the problem is our nested array
-      // (logGroups) but this helps a bit too perhaps.
-      this.queue.push({ level: level, message: message, markerOwner: this.markerOwner });
-
-      if (this.queue.length == 1) {
-        // 100ms = threshold for user-perceptible slowness
-        // in general but nobody has much expectation for
-        // the exact moment a log message appears.
-        setTimeout(this.boundFlush, 150);
-      }
-    },
-    debug: function(message) {
-      this.log("debug", message);
-    },
-    info: function(message) {
-      this.log("info", message);
-    },
-    warn: function(message) {
-      this.log("warn", message);
-    },
-    error: function(message) {
-      this.log("error", message);
-    },
-    stderr: function(message) {
-      this.log("stderr", message);
-    },
-    stdout: function(message) {
-      this.log("stdout", message);
-    },
-    clear: function() {
-      this.flush(); // be sure we collect the queue
-      this.currentLog = ko.observableArray();
-      this.logGroups.removeAll();
-      markers.clearFileMarkers(this.markerOwner);
-      this.logGroups.push(this.currentLog);
-    },
-    moveFrom: function(other) {
-      // "other" is another logs widget
-      other.flush();
-      this.flush();
-      var removed = other.logGroups.removeAll();
-      markers.clearFileMarkers(other.markerOwner);
-      ko.utils.arrayPushAll(this.logGroups(), removed);
-      this.logGroups.valueHasMutated();
-    },
-    // returns true if it was a log event
-    event: function(event) {
-      if (event.type == 'LogEvent') {
-        var message = event.entry.message;
-        var logType = event.entry.type;
-        if (logType == 'message') {
-          this.log(event.entry.level, stripAnsiCodes(message));
-        } else {
-          if (logType == 'success') {
-            this.log(logType, stripAnsiCodes(message));
-          } else {
-            // sometimes we get stuff on stdout/stderr before
-            // we've intercepted sbt's logger, so try to parse
-            // the log level out of the [info] that sbt prepends.
-            var m = parseLogLevel(logType, message);
-            this.log(m.level, stripAnsiCodes(m.message));
-          }
-        }
-        return true;
-      } else {
-        return false;
-      }
-    },
-    leftoverEvent: function(event) {
-      if (event.type == 'RequestReceivedEvent' || event.type == 'Started' || event.type == 'TaskComplete') {
-        // not interesting
-      } else {
-        this.warn("ignored event: " + JSON.stringify(event));
-      }
     }
   });
 
-  return { Log: Log };
+  return { Log: Log,
+           LogView: LogView };
 });
