@@ -22,26 +22,53 @@ define(['webjars!knockout', 'commons/settings', 'widgets/log/log', 'commons/util
   Error.WARNING = "WARNING";
   Error.ERROR = "ERROR";
 
+  var errorListExtensions = {
+    addError: function(owner, message, href) {
+      this.push(new Error({ kind: Error.ERROR, owner: owner, message: message, href: href }));
+    },
+    addWarning: function(owner, message, href) {
+      this.push(new Error({ kind: Error.WARNING, owner: owner, message: message, href: href }));
+    },
+    clear: function() {
+      this.removeAll();
+    },
+    clearByOwner: function(owner) {
+      this.remove(function(item) {
+        return item.owner === owner;
+      });
+    }
+  };
+
   var errorList = ko.observableArray();
-  errorList.addError = function(owner, message, href) {
-    this.push(new Error({ kind: Error.ERROR, owner: owner, message: message, href: href }));
-  };
-  errorList.addWarning = function(owner, message, href) {
-    this.push(new Error({ kind: Error.WARNING, owner: owner, message: message, href: href }));
-  };
-  errorList.clear = function() {
-    this.removeAll();
-  };
-  errorList.clearByOwner = function(owner) {
-    this.remove(function(item) {
-      return item.owner === owner;
+  $.extend(errorList, errorListExtensions);
+
+  var filteredErrorList = function(owner) {
+    var list = ko.computed(function() {
+      var items = errorList();
+      var filtered = [];
+      for (var i = 0; i < items.length; i++) {
+        if (items[i].owner === owner)
+          filtered.push(items[i]);
+      }
+      return filtered;
     });
+    $.extend(list, errorListExtensions);
+    return list;
+  };
+
+  var errors = {
+    all: errorList,
+    compile: filteredErrorList("compile"),
+    test: filteredErrorList("test"),
+    inspect: filteredErrorList("inspect"),
+    run: filteredErrorList("run")
   };
 
   // Bogus data for testing
-  errorList.addError("testing123", "This is a sample error", "/");
-  errorList.addError("testing123", "This is another error", "/");
-  errorList.addWarning("testing123", "This is a sample warning", "/");
+  errorList.addError("test", "This is a sample Test error", "#test");
+  errorList.addError("compile", "This is a sample Compile error", "#compile");
+  errorList.addWarning("inspect", "This is a sample Inspect warning", "#inspect");
+  errorList.addWarning("run", "This is a sample Run warning", "#run");
 
   var log = new logModule.Log();
 
@@ -819,7 +846,7 @@ define(['webjars!knockout', 'commons/settings', 'widgets/log/log', 'commons/util
     },
     // These APIs are (relatively) reasonable
     Error: Error,
-    errorList: errorList,
+    errors: errors,
     log: log,
     app: app,
     TestOutcome: TestOutcome,
