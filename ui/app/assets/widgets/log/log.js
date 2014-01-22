@@ -93,7 +93,7 @@ define(['text!./log.html', 'webjars!knockout', 'commons/widget', 'commons/utils'
       var text = ko.utils.unwrapObservable(o.message);
       var html = escapeHtml(text);
       if ('href' in o && 'file' in o) {
-        var link = '<a href="' + o.href.replace('$', '$$') + '">$1:$4</a>';
+        var link = '<a href="' + escapeHtml(o.href).replace('$', '$$') + '">$1:$4</a>';
         html = html.replace(fileLineRegex, link);
       }
       ko.utils.setHtml(element, html);
@@ -128,7 +128,7 @@ define(['text!./log.html', 'webjars!knockout', 'commons/widget', 'commons/utils'
         var relative = relativizeFile(file);
         entry.file = relative;
         entry.line = line;
-        entry.href = '#code' + escapeHtml(relative) + ':' + line;
+        entry.href = '#code' + relative + ':' + line;
 
         // register the error globally so editors can pick it up
         // TODO doing this here is a total hack.
