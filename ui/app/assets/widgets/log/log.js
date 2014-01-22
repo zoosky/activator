@@ -104,11 +104,9 @@ define(['text!./log.html', 'webjars!knockout', 'commons/widget', 'commons/utils'
 
   var Log = utils.Class({
     init: function(parameters) {
-      // we keep an array of arrays because Knockout
-      // needs linear time in array size to update
-      // the view, so we are using lots of little
-      // arrays.
       this.entries = ko.observableArray();
+      // a subset of entries that had file:line errors
+      this.parsedErrorEntries = ko.observableArray();
       this.queue = [];
       this.boundFlush = this.flush.bind(this);
       this.markerOwner = 'log-' + nextMarkerOwner;
@@ -129,6 +127,8 @@ define(['text!./log.html', 'webjars!knockout', 'commons/widget', 'commons/utils'
         entry.file = relative;
         entry.line = line;
         entry.href = '#code' + relative + ':' + line;
+
+        this.parsedErrorEntries.push(entry);
 
         // register the error globally so editors can pick it up
         // TODO doing this here is a total hack.
@@ -209,6 +209,7 @@ define(['text!./log.html', 'webjars!knockout', 'commons/widget', 'commons/utils'
     clear: function() {
       this.flush(); // be sure we collect the queue
       this.entries.removeAll();
+      this.parsedErrorEntries.removeAll();
       markers.clearFileMarkers(this.markerOwner);
     },
     moveFrom: function(other) {
@@ -216,6 +217,7 @@ define(['text!./log.html', 'webjars!knockout', 'commons/widget', 'commons/utils'
       other.flush();
       this.flush();
       var removed = other.entries.removeAll();
+      other.parsedErrorEntries.removeAll();
       markers.clearFileMarkers(other.markerOwner);
       this._pushAll(removed);
     },
