@@ -1,0 +1,179 @@
+@import "../../commons/_base";
+
+
+#navigation {
+  background: @slate;
+  overflow: hidden;
+  color: white;
+  position: fixed;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  width: @drawer-width;
+  box-shadow: inset -3px 0 0 rgba(0,0,0,.1);
+  z-index: 5;
+}
+
+#rockets {
+  width: @drawer-width;
+  position: absolute;
+  top: 110px;
+  bottom: 40px;
+  overflow-x: hidden;
+  overflow-y: auto;
+  .inner {
+    height: 100%;
+    width: 100%;
+  }
+  dt {
+    padding: 0 10px;
+    line-height: 40px;
+    font-size: 14px;
+    text-transform: uppercase;
+    background: @slate-ltr;
+    color: @white-dkr;
+    box-shadow: inset -3px 0 0 rgba(0,0,0,.1);
+    width: @drawer-width;
+    left: 0;
+    &.stick {
+      position: absolute;
+      & + dd {
+        margin-top: 42px;
+      }
+    }
+    &.closed {
+      & + dd {
+        //display: none;
+        padding-top: 0;
+        padding-bottom: 0;
+        margin-top: 0;
+        margin-bottom: 0;
+        overflow: hidden;
+        height: 0;
+      }
+    }
+
+  }
+  dd {
+    padding: 0 0 10px;
+  }
+  a {
+    display: block;
+    padding: 3px 10px;
+    color: @grey;
+    line-height: 25px;
+    text-decoration: none;
+    .transition();
+    &.active {
+      background: @blue-dkr;
+      box-shadow: inset -3px 0 0 rgba(0,0,0,.08);
+    }
+    &:hover, &.active {
+      color: white;
+    }
+  }
+}
+
+.selector {
+  background: @red;
+  line-height: 50px;
+  height: 50px;
+  position: absolute;
+  dt, dd {
+    color: #fff;
+    width: @drawer-width;
+    cursor: pointer;
+  }
+  dt {
+    background: url('/public/images/select.svg') 10px 27px no-repeat, url('/public/images/select.svg') 10px -22px no-repeat;
+    .transition();
+    padding: 0 10px 0 28px;
+    height: 50px;
+  }
+  dd {
+    background: @red-dkr;
+  }
+  &:hover dt {
+    background-position: 10px 32px, 10px -27px;
+  }
+  a {
+    display: block;
+    border-top: 1px solid @red;
+    padding: 0 10px;
+    text-decoration: none;
+    color: #fff;
+    &:hover {
+      background: #fff;
+      color: @red;
+    }
+  }
+  button {
+    display: block;
+    background: #fff;
+    color: @red;
+    width: 90%;
+    margin: 8px auto;
+    height: 32px;
+    font-size: 11px;
+    font-weight: bold;
+    text-transform: uppercase;
+    border-radius: 2px;
+    &:hover {
+      color: @red-dkr;
+    }
+  }
+}
+
+#appStatus {
+  text-align: center;
+  padding: 10px 0 5px;
+  width: @drawer-width;
+  position: absolute;
+  top: 50px;
+  line-height: 60px;
+  button {
+    display: inline-block;
+    .square(30px);
+    // background: url(/public/images/icons/console.svg) 5px 5px no-repeat;
+    background-color: @grey;
+    -webkit-mask: url(/public/images/icons/console.svg) 5px 5px no-repeat;
+    -moz-mask: url(/public/images/icons/console.svg) 5px 5px no-repeat;
+    mask: url(/public/images/icons/console.svg) 5px 5px no-repeat;
+    .transition();
+    &.running {
+      -webkit-mask-position: 5px 5px;
+      -moz-mask-position: 5px 5px;
+      mask-position: 5px 5px;
+    }
+    &.refresh {
+      -webkit-mask-position: -25px 5px;
+      -moz-mask-position: -25px 5px;
+      mask-position: -25px 5px;
+    }
+    &.console {
+      -webkit-mask-position: -55px 5px;
+      -moz-mask-position: -55px 5px;
+      mask-position: -55px 5px;
+    }
+    &.testing {
+      -webkit-mask-position: -85px 5px;
+      -moz-mask-position: -85px 5px;
+      mask-position: -85px 5px;
+    }
+
+    &.working {
+      -webkit-animation: 300ms glow infinite alternate linear;
+      -moz-animation: 300ms glow infinite alternate linear;
+      animation: 300ms glow infinite alternate linear;
+    }
+    &:hover {
+      background-color: fadeout(@blue, 40%);
+    }
+    &.active {
+      background-color: @blue;
+    }
+    &.disabled {
+      background-color: @grey-dkr;
+    }
+  }
+}

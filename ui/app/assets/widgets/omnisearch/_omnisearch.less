@@ -4,7 +4,7 @@
 
 #omnisearch {
   float: left;
-  background: @navy url('/public/images/icons/omnisearch.svg') 15px center no-repeat;
+  background: @slate url('/public/images/icons/omnisearch.svg') 15px center no-repeat;
   height: 50px;
   width: 50px;
   &.busy:after {
@@ -47,7 +47,7 @@
     .transition(200ms);
     color: white;
     &:focus {
-      background-color: @navy-dkr;
+      background-color: @slate-dkr;
       max-width: 2000px;
     }
     &::-webkit-input-placeholder { color: @grey; }
@@ -70,14 +70,14 @@
     }
 
     li {
-      background-color: @navy-dkr;
+      background-color: @slate-dkr;
       line-height: 15px;
       padding: 10px 10px 10px 40px;
       min-height: 30px;
       overflow: hidden;
       cursor: pointer;
       &:nth-child(odd) {
-        background-color: @navy;
+        background-color: @slate;
       }
       &.selected, &:hover {
         background-color: @red;

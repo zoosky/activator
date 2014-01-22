@@ -1,32 +1,38 @@
-//
-// Copyright (C) 2013 Typesafe, Inc <http://typesafe.com>
-//
+.font() {
+  font: 500 15px "Source Sans Pro", "Helvetica", sans-serif;
+}
 
-.title(){
-  font-family: "HelveticaNeue-CondensedBold", "Open Sans Condensed", "Helvetica", sans-serif;
+.title() {
+  -webkit-font-smoothing: antialiased;
+  font-family: "Open Sans Condensed", "Helvetica", sans-serif;
   font-weight: bold;
   font-stretch: condensed;
-  letter-spacing: -0.03em;
-  font-weight: 700;
+  font-weight: 500;
 }
 
-// Icons
-@font-face {
-  font-family: 'icons';
-  src: url('/public/icons/entypo.eot');
-  src: url('/public/icons/entypo.ttf') format('truetype'),
-       url('/public/icons/entypo.woff') format('woff'),
-       url('/public/icons/entypo.svg') format('svg');
-  font-weight: normal;
-  font-style: normal;
-}
-// Logos
-@font-face {
-  font-family: 'logos';
-  src: url('/public/icons/TypesafeLogos.eot') format('opentype');
-  src: url('/public/icons/TypesafeLogos.ttf') format('truetype'),
-  url('/public/icons/TypesafeLogos.woff') format('woff'),
-  url('/public/icons/TypesafeLogos.svg') format('svg');
-  font-weight: normal;
-  font-style: normal;
+.typo {
+  p, h1, h2, h3, h4 {
+    margin: .5em 0;
+  }
+  a{
+    &:hover {
+      text-decoration: underline;
+    }
+    &[href^="#code"] {
+      background: url(/public/images/icons/doc.svg) 0 center no-repeat;
+      padding: 0 0 0 14px;
+      margin: 0 3px;
+    }
+  }
+  p code, pre {
+    background: @white-ltr;
+    border: 1px solid @white-dkr;
+    color: @slate-ltr;
+    padding: 0 3px;
+    margin: 0 3px;
+  }
+  pre {
+    margin: 12px -5px;
+    padding: 3px 5px;
+  }
 }

@@ -1,0 +1,32 @@
+<main id="wrapper" class="oneColumnAndMenu documentation">
+  <nav class="menu" data-bind="memoScroll: 'documentationMenu'">
+    <header>
+      <h1>Documentation</h1>
+    </header>
+    <div class="list links">
+      <ul>
+        <li class="section scala"><a>Scala</a></li>
+        <li class="section akka"><a>Akka</a></li>
+        <li class="section play"><a>Play</a></li>
+        <li class="section slick"><a>Slick</a></li>
+        <li class="section sbt"><a>sbt</a></li>
+      </ul>
+    </div>
+  </nav>
+  <!-- ko ifnot: page -->
+  <article class="intro typo">
+    <div class="description">
+      <h1>Welcome to the documentation</h1>
+      <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras vitae lorem at neque mollis viverra eu eu tortor. Vivamus at viverra risus. Quisque scelerisque felis purus, a tempor elit vulputate tempor. Sed pharetra condimentum elementum. Aliquam lobortis, metus ut luctus commodo, neque justo cursus diam, eu semper augue dui a erat. Praesent eget augue dignissim, aliquet erat lobortis, feugiat dui.</p>
+    </div>
+  </article>
+  <!-- /ko -->
+  <!-- ko if: page -->
+    <article class="page">
+      <header>
+        <h1 data-bind="text: page().title"></h1>
+      </header>
+      <section class="typo" data-bind="html: page().page"></section>
+    </article>
+  <!-- /ko -->
+</main>

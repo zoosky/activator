@@ -23,101 +23,81 @@
 			opacity: .5;
 		}
     li span {
-      display: block;
     }
-	}
-	.breadcrumb {
-		font-weight: 900;
-		padding-left: 40px;
-		.wrap {
-			float: right;
-			white-space: nowrap;
-			text-align: left;
-			min-width: 100%;
-		}
-		.home {
-			position: absolute;
-			display: inline-block;
-			float: left;
-			width: 40px;
-			background: #46BCD9;
-			left: 0;
-			font: 20px icons;
-            line-height: 40px;
-			text-align: center;
-		}
-		a {
-			display: inline-block;
-			color: #fff;
-			&:last-child span {
-				color: #fff;
-			}
-		}
-		.slash {
-			color: rgba(255,255,255,.5);
-			padding-right: 5px;
-			font-size: 16px;
-			vertical-align: -2px;
-		}
-	}
-	
-	div.browser {
-		position: absolute;
-		background: white;
-		top: 0;
-		bottom: 0;
-		left: 0;
-		width: 33%;
-		box-shadow: 2px 0 0 rgba(0,0,0,.1);
-		z-index: 20;
-	}
-	div.editor {
-		position: absolute;
-		top: 0;
-		bottom: 0;
-		left: 33%;
-		right: 0;
-		background: rgb(211, 217, 223);
-	}
+  }
 }
 
-div.file-tree {
-  float: left;
-  border: 1px solid black;
-  margin: 1em;
-  width: 300px;
-  height: 800px;
-  overflow: scroll;
+.code {
+  .intro .openIn {
+    margin: 30px 0 0;
+    text-align: center;
+  }
 }
-
-div.file-contents {
-  font-size: 30px;  
-  padding: 1em;
-}
-.file-contents span {
-  font-weight: bold;
-}
-
-.code-control-bar {
-	position: absolute;
+.editorWrapper {
+  position: relative;
+  .tabs {
+    padding: 7px 0 0;
+    white-space : nowrap;
+    .close {
+      display: block;
+      float: left;
+      margin: 7px 7px 0 -7px;
+      width: 16px;
+      height: 16px;
+      background: url(/public/images/icons/close.svg) center center no-repeat;
+      background-color: @grey-ltr;
+      color: @white-dkr;
+      border-radius: 8px;
+      &:hover {
+        background-color: @grey-dkr;
+      }
+    }
+    li {
+      display: inline-block;
+      margin: 0 7px 0 0;
+      padding: 0 15px;
+      line-height: 30px;
+      min-width: 150px;
+      background: @grey-ltr;
+      color: #fff;
+      &.active {
+        background: #fff;
+        color: @grey-dkr;
+        .close {
+          background-color: @white-dkr;
+          color: #fff;
+          &:hover {
+            background-color: @grey-dkr;
+          }
+        }
+      }
+    }
+  }
+  .editor {
+    position: absolute;
+    top: 37px;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: #fff;
+    padding: 5px;
+  }
+  footer {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: @yellow;
+    border-top: 1px solid @yellow-dkr;
+    color: @yellow-text;
+    font-size: 13px;
     height: 30px;
-    top: -30px;
-    right: 20px;
-    z-index: 999;
+    line-height: 30px;
+    > * {
+      padding: 0 10px;
+    }
+    + .editor {
+      bottom: 30px;
+    }
+  }
 }
-
-div.code-editor {
-  top: 0;
-  right: 0;
-  bottom: 0;
-  left: 0;
-  position: absolute;
-}
-
-.code-viewer {
-	padding: 10px;
-	line-height: 20px  !important;
-	font: 12px "Monaco", monospace;
-	background: url(/public/images/code-line.png) 10px 10px;
-}
-
