@@ -87,28 +87,14 @@ define(['text!./log.html', 'webjars!knockout', 'commons/widget', 'commons/utils'
   ko.bindingHandlers['compilerMessage'] = {
     // we only implement init, not update, because log lines are immutable anyway
     // and knockout calls update() multiple times (not smart enough to do deep
-    // equality on arrays, maybe?), the multiple update() in turn can result
-    // in not registering the most recent file markers, and just in inefficiency.
+    // equality on arrays, maybe?)
     init: function (element, valueAccessor, allBindingsAccessor, viewModel) {
       var o = ko.utils.unwrapObservable(valueAccessor());
       var text = ko.utils.unwrapObservable(o.message);
       var html = escapeHtml(text);
-      var m = fileLineRegex.exec(text);
-      var file = null;
-      var line = null;
-      if (m !== null) {
-        file = m[1];
-        line = m[4];
-        // both html-escaped and second-arg-to-replace-escaped
-        var relative = relativizeFile(file);
-        var relativeEscaped = escapeHtml(relative).replace('$', '$$');
-        // TODO include the line number in the url once code plugin can handle it
-        var link = '<a href="#code'+relativeEscaped+':'+line+'">$1:$4</a>: ';
+      if ('href' in o && 'file' in o) {
+        var link = '<a href="' + o.href.replace('$', '$$') + '">$1:$4</a>';
         html = html.replace(fileLineRegex, link);
-
-        // register the error globally so editors can pick it up
-        markers.registerFileMarker(ko.utils.unwrapObservable(o.markerOwner),
-            relative, line, ko.utils.unwrapObservable(o.level), text);
       }
       ko.utils.setHtml(element, html);
     }
@@ -130,6 +116,25 @@ define(['text!./log.html', 'webjars!knockout', 'commons/widget', 'commons/utils'
       // on 1 to 0, restored.
       this.scrollFreeze = ko.observable(0);
       nextMarkerOwner += 1;
+    },
+    _addErrorInfo: function(entry) {
+      var m = fileLineRegex.exec(entry.message);
+      var file = null;
+      var line = null;
+      if (m !== null) {
+        file = m[1];
+        line = m[4];
+        // both html-escaped and second-arg-to-replace-escaped
+        var relative = relativizeFile(file);
+        entry.file = relative;
+        entry.line = line;
+        entry.href = '#code' + escapeHtml(relative) + ':' + line;
+
+        // register the error globally so editors can pick it up
+        // TODO doing this here is a total hack.
+        markers.registerFileMarker(this.markerOwner,
+            entry.file, entry.line, entry.level, entry.message);
+      }
     },
     _pushAll: function(toPush) {
       var length = toPush.length;
@@ -153,7 +158,9 @@ define(['text!./log.html', 'webjars!knockout', 'commons/widget', 'commons/utils'
         var j = i;
         var stop = Math.min(j + CHUNK, length);
         for (; j < stop; j += 1) {
-          spliceParams.push(toPush[j]);
+          var entry = toPush[j];
+          this._addErrorInfo(entry);
+          spliceParams.push(entry);
         }
         this.entries.splice.apply(this.entries, spliceParams);
       }
@@ -172,7 +179,7 @@ define(['text!./log.html', 'webjars!knockout', 'commons/widget', 'commons/utils'
     log: function(level, message) {
       // queuing puts a cap on frequency of the scroll state update,
       // so adding one log message is in theory always cheap.
-      this.queue.push({ level: level, message: message, markerOwner: this.markerOwner });
+      this.queue.push({ level: level, message: message });
 
       if (this.queue.length == 1) {
         // 100ms = threshold for user-perceptible slowness
