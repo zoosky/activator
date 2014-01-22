@@ -27,15 +27,19 @@ define([
     },
 
     route: function(url, breadcrumb) {
-      breadcrumb([['tutorial/', "Tutorial"]]);
       if (url.parameters[0] === void 0 || url.parameters[0] === "") {
+        breadcrumb([['tutorial/', "Tutorial"]]);
         TutorialState.page(0);
       } else {
-        if (TutorialState.page()){
-          TutorialState.page(tutorialService.getPage(url.parameters[0]));
-        } else { // Tutorial may not be loaded
+        // Tutorial may not be loaded
+        if (tutorialService.tutorialLoaded.state() == "resolved"){
+          p = tutorialService.getPage(url.parameters[0]);
+          breadcrumb([['tutorial/', "Tutorial"],['tutorial/'+url.parameters[0], p.title]]);
+          TutorialState.page(p);
+        } else {
+          var func = arguments.callee, args = [].slice.call(arguments);
           tutorialService.tutorialLoaded.then(function() {
-            TutorialState.page(tutorialService.getPage(url.parameters[0]));
+            func.apply(this, args);
           });
         }
       }

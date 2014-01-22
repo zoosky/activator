@@ -21,9 +21,9 @@
   <div class="editorWrapper">
     <header>
       <ul class="tabs" data-bind="foreach: openedDocuments">
-        <li data-bind="css: {active: active}, click: $root.openFile">
+        <li data-bind="css: {active: active, edited: edited}, click: $root.openFile">
           <button class="close" data-bind="click: $root.closeFile"></button>
-          <span data-bind="text: title"></span>
+          <span data-bind="text: name"></span>
         </li>
       </ul>
     </header>
@@ -36,7 +36,7 @@
     </footer>
     <div class="editor">
       <pre>{
-  "title": "README",
+  "name": "README",
   "location": "/app/controllers/README",
   "undo": []
 }

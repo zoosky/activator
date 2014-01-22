@@ -1,30 +1,30 @@
 define(function() {
 
   var tree = ko.observableArray([
-    { title: "app", location: "/app", isDirectory: true, opened: ko.observable(false), children: [
-      { title: "controllers", location: "/app/controllers", isDirectory: true, opened: ko.observable(false), children: [
-        { title: "application.scala", location: "/app/controllers/application.scala" }
+    { name: "app", location: "/app", isDirectory: true, opened: ko.observable(false), children: [
+      { name: "controllers", location: "/app/controllers", isDirectory: true, opened: ko.observable(false), children: [
+        { name: "application.scala", location: "/app/controllers/application.scala" }
       ]},
-      { title: "models", location: "/app/models", isDirectory: true, opened: ko.observable(false), children: [
-        { title: "model.scala", location: "/app/controllers/model.scala" }
+      { name: "models", location: "/app/models", isDirectory: true, opened: ko.observable(false), children: [
+        { name: "model.scala", location: "/app/controllers/model.scala" }
       ]},
-      { title: "views", location: "/app/views", isDirectory: true, opened: ko.observable(false), children: [
-        { title: "index.scala.html", location: "/app/controllers/index.scala.html" }
+      { name: "views", location: "/app/views", isDirectory: true, opened: ko.observable(false), children: [
+        { name: "index.scala.html", location: "/app/controllers/index.scala.html" }
       ]}
     ]},
-    { title: "conf", location: "/conf", isDirectory: true, opened: ko.observable(false), children: [
-      { title: "application.conf", location: "/app/controllers/application.conf" },
-      { title: "routes", location: "/app/controllers/routes" }
+    { name: "conf", location: "/conf", isDirectory: true, opened: ko.observable(false), children: [
+      { name: "application.conf", location: "/app/controllers/application.conf" },
+      { name: "routes", location: "/app/controllers/routes" }
     ]},
-    { title: "project", location: "/project", isDirectory: true, opened: ko.observable(false), children: [
-      { title: "build.properties", location: "/app/controllers/build.properties" }
+    { name: "project", location: "/project", isDirectory: true, opened: ko.observable(false), children: [
+      { name: "build.properties", location: "/app/controllers/build.properties" }
     ]},
-    { title: "public", location: "/public", isDirectory: true, opened: ko.observable(false), children: [
-      { title: "javascripts", location: "/app/javascripts", isDirectory: true, opened: ko.observable(false), children: []},
-      { title: "images", location: "/app/images", isDirectory: true, opened: ko.observable(false), children: []},
-      { title: "stylesheets", location: "/app/stylesheets", isDirectory: true, opened: ko.observable(false), children: []}
+    { name: "public", location: "/public", isDirectory: true, opened: ko.observable(false), children: [
+      { name: "javascripts", location: "/app/javascripts", isDirectory: true, opened: ko.observable(false), children: []},
+      { name: "images", location: "/app/images", isDirectory: true, opened: ko.observable(false), children: []},
+      { name: "stylesheets", location: "/app/stylesheets", isDirectory: true, opened: ko.observable(false), children: []}
     ]},
-    { title: "README", location: "/app/controllers/README" }
+    { name: "README", location: "/app/controllers/README" }
   ]);
 
 
@@ -47,6 +47,59 @@ define(function() {
         data: {
           location: location,
           isDirectory: isDirectory
+        }
+      });
+    },
+
+    browse: function(location) {
+      return $.ajax({
+        url: '/api/local/browse',
+        type: 'GET',
+        dataType: 'json',
+        data: {
+          location: location
+        }
+      });
+    },
+
+    browseRoots: function(location) {
+      return $.ajax({
+        url: '/api/local/browseRoots',
+        type: 'GET',
+        dataType: 'json'
+      });
+    },
+
+    // Fetch utility
+    show: function(location){
+      return $.ajax({
+        url: '/api/local/show',
+        type: 'GET',
+        dataType: 'text',
+        data: { location: location }
+      });
+    },
+
+    save: function(location, code) {
+      return $.ajax({
+        url: '/api/local/save',
+        type: 'PUT',
+        dataType: 'text',
+        data: {
+          location: location,
+          content: code
+        }
+      });
+    },
+
+    rename: function(location, newName) {
+      return $.ajax({
+        url: '/api/local/rename',
+        type: 'PUT',
+        dataType: 'text',
+        data: {
+          location: location,
+          newName: newName
         }
       });
     },

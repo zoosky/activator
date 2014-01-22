@@ -1,5 +1,45 @@
 define(function() {
 
+  $.fn.clickOut = function(callback, context){
+    return this.each(function(){
+      context = context || this;
+      var _this = this;
+      // SetTimeout to prevent evt propagation conflicts
+      setTimeout(function(){
+        $(document).click(function(e){
+          if (!$(_this).has(e.target).length){
+            $(document).unbind("click", arguments.callee);
+            callback.call(context, e);
+          }
+        });
+      }, 10);
+    });
+  }
+
+  $.fn.dropdown = function(selector, context){
+    return this.each(function(i, scope){
+      context = context || this;
+      selector = selector || "dt";
+      var $this = $(scope), $doc = $(document.body);
+
+      function clickOut(e){
+        if (!$this.has(e.target).length){
+          $doc.unbind("click", clickOut);
+          $this.removeClass("opened");
+        }
+      }
+
+      $this.on("click",function(e){
+        $this.toggleClass("opened");
+        if ($this.hasClass("opened")){
+          $doc.click(clickOut);
+        } else {
+          $doc.unbind("click", clickOut);
+        }
+      });
+    });
+  };
+
   ko.bindingHandlers.toggle = {
     init: function(element, valueAccessor, allBindings, viewModel, bindingContext) {
       element.addEventListener("click", function(e) {
