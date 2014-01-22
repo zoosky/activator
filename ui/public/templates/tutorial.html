@@ -4,18 +4,8 @@
       <h1>Tutorial</h1>
     </header>
     <div class="list links">
-      <ul>
-        <li><a href="#tutorial/0">Source code</a></li>
-        <li><a href="#tutorial/1">Define our Messages</a></li>
-        <li><a href="#tutorial/2">Define our Actor</a></li>
-        <li><a href="#tutorial/3">Create our Actor</a></li>
-        <li><a href="#tutorial/4">Tell the Actor (to do something)</a></li>
-        <li><a href="#tutorial/5">Replying to an Actor</a></li>
-        <li><a href="#tutorial/6">Using Inbox</a></li>
-        <li><a href="#tutorial/7">Test the App</a></li>
-        <li><a href="#tutorial/8">Run the App</a></li>
-        <li><a href="#tutorial/9">Typesafe Console</a></li>
-        <li><a href="#tutorial/10">Next Steps</a></li>
+      <ul data-bind="foreach: table">
+        <li><a data-bind="attr: {href: '#tutorial/' + $index() }, text: $data"></a></li>
       </ul>
     </div>
   </nav>

@@ -12,7 +12,6 @@ define([
   funcs
 ){
 
-
   var TutorialState = new function(){
     this.tutorial   = tutorialService.getTutorial();
     this.table      = tutorialService.getTable();
@@ -32,7 +31,13 @@ define([
       if (url.parameters[0] === void 0 || url.parameters[0] === "") {
         TutorialState.page(0);
       } else {
-        TutorialState.page(tutorialService.getPage(url.parameters[0]));
+        if (TutorialState.page()){
+          TutorialState.page(tutorialService.getPage(url.parameters[0]));
+        } else { // Tutorial may not be loaded
+          tutorialService.tutorialLoaded.then(function() {
+            TutorialState.page(tutorialService.getPage(url.parameters[0]));
+          });
+        }
       }
     }
 
