@@ -101,13 +101,12 @@ define(['webjars!knockout', 'commons/settings', 'widgets/log/log', 'commons/util
         return self.activeTask() != "";
       }, this);
       this.needCompile = ko.observable(false);
-      // TODO use the real setting for this
-      this.recompileOnChange = ko.observable(true);
+
       events.subscribe(function(event) {
         return event.type == 'FilesChanged';
       },
       function(event) {
-        if (self.recompileOnChange()) {
+        if (settings.build.recompileOnChange()) {
           if (app.hasPlay()) {
             debug && console.log("files changed but it's a Play app so not recompiling.")
             log.info("Some of your files may have changed; reload in the browser or click \"Start compiling\" above to recompile.")
