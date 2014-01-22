@@ -28,33 +28,16 @@ define(['services/build', 'main/model', 'text!./run.html', 'main/pluginapi', 'co
       this.outputLogView = new log.LogView(build.run.outputLog);
       this.playAppLink = build.run.playAppLink;
       this.playAppStarted = build.run.playAppStarted;
-      this.atmosLink = build.run.atmosLink;
-      this.statusMessage = build.run.statusMessage;
-      this.atmosCompatible = build.app.hasConsole;
       this.haveActiveTask = build.run.haveActiveTask;
       this.haveMainClass = build.run.haveMainClass;
       this.currentMainClass = build.run.currentMainClass;
       this.mainClasses = build.run.mainClasses;
       this.rerunOnBuild = settings.build.rerunOnBuild;
       this.restartPending = build.run.restartPending;
-      this.runningWithAtmos = ko.computed(function() {
-        return build.run.haveActiveTask() && build.run.atmosLink() != '' && model.signedIn();
-      }, this);
-      this.runningWithoutAtmosButEnabled = ko.computed(function() {
-        return build.run.haveActiveTask() && build.run.atmosLink() == '' && model.signedIn() && settings.build.runInConsole();
-      }, this);
-      this.runningWithoutAtmosBecauseDisabled = ko.computed(function() {
-        return build.run.haveActiveTask() && build.run.atmosLink() == '' && model.signedIn() && !settings.build.runInConsole();
-      }, this);
-      this.notSignedIn = ko.computed(function() {
-        return !model.signedIn();
-      }, this);
-      this.notRunningAndSignedInAndAtmosEnabled = ko.computed(function() {
-        return !build.run.haveActiveTask() && settings.build.runInConsole() && model.signedIn();
-      }, this);
-      this.notRunningAndSignedInAndAtmosDisabled = ko.computed(function() {
-        return !build.run.haveActiveTask() && !settings.build.runInConsole() && model.signedIn();
-      }, this);
+
+      this.atmosLink = build.run.atmosLink;
+      this.statusMessage = build.run.statusMessage;
+      this.atmosCompatible = build.app.hasConsole;
 
       this.outputScroll = this.outputLogView.findScrollState();
     },
@@ -73,25 +56,7 @@ define(['services/build', 'main/model', 'text!./run.html', 'main/pluginapi', 'co
     },
     onPostActivate: function() {
       this.outputLogView.applyScrollState(this.outputScroll);
-    },
-    restartWithAtmos: function(self) {
-      settings.build.runInConsole(true);
-      build.restartTask('run');
-    },
-    restartWithoutAtmos: function(self) {
-      settings.build.runInConsole(false);
-      build.restartTask('run');
-    },
-    enableAtmos: function(self) {
-      settings.build.runInConsole(true);
-    },
-    disableAtmos: function(self) {
-      settings.build.runInConsole(false);
-    },
-    showLogin: function(self) {
-      $('#user').addClass("open");
-    }
-  });
+    }  });
 
   return api.Plugin({
     id: 'run',
