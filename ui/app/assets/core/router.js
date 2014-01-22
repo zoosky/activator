@@ -10,6 +10,7 @@ define(['./plugins', 'noir', 'jquery'], function(plugins) {
   var load = function(url) {
     var plugin = parseUrl(url);
     require([plugin.pluginUrl], function(p) {
+      plugin.reference = p;
       if (current().plugin !== plugin.plugin) {
         p.layout(plugin);
       }
@@ -19,7 +20,7 @@ define(['./plugins', 'noir', 'jquery'], function(plugins) {
   }
 
   var parseUrl = function(url) {
-    if (!url) url = "tutorial"; // Default page
+    if (!url) url = "tutorial"; // Default plugin
     if (url[0] === "#") url = url.slice(1); // Remove extra hash
     var plugin = url.split("/")[0]; // Divide the path in sections
     return {
@@ -30,16 +31,9 @@ define(['./plugins', 'noir', 'jquery'], function(plugins) {
     }
   }
 
-  var isMe = function(url) {
-    return ko.computed(function() {
-      return current().plugin === url;
-    });
-  }
-
   return {
     current: current,
     load: load,
-    isMe: isMe,
     breadcrumb: breadcrumb
   }
 });

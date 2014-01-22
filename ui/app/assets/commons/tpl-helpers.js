@@ -40,6 +40,14 @@ define(function() {
     });
   };
 
+  $.fn.getOrElse = function(selector, ctx){
+    return this.length ? $(this) : $(selector, ctx)
+  }
+
+  $.fn.scrollReveal = function(){
+    $("<a href='#'>&nbsp;</a>").insertAfter(this).focus().remove();
+  }
+
   ko.bindingHandlers.toggle = {
     init: function(element, valueAccessor, allBindings, viewModel, bindingContext) {
       element.addEventListener("click", function(e) {
@@ -77,6 +85,15 @@ define(function() {
     init: function(element, valueAccessor, allBindings, viewModel, bindingContext) {
       var url = valueAccessor();
       ko.applyBindingsToNode(element, { attr: {'href': url} });
+    },
+    update: function(element, valueAccessor, allBindings, viewModel, bindingContext) {
+    }
+  }
+
+  ko.bindingHandlers.putLocation = {
+    init: function(element, valueAccessor, allBindings, viewModel, bindingContext) {
+      var url = valueAccessor().location;
+      ko.applyBindingsToNode(element, { attr: {'href': '#code'+url.replace(window.serverAppModel.location, "") } });
     },
     update: function(element, valueAccessor, allBindings, viewModel, bindingContext) {
     }

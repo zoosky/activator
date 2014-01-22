@@ -2,6 +2,8 @@
 // Copyright (C) 2013 Typesafe, Inc <http://typesafe.com>
 //
 
+@import "../../commons/_base";
+
 #omnisearch {
   float: left;
   background: @slate url('/public/images/icons/omnisearch.svg') 15px center no-repeat;
@@ -33,22 +35,22 @@
   }
   input {
     position: absolute;
+    max-width: 50px;
+    width: 100%;
     top: 0;
     left: 50px;
     right: 100px;
-    right: 0;
     height: 50px;
     line-height: 50px;
+    display: block;
     background: inherit;
     font: inherit;
     padding: 10px 10px 10px 40px;
-    max-width: 50px;
-    width: 100%;
-    .transition(200ms);
     color: white;
+    .transition(200ms);
     &:focus {
       background-color: @slate-dkr;
-      max-width: 2000px;
+      max-width: 1000px;
     }
     &::-webkit-input-placeholder { color: @grey; }
     &::-moz-placeholder { color: @grey; }
@@ -114,4 +116,3 @@
     }
   }
 }
-

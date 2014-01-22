@@ -13,17 +13,25 @@ define([
   pannels
 ){
 
-  function MainView(){
-    // Layout
-    this.pannelShape      = settings.observable("layoutManager.pannelShape"     , "right1");
-    this.pannelState      = settings.observable("layoutManager.pannelState"     , true);
-    this.navigationState  = settings.observable("layoutManager.navigationState" , true);
+  var MainView = {
+    // Layout states
+    pannelShape:      settings.observable("layoutManager.pannelShape"     , "right1"),
+    pannelState:      settings.observable("layoutManager.pannelState"     , true),
+    navigationState:  settings.observable("layoutManager.navigationState" , true)
   }
 
   return {
+    keyboard: function(key,m, e) {
+      if (key == "T"){
+        e.preventDefault();
+        e.stopPropagation();
+        $("#omnisearch input").focus();
+      }
+    },
     render: function() {
-      ko.applyBindings(new MainView(), document.body);
+      ko.applyBindings(MainView, document.body);
 
+      // Build the DOM
       $(document.body).append(header);
       $(document.body).append(navigation);
       $('<main id="wrapper"></main>').appendTo(document.body);

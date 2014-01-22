@@ -11,22 +11,35 @@ define([
   template
 ) {
 
-  var links = {
-    system: {
-      title: "System"
+  var links = [
+    {
+      id: 'system',
+      title: "System",
+      plugin: ("plugins/inpsect/console/system")
     },
-    actors: {
-      title: "Actors"
+    {
+      id: 'actors',
+      title: "Actors",
+      plugin: ("plugins/inpsect/console/actors")
     },
-    requests: {
-      title: "Requests"
+    {
+      id: 'requests',
+      title: "Requests",
+      plugin: ("plugins/inpsect/console/requests")
     },
-    deviations: {
-      title: "Deviations"
+    {
+      id: 'deviations',
+      title: "Deviations",
+      plugin: ("plugins/inpsect/console/deviations")
+    },
+    {
+      id: 'rest',
+      title: "Rest console",
+      plugin: ("plugins/inpsect/console/rest")
     }
-  };
+  ]
+
   var page = ko.observable();
-  var logged = ko.observable(false);
   var login = function() {
     return logged(true);
   };
@@ -77,14 +90,11 @@ define([
 
   var InspectState = {
     links: links,
-    page: page,
-    logged: logged,
-    login: login
+    page: page
   }
 
   return plugins.make({
     layout: function(url) {
-      // $inspect(inspects, page, logged, login);
       var $inspect = $(template)[0];
       ko.applyBindings(InspectState, $inspect);
       $("#wrapper").replaceWith($inspect);

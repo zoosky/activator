@@ -1,12 +1,13 @@
 define([
+  'commons/settings',
   'core/router',
   'services/build',
   'widgets/buttons/dropdown',
   'text!templates/navigation.html',
-
   'css!./navigation',
   'css!./typesafe'
 ], function(
+  settings,
   router,
   build,
   dropdown,
@@ -26,18 +27,40 @@ define([
     {
       title: 'Develop',
       links: [
-        { url: 'code',          title: "Code" },
-        { url: 'run',           title: "Run" , working: build.status.all, counterOff: build.errors.compile },
-        { url: 'inspect',       title: "Inspect" },
-        { url: 'test',          title: "Test" }
+        { url: 'code',           title: "Code" },
+        {
+          url: 'run',
+          title: "Run",
+          working: ko.computed(function() {
+            return build.activity.compiling || build.activity.launching;
+          }),
+          counter: ko.computed(function() {
+            return build.errors.compile().length;
+          })
+        },
+        {
+          url: 'inspect',
+          title: "Inspect",
+          working: build.status.all,
+          counter: ko.computed(function() {
+            return build.errors.inspect().length;
+          })
+        },
+        {
+          url: 'test',
+          title: "Test",
+          working: build.activity.testing,
+          counter: ko.computed(function() {
+            return build.errors.test().length;
+          })
+        }
       ]
     },
     {
       title: 'Deliver',
       links: [
-        // { url: 'versioning',    title: "Versioning" },
-        // { url: 'integration',   title: "Integration Tests" },
-        { url: 'deploy',        title: "Deploy" }
+        { url: 'deploy',         title: "Deploy" },
+        { url: 'monitor',        title: "Monitor" }
       ]
     }
   ]
@@ -49,29 +72,48 @@ define([
     });
   }
 
-  var Status = function(){
-    this.running = ko.computed(function(){
-      return true;
-    });
-    this.refresh = ko.computed(function(){
-      return true;
-    });
-    this.console = ko.computed(function(){
+  var recompileOnChange         = settings.observable("build.recompileOnChange", true);
+  var automaticFlushInspect     = settings.observable("build.automaticFlushInspect", true);
+  var retestOnSuccessfulBuild   = settings.observable("build.retestOnSuccessfulBuild", false);
+
+  var status = {
+    running: build.activity.running,
+    refresh: build.recompileOnChange,
+    console: ko.computed(function(){
       return false;
-    });
-    this.consoleDisabled = ko.computed(function(){
-      return false;
-    });
-    this.testing = ko.computed(function(){
-      return true;
-    });
+    }),
+    testing: build.retestOnSuccessfulBuild,
+
+    // Aliases so we can use these in our html template.
+    // This is a mess to clean up; we should just alias
+    // 'build' or something then refer to these.
+    // But doing this to keep changes in one commit smaller.
+    // We want to just change the whole 'build' API anyway.
+    // this.outputLogView = new log.LogView(build.run.outputLog);
+    playAppLink: build.run.playAppLink,
+    playAppStarted: build.run.playAppStarted,
+    haveActiveTask: build.run.haveActiveTask,
+    haveMainClass: build.run.haveMainClass,
+    currentMainClass: build.run.currentMainClass,
+    mainClasses: build.run.mainClasses,
+    // this.rerunOnBuild = settings.build.rerunOnBuild;
+    restartPending: build.run.restartPending,
+    consoleCompatible: build.app.hasConsole,
+    statusMessage: build.run.statusMessage
+    // this.outputScroll = this.outputLogView.findScrollState();
   }
 
+  // view model
   var NavigationState = {
     recentApps: recentApps,
     links: links,
-    status: new Status(),
-    build: build
+    status: build.activity,
+    build: build,
+    settings: {
+      recompileOnChange: recompileOnChange,
+      automaticFlushInspect: automaticFlushInspect,
+      retestOnSuccessfulBuild: retestOnSuccessfulBuild
+    }
   }
 
   ko.applyBindings(NavigationState, $navigation);

@@ -1,14 +1,15 @@
 define([
   'commons/settings',
   'core/router',
+  'widgets/omnisearch/omnisearch',
   'widgets/buttons/dropdown',
   'text!templates/header.html',
   'css!./header',
-  'css!./breadcrumb',
-  'css!./omnisearch'
+  'css!./breadcrumb'
 ], function(
   settings,
   router,
+  omnisearch,
   dropdown,
   template
 ){
@@ -54,7 +55,8 @@ define([
     omnisearch: Omnisearch,
     breadcrumb: router.breadcrumb,
     user: {},
-    notifications: {}
+    notifications: {},
+    omnisearch: omnisearch
   };
 
   ko.applyBindings(HeaderState, $header)

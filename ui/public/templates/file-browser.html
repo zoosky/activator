@@ -1,11 +1,13 @@
-<div class="fileTree">
-  <ul data-bind="template: { name: 'fileBrowserTpl', foreach: tree, as: 'item' }">
+<div class="fileTree open">
+  <!-- ko with: tree -->
+  <ul data-bind="template: { name: 'fileBrowserTpl', foreach: $data, as: 'item', afterRender: $root.setFocus }">
   </ul>
+  <!-- /ko -->
 </div>
 <tpl id="fileBrowserTpl">
     <!-- ko if:item.isDirectory -->
     <li class="directory" data-bind="css: {open: item.opened}">
-      <span data-bind="text: item.name, click: $root.toggleDir"></span>
+      <a class="name" data-bind="text: item.name, click: $root.toggleDir, putLocation: item"></a>
       <!-- ko if: item.children && item.children.length -->
       <ul data-bind="template: { name: 'fileBrowserTpl', foreach: item.children, as: 'item' }">
       </ul>
@@ -13,6 +15,6 @@
     </li>
     <!-- /ko -->
     <!-- ko ifnot: item.isDirectory -->
-    <li><span data-bind="isActive: '#code'+item.location.replace(serverAppModel.location, ""), text: item.name, click: $root.openFile"></span></li>
+    <li class="file"><a class="name" data-bind="text: item.name, click: $root.openFile, putLocation: item"></a></li>
     <!-- /ko -->
 </tpl>

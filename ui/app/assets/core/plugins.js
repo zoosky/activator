@@ -1,5 +1,6 @@
 define(function() {
 
+  // This will redirect without adding a new state in browser history
   var redirect = function(hash) {
     if (history.replaceState != null) {
       return history.replaceState(null, null, '#' + hash);
@@ -13,17 +14,22 @@ define(function() {
 
       return $.extend({}, p, {
         route: function(url, breadcrumb) {
+          // this will basically remember last url from this plugin for next time
+
+          // We have parameters, put in cache
           if (url.parameters.length) {
-            // We have parameters, use it
             routeState.url = url;
+
+          // No parameters, but some in cache
           } else if (routeState.url) {
-            // No parameters, but some in cache
             url = routeState.url;
             redirect(url.path);
+
+          // Nothing? Use `home`
           } else {
-            // Nothing? Use `home`
             url.parameters = [];
           }
+
           return p.route(url, breadcrumb);
         }
       });

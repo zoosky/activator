@@ -128,6 +128,7 @@ define(function() {
         debug && console.log("not expecting a Pong right now");
       }
     } else {
+      var e = JSON.parse(event.data);
       sendEvent(obj);
     }
   }

@@ -4,7 +4,7 @@
       <h1>Browse Code</h1>
     </header>
   </nav>
-  <!-- ko ifnot: visible -->
+  <!-- ko ifnot: hasOpenedDocument -->
   <article class="intro typo">
     <div class="description">
       <h1>Your app's code</h1>
@@ -17,11 +17,11 @@
     </div>
   </article>
   <!-- /ko -->
-  <!-- ko if: visible -->
+  <!-- ko if: hasOpenedDocument -->
   <div class="editorWrapper">
     <header>
       <ul class="tabs" data-bind="foreach: openedDocuments">
-        <li data-bind="css: {active: active, edited: edited}, click: $root.openFile">
+        <li data-bind="css: {active: active, edited: edited}, click: $root.openFile, attr: {title: humanLocation}">
           <button class="close" data-bind="click: $root.closeFile"></button>
           <span data-bind="text: name"></span>
         </li>
@@ -34,14 +34,7 @@
       <span>Small font</span>
       <span>2 spaces indentation</span>
     </footer>
-    <div class="editor">
-      <pre>{
-  "name": "README",
-  "location": "/app/controllers/README",
-  "undo": []
-}
-      </pre>
-    </div>
+    <textarea class="editor" data-bind="value: body"></textarea>
     <!-- /ko -->
   </div>
   <!-- /ko -->

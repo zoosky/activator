@@ -3,9 +3,8 @@ define(function() {
   var pages = ko.observableArray([]);
   var table = ko.observableArray([]);
   var tutorialLoaded = $.when($.ajax("tutorial/index.html")).then(function(data){
-    // parseHTML dumps the <html> <head> and <body> tags it looks like
-    // so we'll get back a list with <title> and some <div> and some
-    // text nodes.
+    // parseHTML dumps the <html> <head> and <body> tags
+    // so we'll get a list with <title> some <div> and some text nodes
     var htmlNodes = $.parseHTML(data);
     $(htmlNodes).filter("div").each(function(i,el){
       var title = $("h2", el).remove().html() || $(el).text().substring(0,40) + "...";
@@ -17,7 +16,7 @@ define(function() {
   return {
 
     tutorialLoaded: tutorialLoaded,
-
+    // todo
     getTutorial: function() {
       return {
         name: "Tutorial Name",

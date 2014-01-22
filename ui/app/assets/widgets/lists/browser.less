@@ -11,15 +11,22 @@
     line-height: 54px;
     color: @white-dkr;
   }
+  .fileTree {
+    padding-bottom: 30px;
+  }
   li {
     position: relative;
     padding-left: 20px;
+    white-space: nowrap;
+  }
+  .name.focus {
+    background: @grey-dkr;
   }
   .directory {
     background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAMAAAAoyzS7AAAAA1BMVEV7j53Ne9EWAAAADUlEQVR42gECAP3/AAAAAgABUyucMAAAAABJRU5ErkJggg==);
     background-repeat: repeat-y;
     background-position: 10px 0;
-    > span:before {
+    > a:before {
       content: " ";
       display: block;
       position: absolute;
@@ -37,14 +44,15 @@
       > ul {
         display: block;
       }
-      > span:before {
+      > a:before {
         background-position: 0 0;
       }
     }
   }
-  span {
+  a {
     display: block;
     padding: 0 3px;
+    color: white;
     &.active {
       background: @grey-dkr;
     }

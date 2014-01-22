@@ -1,36 +1,34 @@
 /*
  Copyright (C) 2013 Typesafe, Inc <http://typesafe.com>
  */
-// <<<<<<< HEAD
-// define(['webjars!knockout', 'commons/settings', 'widgets/log/log', 'commons/utils', 'commons/events', './sbt', 'commons/markers'],
-//     function(ko, settings, logModule, utils, events, sbt, markers){
-
-//   settings.register("build.rerunOnBuild", true);
-//   settings.register("build.runInConsole", false);
-//   settings.register("build.retestOnSuccessfulBuild", false);
-//   settings.register("build.recompileOnChange", true);
-// =======
 define([
-  'webjars!knockout',
   'commons/settings',
+  // 'widgets/log/log',
   'commons/utils',
   'commons/events',
   './sbt',
-  './log'
+  'commons/markers',
+  'plugins/inspect/console/connection'
 ], function(
-  ko,
   settings,
+  // logModule,
   utils,
   events,
   sbt,
-  Log
+  markers,
+  Connection
 ){
 
-  var startApp = settings.observable("build.startApp", true);
-  var rerunOnBuild = settings.observable("build.rerunOnBuild", true);
-  var runInConsole = settings.observable("build.runInConsole", false);
-  var retestOnSuccessfulBuild = settings.observable("build.retestOnSuccessfulBuild", false);
-  var recompileOnChange = settings.observable("build.recompileOnChange", true);
+  var logModule = {
+    Log: function() {
+      this.parsedErrorEntries = ko.observable("")
+    }
+  }
+
+  var rerunOnBuild              = settings.observable("build.rerunOnBuild", true);
+  var retestOnSuccessfulBuild   = settings.observable("build.retestOnSuccessfulBuild", false);
+  var automaticFlushInspect     = settings.observable("build.automaticFlushInspect", true);
+  var recompileOnChange         = settings.observable("build.recompileOnChange", true);
 
   var Error = utils.Class({
     init: function(fields) {
@@ -101,7 +99,7 @@ define([
       RESTARTING: "RESTARTING"
   };
 
-  var log = new Log();
+  var log = new logModule.Log();
 
   var markerOwner = "build-log";
 
@@ -159,14 +157,14 @@ define([
         return event.type == 'FilesChanged';
       },
       function(event) {
-        if (settings.build.recompileOnChange()) {
+        if (recompileOnChange()) {
           if (app.hasPlay()) {
             debug && console.log("files changed but it's a Play app so not recompiling.")
             log.info("Some of your files may have changed; reload in the browser or click \"Start compiling\" above to recompile.")
             log.info("  (for Play apps, Activator does not auto-recompile because it may conflict with compilation on reload in the browser.)")
           } else {
             debug && console.log("files changed, doing a recompile");
-            // doCompile just marks a compile pending if one is alr eady
+            // doCompile just marks a compile pending if one is already
             // active.
             self.doCompile();
           }
@@ -389,7 +387,7 @@ define([
 
       this.status = ko.observable(Status.IDLE);
       this.statusMessage = ko.observable('Application is stopped.');
-      this.outputLog = new Log();
+      this.outputLog = new logModule.Log();
     },
     loadMainClasses: function(success, failure) {
       var self = this;
@@ -704,7 +702,7 @@ define([
       self.activeTask(taskId);
     },
     doRun: function() {
-      if (settings.build.automaticFlushInspect()) {
+      if (automaticFlushInspect()) {
         Connection.flush();
       }
 
@@ -1181,7 +1179,7 @@ define([
           return "Launching application (click to stop)";
         else if (run.status() == Status.FAILED)
           return "Application failed to start or was killed (click to re-run)";
-        else if (settings.build.rerunOnBuild())
+        else if (rerunOnBuild())
           return "Application stopped (will auto-run when build completes)";
         else
           return "Application stopped (click to run it)";
@@ -1195,10 +1193,10 @@ define([
     // not auto run. Not sure whether this will
     // work out nicely but let's try it.
     if (isTaskActive('run')) {
-      settings.build.rerunOnBuild(false);
+      rerunOnBuild(false);
       stopTask('run');
     } else {
-      settings.build.rerunOnBuild(true);
+      rerunOnBuild(true);
       startTask('run');
     }
   };

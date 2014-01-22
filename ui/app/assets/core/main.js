@@ -13,15 +13,20 @@ require.config({
   }
 });
 
-var deps = ['noir', 'core/router', 'core/services', 'core/plugins', 'core/view', 'core/keyboard', 'vendors/knockout-projections.min', 'commons/tpl-helpers'];
-
 require(['jquery','ko'], function($, ko) {
-  window.ko = ko;
+  window.ko = ko; // it's used on every page...
 
-  require(deps, function(noir, router, services, plugins, mainView, keyboard) {
+  require([
+    'core/router',
+    'core/view',
+    'core/keyboard',
+    'commons/tpl-helpers'
+  ], function(
+    router,
+    mainView,
+    keyboard
+  ) {
     mainView.render();
-    setTimeout(function() {
-      router.load(window.location.hash);
-    },100);
+    router.load(window.location.hash); // this will load the plugin from url
   });
 });

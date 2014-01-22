@@ -71,8 +71,11 @@
   & > * {
     box-shadow: 0 3px 0 rgba(0,0,0,.5);
     margin: auto;
+    position: absolute;
+    .trbl(0,0,0,0);
   }
 }
+
 .fullBox() {
   &:before {
     content: " ";
@@ -80,3 +83,4 @@
     .trbl(0,0,0,0);
   }
 }
+

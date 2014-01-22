@@ -1,18 +1,25 @@
 <nav id="navigation" data-bind="memoScroll: 'navigation'">
   <dl id="switch" class="selector dropdown">
-    <dt>Appname</dt>
+    <dt data-bind="text: serverAppModel.id">Appname</dt>
     <dd>
-      <a href="/home" class="manage">Manage applications</a>
+      <a href="/home" class="button manage">Manage applications</a>
       <!-- ko foreach:serverAppModel.recentApps -->
       <a class="new-app" data-bind="text: cachedName, attr: {href: '/app/'+id}"></a>
       <!-- /ko -->
   </dl>
 
   <div id="appStatus">
-    <button class="running" data-bind="css: { active: status.running, working: build.status.all() == 'COMPILING' }"></button>
-    <button class="refresh" data-bind="css: { active: status.refresh }"></button>
-    <button class="console" data-bind="css: { active: status.console, disabled: this.consoleDisabled }"></button>
-    <button class="testing" data-bind="css: { active: status.testing }"></button>
+    <button class="running" data-bind="click: build.onToggleRun, css: {active: status.running, working: build.activity.busy() && !build.activity.running() }"></button>
+    <span class="tooltip running" data-bind="text: build.statusTooltips.run "></span>
+
+    <button class="refresh" data-bind="toggle: settings.recompileOnChange, css: {active: settings.recompileOnChange }"></button>
+    <span class="tooltip refresh" data-bind="text: settings.recompileOnChange() ? 'Rebuild on file changes enabled':'Rebuild on file changes disabled' "></span>
+
+    <button class="console" data-bind="toggle: settings.automaticFlushInspect, css: {active: settings.automaticFlushInspect}"></button>
+    <span class="tooltip inspect" data-bind="text: settings.automaticFlushInspect() ? 'Automatic flushing of Inspect enabled':'Automatic flushing of Inspect disabled' "></span>
+
+    <button class="testing" data-bind="toggle: settings.retestOnSuccessfulBuild, css: {active: settings.retestOnSuccessfulBuild}"></button>
+    <span class="tooltip testing" data-bind="text: settings.retestOnSuccessfulBuild() ? 'Test on rebuild enabled':'Test on rebuild disabled' "></span>
   </div>
 
   <dl id="rockets" data-bind="foreach: links">
@@ -20,7 +27,10 @@
     <dd data-bind="foreach: $data.links">
       <a data-bind="isActive:'#'+$data.url, href:'#'+$data.url, css={active: false}, text: $data.title"></a>
       <!-- ko if: $data.counter -->
-      <span class="counter" data-bind="text: $data.counter().length"></span>
+      <span class="counter" data-bind="text: $data.counter()"></span>
+      <!-- /ko -->
+      <!-- ko if: $data.working -->
+      <span class="working"></span>
       <!-- /ko -->
     </dd>
   </dl>

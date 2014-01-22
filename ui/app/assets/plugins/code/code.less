@@ -5,29 +5,6 @@
 @import "../../commons/_base";
 
 .code {
-	.list {
-    li {
-      position: relative;
-    }
-    a {
-      .cover();
-      color: inherit;
-    }
-		li.file:before {
-			content: "\E731";
-		}
-		li.folder:before {
-			content: "\1F4C1";
-		}
-		li.hidden:before {
-			opacity: .5;
-		}
-    li span {
-    }
-  }
-}
-
-.code {
   .intro .openIn {
     margin: 30px 0 0;
     text-align: center;
@@ -62,6 +39,7 @@
       color: #fff;
       &.edited span:after {
         content: "*";
+        color: @red;
       }
       &.active {
         background: #fff;
@@ -78,12 +56,15 @@
   }
   .editor {
     position: absolute;
+    display: block;
+    width: 100%;
     top: 37px;
     left: 0;
     right: 0;
     bottom: 0;
     background: #fff;
     padding: 5px;
+    font: 13px/16px monospace;
   }
   footer {
     position: absolute;
