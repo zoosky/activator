@@ -8,8 +8,8 @@ define(['text!./notifications.html', 'webjars!knockout', 'commons/widget', 'comm
     id: 'notifications-widget',
     template: template,
     init: function() {
-      this.count = ko.computed(function() { return build.errorList().length; });
-      this.items = build.errorList;
+      this.count = ko.computed(function() { return build.errors.all().length; });
+      this.items = build.errors.all;
     }
   });
 
