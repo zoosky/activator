@@ -5,14 +5,14 @@
 <tpl id="fileBrowserTpl">
     <!-- ko if:item.isDirectory -->
     <li class="directory" data-bind="css: {open: item.opened}">
-      <span data-bind="text: item.title, toggle: item.opened"></span>
-      <!-- ko if: item.children.length -->
+      <span data-bind="text: item.name, click: $root.toggleDir"></span>
+      <!-- ko if: item.children && item.children.length -->
       <ul data-bind="template: { name: 'fileBrowserTpl', foreach: item.children, as: 'item' }">
       </ul>
       <!-- /ko -->
     </li>
     <!-- /ko -->
     <!-- ko ifnot: item.isDirectory -->
-    <li><span data-bind="isActive: '#code'+item.location, text: item.title, click: $root.openFile"></span></li>
+    <li><span data-bind="isActive: '#code'+item.location.replace(serverAppModel.location, ""), text: item.name, click: $root.openFile"></span></li>
     <!-- /ko -->
 </tpl>
