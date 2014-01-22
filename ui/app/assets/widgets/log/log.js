@@ -1,7 +1,7 @@
 /*
  Copyright (C) 2013 Typesafe, Inc <http://typesafe.com>
  */
-define(['text!./log.html', 'webjars!knockout', 'commons/widget', 'commons/utils', 'commons/markers'], function(template, ko, Widget, utils, markers){
+define(['text!./log.html', 'webjars!knockout', 'commons/widget', 'commons/utils'], function(template, ko, Widget, utils){
 
   // TODO we should move both the ANSI stripping and the heuristic
   // parseLogLevel to the server side. We could also use
@@ -100,8 +100,6 @@ define(['text!./log.html', 'webjars!knockout', 'commons/widget', 'commons/utils'
     }
   };
 
-  var nextMarkerOwner = 1;
-
   var Log = utils.Class({
     init: function(parameters) {
       this.entries = ko.observableArray();
@@ -109,11 +107,9 @@ define(['text!./log.html', 'webjars!knockout', 'commons/widget', 'commons/utils'
       this.parsedErrorEntries = ko.observableArray();
       this.queue = [];
       this.boundFlush = this.flush.bind(this);
-      this.markerOwner = 'log-' + nextMarkerOwner;
       // on 0 to 1, scrolling state should be saved;
       // on 1 to 0, restored.
       this.scrollFreeze = ko.observable(0);
-      nextMarkerOwner += 1;
     },
     _addErrorInfo: function(entry) {
       var m = fileLineRegex.exec(entry.message);
@@ -129,11 +125,6 @@ define(['text!./log.html', 'webjars!knockout', 'commons/widget', 'commons/utils'
         entry.href = '#code' + relative + ':' + line;
 
         this.parsedErrorEntries.push(entry);
-
-        // register the error globally so editors can pick it up
-        // TODO doing this here is a total hack.
-        markers.registerFileMarker(this.markerOwner,
-            entry.file, entry.line, entry.level, entry.message);
       }
     },
     _pushAll: function(toPush) {
@@ -210,7 +201,6 @@ define(['text!./log.html', 'webjars!knockout', 'commons/widget', 'commons/utils'
       this.flush(); // be sure we collect the queue
       this.entries.removeAll();
       this.parsedErrorEntries.removeAll();
-      markers.clearFileMarkers(this.markerOwner);
     },
     moveFrom: function(other) {
       // "other" is another logs widget
@@ -218,7 +208,6 @@ define(['text!./log.html', 'webjars!knockout', 'commons/widget', 'commons/utils'
       this.flush();
       var removed = other.entries.removeAll();
       other.parsedErrorEntries.removeAll();
-      markers.clearFileMarkers(other.markerOwner);
       this._pushAll(removed);
     },
     // returns true if it was a log event

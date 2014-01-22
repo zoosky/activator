@@ -1,8 +1,8 @@
 /*
  Copyright (C) 2013 Typesafe, Inc <http://typesafe.com>
  */
-define(['webjars!knockout', 'commons/settings', 'widgets/log/log', 'commons/utils', 'commons/events', './sbt'],
-    function(ko, settings, logModule, utils, events, sbt){
+define(['webjars!knockout', 'commons/settings', 'widgets/log/log', 'commons/utils', 'commons/events', './sbt', 'commons/markers'],
+    function(ko, settings, logModule, utils, events, sbt, markers){
   settings.register("build.startApp", true);
   settings.register("build.rerunOnBuild", true);
   settings.register("build.runInConsole", false);
@@ -83,6 +83,8 @@ define(['webjars!knockout', 'commons/settings', 'widgets/log/log', 'commons/util
 
   var log = new logModule.Log();
 
+  var markerOwner = "build-log";
+
   // forward errors parsed from the log to errorList
   log.parsedErrorEntries.subscribe(function(changes) {
     // changes[n].index = array index
@@ -96,11 +98,18 @@ define(['webjars!knockout', 'commons/settings', 'widgets/log/log', 'commons/util
           errorList.addWarning("compile", entry.message, entry.href);
         else
           errorList.addError("compile", entry.message, entry.href);
+
+        // register the error globally so editors can pick it up
+        markers.registerFileMarker(markerOwner,
+            entry.file, entry.line, entry.level, entry.message);
       } else if (change.status == "deleted") {
         var entry = change.value;
         errorList.remove(function(error) {
           return error.message() == entry.message && error.href() == entry.href;
         });
+        // we assume that if any entry is deleted we're going to end
+        // up deleting them all, which is lame, but works at the moment
+        markers.clearFileMarkers(markerOwner);
       } else {
         debug && console.log("Failed to handle parsed error entries change", change);
       }
