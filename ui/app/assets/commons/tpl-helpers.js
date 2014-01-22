@@ -53,7 +53,7 @@ define(function() {
       init: function(element, valueAccessor, allBindings, viewModel, bindingContext) {
         var url = valueAccessor();
         var isActive = ko.computed(function() {
-          return urlChange().indexOf(url) == 0;
+          return (urlChange()+"/").indexOf(url+"/") == 0;
         });
         ko.applyBindingsToNode(element, { css: {'active': isActive} });
       },
