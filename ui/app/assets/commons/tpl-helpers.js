@@ -33,4 +33,34 @@ define(function() {
     }
   }());
 
+  ko.bindingHandlers.href = {
+    init: function(element, valueAccessor, allBindings, viewModel, bindingContext) {
+      var url = valueAccessor();
+      ko.applyBindingsToNode(element, { attr: {'href': url} });
+    },
+    update: function(element, valueAccessor, allBindings, viewModel, bindingContext) {
+    }
+  }
+
+  ko.bindingHandlers.isActive = (function(){
+    var urlChange = ko.observable(window.location.hash);
+    window.addEventListener("hashchange", function(e) {
+      setTimeout(function() {
+        urlChange(window.location.hash);
+      },10);
+    });
+    return {
+      init: function(element, valueAccessor, allBindings, viewModel, bindingContext) {
+        var url = valueAccessor();
+        var isActive = ko.computed(function() {
+          return url == urlChange();
+        });
+        ko.applyBindingsToNode(element, { css: {'active': isActive} });
+      },
+      update: function(element, valueAccessor, allBindings, viewModel, bindingContext) {
+      }
+    }
+  }());
+
+
 });

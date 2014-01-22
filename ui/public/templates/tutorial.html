@@ -5,7 +5,9 @@
     </header>
     <div class="list links">
       <ul data-bind="foreach: table">
-        <li><a data-bind="attr: {href: '#tutorial/' + $index() }, text: $data"></a></li>
+        <li data-bind="isActive: '#tutorial/' + $index()">
+          <a data-bind="href: '#tutorial/' + $index(), text: $data"></a>
+        </li>
       </ul>
     </div>
   </nav>
