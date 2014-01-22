@@ -1,0 +1,39 @@
+<header id="header">
+  <button class="toggleNavigation" data-bind="click: layoutManager.navigationToggle"></button>
+
+  <dl id="layoutManager" class="dropdown" data-bind="click: layoutManager.closePannelOptions">
+    <dt data-bind="click: layoutManager.pannelToggle">
+      <span class="all-options"  data-bind="click: layoutManager.openPannelOptions"></span>
+    </dt>
+    <dd data-bind="click: layoutManager.pannelChange">
+      <button class="right1"></button>
+      <button class="bottom1"></button>
+    </dd>
+  </dl>
+
+  <form id="omnisearch">
+    <input type="text" name="keywords" placeholder="Type keywords or a command">
+  </form>
+
+  <div id="breadcrumb" data-bind="foreach: breadcrumb.path">
+    <a data-bind="href:'#'+$data, html:$data"></a>
+  </div>
+
+  <dl id="user" class="dropdown">
+    <dt></dt>
+    <dd>
+      <p>Notification</p>
+      <p>Notification</p>
+      <p>Notification</p>
+    </dd>
+  </dl>
+
+  <dl id="notifications" class="dropdown">
+    <dt><span>0</span></dt>
+    <dd>
+      <a href="/">Notification</a>
+      <a href="/">Notification</a>
+      <a href="/">Notification</a>
+    </dd>
+  </dl>
+</header>

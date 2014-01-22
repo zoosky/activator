@@ -1,0 +1,32 @@
+<nav id="navigation" data-bind="memoScroll: 'navigation'">
+  <dl id="switch" class="selector dropdown">
+    <dt>Appname</dt>
+    <dd>
+      <a href="/home" class="manage">Manage applications</a>
+      <!-- ko foreach:serverAppModel.recentApps -->
+      <a class="new-app" data-bind="text: cachedName, attr: {href: '/app/'+id}"></a>
+      <!-- /ko -->
+  </dl>
+
+  <div id="appStatus">
+    <button class="running" data-bind="css: { active: status.running, working: build.status.all() == 'COMPILING' }"></button>
+    <button class="refresh" data-bind="css: { active: status.refresh }"></button>
+    <button class="console" data-bind="css: { active: status.console, disabled: this.consoleDisabled }"></button>
+    <button class="testing" data-bind="css: { active: status.testing }"></button>
+  </div>
+
+  <dl id="rockets" data-bind="foreach: links">
+    <dt data-bind="text: $data.title"></dt>
+    <dd data-bind="foreach: $data.links">
+      <a data-bind="attr: {href:'#'+$data.url}, css={active: false}, text: $data.title"></a>
+      <!-- ko if: $data.counter -->
+      <span class="counter" data-bind="text: $data.counter().length"></span>
+      <!-- /ko -->
+    </dd>
+  </dl>
+
+  <div id="typesafe">
+    <a href="http://typesafe.com" class="website"><img src="/public/images/typesafe.svg"></a>
+    <a href="/" class="infos">i</a>
+  </div>
+</nav>

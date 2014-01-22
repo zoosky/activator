@@ -1,13 +1,27 @@
 /*
  Copyright (C) 2013 Typesafe, Inc <http://typesafe.com>
  */
-define(['webjars!knockout', 'commons/settings', 'widgets/log/log', 'commons/utils', 'commons/events', './sbt'],
-    function(ko, settings, logModule, utils, events, sbt){
-  settings.register("build.startApp", true);
-  settings.register("build.rerunOnBuild", true);
-  settings.register("build.runInConsole", false);
-  settings.register("build.retestOnSuccessfulBuild", false);
-  settings.register("build.recompileOnChange", true);
+define([
+  'webjars!knockout',
+  'commons/settings',
+  'commons/utils',
+  'commons/events',
+  './sbt',
+  './log'
+], function(
+  ko,
+  settings,
+  utils,
+  events,
+  sbt,
+  Log
+){
+
+  var startApp = settings.observable("build.startApp", true);
+  var rerunOnBuild = settings.observable("build.rerunOnBuild", true);
+  var runInConsole = settings.observable("build.runInConsole", false);
+  var retestOnSuccessfulBuild = settings.observable("build.retestOnSuccessfulBuild", false);
+  var recompileOnChange = settings.observable("build.recompileOnChange", true);
 
   var Error = utils.Class({
     init: function(fields) {
@@ -81,7 +95,7 @@ define(['webjars!knockout', 'commons/settings', 'widgets/log/log', 'commons/util
       RESTARTING: "RESTARTING"
   };
 
-  var log = new logModule.Log();
+  var log = new Log();
 
   // properties of the application we are building
   var app = {
@@ -114,7 +128,7 @@ define(['webjars!knockout', 'commons/settings', 'widgets/log/log', 'commons/util
             log.info("  (for Play apps, Activator does not auto-recompile because it may conflict with compilation on reload in the browser.)")
           } else {
             debug && console.log("files changed, doing a recompile");
-            // doCompile just marks a compile pending if one is already
+            // doCompile just marks a compile pending if one is alr eady
             // active.
             self.doCompile();
           }
@@ -337,7 +351,7 @@ define(['webjars!knockout', 'commons/settings', 'widgets/log/log', 'commons/util
 
       this.status = ko.observable(Status.IDLE);
       this.statusMessage = ko.observable('Application is stopped.');
-      this.outputLog = new logModule.Log();
+      this.outputLog = new Log();
     },
     loadMainClasses: function(success, failure) {
       var self = this;
@@ -459,7 +473,7 @@ define(['webjars!knockout', 'commons/settings', 'widgets/log/log', 'commons/util
 
       debug && console.log("Compile succeeded - marking need to reload main class info");
       self.reloadMainClassPending(true);
-      if (settings.build.rerunOnBuild()) {
+      if (rerunOnBuild()) {
         debug && console.log("Restarting due to completed compile");
         self.doRestart();
       } else {
@@ -594,7 +608,7 @@ define(['webjars!knockout', 'commons/settings', 'widgets/log/log', 'commons/util
         task.task = 'run';
       }
 
-      if (settings.build.runInConsole()) {
+      if (runInConsole()) {
         task.task = 'atmos:' + task.task;
       }
 
@@ -730,7 +744,7 @@ define(['webjars!knockout', 'commons/settings', 'widgets/log/log', 'commons/util
       this.haveActiveTask = ko.computed(function() {
         return self.activeTask() != "";
       }, this);
-      this.rerunOnBuild = settings.build.retestOnSuccessfulBuild;
+      this.rerunOnBuild = retestOnSuccessfulBuild;
       this.restartPending = ko.observable(false);
       this.lastTaskFailed = ko.observable(false);
       // Rollup results.

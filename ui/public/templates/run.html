@@ -1,0 +1,64 @@
+<main id="wrapper" class="oneColumnAndMenu run">
+  <nav class="menu" data-bind="memoScroll: 'runMenu'">
+    <header>
+      <h1>Run</h1>
+    </header>
+    <div class="options">
+      <div><span class="status"></span>Start</div>
+      <p>The app is stopped</p>
+    </div>
+    <ul class="list">
+      <li>
+        <div class="switch active">
+          <div class="inner"></div>
+        </div>
+        Autocompile
+      </li>
+      <li>
+        <div class="switch">
+          <div class="inner"></div>
+        </div>
+        Debug
+        <div style="display: none;">
+          <fieldset><label>Debug port</label><input></fieldset>
+        </div>
+      </li>
+      <li>
+        <div class="switch">
+          <div class="inner"></div>
+        </div>
+        <div>Configuration</div>
+        <div style="display: none;">
+          <fieldset>
+            <label>Main class</label>
+            <select>
+              <option>main.java</option>
+            </select>
+          </fieldset>
+          <fieldset><label>Play port</label><input></fieldset>
+        </div>
+      </li>
+    </ul>
+  </nav>
+  <article class="run">
+    <header>
+      <h1>Logs</h1>
+      <nav><span>All</span><span>Compilation</span><span>Stdout</span><span>Errors</span></nav>
+    </header>
+    <section>
+      <ul class="logs">
+        <li class="stdout">Greeting: hello, akka</li>
+        <li class="stdout">Greeting: hello, typesafe</li>
+        <li class="stdout">hello, typesafe</li>
+        <li class="stdout">hello, typesafe</li>
+        <li class="stdout">hello, typesafe</li>
+        <li class="stdout">hello, typesafe</li>
+        <li class="stdout">hello, typesafe</li>
+        <li class="stdout">hello, typesafe</li>
+        <li class="stdout">hello, typesafe</li>
+        <li class="stdout">hello, typesafe</li>
+      </ul>
+    </section>
+  </article>
+</main>
+

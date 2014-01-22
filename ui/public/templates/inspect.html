@@ -1,0 +1,48 @@
+<main id="wrapper" class="inspect" data-bind="css: {oneColumn: !logged(), oneColumnAndMenu: logged }">
+  <!-- ko if: logged -->
+  <nav class="menu" data-bind="memoScroll: 'inspectMenu'">
+    <header>
+      <h1>Inspect</h1>
+    </header>
+    <div class="options">
+      <div><span class="status"></span>Enable the inspector</div>
+    </div>
+    <ul class="list links">
+      <li class="system"><a href="#inspect/system">System</a></li>
+      <li class="actors"><a href="#inspect/actors">Actors</a></li>
+      <li class="requests"><a href="#inspect/requests">Requests</a></li>
+      <li class="deviations"><a href="#inspect/deviations">Deviations</a></li>
+    </ul>
+  </nav>
+  <!-- /ko -->
+  <!-- ko ifnot: page-->
+    <article class="intro typo">
+      <div class="description">
+        <h1>Welcome to the inspector</h1>
+        <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras vitae lorem at neque mollis viverra eu eu tortor. Vivamus at viverra risus. Quisque scelerisque felis purus, a tempor elit vulputate tempor. Sed pharetra condimentum elementum.</p>
+        <!-- ko ifnot: logged -->
+          <p class="notice">You need to log into your Typesafe account to enable the inspector. <a href="typesafe.com" target="_blank">Learn why</a></p>
+          <form class="notLogged" data-bind="submit: login">
+            <input type="email" placeholder="Email">
+            <input type="password" placeholder="Password">
+            <button class="button">Log in</button>
+            <ul>
+              <li><a href="typesafe.com" target="_blank">Forgot password?</a></li>
+              <li><a href="typesafe.com" target="_blank">Create a free account</a></li>
+            </ul>
+          </form>
+        <!-- /ko -->
+      </div>
+    </article>
+  <!-- /ko -->
+  <!-- ko if: page -->
+    <article class="page">
+      <header>
+        <h1>Welcome to the inspector</h1>
+      </header>
+      <section>
+        <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras vitae lorem at neque mollis viverra eu eu tortor. Vivamus at viverra risus. Quisque scelerisque felis purus, a tempor elit vulputate tempor. Sed pharetra condimentum elementum. Aliquam lobortis, metus ut luctus commodo, neque justo cursus diam, eu semper augue dui a erat. Praesent eget augue dignissim, aliquet erat lobortis, feugiat dui.</p>
+      </section>
+    </article>
+  <!-- /ko -->
+</main>

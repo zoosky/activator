@@ -1,82 +1,78 @@
-/*
- Copyright (C) 2013 Typesafe, Inc <http://typesafe.com>
- */
-define(['text!./test.html', 'css!./test.css', 'main/pluginapi', 'services/build'], function(template, css, api, build) {
-  var ko = api.ko;
-  var sbt = api.sbt;
+define([
+  "core/plugins",
+  "text!templates/test.html",
+  "widgets/forms/switch",
+  "widgets/navigation/menu",
+  "css!./test",
+  "css!widgets/navigation/menu"
+], function(
+  plugins,
+  template,
+  $switcher,
+  $menu
+) {
 
-  var testConsole = api.PluginWidget({
-    id: 'test-result-widget',
-    title: 'Testing',
-    template: template,
-    init: function(parameters) {
-      var self = this;
-
-      // aliases to export build model to HTML;
-      // these should likely go away someday
-      self.results = build.test.results;
-      self.testStatus = build.test.testStatus;
-      self.hasResults = build.test.hasResults;
-      self.haveActiveTask = build.test.haveActiveTask;
-      self.rerunOnBuild = build.test.rerunOnBuild;
-      self.restartPending = build.test.restartPending;
-      self.resultStats = build.test.resultStats;
-
-      self.testFilter = ko.observable('all');
-      self.filterTestsText = ko.computed(function() {
-        if(self.testFilter() == 'all') {
-          return 'Show only failures';
-        }
-        return 'Show all tests';
-      });
-      self.displayedResults = ko.computed(function() {
-        if(self.testFilter() == 'failures') {
-          return ko.utils.arrayFilter(self.results(), function(item) {
-            return item.outcome() != build.TestOutcome.PASSED;
-          });
-        }
-        return self.results();
-      });
-
-      this.startStopLabel = ko.computed(function() {
-        if (self.haveActiveTask())
-          return "Stop";
-        else
-          return "Start";
-      }, this);
+  var suite = ko.observableArray([
+    {
+      title: "First test first",
+      status: ko.observable("waiting"),
+      enabled: ko.observable(true)
     },
-    filterTests: function() {
-      // TODO - More states.
-      if(this.testFilter() == 'all') {
-        this.testFilter('failures')
-      } else {
-        this.testFilter('all')
+    {
+      title: "Second test second",
+      status: ko.observable("pending"),
+      enabled: ko.observable(true)
+    },
+    {
+      title: "Third test third",
+      status: ko.observable("failed"),
+      enabled: ko.observable(true)
+    },
+    {
+      title: "Fourth test fourth",
+      status: ko.observable("passed"),
+      enabled: ko.observable(true)
+    },
+    {
+      title: "Fifth test fifth",
+      status: ko.observable(""),
+      enabled: ko.observable(false)
+    }
+  ]);
+
+  var enabled = function(e) {
+    var o = ko.observable(!e());
+    e.on("change", function(v) {
+      return o(!v);
+    });
+    o.on("change", function(v) {
+      return e(!v);
+    });
+    return o;
+  };
+
+  var TestState = {
+    suite: suite,
+    enabled: enabled
+  }
+
+  return plugins.make({
+    layout: function(url) {
+      var $test = $(template)[0];
+      ko.applyBindings(TestState, $test);
+      $("#wrapper").replaceWith($test);
+    },
+
+    route: function(url, breadcrumb) {
+      var all;
+      all = [['test/', "Test"]];
+      switch (url.parameters[0]) {
+        case "":
+          return breadcrumb(all);
+        default:
+          return breadcrumb(all);
       }
-    },
-    startStopButtonClicked: function(self) {
-      debug && console.log("Start/Stop was clicked");
-      if (self.haveActiveTask()) {
-        self.restartPending(false);
-        build.test.doStop();
-      } else {
-        build.test.doTest(false); // false=!triggeredByBuild
-      }
-    },
-    restartButtonClicked: function(self) {
-      debug && console.log("Restart was clicked");
-      build.test.doStop();
-      build.test.restartPending(true);
     }
   });
 
-  return api.Plugin({
-    id: 'test',
-    name: "Test",
-    icon: 'ꙫ',
-    url: "#test",
-    routes: {
-      'test': function() { api.setActiveWidget(testConsole); }
-    },
-    widgets: [testConsole]
-  });
 });

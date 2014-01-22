@@ -1,0 +1,18 @@
+<div class="fileTree">
+  <ul data-bind="template: { name: 'fileBrowserTpl', foreach: tree, as: 'item' }">
+  </ul>
+</div>
+<tpl id="fileBrowserTpl">
+    <!-- ko if:item.isDirectory -->
+    <li class="directory" data-bind="css: {open: item.opened}">
+      <span data-bind="text: item.title, toggle: item.opened"></span>
+      <!-- ko if: item.children.length -->
+      <ul data-bind="template: { name: 'fileBrowserTpl', foreach: item.children, as: 'item' }">
+      </ul>
+      <!-- /ko -->
+    </li>
+    <!-- /ko -->
+    <!-- ko ifnot: item.isDirectory -->
+    <li><span data-bind="text: item.title, click: $root.openFile"></span></li>
+    <!-- /ko -->
+</tpl>

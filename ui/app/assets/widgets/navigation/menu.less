@@ -1,0 +1,100 @@
+@import "../../commons/_base";
+
+.menu {
+  background: @grey;
+  overflow: auto;
+  line-height: 22px;
+  color: #fff;
+  a {
+    color: @slate;
+    &:hover {
+      color: @slate-dkr;
+    }
+  }
+  header {
+    padding: 0 20px;
+    height: 60px;
+    line-height: 54px;
+    color: @white-dkr;
+  }
+  .list {
+    border-top: 1px solid @grey-ltr;
+  }
+  li {
+    position: relative;
+    padding: 10px 20px;
+    border-bottom: 1px solid @grey-ltr;
+  }
+  .links {
+    li {
+      &:hover, &.active {
+        background-color: @grey-ltr;
+        background-color: @grey-dkr-alt;
+      }
+    }
+    a {
+      .fullBox();
+      color: #fff;
+    }
+  }
+  fieldset {
+    margin: 8px 0;
+    line-height: 16px;
+    label {
+      display: block;
+      color: @grey-text;
+      font-size: 12px;
+      font-weight: 600;
+      text-transform: uppercase;
+    }
+    input, select {
+      width: 100%;
+    }
+    input {
+      padding: 4px;
+      background: none;
+      color: #fff;
+      border: 1px solid @grey-dkr;
+    }
+    &.line {
+      label, input, select {
+        width: 50%;
+        float: left;
+      }
+    }
+  }
+  .options {
+    border-radius: 2px;
+    margin: 0 10px 10px;
+    padding: 10px;
+    background: @grey-dkr;
+    div {
+      line-height: 30px;
+    }
+    .status {
+      display: inline-block;
+      float: left;
+      .square(30px);
+      background-color: @grey;
+      -webkit-mask: url(/public/images/icons/console.svg) 5px 5px no-repeat;
+      &.active, &:hover {
+        background: @blue;
+      }
+      &.working {
+        -webkit-animation: 300ms glow infinite alternate linear;
+      }
+    }
+    p {
+      font-size: 12px;
+      text-align: center;
+      text-transform: uppercase;
+      border-top: 1px dotted @grey;
+      color: @white-dkr;
+    }
+  }
+  .switch {
+    float: right;
+    margin-top: 3px;
+  }
+
+}
