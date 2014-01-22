@@ -15,8 +15,8 @@
     <input type="text" name="keywords" placeholder="Type keywords or a command">
   </form>
 
-  <div id="breadcrumb" data-bind="foreach: breadcrumb.path">
-    <a data-bind="href:'#'+$data, html:$data"></a>
+  <div id="breadcrumb" data-bind="foreach: breadcrumb">
+    <a data-bind="href:'#'+$data[0], html:$data[1]"></a>
   </div>
 
   <dl id="user" class="dropdown">

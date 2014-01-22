@@ -1,5 +1,6 @@
 define([
   'commons/settings',
+  'core/router',
   'widgets/buttons/dropdown',
   'text!templates/header.html',
   'css!./header',
@@ -7,6 +8,7 @@ define([
   'css!./omnisearch'
 ], function(
   settings,
+  router,
   dropdown,
   template
 ){
@@ -15,10 +17,6 @@ define([
 
   var Omnisearch = new function(){
     this.search = ko.observable("")
-  }
-
-  var Breadcrumb = new function(){
-    this.path = settings.observable("router.currentPath", []);
   }
 
   var LayoutManagerState = new function(){
@@ -54,7 +52,7 @@ define([
   var HeaderState = {
     layoutManager: LayoutManagerState,
     omnisearch: Omnisearch,
-    breadcrumb: Breadcrumb,
+    breadcrumb: router.breadcrumb,
     user: {},
     notifications: {}
   };
