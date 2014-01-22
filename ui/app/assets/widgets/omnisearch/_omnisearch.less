@@ -36,18 +36,19 @@
     top: 0;
     left: 50px;
     right: 100px;
+    right: 0;
     height: 50px;
     line-height: 50px;
     background: inherit;
     font: inherit;
     padding: 10px 10px 10px 40px;
     max-width: 50px;
+    width: 100%;
     .transition(200ms);
     color: white;
     &:focus {
       background-color: @navy-dkr;
-      max-width: none;
-      right: 0;
+      max-width: 2000px;
     }
     &::-webkit-input-placeholder { color: @grey; }
     &::-moz-placeholder { color: @grey; }
