@@ -1,5 +1,5 @@
 <header>
-	<nav>
+  <nav>
         <dl class="dropdown groupLeft">
             <dt><span class="icon">&#x2b;</span></dt>
             <dd>
@@ -7,27 +7,27 @@
                 <a data-bind="click: newFolder">New folder</a>
             </dd>
         </dl>
-		<dl class="dropdown groupRight">
+    <dl class="dropdown groupRight">
             <dt><span class="icon">&#xe715;</span></dt>
             <dd>
                 <a data-bind="click: openInIdea">Open project in IntelliJ IDEA</a>
                 <a data-bind="click: openInEclipse">Open project in Eclipse</a>
                 <a data-bind="click: openProjectInFileBrowser">Open project in File Browser</a>
             </dd>
-		</dl>
-	</nav>
-	<h1><a href="#" data-bind="click: openInFileBrowser, text: rootAppPath, attr: { title: rootAppPath }"></a></h1>
-	<div class="breadcrumb subheader">
-		<a href="#code/" class="home">⌂</a>
-		<p class="wrap" data-bind="foreach: parts">
-			<span class="slash">/</span><a href="#" data-bind="text: name, attr: { href: url }"></a>
-		</p>
-	</div>
+    </dl>
+  </nav>
+  <h1><a href="#" data-bind="click: openInFileBrowser, text: rootAppPath, attr: { title: rootAppPath }"></a></h1>
+  <div class="breadcrumb subheader">
+    <a href="#code/" class="home">⌂</a>
+    <p class="wrap" data-bind="foreach: parts">
+      <span class="slash">/</span><a href="#" data-bind="text: name, attr: { href: url }"></a>
+    </p>
+  </div>
 </header>
 <p style="display:none" data-bind="visible: isEmpty">Empty folder</p>
 <ul class="list directory" data-bind="foreach: files">
-	<li class="file" data-bind="css: {folder: isDirectory, file: !isDirectory()}">
-		      <span data-bind="visible: !editing(), text: name, event: { contextmenu: onContextMenu, click: onSingleClick, dblclick: onDoubleClick }, attr: {href: '#'+url()}"></span>
-		      <input data-bind="visible: editing, value: editingText, event: { keyup: onKeyUp, blur: onBlur }, css: editClass"></input>
-	</li>
+  <li class="file" data-bind="css: {folder: isDirectory, file: !isDirectory()}">
+          <span data-bind="visible: !editing(), text: name, event: { contextmenu: onContextMenu, click: select }, attr: {href: '#'+url()}"></span>
+          <input data-bind="visible: editing, value: editingText, event: { keyup: onKeyUp, blur: onBlur }, css: editClass"></input>
+  </li>
 </ul>
