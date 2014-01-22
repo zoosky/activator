@@ -13,6 +13,6 @@
     </li>
     <!-- /ko -->
     <!-- ko ifnot: item.isDirectory -->
-    <li><span data-bind="text: item.title, click: $root.openFile"></span></li>
+    <li><span data-bind="isActive: '#code'+item.location, text: item.title, click: $root.openFile"></span></li>
     <!-- /ko -->
 </tpl>

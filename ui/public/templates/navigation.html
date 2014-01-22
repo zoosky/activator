@@ -18,7 +18,7 @@
   <dl id="rockets" data-bind="foreach: links">
     <dt data-bind="text: $data.title"></dt>
     <dd data-bind="foreach: $data.links">
-      <a data-bind="attr: {href:'#'+$data.url}, css={active: false}, text: $data.title"></a>
+      <a data-bind="isActive:'#'+$data.url, href:'#'+$data.url, css={active: false}, text: $data.title"></a>
       <!-- ko if: $data.counter -->
       <span class="counter" data-bind="text: $data.counter().length"></span>
       <!-- /ko -->
