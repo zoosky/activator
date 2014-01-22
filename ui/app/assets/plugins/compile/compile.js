@@ -32,11 +32,7 @@ define(['text!./compile.html', 'main/pluginapi', 'services/build', 'commons/sett
     },
     startStopButtonClicked: function(self) {
       debug && console.log("Start/stop compile was clicked");
-      if (build.compile.haveActiveTask()) {
-        build.compile.stopCompile();
-      } else {
-        build.compile.doCompile();
-      }
+      build.toggleTask('compile');
     },
     onPreDeactivate: function() {
       this.logScroll = this.logView.findScrollState();

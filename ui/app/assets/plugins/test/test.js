@@ -55,17 +55,11 @@ define(['text!./test.html', 'css!./test.css', 'main/pluginapi', 'services/build'
     },
     startStopButtonClicked: function(self) {
       debug && console.log("Start/Stop was clicked");
-      if (self.haveActiveTask()) {
-        self.restartPending(false);
-        build.test.doStop();
-      } else {
-        build.test.doTest(false); // false=!triggeredByBuild
-      }
+      build.toggleTask('test');
     },
     restartButtonClicked: function(self) {
       debug && console.log("Restart was clicked");
-      build.test.doStop();
-      build.test.restartPending(true);
+      build.restartTask('test');
     }
   });
 
