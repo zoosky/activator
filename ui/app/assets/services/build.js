@@ -486,9 +486,6 @@ define(['webjars!knockout', 'commons/settings', 'widgets/log/log', 'commons/util
     doMainClassLoadThenMaybeRun: function(shouldWeRun) {
       var self = this;
 
-      // we clear logs here then ask doRunWithoutMainClassLoad not to.
-      log.clear();
-
       self.beforeRun();
 
       // whether we get main classes or not we'll try to
@@ -499,7 +496,7 @@ define(['webjars!knockout', 'commons/settings', 'widgets/log/log', 'commons/util
 
         if (shouldWeRun) {
           log.debug("Done loading main classes - now running the project");
-          self.doRunWithoutMainClassLoad(false /* clearLogs */);
+          self.doRunWithoutMainClassLoad(true /* clearLogs */);
         }
       }
 
