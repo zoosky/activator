@@ -34,25 +34,6 @@
 			</article>
 		</section>
 
-		<section id="open">
-			<header>
-				<span id="openButton">📁</span>
-				<h2>Open existing app</h2>
-			</header>
-			<article id="openAppForm">
-				<ul class="list">
-					@model.recentApps.sortBy(_.usedTime).map { app =>
-						<li class="recentApp">
-							<h3><a href="@routes.Application.app(app.id)">@app.cachedName.getOrElse(app.id)</a></h3>
-							<p class="path"><span>@app.location</span></p>
-						</li>
-					}
-				</ul>
-			</article>
-			<!-- <article id="openAppLocationBrowser" class="subsection fileBrowser"></article> -->
-			<div id="openAppLocationBrowser" class="subsection hidden"></div>
-		</section>
-
 		<section id="new">
 			<div class="half">
 				<header>
@@ -131,10 +112,27 @@
 				</ul>
 			</div>
 			<!-- /ko -->
-
 			<!-- <div id="newAppLocationBrowser" class="subsection fileBrowser"></div> -->
 		</section>
-	
+
+		<section id="open">
+			<header>
+				<span id="openButton">📁</span>
+				<h2>Open existing app</h2>
+			</header>
+			<article id="openAppForm">
+				<ul class="list">
+				@model.recentApps.sortBy(_.usedTime).map { app =>
+					<li class="recentApp">
+						<h3><a href="@routes.Application.app(app.id)">@app.cachedName.getOrElse(app.id)</a></h3>
+						<p class="path"><span>@app.location</span></p>
+					</li>
+				}
+				</ul>
+			</article>
+				<!-- <article id="openAppLocationBrowser" class="subsection fileBrowser"></article> -->
+			<div id="openAppLocationBrowser" class="subsection hidden"></div>
+		</section>
 
 	</body>
 </html>
