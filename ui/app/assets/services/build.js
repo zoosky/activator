@@ -67,12 +67,6 @@ define(['webjars!knockout', 'commons/settings', 'widgets/log/log', 'commons/util
     run: filteredErrorList("run")
   };
 
-  // Bogus data for testing
-  errorList.addError("test", "This is a sample Test error", "#test");
-  errorList.addError("compile", "This is a sample Compile error", "#compile");
-  errorList.addWarning("inspect", "This is a sample Inspect warning", "#inspect");
-  errorList.addWarning("run", "This is a sample Run warning", "#run");
-
   var Status = {
       COMPILING: "COMPILING",
       RUNNING: "RUNNING",
