@@ -1,7 +1,7 @@
 /*
  Copyright (C) 2013 Typesafe, Inc <http://typesafe.com>
  */
-define(['text!./log.html', 'webjars!knockout', 'commons/widget', 'commons/utils', 'commons/markers'], function(template, ko, Widget, utils, markers){
+define(['text!./log.html', 'webjars!knockout', 'commons/widget', 'commons/utils'], function(template, ko, Widget, utils){
 
   // TODO we should move both the ANSI stripping and the heuristic
   // parseLogLevel to the server side. We could also use
@@ -87,13 +87,32 @@ define(['text!./log.html', 'webjars!knockout', 'commons/widget', 'commons/utils'
   ko.bindingHandlers['compilerMessage'] = {
     // we only implement init, not update, because log lines are immutable anyway
     // and knockout calls update() multiple times (not smart enough to do deep
-    // equality on arrays, maybe?), the multiple update() in turn can result
-    // in not registering the most recent file markers, and just in inefficiency.
+    // equality on arrays, maybe?)
     init: function (element, valueAccessor, allBindingsAccessor, viewModel) {
       var o = ko.utils.unwrapObservable(valueAccessor());
       var text = ko.utils.unwrapObservable(o.message);
       var html = escapeHtml(text);
-      var m = fileLineRegex.exec(text);
+      if ('href' in o && 'file' in o) {
+        var link = '<a href="' + escapeHtml(o.href).replace('$', '$$') + '">$1:$4</a>';
+        html = html.replace(fileLineRegex, link);
+      }
+      ko.utils.setHtml(element, html);
+    }
+  };
+
+  var Log = utils.Class({
+    init: function(parameters) {
+      this.entries = ko.observableArray();
+      // a subset of entries that had file:line errors
+      this.parsedErrorEntries = ko.observableArray();
+      this.queue = [];
+      this.boundFlush = this.flush.bind(this);
+      // on 0 to 1, scrolling state should be saved;
+      // on 1 to 0, restored.
+      this.scrollFreeze = ko.observable(0);
+    },
+    _addErrorInfo: function(entry) {
+      var m = fileLineRegex.exec(entry.message);
       var file = null;
       var line = null;
       if (m !== null) {
@@ -101,35 +120,12 @@ define(['text!./log.html', 'webjars!knockout', 'commons/widget', 'commons/utils'
         line = m[4];
         // both html-escaped and second-arg-to-replace-escaped
         var relative = relativizeFile(file);
-        var relativeEscaped = escapeHtml(relative).replace('$', '$$');
-        // TODO include the line number in the url once code plugin can handle it
-        var link = '<a href="#code'+relativeEscaped+':'+line+'">$1:$4</a>: ';
-        html = html.replace(fileLineRegex, link);
+        entry.file = relative;
+        entry.line = line;
+        entry.href = '#code' + relative + ':' + line;
 
-        // register the error globally so editors can pick it up
-        markers.registerFileMarker(ko.utils.unwrapObservable(o.markerOwner),
-            relative, line, ko.utils.unwrapObservable(o.level), text);
+        this.parsedErrorEntries.push(entry);
       }
-      ko.utils.setHtml(element, html);
-    }
-  };
-
-  var nextMarkerOwner = 1;
-
-  var Log = utils.Class({
-    init: function(parameters) {
-      // we keep an array of arrays because Knockout
-      // needs linear time in array size to update
-      // the view, so we are using lots of little
-      // arrays.
-      this.entries = ko.observableArray();
-      this.queue = [];
-      this.boundFlush = this.flush.bind(this);
-      this.markerOwner = 'log-' + nextMarkerOwner;
-      // on 0 to 1, scrolling state should be saved;
-      // on 1 to 0, restored.
-      this.scrollFreeze = ko.observable(0);
-      nextMarkerOwner += 1;
     },
     _pushAll: function(toPush) {
       var length = toPush.length;
@@ -153,7 +149,9 @@ define(['text!./log.html', 'webjars!knockout', 'commons/widget', 'commons/utils'
         var j = i;
         var stop = Math.min(j + CHUNK, length);
         for (; j < stop; j += 1) {
-          spliceParams.push(toPush[j]);
+          var entry = toPush[j];
+          this._addErrorInfo(entry);
+          spliceParams.push(entry);
         }
         this.entries.splice.apply(this.entries, spliceParams);
       }
@@ -172,7 +170,7 @@ define(['text!./log.html', 'webjars!knockout', 'commons/widget', 'commons/utils'
     log: function(level, message) {
       // queuing puts a cap on frequency of the scroll state update,
       // so adding one log message is in theory always cheap.
-      this.queue.push({ level: level, message: message, markerOwner: this.markerOwner });
+      this.queue.push({ level: level, message: message });
 
       if (this.queue.length == 1) {
         // 100ms = threshold for user-perceptible slowness
@@ -202,14 +200,14 @@ define(['text!./log.html', 'webjars!knockout', 'commons/widget', 'commons/utils'
     clear: function() {
       this.flush(); // be sure we collect the queue
       this.entries.removeAll();
-      markers.clearFileMarkers(this.markerOwner);
+      this.parsedErrorEntries.removeAll();
     },
     moveFrom: function(other) {
       // "other" is another logs widget
       other.flush();
       this.flush();
       var removed = other.entries.removeAll();
-      markers.clearFileMarkers(other.markerOwner);
+      other.parsedErrorEntries.removeAll();
       this._pushAll(removed);
     },
     // returns true if it was a log event

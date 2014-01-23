@@ -1,8 +1,8 @@
 /*
  Copyright (C) 2013 Typesafe, Inc <http://typesafe.com>
  */
-define(['webjars!knockout', 'commons/settings', 'widgets/log/log', 'commons/utils', 'commons/events', './sbt'],
-    function(ko, settings, logModule, utils, events, sbt){
+define(['webjars!knockout', 'commons/settings', 'widgets/log/log', 'commons/utils', 'commons/events', './sbt', 'commons/markers'],
+    function(ko, settings, logModule, utils, events, sbt, markers){
   settings.register("build.startApp", true);
   settings.register("build.rerunOnBuild", true);
   settings.register("build.runInConsole", false);
@@ -83,6 +83,39 @@ define(['webjars!knockout', 'commons/settings', 'widgets/log/log', 'commons/util
 
   var log = new logModule.Log();
 
+  var markerOwner = "build-log";
+
+  // forward errors parsed from the log to errorList
+  log.parsedErrorEntries.subscribe(function(changes) {
+    // changes[n].index = array index
+    // changes[n].status = "added", "deleted"
+    // changes[n].value = element value
+    $.each(changes, function(i, change) {
+      debug && console.log("change", change);
+      if (change.status == "added") {
+        var entry = change.value;
+        if (entry.level == 'warning')
+          errorList.addWarning("compile", entry.message, entry.href);
+        else
+          errorList.addError("compile", entry.message, entry.href);
+
+        // register the error globally so editors can pick it up
+        markers.registerFileMarker(markerOwner,
+            entry.file, entry.line, entry.level, entry.message);
+      } else if (change.status == "deleted") {
+        var entry = change.value;
+        errorList.remove(function(error) {
+          return error.message() == entry.message && error.href() == entry.href;
+        });
+        // we assume that if any entry is deleted we're going to end
+        // up deleting them all, which is lame, but works at the moment
+        markers.clearFileMarkers(markerOwner);
+      } else {
+        debug && console.log("Failed to handle parsed error entries change", change);
+      }
+    });
+  }, null, "arrayChange");
+
   // properties of the application we are building
   var app = {
     name: ko.observable(window.serverAppModel.name ? window.serverAppModel.name : window.serverAppModel.id),
@@ -101,13 +134,12 @@ define(['webjars!knockout', 'commons/settings', 'widgets/log/log', 'commons/util
         return self.activeTask() != "";
       }, this);
       this.needCompile = ko.observable(false);
-      // TODO use the real setting for this
-      this.recompileOnChange = ko.observable(true);
+
       events.subscribe(function(event) {
         return event.type == 'FilesChanged';
       },
       function(event) {
-        if (self.recompileOnChange()) {
+        if (settings.build.recompileOnChange()) {
           if (app.hasPlay()) {
             debug && console.log("files changed but it's a Play app so not recompiling.")
             log.info("Some of your files may have changed; reload in the browser or click \"Start compiling\" above to recompile.")
@@ -487,9 +519,6 @@ define(['webjars!knockout', 'commons/settings', 'widgets/log/log', 'commons/util
     doMainClassLoadThenMaybeRun: function(shouldWeRun) {
       var self = this;
 
-      // we clear logs here then ask doRunWithoutMainClassLoad not to.
-      log.clear();
-
       self.beforeRun();
 
       // whether we get main classes or not we'll try to
@@ -500,7 +529,7 @@ define(['webjars!knockout', 'commons/settings', 'widgets/log/log', 'commons/util
 
         if (shouldWeRun) {
           log.debug("Done loading main classes - now running the project");
-          self.doRunWithoutMainClassLoad(false /* clearLogs */);
+          self.doRunWithoutMainClassLoad(true /* clearLogs */);
         }
       }
 
