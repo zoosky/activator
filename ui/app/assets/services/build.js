@@ -215,7 +215,7 @@ define(['webjars!knockout', 'commons/settings', 'widgets/log/log', 'commons/util
       var self = this;
 
       log.info("Refreshing list of source files to watch for changes...");
-      self.status(Status.STATUS_BUSY);
+      self.status(Status.BUSY);
       sbt.watchSources({
         onmessage: function(event) {
           debug && console.log("event watching sources", event);
