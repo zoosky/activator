@@ -52,7 +52,6 @@ define(['webjars!knockout', 'commons/settings', 'widgets/log/log', 'commons/util
       }
       return filtered;
     });
-    $.extend(list, errorListExtensions);
     return list;
   };
 
