@@ -960,7 +960,8 @@ define(['webjars!knockout', 'commons/settings', 'widgets/log/log', 'commons/util
       }),
       testing: ko.computed(function() {
         return test.haveActiveTask();
-      })
+      }),
+      inspecting: ko.observable(false)
   };
   activity.busy = ko.computed(function() {
     // we need to always look at all dependencies so
