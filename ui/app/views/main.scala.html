@@ -97,21 +97,21 @@
           <a href="#Trainings">Trainings</a>
         </dd>
         *@
-        <dt>Develop</dt>
+        <dt><a href="#">Develop</a></dt>
         <dd>
           <a href="#code">Code</a>
+          <a href="#compile">Compile <span class="working"
+            data-bind="visible: build.activity.compiling"></span><span class="counter"
+            data-bind="text: build.errors.compile().length, visible: build.errors.compile().length > 0"></span></a>
+          <a href="#test">Test <span class="working"
+            data-bind="visible: build.activity.testing"></span><span class="counter"
+            data-bind="text: build.errors.test().length, visible: build.errors.test().length > 0"></span></a>
           <a href="#run">Run <span class="working"
             data-bind="visible: build.activity.running"></span><span class="counter"
             data-bind="text: build.errors.run().length, visible: build.errors.run().length > 0"></span></a>
           <a href="#inspect">Inspect <span class="working"
             data-bind="visible: build.activity.inspecting"></span><span class="counter"
             data-bind="text: build.errors.inspect().length, visible: build.errors.inspect().length > 0"></span></a>
-          <a href="#test">Test <span class="working"
-            data-bind="visible: build.activity.testing"></span><span class="counter"
-            data-bind="text: build.errors.test().length, visible: build.errors.test().length > 0"></span></a>
-          <a href="#compile">Compile <span class="working"
-            data-bind="visible: build.activity.compiling"></span><span class="counter"
-            data-bind="text: build.errors.compile().length, visible: build.errors.compile().length > 0"></span></a>
         </dd>
         @*
         <dt>Team</dt>
@@ -130,7 +130,6 @@
         <a href="http://typesafe.com" target="_blank" class="website">
           <img src="/public/images/typesafe.svg">
         </a>
-        <a href="#" class="infos">i</a>
       </div>
     </nav>
     <main id="wrapper" data-bind="foreach: { data: widgets }, visible: activeWidget() != undefined">
