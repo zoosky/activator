@@ -16,7 +16,7 @@ define(['webjars!knockout', 'commons/settings', 'widgets/log/log', 'commons/util
       this.href = ko.observable(fields.href);
       // owner is a tag used to allow us to remove only
       // errors/warnings from a particular task
-      this.owner = ko.observable(fields.owner);
+      this.owner = fields.owner;
     }
   });
   Error.WARNING = "WARNING";
@@ -52,7 +52,6 @@ define(['webjars!knockout', 'commons/settings', 'widgets/log/log', 'commons/util
       }
       return filtered;
     });
-    $.extend(list, errorListExtensions);
     return list;
   };
 
@@ -216,7 +215,7 @@ define(['webjars!knockout', 'commons/settings', 'widgets/log/log', 'commons/util
       var self = this;
 
       log.info("Refreshing list of source files to watch for changes...");
-      self.status(Status.STATUS_BUSY);
+      self.status(Status.BUSY);
       sbt.watchSources({
         onmessage: function(event) {
           debug && console.log("event watching sources", event);
@@ -961,7 +960,8 @@ define(['webjars!knockout', 'commons/settings', 'widgets/log/log', 'commons/util
       }),
       testing: ko.computed(function() {
         return test.haveActiveTask();
-      })
+      }),
+      inspecting: ko.observable(false)
   };
   activity.busy = ko.computed(function() {
     // we need to always look at all dependencies so
