@@ -56,7 +56,7 @@
 		<section id="new">
 			<div class="half">
 				<header>
-					<h2>New app</h2>
+					<h2>Activator Templates</h2>
 				</header>
 				<aside id="filter">
 					<span class="clear" data-bind="click: clearSearch">×</span>
@@ -117,13 +117,13 @@
 			<!-- ko ifnot:currentApp -->
 			<div id="welcome" class="half right">
 				<h3>Create a new app</h3>
-				<p>Build apps in a snap! Typesafe Activator is a local-running web application. Create new apps from templates. Browse & edit code. Run apps and tests. Community created templates & plugins are coming soon!</p>
+                <p>You will be learning and writing code in seconds...</p>
 				<ol class="steps">
 					<li>Choose a template</li>
-					<li>Give it a name and location</li>
-					<li>Hack!</li>
+					<li>Specify a location</li>
+					<li>Activate it!</li>
 				</ol>
-				<h4>Find some inspiration...</h4>
+				<h4>Filter templates by a tag:</h4>
 				<ul class="inspiration tags">
 					@model.tags.map { i =>
 						<li data-bind="click: searchTag">@i</li>
