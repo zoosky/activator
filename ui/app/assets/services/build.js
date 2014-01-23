@@ -755,6 +755,8 @@ define(['webjars!knockout', 'commons/settings', 'widgets/log/log', 'commons/util
           return Status.BUSY;
         else if (anyFailures)
           return Status.FAILED;
+        else if (this.restartPending())
+          return Status.RESTARTING;
         else
           return Status.IDLE;
       }, this);
@@ -862,6 +864,15 @@ define(['webjars!knockout', 'commons/settings', 'widgets/log/log', 'commons/util
           }
         });
       }
+    },
+    doRestart: function() {
+      if (this.haveActiveTask()) {
+        this.doStop();
+        this.restartPending(true);
+        this.status(Status.RESTARTING);
+      } else {
+        this.doTest(false);
+      }
     }
   });
 
@@ -911,6 +922,111 @@ define(['webjars!knockout', 'commons/settings', 'widgets/log/log', 'commons/util
     inspect: inspect.status
   };
 
+  // a different way to view status with just booleans
+  var activity = {
+      compiling: ko.computed(function() {
+        return compile.haveActiveTask();
+      }),
+      running: ko.computed(function() {
+        return run.haveActiveTask();
+      }),
+      testing: ko.computed(function() {
+        return test.haveActiveTask();
+      })
+  };
+  activity.busy = ko.computed(function() {
+    // we need to always look at all dependencies so
+    // knockout knows what they are
+    var c = activity.compiling();
+    var r = activity.running();
+    var t = activity.testing();
+    return c || r || t;
+  });
+
+  var isTaskActive = function(name) {
+    // eventually this should just pass the task name
+    // on to sbt...
+    if (name == 'run') {
+      return activity.running();
+    } else if (name == 'compile') {
+      return activity.compiling();
+    } else if (name == 'test') {
+      return activity.testing();
+    } else {
+      throw new Error("Unknown task name: " + name);
+    }
+  };
+
+  var startTask = function(name) {
+    if (isTaskActive(name))
+      return;
+
+    // eventually this should just pass the task name
+    // on to sbt...
+    if (name == 'run') {
+        run.doRun();
+    } else if (name == 'compile') {
+        compile.doCompile();
+    } else if (name == 'test') {
+        test.doTest();
+    } else {
+      throw new Error("Unknown task name: " + name);
+    }
+  };
+
+  var stopTask = function(name) {
+    if (!isTaskActive(name))
+      return;
+
+    // eventually this should just pass the task name
+    // on to sbt...
+    if (name == 'run') {
+      run.restartPending(false);
+      run.doStop();
+    } else if (name == 'compile') {
+      compile.restartPending(false);
+      compile.doCompile();
+    } else if (name == 'test') {
+      test.restartPending(false);
+      test.doTest(false);
+    } else {
+      throw new Error("Unknown task name: " + name);
+    }
+  };
+
+  var toggleTask = function(name) {
+    if (isTaskActive(name))
+      stopTask(name);
+    else
+      startTask(name);
+  };
+
+  var restartTask = function(name) {
+    if (name == 'run') {
+      run.doRestart();
+    } else if (name == 'compile') {
+      compile.doRestart();
+    } else if (name == 'test') {
+      test.doRestart();
+    } else {
+      throw new Error("Unknown task name: " + name);
+    }
+  };
+
+  var allTasks = ['run', 'test', 'compile'];
+
+  var stopAllTasks = function() {
+    $.each(allTasks, function(i, item) {
+      stopTask(item);
+    });
+  };
+
+  var restartAllTasks = function() {
+    $.each(allTasks, function(i, item) {
+      restartTask(item);
+    });
+  };
+
   var build = utils.Singleton({
     init: function() {
     },
@@ -919,10 +1035,18 @@ define(['webjars!knockout', 'commons/settings', 'widgets/log/log', 'commons/util
     errors: errors, // errors.{compile,run,etc} = observable array of Error
     Status: Status,
     status: statuses, // status.{compile,run,etc} = observable Status.FOO strings
+    activity: activity, // convenience booleans when full status detail isn't needed
     log: log,
     app: app,
     TestOutcome: TestOutcome,
     TestResult: TestResult,
+    // launch/stop compile, test, run
+    startTask: startTask,
+    stopTask: stopTask,
+    toggleTask: toggleTask,
+    restartTask: restartTask,
+    stopAllTasks: stopAllTasks,
+    restartAllTasks: restartAllTasks,
     // these three are the old clunky APIs, probably
     // best to wrap them with a new nicer API above,
     // rather than use directly. The problem with these

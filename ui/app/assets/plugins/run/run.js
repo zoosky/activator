@@ -62,18 +62,11 @@ define(['services/build', 'main/model', 'text!./run.html', 'main/pluginapi', 'co
     },
     startStopButtonClicked: function(self) {
       debug && console.log("Start or Stop was clicked");
-      if (build.run.haveActiveTask()) {
-        // stop
-        build.run.restartPending(false);
-        build.run.doStop();
-      } else {
-        // start
-        build.run.doRun();
-      }
+      build.toggleTask('run');
     },
     restartButtonClicked: function(self) {
       debug && console.log("Restart was clicked");
-      build.run.doRestart();
+      build.restartTask('run');
     },
     onPreDeactivate: function() {
       this.outputScroll = this.outputLogView.findScrollState();
@@ -83,11 +76,11 @@ define(['services/build', 'main/model', 'text!./run.html', 'main/pluginapi', 'co
     },
     restartWithAtmos: function(self) {
       settings.build.runInConsole(true);
-      build.run.doRestart();
+      build.restartTask('run');
     },
     restartWithoutAtmos: function(self) {
       settings.build.runInConsole(false);
-      build.run.doRestart();
+      build.restartTask('run');
     },
     enableAtmos: function(self) {
       settings.build.runInConsole(true);
