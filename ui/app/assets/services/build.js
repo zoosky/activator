@@ -16,7 +16,7 @@ define(['webjars!knockout', 'commons/settings', 'widgets/log/log', 'commons/util
       this.href = ko.observable(fields.href);
       // owner is a tag used to allow us to remove only
       // errors/warnings from a particular task
-      this.owner = ko.observable(fields.owner);
+      this.owner = fields.owner;
     }
   });
   Error.WARNING = "WARNING";
