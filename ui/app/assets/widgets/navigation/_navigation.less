@@ -72,51 +72,13 @@
   }
   a {
     display: block;
+    position: relative;
     color: @grey;
     line-height: 25px;
     text-decoration: none;
     .transition();
     &:hover {
       color: white;
-    }
-    &.busy:after {
-      content: "\27f3";
-      color: @grey;
-      font: 16px icons;
-      line-height: 16px;
-      text-align: right;
-      margin: 4px 0;
-      width: 15px;
-      height: 15px;
-      display: block;
-      float: right;
-      clear: right;
-      -webkit-animation: spin 1s infinite linear;
-      -moz-animation: spin 1s infinite linear;
-      -ms-animation: spin 1s infinite linear;
-      -o-animation: spin 1s infinite linear;
-      animation: spin 1s infinite linear;
-      -webkit-transform-origin: 45% 56%;
-      -moz-transform-origin: 45% 56%;
-      -ms-transform-origin: 45% 56%;
-      -o-transform-origin: 45% 56%;
-      transform-origin: 45% 56%;
-    }
-    &.counter:after, &.warning:after {
-      content: attr(data-counter);
-      background-color: @blue-dkr;
-      color: white;
-      font-size: 12px;
-      line-height: 16px;
-      text-align: center;
-      padding: 2px;
-      margin: 2px 0;
-      border-radius: 2px;
-      min-width: 16px;
-      height: 16px;
-      display: block;
-      float: right;
-      clear: right;
     }
     &.warning:after {
       background-color: @red;
@@ -125,6 +87,38 @@
       color: white;
     }
   }
+  .working {
+    // content: "\27f3";
+    background: url(/public/images/working.svg) center center no-repeat;
+    position: absolute;
+    top: 3px;
+    right: 23px;
+    width: 18px;
+    height: 18px;
+    display: block;
+    -webkit-animation: spin 1s infinite linear;
+    -moz-animation: spin 1s infinite linear;
+    -ms-animation: spin 1s infinite linear;
+    -o-animation: spin 1s infinite linear;
+    animation: spin 1s infinite linear;
+  }
+  .counter:not(:empty) {
+    position: absolute;
+    top: 2px;
+    right: 0;
+    min-width: 16px;
+    height: 16px;
+    display: block;
+    background-color: @red;
+    color: white;
+    font-size: 12px;
+    line-height: 16px;
+    text-align: center;
+    padding: 0 2px;
+    margin: 2px 0;
+    border-radius: 2px;
+  }
+
 }
 
 @-webkit-keyframes spin {

@@ -33,7 +33,7 @@ article header dl.dropdown {
   }
 }
 .run .wrapper {
-	background: #fff;
+  background: #fff;
 }
 
 .run .wrapper > .subsubheader.consoleAvailable {
@@ -68,15 +68,10 @@ article header dl.dropdown {
     right: 0px;
     left: 0px;
     bottom: 0px;
-    &.consoleAvailable {
-      top: 40px;
-    }
 }
 
 .run .wrapper > article > div {
-  height: 100%;
-  width: 50%;
-  position: absolute;
+  max-height: 100%;
   overflow: auto;
 }
 
@@ -90,33 +85,34 @@ article header dl.dropdown {
 }
 
 .outputList {
-	li {
-		padding: 10px 20px;
-		border-bottom: 1px solid #E4EAEF;
-		font-family: Monaco, monospace;
-		font-size: 12px;
-		color: #6F7F89;
-		line-height: 16px;
-	}
+  li {
+    padding: 10px 20px;
+    border-bottom: 1px solid #E4EAEF;
+    font-family: Monaco, monospace;
+    font-size: 12px;
+    color: #6F7F89;
+    line-height: 16px;
+  }
 
 
 }
 
 .logsList {
 
-	li {
-		padding: 4px 20px;
-		border-left: 4px solid #E4EAEF;
-		font-family: Monaco, monospace;
-		font-size: 12px;
-		color: #6F7F89;
-		line-height: 16px;
-	}
+  li {
+    padding: 4px 16px;
+    border-left: 4px solid #E4EAEF;
+    box-shadow: 0 -1px 0 #E4EAEF;
+    font-family: Monaco, monospace;
+    font-size: 12px;
+    color: #6F7F89;
+    line-height: 16px;
+  }
 
-	li.success { border-color: #4BA300; }
-	li.error { border-color: #E25758; }
-	li.warn { border-color: #F89614; }
-	li.info { border-color: #53cdec; }
+  li.success { border-color: #4BA300; }
+  li.error { border-color: #E25758; }
+  li.warn { border-color: #F89614; }
+  li.info { border-color: #53cdec; }
 
 }
 
