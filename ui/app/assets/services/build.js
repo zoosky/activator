@@ -24,10 +24,14 @@ define(['webjars!knockout', 'commons/settings', 'widgets/log/log', 'commons/util
 
   var errorListExtensions = {
     addError: function(owner, message, href) {
-      this.push(new Error({ kind: Error.ERROR, owner: owner, message: message, href: href }));
+      var e = new Error({ kind: Error.ERROR, owner: owner, message: message, href: href })
+      this.push(e);
+      return e;
     },
     addWarning: function(owner, message, href) {
-      this.push(new Error({ kind: Error.WARNING, owner: owner, message: message, href: href }));
+      var e = new Error({ kind: Error.WARNING, owner: owner, message: message, href: href });
+      this.push(e);
+      return e;
     },
     clear: function() {
       this.removeAll();
@@ -723,8 +727,12 @@ define(['webjars!knockout', 'commons/settings', 'widgets/log/log', 'commons/util
   var TestResult = utils.Class({
     init: function(config) {
       var self = this;
+      self.errorList = null;
       self.name = config.name;
       self.outcome = ko.observable(config.outcome);
+      self.failed = ko.computed(function() {
+        return self.outcome() === TestOutcome.FAILED || self.outcome() === TestOutcome.ERROR;
+      });
       self.description = ko.observable(config.description);
       self.outcomeClass = ko.computed(function() {
         var current = self.outcome();
@@ -734,11 +742,44 @@ define(['webjars!knockout', 'commons/settings', 'widgets/log/log', 'commons/util
           return TestOutcome.FAILED;
         }
       });
+
+      this.failed.subscribe(function(failed) {
+        if (failed)
+          self._addError();
+        else
+          self._removeError();
+      });
     },
     // Update our state from an event.
     update: function(event) {
       this.description(event.description);
       this.outcome(event.outcome);
+    },
+    _removeError: function() {
+      var self = this;
+      if (this.errorList !== null) {
+        this.errorList.remove(function(error) {
+          return error.testResult === self;
+        });
+      }
+    },
+    _addError: function() {
+      this._removeError(); // ensure no dups
+      if (this.errorList !== null) {
+        var error = this.errorList.addError("test", "Test " + this.name + " failed", "#test");
+        error.testResult = this; // to use to remove
+      }
+    },
+    attachToErrorList: function(errorList) {
+      this._removeError();
+      this.errorList = errorList;
+      if (this.failed()) {
+        this._addError();
+      }
+    },
+    detachFromErrorList: function(errorList) {
+      this._removeError();
+      this.errorList = null;
     }
   });
 
@@ -795,6 +836,35 @@ define(['webjars!knockout', 'commons/settings', 'widgets/log/log', 'commons/util
       function(event) {
         self.onCompileSucceeded(event);
       });
+
+      this.lastTaskFailed.subscribe(function(failed) {
+        var message = "Error in test task (check compile logs)";
+        if (failed) {
+          errorList.addError("test", message, "#compile");
+        } else {
+          errorList.remove(function(error) {
+            return error.owner === "test" && error.message() === message;
+          });
+        }
+      });
+
+      // forward failed results to the error list
+      this.results.subscribe(function(changes) {
+        // changes[n].index = array index
+        // changes[n].status = "added", "deleted"
+        // changes[n].value = element value
+        $.each(changes, function(i, change) {
+          if (change.status == "added") {
+            var result = change.value;
+            result.attachToErrorList(errorList);
+          } else if (change.status == "deleted") {
+            var result = change.value;
+            result.detachFromErrorList(errorList);
+          } else {
+            debug && console.log("Failed to handle test results change", change);
+          }
+        });
+      }, null, "arrayChange");
     },
     doAfterTest: function() {
       var self = this;
