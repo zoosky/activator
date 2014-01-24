@@ -19,7 +19,8 @@
 }
 
 #user, #notifications, #layoutManager {
-  .square(50px);
+  display: block;
+  height: 50px;
   width: 52px;
   float: right;
   border-left: 2px solid @navy-dkr;
@@ -27,6 +28,10 @@
   dt {
     .square(50px);
     background-position: center center;    
+  }
+  dd {
+    left: auto;
+    right: 0;
   }
 }
 
@@ -42,11 +47,14 @@
     border: 3px solid @grey-dkr;
     font-size: 16px;
     margin: 11px;
+    &.glow {
+      border-color: @red;
+    }
   }
   dd {
-    background: @navy;
+    background: @navy-dkr;
     right: -1px;
-    min-width: (@panel-width / 2);
+    min-width: 300px;
     a {
       color: @grey-ltr;
       line-height: 20px;
@@ -68,7 +76,23 @@
 
 #user {
   background-image: url(/public/images/icons/user.svg);
+  // > button {
+  //   cursor: pointer;
+  //   width: 50px;
+  //   height: 50px;
+  //   background: url(/public/images/user.png);
+  //   background-size: 50px;
+  //   border: none;
+  // }
+  iframe {
+    width: 450px;
+    height: 300px;
+    background: #fff;
+    overflow: auto;
+  }
 }
+
+
 
 // ----------------
 // LAYOUT BUTTONS
