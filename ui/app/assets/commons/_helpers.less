@@ -67,6 +67,14 @@
   transition: all @speed ease-in-out;
 }
 
+.cover() {
+  &:after {
+    content: " ";
+    position: absolute;
+    .trbl(0);
+  }
+}
+
 #overlay {
   background-color: fade(@navy, 50);
   width: 100%;
