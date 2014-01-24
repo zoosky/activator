@@ -1,4 +1,4 @@
-@(model: HomeModel, newApp: Form[NewAppForm], json: play.api.libs.json.JsValue)(implicit request: RequestHeader)
+@(model: HomeModel, newApp: Form[NewAppForm], json: play.api.libs.json.JsValue)(implicit flash: Flash, request: RequestHeader)
 
 @import snap.WebSocketUtil.webSocketURLWithCSRF
 
@@ -23,6 +23,10 @@
 	<body>
 
     <h1><strong class="typesafe">Typesafe</strong> <span>Activator</span></h1>
+    
+    @flash.get("error").map { error =>
+        <script>alert("@error")</script>
+    }
 
 		<section id="working">
 			<header>

@@ -125,10 +125,9 @@ object Application extends Controller {
         Ok(views.html.main(getApplicationModel(theApp)))
       } recover {
         case e: Exception =>
-          // TODO we need to have an error message and "flash" it then
           // display it on home screen
-          Logger.error("Failed to load app id " + id + ": " + e.getMessage())
-          Redirect(routes.Application.forceHome)
+          Logger.error("Failed to load app id " + id + ": " + e.getMessage)
+          Redirect(routes.Application.forceHome).flashing("error" -> e.getMessage)
       }
     }
   }

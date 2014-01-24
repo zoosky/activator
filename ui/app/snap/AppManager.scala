@@ -77,9 +77,13 @@ class AppCacheActor extends Actor with ActorLogging {
           case None => {
             val appFuture: Future[snap.App] = RootConfig.user.applications.find(_.id == id) match {
               case Some(config) =>
-                val app = new snap.App(config, snap.Akka.system, AppManager.sbtChildProcessMaker)
-                log.debug(s"creating a new app for $id, $app")
-                Promise.successful(app).future
+                if (!new java.io.File(config.location, "project/build.properties").exists()) {
+                  Promise.failed(new RuntimeException(s"${config.location} does not contain a valid sbt project")).future
+                } else {
+                  val app = new snap.App(config, snap.Akka.system, AppManager.sbtChildProcessMaker)
+                  log.debug(s"creating a new app for $id, $app")
+                  Promise.successful(app).future
+                }
               case whatever =>
                 Promise.failed(new RuntimeException("No such app with id: '" + id + "'")).future
             }
