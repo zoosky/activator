@@ -40,7 +40,7 @@ define(['./model', './pluginapi', 'commons/streams', './plugin', './globalEventH
   // there is a race if the child iframe sent the message before we added that listener.
   // so we ask the iframe to resend. If the iframe is not started up yet, then this
   // won't do anything but the iframe will send automatically when it starts up.
-  $('#loginIFrame').get(0).contentWindow.postMessage('{ "pleaseResendSignedIn" : true }', '*');
+  ////$('#loginIFrame').get(0).contentWindow.postMessage('{ "pleaseResendSignedIn" : true }', '*');
 
   return model;
 });
