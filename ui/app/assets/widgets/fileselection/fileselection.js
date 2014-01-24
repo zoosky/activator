@@ -78,33 +78,17 @@ define(['css!./fileselection.css', 'text!./fileselection.html', 'webjars!knockou
         this.loadRoots();
       }
 
-      var timer;
       debug && console.log(config.dom);
-      $(config.dom)
-        .on("click", ".directories li", function(e){
+      $(config.dom).on("click", ".directories li", function(e){
           e.preventDefault();
           var it = this;
           var context = ko.contextFor(it);
-          // Double click
-          if (timer) {
-            clearTimeout(timer);
-            timer = false;
-            if(context.$data.location) {
-              self.onSelect(context.$data.location);
-            }
-            return false;
+          if(context.$data.location) {
+            self.load(context.$data.location);
+          } else {
+            // TODO - Only on windows.
+            self.loadRoots();
           }
-          // Simple click
-          timer = setTimeout(function() {
-            timer = false;
-            //retrieve the context
-            if(context.$data.location) {
-              self.load(context.$data.location);
-            } else {
-              // TODO - Only on windows.
-              self.loadRoots();
-            }
-          },200);
           return false;
        });
 
