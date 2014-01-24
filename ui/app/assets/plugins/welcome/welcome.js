@@ -5,7 +5,7 @@ define(['text!./welcome.html', 'css!./welcome.css', 'main/pluginapi' ], function
 
   var ko = api.ko;
 
-  var homePage = api.PluginWidget({
+  var welcomePage = api.PluginWidget({
     id: 'welcome-page-screen',
     template: template,
     appVersion: window.serverAppVersion,
@@ -36,18 +36,18 @@ define(['text!./welcome.html', 'css!./welcome.css', 'main/pluginapi' ], function
     }
   });
 
-  window.setNewsJson = homePage.setNewsJson.bind(homePage);
+  window.setNewsJson = welcomePage.setNewsJson.bind(welcomePage);
 
   return api.Plugin({
-    id: 'home',
-    name: "Home",
+    id: 'welcome',
+    name: "Welcome",
     icon: "",
     url: "#",
     routes: {
-      'home': function(url) {
-        api.setActiveWidget(homePage);
+      'welcome': function(url) {
+        api.setActiveWidget(welcomePage);
       }
     },
-    widgets: [homePage]
+    widgets: [welcomePage]
   });
 });

@@ -118,7 +118,7 @@ define(['webjars!knockout'], function(ko) {
     // If no arguments, take the hash
     url = url || window.location.hash;
     // Split full path in modules
-    var bcs = url ? /^#?\/?(.+)\/?$/.exec(url)[1].split("/") : ['home'];
+    var bcs = url ? /^#?\/?(.+)\/?$/.exec(url)[1].split("/") : ['welcome'];
     // Make arguments to churn through routers...
     var args = createArgs(bcs);
 
