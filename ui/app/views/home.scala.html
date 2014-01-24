@@ -22,7 +22,7 @@
 	</head>
 	<body>
 
-    <h1><span class="typesafe">Typesafe</span> <strong>Activator</strong></h1>
+    <h1><strong class="typesafe">Typesafe</strong> <span>Activator</span></h1>
 
 		<section id="working">
 			<header>
@@ -60,7 +60,7 @@
 				</header>
 				<aside id="filter">
 					<span class="clear" data-bind="click: clearSearch">×</span>
-					<input type="text" placeholder="Filter templates" data-bind="event: {  keyup: search }" />
+					<input type="text" placeholder="Filter templates" data-bind="value: filterValue, event: {  keyup: search, change: search }" />
 				</aside>
 				<article>
 					<ul class="list" data-bind="foreach: filteredTemplates">
@@ -126,7 +126,7 @@
 				<h4>Find some inspiration...</h4>
 				<ul class="inspiration tags">
 					@model.tags.map { i =>
-						<li>@i</li>
+						<li data-bind="click: searchTag">@i</li>
 					}
 				</ul>
 			</div>

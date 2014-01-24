@@ -52,6 +52,12 @@ var startApp = function() {
     // Register handlers on the UI.
     $(function() {
 
+      // // Some tasks are simpler to achive with jquery
+      // var filterInput = $("#filter input");
+      // $("#new").on("click", ".tags li", function(e){
+      //   filterInput.val(e.currentTarget.innerHTML).trigger("change");
+      // });
+
       // App Model
       var model = function(){
         var self = this;
@@ -62,7 +68,7 @@ var startApp = function() {
           return !!self.currentApp()?self.currentApp().id:"";
         });
         self.browseAppLocation = ko.observable(false);
-        self.browseAppLocation = ko.observable(false);
+        self.filterValue = ko.observable("");
 
         self.chooseTemplate = function(app){
           self.currentApp(app)
@@ -70,11 +76,20 @@ var startApp = function() {
         self.closeTemplate = function(){
           self.currentApp("")
         }
-        self.clearSearch = function(){
-          filterInput.val("").trigger("keyup")[0].focus();
+        self.searchTag = function(m,e){
+          self.filterValue(e.currentTarget.innerHTML);
+          self.search();
         }
-        self.search = function(model,evt){
-          value = evt.currentTarget.value.toLowerCase();
+        self.clearSearch = function(){
+          self.filterValue("");
+          self.search();
+          // filterInput.val("").trigger("search")[0].focus();
+        }
+        self.search = function(model,e){
+          if (e){
+            self.filterValue(e.currentTarget.value.toLowerCase());
+          }
+          value = self.filterValue().toLowerCase();
           self.filteredTemplates(templates.filter(function(o){
             return JSON.stringify(o).indexOf(value) >= 0
           }));
@@ -86,14 +101,6 @@ var startApp = function() {
 
       // Bind everything
       ko.applyBindings(new model());
-
-      // Some tasks are simpler to achive with jquery
-      var filterInput = $("#filter input");
-      $(document).on("click", ".tags li", function(e){
-        filterInput.val(e.currentTarget.innerHTML).trigger("keyup");
-      });
-
-
 
       // Create log widget before we start recording websocket events...
       var logs = new log.Log();
@@ -142,7 +149,7 @@ var startApp = function() {
       // Save these lookups so we don't have to do them repeatedly.
       var appNameInput = $('#newappName');
       var appLocationInput = $('#newappLocation');
-      var homeDir = appLocationInput.attr('placeholder');
+      var homeDir = baseFolder;
       var appTemplateName = $('#newAppTemplateName');
       var showTemplatesLink = $('#showLink');
       var evilLocationStore = homeDir;

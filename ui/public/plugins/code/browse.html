@@ -27,7 +27,7 @@
 <p style="display:none" data-bind="visible: isEmpty">Empty folder</p>
 <ul class="list directory" data-bind="foreach: files">
   <li class="file" data-bind="css: {folder: isDirectory, file: !isDirectory()}">
-          <span data-bind="visible: !editing(), text: name, event: { contextmenu: onContextMenu, click: select }, attr: {href: '#'+url()}"></span>
+          <a data-bind="visible: !editing(), text: name, event: { contextmenu: onContextMenu, click: select }, attr: {href: '#'+url()}"></a>
           <input data-bind="visible: editing, value: editingText, event: { keyup: onKeyUp, blur: onBlur }, css: editClass"></input>
   </li>
 </ul>
