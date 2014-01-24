@@ -71,10 +71,10 @@
         <dd>
           <a class="new-app button" href="/home">Manage applications</a>
           @model.recentApps.zipWithIndex.map { case (app, idx) =>
-          <a href="@routes.Application.app(app.id)">
-            @name(app)
-            <small>(@app.location)</small>
-          </a>
+              <a href="@routes.Application.app(app.id)">
+                @name(app)
+                <small onclick="event.stopPropagation(); // causes the event to bubble to the a tag">(@app.location)</small>
+              </a>
           }
         </dd>
       </dl>
