@@ -149,7 +149,7 @@ var startApp = function() {
       // Save these lookups so we don't have to do them repeatedly.
       var appNameInput = $('#newappName');
       var appLocationInput = $('#newappLocation');
-      var homeDir = appLocationInput.attr('placeholder');
+      var homeDir = baseFolder;
       var appTemplateName = $('#newAppTemplateName');
       var showTemplatesLink = $('#showLink');
       var evilLocationStore = homeDir;
