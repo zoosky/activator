@@ -15,5 +15,7 @@ class DeviationsJsonBuilder extends JsonBuilderActor {
 }
 
 object DeviationsJsonBuilder {
-  case class DeviationsResult(receiver: ActorRef)
+  import activator.analytics.data._
+
+  case class DeviationsResult(receiver: ActorRef, result: Either[Seq[ErrorStats], Seq[ActorStats]])
 }

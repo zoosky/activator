@@ -16,7 +16,7 @@ object Dependencies {
   val slickVersion = "1.0.1"
   val atmosVersion = "1.3.1"
   val atmosPluginVersion = "0.3.2"
-  val activatorAnalyticsVersion = "0.1-SNAPSHOT"
+  val activatorAnalyticsVersion = "0.1.1"
   val aspectJVersion = "1.7.3"
 
   val atmosArtifacts = Seq(
