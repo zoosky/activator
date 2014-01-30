@@ -61,8 +61,6 @@ define ->
         console.log "console connection couldn't parse received JSON message : ", message
         $(window).trigger("network-error")
         return false
-      # console.log "console connection receive : ", message
-      # Catch errors
 
       # Update module with data
       for module in @modules

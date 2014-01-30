@@ -58,7 +58,7 @@ trait ClientHandlerBase extends Actor with ActorLogging with ClientModuleHandler
     case Tick => handlers filter { m => !ClientModuleHandler.oneTimeHandlers.contains(m.handler) } foreach callHandler
     case Update(js) => channel.push(js)
     case r: HandleRequest => jsonHandler ! r
-    case mi: RawModuleInformation => callHandler(mi)
+    case mi: RawInformationBase => callHandler(mi)
     case InitializeCommunication => sender ! Connection(self, enum)
     case RegisterModules(newHandlers) =>
       // Only module handlers should be registered -
@@ -196,8 +196,8 @@ object JsonHandler {
 case class RegisterModules(moduleInformation: Seq[RawInformationBase])
 
 case class ScopeModifiers(
-  anonymous: Boolean = false,
-  temporary: Boolean = false)
+  anonymous: Boolean = true,
+  temporary: Boolean = true)
 
 case class InternalScope(
   node: Option[String] = None,

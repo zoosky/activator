@@ -222,8 +222,8 @@ object TheActivatorBuild extends Build {
         playSbt13Plugin,
         eclipseSbt13Plugin,
         ideaSbt13Plugin,
-        atmosSbt13Plugin,
-        atmosPlaySbt13Plugin,
+        echoSbt13Plugin,
+        echoPlaySbt13Plugin,
 
         // featured template deps
         // note: do not use %% here
@@ -249,7 +249,7 @@ object TheActivatorBuild extends Build {
         "com.jcraft" % "jsch" % "0.1.44-1",
         "jline" % "jline" % "0.9.94",
         "com.typesafe.akka" % "akka-slf4j_2.10" % "2.2.0"
-      ) ++ Dependencies.atmosArtifacts,
+      ),
       Keys.mappings in S3.upload <<= (Keys.packageBin in Universal, Packaging.minimalDist, Keys.version) map { (zip, minimalZip, v) =>
         Seq(minimalZip -> ("typesafe-activator/%s/typesafe-activator-%s-minimal.zip" format (v, v)),
             zip -> ("typesafe-activator/%s/typesafe-activator-%s.zip" format (v, v)))

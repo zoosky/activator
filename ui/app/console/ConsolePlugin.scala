@@ -20,7 +20,6 @@ class ConsolePlugin(app: Application) extends Plugin {
   override def onStart(): Unit = {
     require(env eq null)
     env = ConsolePluginEnvironment(app.configuration.underlying)
-    // TODO -> shortcut/start Inspect view directly (no need to login)
     // TODO -> disable not used analyzers
     ReceiveMain.main(Array())
     AnalyzerManager.create(config)

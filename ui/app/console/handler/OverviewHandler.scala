@@ -4,7 +4,6 @@
 package console
 package handler
 
-import console.handler.rest.OverviewJsonBuilder.OverviewResult
 import akka.actor.{ ActorRef, Props }
 import scala.concurrent._
 import ExecutionContext.Implicits.global
@@ -51,9 +50,8 @@ trait OverviewHandlerBase extends PagingRequestHandler[OverviewSort, OverviewHan
 
   def useMetadataStats(sender: ActorRef, stats: MetadataStats, errorStats: ErrorStats): Unit
   def onModuleInformation(sender: ActorRef, mi: OverviewModuleInfo): Unit = withPagingDefaults(mi) { (offset, limit) =>
-    // TODO : define include of temp and anonymous actors
-    val metadataFuture = future { repository.metadataStatsRepository.findFiltered(mi.time, mi.scope, true, true) }
-    val spanFuture = future { repository.summarySpanStatsRepository.findMetadata(mi.time, mi.scope, true, true) }
+    val metadataFuture = future { repository.metadataStatsRepository.findFiltered(mi.time, mi.scope, mi.modifiers.anonymous, mi.modifiers.temporary) }
+    val spanFuture = future { repository.summarySpanStatsRepository.findMetadata(mi.time, mi.scope, mi.modifiers.anonymous, mi.modifiers.temporary) }
     val deviationFuture = future { repository.errorStatsRepository.findWithinTimePeriod(mi.time, mi.scope.node, mi.scope.actorSystem) }
     for {
       metadata <- metadataFuture

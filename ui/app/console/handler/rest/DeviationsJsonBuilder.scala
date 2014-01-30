@@ -10,7 +10,7 @@ class DeviationsJsonBuilder extends JsonBuilderActor {
   import DeviationsJsonBuilder._
 
   def receive = {
-    case r: DeviationsResult => r.receiver ! Update(null)
+    case r: DeviationsResult => //r.receiver ! Update(null)
   }
 }
 

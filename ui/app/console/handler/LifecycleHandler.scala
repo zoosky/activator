@@ -22,8 +22,7 @@ trait LifecycleHandlerBase extends RequestHandler[LifecycleHandler.LifecycleModu
 
   def onModuleInformation(sender: ActorRef, mi: LifecycleModuleInfo): Unit = {
     mi.command match {
-      case ResetCommand =>
-        repository.lifecycleRepository.clear()
+      case ResetCommand => repository.lifecycleRepository.clear()
       case _ => log.error(s"Unknown lifecycle command: ${mi.command}")
     }
   }
