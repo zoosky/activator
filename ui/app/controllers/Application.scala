@@ -74,6 +74,10 @@ object Application extends Controller {
       "location" -> text,
       "template" -> text)(NewAppForm.apply)(NewAppForm.unapply))
 
+  def getAppsThatExist(applications: Seq[AppConfig]): Seq[AppConfig] = applications.filter { appConfig =>
+    new File(appConfig.location, "project/build.properties").exists()
+  }
+
   /** Reloads the model for the home page. */
   private def homeModel = api.Templates.templateCache.metadata map { templates =>
     val tempSeq = templates.toSeq
@@ -83,7 +87,7 @@ object Application extends Controller {
       userHome = ActivatorProperties.GLOBAL_USER_HOME,
       templates = featured,
       otherTemplateCount = tempSeq.length,
-      recentApps = config.applications,
+      recentApps = getAppsThatExist(config.applications),
       tags = Seq("reactive", "scala", "java", "starter", "akka", "play", "slick", "spray", "angular", "javascript", "database", "websocket"))
   }
 
@@ -277,7 +281,7 @@ object Application extends Controller {
       app.config.cachedName getOrElse app.config.id,
       // TODO - something less lame than exception here...
       app.templateID,
-      RootConfig.user.applications,
+      getAppsThatExist(RootConfig.user.applications),
       hasLocalTutorial(app))
 
   def hasLocalTutorial(app: snap.App): Boolean = {
