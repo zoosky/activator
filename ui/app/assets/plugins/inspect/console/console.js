@@ -11,12 +11,11 @@ define(['text!./console.html', 'css!./console.css', 'core/pluginapi', './connect
     template: template,
     init: function(args) {
       var self = this;
-
-      this.connected = ko.observable(false);
       this.crumbs = ko.observableArray([]);
       this.defaultTime = { "startTime": "", "endTime": "", "rolling": "20minutes" };
       Connection.init(self.defaultTime);
-
+      Connection.open(consoleWsUrl, function() {});
+      this.connected = ko.observable(true);
       this.navigation = new Overview();
       this.views = {
         'actors': { 'contents': new Actors() },
@@ -29,19 +28,6 @@ define(['text!./console.html', 'css!./console.css', 'core/pluginapi', './connect
       this.viewer = ko.computed(function() {
         return self.updateView(self.crumbs());
       });
-
-      this.atmosStarted();
-    },
-
-    atmosStarted: function() {
-      var self = this;
-      Connection.open(consoleWsUrl, function() {
-        self.connected(true);
-      });
-    },
-    runStopped: function() {
-      Connection.close();
-      this.connected(false);
     },
     route: function(path) {
       this.crumbs(path);

@@ -5,12 +5,10 @@ package console
 package handler
 
 import akka.actor.{ ActorRef, Props }
-import console.handler.rest.ActorsJsonBuilder.ActorsResult
 import activator.analytics.data._
 import console.handler.rest.ActorsJsonBuilder.ActorsResult
 import activator.analytics.repository.ActorStatsSorted
 import console.PagingInformation
-import scala.Some
 import console.ScopeModifiers
 import activator.analytics.rest.http.SortingHelpers.SortDirection
 

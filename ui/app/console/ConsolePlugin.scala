@@ -15,14 +15,12 @@ class ConsolePlugin(app: Application) extends Plugin {
   def config = env.config
   def actorSystem = env.system
   def clientHandlerActor = env.clientHandlerActor
+  def defaultPageLimit = config.getInt("activator.default-page-limit")
 
   override def onStart(): Unit = {
     require(env eq null)
     env = ConsolePluginEnvironment(app.configuration.underlying)
-    // TODO -> shortcut/start Inspect view directly (no need to login)
     // TODO -> disable not used analyzers
-    // TODO -> call analyzers directly instead of via REST
-    // TODO -> feed via external traced app and verify that data's available
     ReceiveMain.main(Array())
     AnalyzerManager.create(config)
   }

@@ -5,38 +5,56 @@ package console
 package handler
 
 import akka.actor.{ ActorRef, Props }
-import activator.analytics.data.{ TimeRange, Scope, ActorStats }
+import activator.analytics.data.{ PlayStatsSort, PlayStatsSorts, PlayRequestSummary, TimeRange, Scope }
 import activator.analytics.rest.http.SortingHelpers.SortDirection
+import console.handler.rest.PlayRequestsJsonBuilder.PlayRequestsResult
+import scala.language.existentials
 
 object PlayRequestsHandler {
   case class PlayRequestsModuleInfo(scope: Scope,
     modifiers: ScopeModifiers,
     time: TimeRange,
     pagingInformation: Option[PagingInformation],
-    sortOn: PlayRequestsSort,
+    sortOn: PlayStatsSort[_],
     sortDirection: SortDirection,
     dataFrom: Option[Long],
-    traceId: Option[String]) extends MultiValueModuleInformation[PlayRequestsSort]
+    traceId: Option[String]) extends MultiValueModuleInformation[PlayStatsSort[_]]
 
-  def extractSortOn(in: Option[String]): PlayRequestsSort = PlayRequestsSorts.DefineMe
+  def extractSortOn(sortCommand: Option[String]): PlayStatsSort[_] = sortCommand match {
+    case Some(sort) ⇒ sort match {
+      case "time" => PlayStatsSorts.TimeSort
+      case "controller" => PlayStatsSorts.ControllerSort
+      case "method" => PlayStatsSorts.MethodSort
+      case "responseCode" => PlayStatsSorts.ResponseCodeSort
+      case _ => PlayStatsSorts.InvocationTimeSort
+    }
+    case _ => PlayStatsSorts.TimeSort
+  }
 }
 
 trait PlayRequestsHandlerBase extends RequestHandler[PlayRequestsHandler.PlayRequestsModuleInfo] {
   import PlayRequestsHandler._
+  import SortDirections._
+
+  def usePlayRequestStats(sender: ActorRef, stats: Seq[PlayRequestSummary]): Unit
 
   def onModuleInformation(sender: ActorRef, mi: PlayRequestsModuleInfo): Unit = {
+    usePlayRequestStats(sender,
+      repository.playRequestSummaryRepository.findRequestsWithinTimePeriod(
+        mi.time.startTime,
+        mi.time.endTime,
+        (for { p <- mi.pagingInformation } yield p.offset).getOrElse(0),
+        (for { p <- mi.pagingInformation } yield p.limit).getOrElse(50),
+        PlayStatsSorts.TimeSort,
+        mi.sortDirection.toLegacy))
   }
 }
 
 class PlayRequestsHandler(builderProps: Props, val defaultLimit: Int) extends PlayRequestsHandlerBase {
   val builder = context.actorOf(builderProps, "playRequestsBuilder")
 
-  def useActorStats(sender: ActorRef, stats: ActorStats): Unit = {
-
+  def usePlayRequestStats(sender: ActorRef, stats: Seq[PlayRequestSummary]): Unit = {
+    builder ! PlayRequestsResult(sender, stats)
   }
-}
 
-sealed trait PlayRequestsSort
-object PlayRequestsSorts {
-  case object DefineMe extends PlayRequestsSort
 }
