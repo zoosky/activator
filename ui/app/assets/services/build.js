@@ -614,14 +614,10 @@ define(['webjars!knockout', 'commons/settings', 'widgets/log/log', 'commons/util
 
       var task = {};
       if (self.haveMainClass() && !mainClassIsPlayServer) {
-        task.task = 'run-main';
+        task.task = 'echo:run-main';
         task.params = { mainClass: self.currentMainClass() };
       } else {
-        task.task = 'run';
-      }
-
-      if (settings.build.runInConsole()) {
-        task.task = 'atmos:' + task.task;
+        task.task = 'echo:run';
       }
 
       debug && console.log("launching " + task.task + " task");

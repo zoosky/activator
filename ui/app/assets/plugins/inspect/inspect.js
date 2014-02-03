@@ -1,7 +1,7 @@
 /*
  Copyright (C) 2013 Typesafe, Inc <http://typesafe.com>
  */
-define(['core/pluginapi', './console/console', './console/connection', 'text!./inspect.html', 'css!./inspect.css'], function(api, Console, Connection, template){
+define(['main/pluginapi', './console/console', './console/connection', 'text!./inspect.html', 'css!./inspect.css'], function(api, Console, Connection, template){
     var ko = api.ko;
 
     var inspectConsole = api.PluginWidget({
@@ -36,7 +36,6 @@ define(['core/pluginapi', './console/console', './console/connection', 'text!./i
                 inspectConsole.route(path.rest);
             }
         },
-        widgets: [inspectConsole],
-        status: inspectConsole.status
+        widgets: [inspectConsole]
     });
 });
