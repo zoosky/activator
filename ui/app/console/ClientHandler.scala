@@ -143,7 +143,7 @@ trait RequestHelpers { this: ActorLogging =>
   def toTimeRange(rolling: Option[String], log: LoggingAdapter): TimeRange = rolling match {
     case RollingMinutePattern(value) => TimeRange.minuteRange(System.currentTimeMillis, value.toInt)
     case x =>
-      log.warning("Can not use parsed time range (using default 20 minutes instead): %s", x)
+      log.debug("Can not use parsed time range (using default 20 minutes instead): %s", x)
       TimeRange.minuteRange(System.currentTimeMillis, 20)
   }
 }
