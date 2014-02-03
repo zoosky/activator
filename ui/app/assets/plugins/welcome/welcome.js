@@ -1,12 +1,12 @@
 /*
  Copyright (C) 2013 Typesafe, Inc <http://typesafe.com>
  */
-define(['text!./home.html', 'css!./home.css', 'core/pluginapi' ], function(template, css, api){
+define(['text!./welcome.html', 'css!./welcome.css', 'main/pluginapi' ], function(template, css, api){
 
   var ko = api.ko;
 
-  var homePage = api.PluginWidget({
-    id: 'home-page-screen',
+  var welcomePage = api.PluginWidget({
+    id: 'welcome-page-screen',
     template: template,
     appVersion: window.serverAppVersion,
     init: function(config) {
@@ -23,11 +23,11 @@ define(['text!./home.html', 'css!./home.css', 'core/pluginapi' ], function(templ
           jsonpCallback: 'setNewsJson',
           dataType: 'jsonp' // return type
         };
-        console.log("sending ajax news request ", areq)
+        debug && console.log("sending ajax news request ", areq)
         return $.ajax(areq);
     },
     setNewsJson: function(json) {
-      console.log("setting news json to ", json);
+      debug && console.log("setting news json to ", json);
       if ('html' in json) {
         this.newsHtml(json.html);
       } else {
@@ -36,18 +36,18 @@ define(['text!./home.html', 'css!./home.css', 'core/pluginapi' ], function(templ
     }
   });
 
-  window.setNewsJson = homePage.setNewsJson.bind(homePage);
+  window.setNewsJson = welcomePage.setNewsJson.bind(welcomePage);
 
   return api.Plugin({
-    id: 'home',
-    name: "Home",
+    id: 'welcome',
+    name: "Welcome",
     icon: "",
     url: "#",
     routes: {
-      'home': function(url) {
-        api.setActiveWidget(homePage);
+      'welcome': function(url) {
+        api.setActiveWidget(welcomePage);
       }
     },
-    widgets: [homePage]
+    widgets: [welcomePage]
   });
 });

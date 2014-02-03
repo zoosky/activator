@@ -17,7 +17,7 @@ define(['webjars!knockout'], function(ko) {
   // Add the API the templates use.
   ko.utils.extend(ko.templateSources.stringTemplate.prototype, {
     data: function(key, value) {
-      console.log("data", key, value, this.templateName);
+      debug && console.log("data", key, value, this.templateName);
       this.templates._data = this.templates._data || {};
       this.templates._data[this.templateName] = this.templates._data[this.templateName] || {};
       if(arguments.length === 1) {
@@ -85,7 +85,7 @@ define(['webjars!knockout'], function(ko) {
   // Log
   ko.bindingHandlers['log'] = {
       init: function(element, valueAccessor, allBindings, viewModel, bindingContext) {
-          console.log("LOG FROM HTML:",valueAccessor());
+          debug && console.log("LOG FROM HTML:",valueAccessor());
       }
   };
 

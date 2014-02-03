@@ -3,7 +3,7 @@
  */
 
 // Sort of MVC (Module, Grid, Router)
-define(['./model', './pluginapi', './streams', './plugin', './navigation'], function(model, api, streams, plugins, navigation) {
+define(['./model', './pluginapi', 'commons/streams', './plugin', './globalEventHandlers'], function(model, api, streams, plugins, globalEventHandlers) {
 
   var ko = api.ko;
 
@@ -19,18 +19,18 @@ define(['./model', './pluginapi', './streams', './plugin', './navigation'], func
 
   // Here's the app initialization ordering!
   model.init(plugins);
-  navigation.init();
+  globalEventHandlers.init();
 
   var receiveMessage = function(event) {
     if (event.origin !== "https://typesafe.com") { // TODO change to typesafe.com
-      console.log("receiveMessage: Ignoring message ", event);
+      debug && console.log("receiveMessage: Ignoring message ", event);
     } else {
       var obj = JSON.parse(event.data);
       if ('signedIn' in obj && typeof(obj.signedIn) == 'boolean') {
-        console.log("receiveMessage: signedIn=", obj.signedIn);
-        model.snap.signedIn(obj.signedIn);
+        debug && console.log("receiveMessage: signedIn=", obj.signedIn);
+        model.signedIn(obj.signedIn);
       } else {
-        console.log("receiveMessage: did not understand message ", event, " parsed ", obj);
+        debug && console.log("receiveMessage: did not understand message ", event, " parsed ", obj);
       }
     }
   }
@@ -40,7 +40,7 @@ define(['./model', './pluginapi', './streams', './plugin', './navigation'], func
   // there is a race if the child iframe sent the message before we added that listener.
   // so we ask the iframe to resend. If the iframe is not started up yet, then this
   // won't do anything but the iframe will send automatically when it starts up.
-  $('#loginIFrame').get(0).contentWindow.postMessage('{ "pleaseResendSignedIn" : true }', '*');
+  ////$('#loginIFrame').get(0).contentWindow.postMessage('{ "pleaseResendSignedIn" : true }', '*');
 
   return model;
 });

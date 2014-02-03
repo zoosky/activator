@@ -1,4 +1,4 @@
-define(['text!./request.html', 'core/pluginapi', './../widget'], function(template, api, ConsoleWidget) {
+define(['text!./request.html', 'main/pluginapi', './../widget'], function(template, api, ConsoleWidget) {
   var ko = api.ko;
 
   return api.Class(ConsoleWidget, {

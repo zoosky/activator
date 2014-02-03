@@ -4,6 +4,34 @@
             <button data-bind="click: reset"><span class="icon">&#128683;</span> Reset data</button>
         </nav>
         <h1>Inspect</h1>
+
+        <div class="subheader" data-bind="visible: atmosCompatible, css: { consoleAvailable: atmosCompatible }">
+            <p data-bind="visible: runningWithoutAtmosBecauseDisabled">
+              <span>Typesafe Console: Disabled</span>
+              <button data-bind="click: restartWithAtmos">Restart With Console</button>
+            </p>
+            <p data-bind="visible: runningWithoutAtmosButEnabled">
+              <span>Typesafe Console: Enabled (waiting for launch)</span>
+              <button data-bind="click: restartWithoutAtmos">Restart Without Console</button>
+            </p>
+            <p data-bind="visible: runningWithAtmos">
+              <span>Typesafe Console: Running... <a data-bind="attr: {href: atmosLink}" target="_blank">Open the Console</a></span>
+              <button data-bind="click: restartWithoutAtmos">Restart Without Console</button>
+            </p>
+            <p data-bind="visible: notSignedIn">
+              <span>Typesafe Console: Free Typesafe.com Account Required (<a href="http://typesafe.com/platform/runtime/console#licensing" target="_blank">why?</a>)</span>
+              <button class="do-pop-over" data-bind="click: showLogin">Login</button>
+            </p>
+            <p data-bind="visible: notRunningAndSignedInAndAtmosEnabled">
+              <span>Typesafe Console: Enabled</span>
+              <button data-bind="click: disableAtmos">Turn Off Console</button>
+            </p>
+            <p data-bind="visible: notRunningAndSignedInAndAtmosDisabled">
+              <span>Typesafe Console: Disabled</span>
+              <button data-bind="click: enableAtmos">Turn On Console</button>
+            </p>
+        </div>
+
     </header>
     <section>
         <div data-bind="snapView: consoleWidget"></div>

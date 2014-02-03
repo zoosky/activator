@@ -1,7 +1,7 @@
 /*
  Copyright (C) 2013 Typesafe, Inc <http://typesafe.com>
  */
-define(['css!./tutorial', 'text!./tutorial.html', 'text!./page.html', 'webjars!knockout', 'commons/utils', 'core/widget'], function(css, template, pageTemplate, ko, utils, Widget) {
+define(['css!./tutorial', 'text!./tutorial.html', 'text!./page.html', 'webjars!knockout', 'commons/utils', 'commons/widget'], function(css, template, pageTemplate, ko, utils, Widget) {
   var Page = utils.Class(Widget, {
     id: 'page-widget',
     template: pageTemplate,
@@ -15,7 +15,7 @@ define(['css!./tutorial', 'text!./tutorial.html', 'text!./page.html', 'webjars!k
       this.lastScrollTop = 0;
       this.active = ko.computed(function() {
         var result = self === self.tutorial.currentPage();
-        console.log("page " + self.index + " active=" + result);
+        debug && console.log("page " + self.index + " active=" + result);
         return result;
       }, this);
     },
@@ -106,14 +106,14 @@ define(['css!./tutorial', 'text!./tutorial.html', 'text!./page.html', 'webjars!k
         old.lastScrollTop = $(this.node).find('article')[0].scrollTop;
       }
       if (item) {
-        console.log("selecting page " + item.index + ": " + item.title);
+        debug && console.log("selecting page " + item.index + ": " + item.title);
         this.currentPage(item);
         // restore the page's scroll position, if we've even been rendered (may not have been)
         if (this.node !== null) {
           $(this.node).find('article')[0].scrollTop = item.lastScrollTop;
         }
       } else if (item === null) {
-        console.log("unselecting all pages");
+        debug && console.log("unselecting all pages");
         this.currentPage(null);
       } else {
         console.error("Invalid page to select: ", item);

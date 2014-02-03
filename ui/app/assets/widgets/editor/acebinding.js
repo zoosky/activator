@@ -2,11 +2,23 @@
  Copyright (C) 2013 Typesafe, Inc <http://typesafe.com>
  */
 define([
+  'commons/settings',
   'webjars!knockout',
   'webjars!ace',
   'commons/markers',
   'css!./theme.css'],
-  function(ko, ignore_ace, markers) {
+  function(settings, ko, ignore_ace, markers) {
+
+  // This is how you change theme path for Ace, but
+  //ace.config.set('themePath', '/public/ace/themes/');
+
+  var aceThemes = {
+    Dark: 'ace/theme/solarized_dark',
+    Light: 'ace/theme/solarized_light'
+  };
+  settings.register("editor.theme", "Dark");
+  settings.register("editor.fontSize", 12);
+
 
   function refreshFileMarkers(editor, markers) {
     var annotations = [];
@@ -40,16 +52,21 @@ define([
       var dirtyValue = options.dirty;
       // TODO - unwrap observable?
       var highlight = ko.utils.unwrapObservable(options.highlight || 'text');
+      var theme = ko.utils.unwrapObservable(options.theme) || 'Dark';
+      var fontSize = ko.utils.unwrapObservable(options.fontSize) || 12;
 
       // We have to write our text into the element before instantiating the editor.
       $(element).text(ko.utils.unwrapObservable(editorValue))
 
       var editor = ace.edit(element);
 
-      editor.setTheme('ace/theme/solarized_dark');
       // TODO - Check for no highlight mode as well, or allow non-built-in
       // highlighting...
       editor.getSession().setMode('ace/mode/'+highlight);
+
+      // Theme & font size
+      editor.setTheme(aceThemes[theme]);
+      editor.setFontSize(fontSize);
 
       // Assume we can sneak this on here.
       viewModel.editor = editor;
@@ -78,6 +95,8 @@ define([
       var content = ko.utils.unwrapObservable(editorValue);
       var file = ko.utils.unwrapObservable(ko.utils.unwrapObservable(options.file).relative);
       var editor = viewModel.editor;
+      var theme = ko.utils.unwrapObservable(options.theme);
+      var fontSize = ko.utils.unwrapObservable(options.fontSize);
 
       var fileMarkers = markers.ensureFileMarkers(file);
       var oldMarkers = null;
@@ -89,10 +108,10 @@ define([
       // when file changes, subscribe to the new markers array
       if (fileMarkers !== oldMarkers) {
         if (markersSub !== null) {
-          console.log("editor dropping watch on old file markers: ", oldMarkers());
+          debug && console.log("editor dropping watch on old file markers: ", oldMarkers());
           markersSub.dispose();
         }
-        console.log("editor watching file markers for " + file + ": ", fileMarkers());
+        debug && console.log("editor watching file markers for " + file + ": ", fileMarkers());
         editor.fileMarkers = fileMarkers;
         editor.fileMarkersSub = fileMarkers.subscribe(function(newMarkers) {
           refreshFileMarkers(editor, newMarkers);
@@ -110,6 +129,12 @@ define([
           dirtyValue(false);
         }
       }
+      // Switch theme
+      if (options.theme in aceThemes && editor.getTheme != aceThemes[options.theme]) {
+        editor.setTheme(aceThemes[options.theme]);
+      }
+      // Set font size
+      settings.editor.fontSize(options.fontSize);
     }
   };
   return {};

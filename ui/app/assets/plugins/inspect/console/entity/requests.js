@@ -1,7 +1,7 @@
 /*
  Copyright (C) 2013 Typesafe, Inc <http://typesafe.com>
  */
-define(['text!./requests.html', 'core/pluginapi', './../widget', '../format'], function(template, api, ConsoleWidget, format) {
+define(['text!./requests.html', 'main/pluginapi', './../widget', '../format'], function(template, api, ConsoleWidget, format) {
 
   var ko = api.ko;
 

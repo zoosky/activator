@@ -23,11 +23,13 @@ import activator._
 sealed trait AppCacheRequest
 
 case class GetApp(id: String) extends AppCacheRequest
+case class ForgetApp(id: String) extends AppCacheRequest
 case object Cleanup extends AppCacheRequest
 
 sealed trait AppCacheReply
 
 case class GotApp(app: snap.App) extends AppCacheReply
+case object ForgotApp extends AppCacheReply
 
 class AppCacheActor extends Actor with ActorLogging {
   var appCache: Map[String, Future[snap.App]] = Map.empty
@@ -75,9 +77,13 @@ class AppCacheActor extends Actor with ActorLogging {
           case None => {
             val appFuture: Future[snap.App] = RootConfig.user.applications.find(_.id == id) match {
               case Some(config) =>
-                val app = new snap.App(config, snap.Akka.system, AppManager.sbtChildProcessMaker)
-                log.debug(s"creating a new app for $id, $app")
-                Promise.successful(app).future
+                if (!new java.io.File(config.location, "project/build.properties").exists()) {
+                  Promise.failed(new RuntimeException(s"${config.location} does not contain a valid sbt project")).future
+                } else {
+                  val app = new snap.App(config, snap.Akka.system, AppManager.sbtChildProcessMaker)
+                  log.debug(s"creating a new app for $id, $app")
+                  Promise.successful(app).future
+                }
               case whatever =>
                 Promise.failed(new RuntimeException("No such app with id: '" + id + "'")).future
             }
@@ -95,6 +101,18 @@ class AppCacheActor extends Actor with ActorLogging {
 
             appFuture.map(GotApp(_)).pipeTo(sender)
           }
+        }
+      case ForgetApp(id) =>
+        appCache.get(id) match {
+          case Some(_) =>
+            log.debug("Attempt to forget in-use app")
+            sender ! Status.Failure(new Exception("This app is currently in use"))
+          case None =>
+            RootConfig.rewriteUser { root =>
+              root.copy(applications = root.applications.filterNot(_.id == id))
+            } map { _ =>
+              ForgotApp
+            } pipeTo sender
         }
       case Cleanup =>
         cleanup(None)
@@ -235,6 +253,11 @@ object AppManager {
     }
   }
 
+  def forgetApp(id: String): Future[Unit] = {
+    implicit val timeout = Akka.longTimeoutThatIsAProblem
+    (appCache ? ForgetApp(id)).map(_ => ())
+  }
+
   // choose id "name", "name-1", "name-2", etc.
   // should always be called inside rewriteUser to avoid
   // a race creating the same ID
@@ -279,7 +302,12 @@ object AppManager {
             name
         } flatMap { name =>
           RootConfig.rewriteUser { root =>
-            val config = AppConfig(id = newIdFromName(root, name), cachedName = Some(name), location = location)
+            val oldConfig = root.applications.find(_.location == location)
+            val now = System.currentTimeMillis
+            val createdTime = oldConfig.flatMap(_.createdTime).getOrElse(now)
+            val usedTime = now
+            val config = AppConfig(id = newIdFromName(root, name), cachedName = Some(name),
+              createdTime = Some(createdTime), usedTime = Some(usedTime), location = location)
             val newApps = root.applications.filterNot(_.location == config.location) :+ config
             root.copy(applications = newApps)
           } map { Unit =>

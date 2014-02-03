@@ -1,7 +1,7 @@
 /*
  Copyright (C) 2013 Typesafe, Inc <http://typesafe.com>
  */
-define(["text!./viewWrapper.html", "text!./viewDefault.html", "./imageView", "./codeView", 'core/pluginapi'], function(viewOuter, defaultTemplate, ImageView, CodeView, api) {
+define(["text!./viewWrapper.html", "text!./viewDefault.html", "./imageView", "./codeView", 'main/pluginapi'], function(viewOuter, defaultTemplate, ImageView, CodeView, api) {
 
   var ko = api.ko;
 
@@ -37,7 +37,7 @@ define(["text!./viewWrapper.html", "text!./viewDefault.html", "./imageView", "./
       });
     },
     afterRender: function(a,b,c){
-      //console.log('abc', a,b,c)
+      //debug && console.log('abc', a,b,c)
     },
     scrollToLine: function(line) {
     }
@@ -60,6 +60,14 @@ define(["text!./viewWrapper.html", "text!./viewDefault.html", "./imageView", "./
           return new ImageView({ file: self.file});
         }
         return new DefaultView(args);
+      });
+      self.canSwitchTheme = ko.computed(function() {
+        var sub = self.subView();
+        return 'switchTheme' in sub;
+      });
+      self.canSetFontSize = ko.computed(function() {
+        var sub = self.subView();
+        return 'setFontSize' in sub;
       });
       self.title = ko.computed(function() {
         return self.file().relative();
@@ -98,7 +106,7 @@ define(["text!./viewWrapper.html", "text!./viewDefault.html", "./imageView", "./
       var self = this;
       var loc =self.file().location;
       open(loc).success(function() {}).error(function(err) {
-        console.log('Failed to open file in browser: ', err)
+        debug && console.log('Failed to open file in browser: ', err)
         alert('Failed to open file.  This may be unsupported by your system.');
       });
     },
@@ -110,10 +118,10 @@ define(["text!./viewWrapper.html", "text!./viewDefault.html", "./imageView", "./
       var result = window.confirm('Delete "' + self.file().name() + '"?');
       if (result) {
         deleteFile(self.file().location).done(function() {
-          console.log("deleted OK");
+          debug && console.log("deleted OK");
           self.file().reloadParent();
         }).fail(function(err) {
-          console.log("Failed to delete file: ", err);
+          debug && console.log("Failed to delete file: ", err);
           alert('Failed to delete file: ' + err.responseText);
         });
       }
@@ -132,6 +140,12 @@ define(["text!./viewWrapper.html", "text!./viewDefault.html", "./imageView", "./
       } else {
         if (onDone) onDone();
       }
+    },
+    onSwitchTheme: function(data, event) {
+      this.subView().switchTheme(event.target.innerText);
+    },
+    onSetFontSize: function(data, event) {
+      this.subView().setFontSize(event.target.dataset.fontSize);
     }
   });
 

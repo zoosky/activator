@@ -1,8 +1,18 @@
 /*
  Copyright (C) 2013 Typesafe, Inc <http://typesafe.com>
  */
+
+@import "../../commons/_base";
+
 .code {
 	.list {
+    li {
+      position: relative;
+    }
+    a {
+      .cover();
+      color: inherit;
+    }
 		li.file:before {
 			content: "\E731";
 		}

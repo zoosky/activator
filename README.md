@@ -19,6 +19,21 @@ or just
     sbt "activator-ui/run"
 
 
+## Running from the Launcher
+
+1. Stage the distribution:
+
+        sbt stage
+
+2. Force the launcer to use the newly built launcher:
+
+        rm -r ~/.activator
+
+3. Run Activator:
+
+        dist/target/stage/activator
+
+
 ## Testing
 
 There are two types of tests:  Unit tests and integration tests.
@@ -59,21 +74,17 @@ Generates a distribution in the `dist/target/stage` directory.  This will use a 
 
 ## Building the Distribution
 
-First, make sure to tag the commit you want to release with `vX.Y.Z` and verify that sbt has picked it up using:
+Activator is versioned by either the current git tag or if there isn't a tag, the latest commit hash.  To see the current version that Activator will use for the distribution run:
 
-    sbt> show version
+    sbt show version
 
-Now, simply run one of the command to create a distribution.
+To create a distribution optionally create a tag and then run:
 
-    sbt> activator-dist/dist
+    sbt dist
 
-or just
+This generates the file `dist/target/universal/typeasafe-activator-<VERSION>.zip`.
 
-    sbt> dist
-
-*Note: just stage will also run `builder-ui/dist`*
-
-Generates the file `dist/target/universal/typeasafe-activator-<VERSION>.zip`.
+Activator auto-checks for new versions so to test a new unreleased version you will need to start Activator with the `-Dactivator.launcher.generation=34324435` flag.  If you don't set this Activator will use the latest released version instead of the newly created one.
 
 ## Publishing the Distribution
 

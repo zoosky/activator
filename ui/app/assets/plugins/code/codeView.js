@@ -1,8 +1,12 @@
 /*
  Copyright (C) 2013 Typesafe, Inc <http://typesafe.com>
  */
-define(["text!./viewCode.html", 'core/pluginapi'], function(template, api){
+define(["text!./viewCode.html", 'main/pluginapi', 'commons/settings'], function(template, api, settings){
   var ko = api.ko;
+
+  // !settings.editor.theme && settings.register("editor.theme", false);
+  // !settings.editor.fontSize && settings.register("editor.fontSize", false);
+
 
   function endsWith(str, suffix) {
     return str.indexOf(suffix, str.length - suffix.length) !== -1;
@@ -60,6 +64,8 @@ define(["text!./viewCode.html", 'core/pluginapi'], function(template, api){
       // TODO - Grab the extension for now to figure out highlighting...
       this.highlight = highlightModeFor(args.file().name());
       this.file().loadContents();
+      this.theme = settings.editor.theme();
+      this.fontSize = settings.editor.fontSize();
     },
     load: function() {
       this.file().loadContents();
@@ -77,6 +83,12 @@ define(["text!./viewCode.html", 'core/pluginapi'], function(template, api){
       } else {
         console.error("No editor to scroll to? bug");
       }
+    },
+    switchTheme: function(name) {
+      settings.editor.theme(name);
+    },
+    setFontSize: function(size) {
+      settings.editor.fontSize(size);
     }
   });
   return CodeView;

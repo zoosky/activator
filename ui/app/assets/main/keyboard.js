@@ -14,19 +14,19 @@ define([ 'webjars!keymage' ], function(key) {
           adjusted = params.slice(0);
           adjusted.unshift(scope);
         }
-        console.log("in scope " + scope + " creating keybinding ", adjusted);
+        debug && console.log("in scope " + scope + " creating keybinding ", adjusted);
         key.apply(null, adjusted);
       });
     },
     pushScope: function(scope) {
-      console.log("pushing scope " + scope);
+      debug && console.log("pushing scope " + scope);
       key.pushScope(scope);
-      console.log("key scope is now: " + key.getScope());
+      debug && console.log("key scope is now: " + key.getScope());
     },
     popScope: function(scope) {
-      console.log("popping scope " + scope);
+      debug && console.log("popping scope " + scope);
       key.popScope(scope);
-      console.log("key scope is now: " + key.getScope());
+      debug && console.log("key scope is now: " + key.getScope());
     }
   };
 });

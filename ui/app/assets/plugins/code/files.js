@@ -1,7 +1,7 @@
 /*
  Copyright (C) 2013 Typesafe, Inc <http://typesafe.com>
  */
-define(['core/pluginapi'], function(api) {
+define(['main/pluginapi'], function(api) {
 
   var ko = api.ko;
 
@@ -201,7 +201,7 @@ define(['core/pluginapi'], function(api) {
       this.select();
     },
     onContextMenu: function(data, event) {
-      console.log(event);
+      debug && console.log(event);
       // todo: show a context menu with rename & delete options
       this.startEditing();
     },
@@ -231,10 +231,10 @@ define(['core/pluginapi'], function(api) {
         var newName = this.editingText();
         if (newName.length > 0 && newName != this.name()) {
           rename(this.location, newName).done(function() {
-            console.log("Rename success");
+            debug && console.log("Rename success");
             self.reloadParent();
           }).fail(function(err) {
-            console.log("Failed to rename: ", err);
+            debug && console.log("Failed to rename: ", err);
             alert(err.responseText);
           });
         }

@@ -11,6 +11,7 @@ GET         /api/templates/:id/tutorial/*location        controllers.api.Templat
 # Operations on an app
 # TODO: Should these take the app location as a request parameter?
 GET         /api/app/history                             controllers.Application.getHistory
+DELETE      /api/app/history/*id                         controllers.Application.forgetApp(id)
 GET         /api/app/connect/*id                         controllers.Application.connectApp(id)
 
 # sbt things

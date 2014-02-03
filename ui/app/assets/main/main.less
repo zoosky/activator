@@ -35,6 +35,10 @@ h1, h2, h3, h4, h5, h6, dt {
   font-weight: 700;
 }
 
+a {
+  cursor: pointer;
+}
+
 main {
   & > * {
     position: absolute;
@@ -55,43 +59,6 @@ main {
   -moz-transition: none !important;
   transition: none !important;
 }
-
-
-
-#user {
-  position: absolute;
-  top: 0;
-  right: 52px;
-  height: 50px;
-  width: 50px;
-  background: #354551;
-  border-left: solid 2px #29353e;
-  > button {
-    cursor: pointer;
-    width: 50px;
-    height: 50px;
-    background: url(/public/images/user.png);
-    background-size: 50px;
-    border: none;
-  }
-  > iframe {
-    display: none;
-    position: fixed;
-    top: 50px;
-    right: 0px;
-    width: 450px;
-    height: 300px;
-    background: #fff;
-    z-index: 9999;
-    box-shadow: 3px 3px 4px rgba(0,0,0,.2);
-    .clear-after();
-    overflow: auto;
-  }
-  &.open > iframe {
-    display: block;
-  }
-}
-
 
 a[href="#todo"], [todo] {
   position: relative;

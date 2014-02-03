@@ -6,7 +6,7 @@ package activator
 import xsbti.{ AppMain, AppConfiguration }
 import activator.properties.ActivatorProperties._
 import java.io.File
-import java.net.HttpURLConnection
+import java.net.{ PasswordAuthentication, Authenticator, InetSocketAddress, HttpURLConnection }
 import scala.util.control.NonFatal
 import java.util.Properties
 import java.io.FileOutputStream
@@ -14,6 +14,7 @@ import java.io.BufferedReader
 import java.io.InputStreamReader
 import java.nio.charset.Charset
 import java.util.concurrent.TimeUnit
+import java.net.Authenticator.RequestorType
 
 /** Expose for SBT launcher support. */
 class ActivatorLauncher extends AppMain {
@@ -67,13 +68,51 @@ class ActivatorLauncher extends AppMain {
   def downloadLatestVersion(): Option[String] = {
     System.out.println(s"Checking for a newer version of Activator (current version ${APP_VERSION})...")
     try {
-      val connection = latestUrl.openConnection() match {
+
+      val maybeProxyConnection = (sys.props.get("http.proxyHost"), sys.props.get("http.proxyPort")) match {
+        case (Some(proxyHost), Some(proxyPort)) =>
+          val proxy = new java.net.Proxy(java.net.Proxy.Type.HTTP, new InetSocketAddress(proxyHost, proxyPort.toInt))
+
+          // proxy auth handling
+
+          def maybeOriginalAuthenticator: Option[Authenticator] = {
+            try {
+              val f = classOf[Authenticator].getDeclaredField("theAuthenticator")
+              f.setAccessible(true)
+              Some(f.get(null).asInstanceOf[Authenticator])
+            } catch {
+              case _: Throwable => None
+            }
+          }
+
+          // only create a new authenticator if there isn't one already
+          val maybeNewAuthenticator = for {
+            proxyUser <- sys.props.get("http.proxyUser")
+            proxyPassword <- sys.props.get("http.proxyPassword")
+            if maybeOriginalAuthenticator.isEmpty
+          } yield new Authenticator() {
+            override def getPasswordAuthentication: PasswordAuthentication =
+              if (getRequestorType == RequestorType.PROXY)
+                new PasswordAuthentication(proxyUser, proxyPassword.toCharArray)
+              else
+                null
+          }
+
+          maybeNewAuthenticator.map(Authenticator.setDefault)
+
+          latestUrl.openConnection(proxy)
+        case _ =>
+          latestUrl.openConnection()
+      }
+
+      val connection = maybeProxyConnection match {
         case c: HttpURLConnection => c
         case whatever =>
           throw new Exception(s"Unknown connection type: ${whatever.getClass.getName}")
       }
       // we don't want to wait too long
       val timeout = 4000 // milliseconds
+
       connection.setConnectTimeout(timeout)
       connection.setReadTimeout(timeout)
       connection.connect()

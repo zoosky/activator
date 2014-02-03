@@ -12,7 +12,7 @@ require.config({
   },
   paths: {
     commons:  'commons',
-    core:     'core',
+    main:     'main',
     plugins:  'plugins',
     services: 'services',
     widgets:  'widgets'
@@ -28,13 +28,13 @@ var handleVisibilityChange = function() {
 }
 
 var startApp = function() {
-  require(['core/templates'], function() {
+  require(['commons/templates'], function() {
     require([
       'commons/effects',
       'commons/utils',
       'services/sbt'
     ], function() {
-      require(['core/snap'])
+      require(['main/init'])
     })
   })
 }

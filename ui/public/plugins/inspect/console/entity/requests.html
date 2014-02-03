@@ -1,4 +1,4 @@
-<div data-bind="visible: hasRequests">
+<div data-bind="visible: hasRequests()">
     <article class="requests">
         <section class="withFooter">
             <table>
@@ -36,6 +36,6 @@
         </footer>
     </article>
 </div>
-<div id="splash" data-bind="visible: !hasRequests">
+<div id="splash" data-bind="visible: !hasRequests()">
     You can see http requests here for your Play application, but your application has not yet received any http requests.
 </div>

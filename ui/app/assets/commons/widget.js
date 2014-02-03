@@ -1,7 +1,7 @@
 /*
  Copyright (C) 2013 Typesafe, Inc <http://typesafe.com>
  */
-define(['webjars!knockout','commons/utils', './templates'], function(ko, utils, templates) {
+define(['webjars!knockout', './utils', './templates'], function(ko, utils, templates) {
 
 // base class for widgets, with convenience.
 //All widget classes should support the following static fields:
@@ -36,7 +36,9 @@ var Widget = utils.Class({
     // the normal knockout "bind everything" magic...
     var element = $(el);
     element.attr('data-bind', 'snapView: $data');
-    ko.applyBindings(this, element.get()[0]);
+    if (element.get()[0]){
+      ko.applyBindings(this, element.get()[0]);
+    }
   }
 });
 

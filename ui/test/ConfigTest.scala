@@ -57,7 +57,7 @@ class ConfigTest {
       val appList = if (old.applications.exists(_.location.getPath == "foo"))
         old.applications
       else
-        AppConfig(new File("foo"), "id") +: old.applications
+        AppConfig(new File("foo"), "id", createdTime = Some(1L), usedTime = Some(1L)) +: old.applications
       old.copy(applications = appList)
     }
     Await.ready(rewritten, 5.seconds)
@@ -69,7 +69,7 @@ class ConfigTest {
     val rewritten = TestRootConfig.rewriteUser { old =>
       val withNoName = old.applications
         .find(_.location.getPath == "foo")
-        .getOrElse(AppConfig(new File("foo"), "id"))
+        .getOrElse(AppConfig(new File("foo"), "id", createdTime = Some(1L), usedTime = Some(1L)))
         .copy(cachedName = None)
 
       val appList = withNoName +: old.applications.filter(_.location.getPath != "foo")
@@ -88,7 +88,7 @@ class ConfigTest {
     val rewritten = TestRootConfig.rewriteUser { old =>
       val withName = old.applications
         .find(_.location.getPath == "foo")
-        .getOrElse(AppConfig(new File("foo"), "id"))
+        .getOrElse(AppConfig(new File("foo"), "id", createdTime = Some(1L), usedTime = Some(1L)))
         .copy(cachedName = Some("Hello World"))
 
       val appList = withName +: old.applications.filter(_.location.getPath != "foo")
@@ -209,7 +209,8 @@ class ConfigTest {
     val oldFile = TestRootConfig.previousUserConfigFile
     val newFile = TestRootConfig.userConfigFile
 
-    val sampleApp = AppConfig(location = new File("somewhere"), id = "someapp", cachedName = None)
+    val sampleApp = AppConfig(location = new File("somewhere"), id = "someapp", cachedName = None,
+      createdTime = Some(1L), usedTime = Some(1L))
     val sampleRoot = RootConfig(Seq(sampleApp))
 
     val oldJson = Json.toJson(sampleRoot)
@@ -236,9 +237,11 @@ class ConfigTest {
     val oldFile = TestRootConfig.previousUserConfigFile
     val newFile = TestRootConfig.userConfigFile
 
-    val sampleAppOld = AppConfig(location = new File("somewhere"), id = "someapp", cachedName = None)
+    val sampleAppOld = AppConfig(location = new File("somewhere"), id = "someapp", cachedName = None,
+      createdTime = Some(1L), usedTime = Some(1L))
     val sampleRootOld = RootConfig(Seq(sampleAppOld))
-    val sampleAppNew = AppConfig(location = new File("somewhere2"), id = "someapp2", cachedName = None)
+    val sampleAppNew = AppConfig(location = new File("somewhere2"), id = "someapp2", cachedName = None,
+      createdTime = Some(1L), usedTime = Some(1L))
     val sampleRootNew = RootConfig(Seq(sampleAppNew))
 
     val oldJson = Json.toJson(sampleRootOld)

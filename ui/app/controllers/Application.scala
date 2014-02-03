@@ -36,7 +36,8 @@ case class HomeModel(
   userHome: String,
   templates: Seq[TemplateMetadata],
   otherTemplateCount: Long,
-  recentApps: Seq[AppConfig])
+  recentApps: Seq[AppConfig],
+  tags: Seq[String])
 
 // Data we get from the new application form.
 case class NewAppForm(
@@ -73,16 +74,21 @@ object Application extends Controller {
       "location" -> text,
       "template" -> text)(NewAppForm.apply)(NewAppForm.unapply))
 
+  def getAppsThatExist(applications: Seq[AppConfig]): Seq[AppConfig] = applications.filter { appConfig =>
+    new File(appConfig.location, "project/build.properties").exists()
+  }
+
   /** Reloads the model for the home page. */
   private def homeModel = api.Templates.templateCache.metadata map { templates =>
     val tempSeq = templates.toSeq
-    val featured = tempSeq filter (_.featured)
+    val featured = tempSeq sortBy (!_.featured)
     val config = RootConfig.user
     HomeModel(
       userHome = ActivatorProperties.GLOBAL_USER_HOME,
       templates = featured,
       otherTemplateCount = tempSeq.length,
-      recentApps = config.applications)
+      recentApps = getAppsThatExist(config.applications),
+      tags = Seq("reactive", "scala", "java", "starter", "akka", "play", "slick", "spray", "angular", "javascript", "database", "websocket"))
   }
 
   def redirectToApp(id: String) = CSRFAddToken {
@@ -96,7 +102,9 @@ object Application extends Controller {
   def forceHome = CSRFAddToken {
     Action.async { implicit request =>
       homeModel map { model =>
-        Ok(views.html.home(model, newAppForm))
+        import controllers.api.Templates.Protocol
+        val templates = play.api.libs.json.Json.toJson(model.templates)
+        Ok(views.html.home(model, newAppForm, templates))
       }
     }
   }
@@ -118,13 +126,12 @@ object Application extends Controller {
       Logger.debug("Loading app for /app html page")
       AppManager.loadApp(id).map { theApp =>
         Logger.debug(s"loaded for html page: ${theApp}")
-        Ok(views.html.application(getApplicationModel(theApp)))
+        Ok(views.html.main(getApplicationModel(theApp)))
       } recover {
         case e: Exception =>
-          // TODO we need to have an error message and "flash" it then
           // display it on home screen
-          Logger.error("Failed to load app id " + id + ": " + e.getMessage())
-          Redirect(routes.Application.forceHome)
+          Logger.error("Failed to load app id " + id + ": " + e.getMessage)
+          Redirect(routes.Application.forceHome).flashing("error" -> e.getMessage)
       }
     }
   }
@@ -250,6 +257,17 @@ object Application extends Controller {
     Ok(Json.toJson(RootConfig.user.applications))
   }
 
+  def forgetApp(id: String) = Action.async { request =>
+    AppManager.forgetApp(id) map { _ =>
+      Logger.debug(s"Forgot app $id from app history")
+      Ok
+    } recover {
+      case e: Exception =>
+        Logger.warn(s"Failed to forget $id: ${e.getClass.getName}: ${e.getMessage}")
+        Forbidden(e.getMessage)
+    }
+  }
+
   /**
    * Returns the application model (for rendering the page) based on
    * the current snap App.
@@ -259,11 +277,11 @@ object Application extends Controller {
       app.config.id,
       Platform.getClientFriendlyFilename(app.config.location),
       // TODO - These should be drawn from the template itself...
-      Seq("plugins/home/home", "plugins/code/code", "plugins/compile/compile", "plugins/test/test", "plugins/run/run", "plugins/inspect/inspect"),
+      Seq("plugins/welcome/welcome", "plugins/code/code", "plugins/compile/compile", "plugins/test/test", "plugins/run/run", "plugins/inspect/inspect"),
       app.config.cachedName getOrElse app.config.id,
       // TODO - something less lame than exception here...
       app.templateID,
-      RootConfig.user.applications,
+      getAppsThatExist(RootConfig.user.applications),
       hasLocalTutorial(app))
 
   def hasLocalTutorial(app: snap.App): Boolean = {

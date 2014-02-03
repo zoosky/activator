@@ -1,15 +1,18 @@
 <div class="fileselection">
-	<h2 data-bind="text: title"></h2>
+	<!-- ko if:shownDirectory -->
+		<h3 data-bind="text: shownDirectory"></h3>
+		<span class="parent" data-bind="click: gotoParent">←</span>
+		<!-- <span class="close" data-bind="click: cancel">×</span> -->
+		<span class="choose" data-bind="click: chooseCurrent">choose</span>
+	<!-- /ko -->
+	<!-- ko ifnot:shownDirectory -->
+		<h3>All volumes</h3>
+	<!-- /ko -->
 	<div class="listing">
 		<ul data-bind="foreach: currentViewFiles" class="directories">
-			<li data-bind="css: {folder: isDirectory, file: isFile, highlight: highlighted }, click: function() { $parent.click($data); }">
-				<h3 data-bind="text:name"></h3>
-				<p class="path" data-bind="text: humanLocation"/>
+			<li data-bind="css: {folder: isDirectory, file: isFile, highlight: highlighted }">
+				<span data-bind="text:name"></span>
 			</li>
 		</ul>
-	</div>
-	<div class="select">
-		<button class="button" id="browseSelect" data-bind="click: select, text: selectText"></button>
-		<button class="button" value="Cancel" id="browseCancel" data-bind="click: cancel">Cancel</button>
 	</div>
 </div>

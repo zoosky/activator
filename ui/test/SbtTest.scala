@@ -143,4 +143,45 @@ class SbtTest {
     }
   }
 
+  @Test
+  def testForgetApp(): Unit = {
+    val project = makeDummySbtProject("appToForget", "0.13.0")
+    running(FakeApplication()) {
+
+      def getHistory(): Seq[String] = {
+        val getReq = FakeRequest(method = "GET", uri = "/api/app/history", body = AnyContentAsJson(Json.obj()),
+          headers = FakeHeaders(Nil))
+        val result = routeThrowingIfNotJson(getReq, AnyContentAsJson(Json.obj()))
+        result match {
+          case JsArray(apps) =>
+            apps map { app =>
+              app \ "id" match {
+                case JsString(s) => s
+                case whatever =>
+                  throw new RuntimeException("bad json " + whatever)
+              }
+            }
+          case whatever =>
+            throw new RuntimeException("bad json " + whatever)
+        }
+      }
+
+      getHistory()
+
+      val appId = loadAppIdFromLocation(project) match {
+        case ProcessSuccess(id) => id
+        case whatever => throw new RuntimeException("bad result, got: " + whatever)
+      }
+
+      assertTrue("new app is in the history", getHistory().contains("appToForget"))
+
+      val forgetReq = FakeRequest(method = "DELETE", uri = "/api/app/history/" + appId,
+        body = AnyContentAsJson(Json.obj()),
+        headers = FakeHeaders(Nil))
+
+      routeThrowingIfNotSuccess(forgetReq, AnyContentAsJson(Json.obj()))
+
+      assertTrue("forgotten app is no longer in the history", !getHistory().contains("appToForget"))
+    }
+  }
 }

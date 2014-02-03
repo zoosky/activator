@@ -41,7 +41,7 @@ define(['webjars!knockout'], function(ko) {
   // This is our default errorRoute.  Right now it just logs an error and displays an alert.
   var errorRoute = {
       action: function(args) {
-        console.log('Failed to find router for ', args)
+        debug && console.log('Failed to find router for ', args)
         alert("This is not a valid link: #" + args.path);
       }
   }
@@ -118,7 +118,7 @@ define(['webjars!knockout'], function(ko) {
     // If no arguments, take the hash
     url = url || window.location.hash;
     // Split full path in modules
-    var bcs = url ? /^#?\/?(.+)\/?$/.exec(url)[1].split("/") : ['home'];
+    var bcs = url ? /^#?\/?(.+)\/?$/.exec(url)[1].split("/") : ['welcome'];
     // Make arguments to churn through routers...
     var args = createArgs(bcs);
 

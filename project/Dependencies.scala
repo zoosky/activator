@@ -8,14 +8,14 @@ object Dependencies {
   val scalaVersion = "2.10.2"
   val sbtSnapshotVersion = "0.13.0"
   val luceneVersion = "4.2.1"
-  val templateCacheVersion = "1.0-824c0759d90d52bf3fc7cd07795c49e05affc87a"
+  val templateCacheVersion = "0.3.0"
   // echo enabled version (1.1.x)
   val sbtRcVersion = "1.0-beca93bf09ed13b8475d874f512348e92980d9ae"
 
   val playVersion = "2.2.1"
   val webJarsVersion = "2.2.0"
   val akkaVersion = "2.1.2"
-  val slickVersion = "1.0.1"
+  val slickVersion = "2.0.0"
   val echoPluginVersion = "0.1.0"
   val activatorAnalyticsVersion = "0.1.1"
   val aspectJVersion = "1.7.3"
@@ -47,9 +47,7 @@ object Dependencies {
 
   val commonsIo            = "commons-io" % "commons-io" % "2.0.1"
 
-  val mimeUtil             = "eu.medsea.mimeutil" % "mime-util" % "2.1.1"
-  // need to manually set this to override an incompatible old version
-  val slf4jLog4j           = "org.slf4j" % "slf4j-log4j12" % "1.6.6"
+  val mimeUtil             = "eu.medsea.mimeutil" % "mime-util" % "2.1.1" exclude("org.slf4j", "slf4j-log4j12") exclude("org.slf4j", "slf4j-api") exclude("log4j", "log4j")
 
   val junitInterface       = "com.novocode" % "junit-interface" % "0.7"
   //val specs2               = "org.specs2" % "specs2_2.10" % "1.13"
@@ -71,7 +69,7 @@ object Dependencies {
   val webjarsPlay3     = "org.webjars" %% "webjars-play" % Dependencies.webJarsVersion
   val requirejs        = "org.webjars" % "requirejs" % "2.1.8"
   val jquery           = "org.webjars" % "jquery" % "2.0.3"
-  val knockout         = "org.webjars" % "knockout" % "2.2.1"
+  val knockout         = "org.webjars" % "knockout" % "3.0.0"
   val ace              = "org.webjars" % "ace" % "04.09.2013"
   val requireCss       = "org.webjars" % "require-css" % "0.0.7-3"
   val requireText      = "org.webjars" % "requirejs-text" % "2.0.10"

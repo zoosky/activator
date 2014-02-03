@@ -1,7 +1,7 @@
 /*
  Copyright (C) 2013 Typesafe, Inc <http://typesafe.com>
  */
-define(['text!./openInEclipse.html', 'text!./openInIdea.html', 'core/pluginapi', 'widgets/overlay/overlay', 'widgets/log/log'],
+define(['text!./openInEclipse.html', 'text!./openInIdea.html', 'main/pluginapi', 'widgets/overlay/overlay', 'widgets/log/log'],
 function(eclipseTemplate, ideaTemplate, api, Overlay, log){
 
   var ko = api.ko;
@@ -26,6 +26,7 @@ function(eclipseTemplate, ideaTemplate, api, Overlay, log){
         css: this.overlayClass
       });
       self.log = new log.Log();
+      self.logView = new log.LogView(self.log);
       self.haveProjectFiles = ko.observable(false);
       self.workingStatus = ko.observable("");
       self.projectDirectory = ko.observable(serverAppModel.location);
@@ -83,17 +84,17 @@ function(eclipseTemplate, ideaTemplate, api, Overlay, log){
         var taskId = sbt.runTask({
           task: self.taskName,
           onmessage: function(event) {
-            console.log("event while generating " + self.ideName + " files ", event);
+            debug && console.log("event while generating " + self.ideName + " files ", event);
             self.log.event(event);
           },
           success: function(data) {
-            console.log(self.ideName + " result", data);
+            debug && console.log(self.ideName + " result", data);
             self.workingStatus("Successfully created " + self.ideName + " project files.");
             self._updateHaveProjectFiles();
             self.activeTask("");
           },
           failure: function(status, message) {
-            console.log(self.ideName + " fail", message);
+            debug && console.log(self.ideName + " fail", message);
             self.workingStatus("Failed to generate " + self.ideName + " project files.");
             self._updateHaveProjectFiles();
             self.activeTask("");

@@ -1,7 +1,7 @@
 /*
  Copyright (C) 2013 Typesafe, Inc <http://typesafe.com>
  */
-define(['text!./templatelist.html', 'webjars!knockout', 'core/widget', 'commons/utils'], function(template, ko, Widget, utils) {
+define(['text!./templatelist.html', 'webjars!knockout', 'commons/widget', 'commons/utils'], function(template, ko, Widget, utils) {
 
   function getlist() {
     return $.ajax({
@@ -124,7 +124,7 @@ define(['text!./templatelist.html', 'webjars!knockout', 'core/widget', 'commons/
 
     },
     selectTemplate: function(template) {
-      console.log('Template selected', template);
+      debug && console.log('Template selected', template);
       if(this.onTemplateSelected) this.onTemplateSelected(template);
     },
     load: function() {

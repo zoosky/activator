@@ -1,7 +1,7 @@
 /*
  Copyright (C) 2013 Typesafe, Inc <http://typesafe.com>
  */
-define(['css!./fileselection.css', 'text!./fileselection.html', 'webjars!knockout', 'core/widget', 'commons/utils'], function(css, template, ko, Widget, utils) {
+define(['css!./fileselection.css', 'text!./fileselection.html', 'webjars!knockout', 'commons/widget', 'commons/utils'], function(css, template, ko, Widget, utils) {
 
   function browse(location) {
     return $.ajax({
@@ -33,6 +33,7 @@ define(['css!./fileselection.css', 'text!./fileselection.html', 'webjars!knockou
     self.highlighted = ko.observable(false);
     self.cancelable = config.cancelable || false;
   };
+
   // Function for filtering...
   function fileIsHighlighted(file) {
     return file.highlighted();
@@ -76,18 +77,30 @@ define(['css!./fileselection.css', 'text!./fileselection.html', 'webjars!knockou
       } else {
         this.loadRoots();
       }
+
+      debug && console.log(config.dom);
+      $(config.dom).on("click", ".directories li", function(e){
+          e.preventDefault();
+          var it = this;
+          var context = ko.contextFor(it);
+          if(context.$data.location) {
+            self.load(context.$data.location);
+          } else {
+            // TODO - Only on windows.
+            self.loadRoots();
+          }
+          return false;
+       });
+
+      self.renderTo(config.dom)
     },
-    click: function(file) {
-      if(file == this.currentHighlight()) {
-        if(file.location) {
-          this.load(file.location);
-        } else {
-          // TODO - Only on windows.
-          this.loadRoots();
-        }
-      } else {
-        this.highlight(file);
-      }
+    chooseCurrent: function() {
+      var self = this;
+      self.onSelect(self.shownDirectory());
+    },
+    gotoParent: function() {
+      var self = this;
+      self.load("/" + self.shownDirectory().split("/").slice(1,-1).join("/"));
     },
     highlight: function(file) {
       $.each($.grep(this.currentFiles(), fileIsHighlighted), function(idx, item) {
@@ -109,29 +122,7 @@ define(['css!./fileselection.css', 'text!./fileselection.html', 'webjars!knockou
       var self = this;
       browse(dir).done(function(values) {
         self.shownDirectory(dir);
-        var fileConfigs = [{
-            name: '.',
-            isDirectory: values.isDirectory,
-            location: values.location,
-            humanLocation: values.humanLocation
-        }];
-        // TODO - see if we need to add "back" directory.
-        if(values.parent && values.parent.isDirectory) {
-          fileConfigs.push({
-            name: '..',
-            isDirectory: true,
-            location: values.parent.location,
-            humanLocation: values.parent.humanLocation
-          })
-        } else if(values.isRoot) {
-          // TODO - Only on windows
-          // Add root marker...
-          fileConfigs.push({
-              name: '..',
-              isDirectory: true,
-              humanLocation: 'Show All Drives'
-          });
-        }
+        var fileConfigs = [];
         fileConfigs.push.apply(fileConfigs, values.children || []);
         fileConfigs.sort(function(fileConfig1, fileConfig2) {
           if (fileConfig1.name.toLowerCase() < fileConfig2.name.toLowerCase())

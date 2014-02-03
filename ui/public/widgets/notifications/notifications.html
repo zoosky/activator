@@ -1,0 +1,4 @@
+<dt><span data-bind="text: count()>0?count():'', class: {glow: count()>0}"></span></dt>
+<dd data-bind="foreach: items">
+  <a data-bind="css: kind, text: message, attr: { href: href, title: message }"></a>
+</dd>

@@ -23,13 +23,13 @@ define(function() {
   function send(event) {
     if (!('type' in event))
       throw new Error("event to send must have a 'type' field");
-    console.log("sending event ", event)
+    debug && console.log("sending event ", event)
     $.each(subscribers, function(index, subscriber) {
       try {
         if (subscriber.filter(event))
           subscriber.handler(event);
       } catch(e) {
-        console.log("filter or handler failed ", e.message, e);
+        debug && console.log("filter or handler failed ", e.message, e);
       }
     });
   }
