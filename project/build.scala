@@ -223,8 +223,10 @@ object TheActivatorBuild extends Build {
         // note: do not use %% here
         "org.scalatest" % "scalatest_2.10" % "1.9.1",
         "com.typesafe.akka" % "akka-actor_2.10" % "2.2.1",
+        "com.typesafe.akka" % "akka-actor_2.10" % "2.2.3",
         "com.typesafe.akka" % "akka-testkit_2.10" % "2.2.1",
         "com.typesafe.akka" % "akka-slf4j_2.10" % "2.2.1",
+        "com.typesafe.akka" % "akka-contrib_2.10" % "2.2.3",
         "org.scalatest" % "scalatest_2.10" % "2.0",
         "junit" % "junit" % "4.11",
         "org.fusesource.jansi" % "jansi" % "1.11",
@@ -238,6 +240,12 @@ object TheActivatorBuild extends Build {
         "com.typesafe.slick" % "slick_2.10" % Dependencies.slickVersion,
         "org.slf4j" % "slf4j-nop" % "1.6.4",
         "com.h2database" % "h2" % "1.3.170",
+        "com.typesafe.play.extras" % "play-geojson_2.10" % "1.0.0",
+        "org.webjars" % "bootstrap" % "3.0.0",
+        "org.webjars" % "knockout" % "2.3.0",
+        "org.webjars" % "leaflet" % "0.6.4",
+        "com.typesafe.sbt" % "sbt-atmos-play" % "0.3.1",
+
         // failed transatives
         "junit" % "junit" % "3.8.1",
         "com.jcraft" % "jsch" % "0.1.44-1",
