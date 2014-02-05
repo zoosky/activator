@@ -88,6 +88,8 @@ class UIMain extends AppMain {
 
   def run(configuration: AppConfiguration) = {
 
+    sys.props("logger.resource") = "activator-ui-logger.xml"
+
     val lock = configuration.provider.scalaProvider.launcher.globalLock
     // First we check to see if a previous app is running..
     val alreadyRunning = PidDetector.checkRunning(lock)
