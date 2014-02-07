@@ -72,6 +72,7 @@ object Local extends Controller {
     if (mime startsWith "text") "code"
     else if (mime startsWith "image") "image"
     else if (mime contains "x-shellscript") "code" // TODO - highlighting is still borked for this guy
+    else if (canDecodeAsText(f)) "code"
     else "binary"
   }
 
@@ -81,6 +82,32 @@ object Local extends Controller {
     MimeUtil.registerMimeDetector("eu.medsea.mimeutil.detector.MagicMimeMimeDetector");
     val mimeTypes = MimeUtil getMimeTypes file
     MimeUtil.getFirstMimeType(mimeTypes.toString).toString
+  }
+
+  // avoid reading giant files
+  private final val MAX_FILE_SIZE_TO_TRY_DECODING = 50 * 1024 * 1024;
+
+  // this is expensive as heck but we skip it for known extensions so
+  // hopefully it isn't a big deal...
+  def canDecodeAsText(file: File): Boolean = {
+    if (file.length > MAX_FILE_SIZE_TO_TRY_DECODING) {
+      Logger.debug("File too large to analyze whether it's a UTF-8 file: " + file.getName)
+      false
+    } else try {
+      import java.io._
+      import java.nio.charset._
+
+      val reader = new InputStreamReader(new FileInputStream(file),
+        Charset.forName("UTF-8").newDecoder.onMalformedInput(CodingErrorAction.REPORT))
+      reader.skip(MAX_FILE_SIZE_TO_TRY_DECODING)
+      reader.close()
+      Logger.debug("Determined that file is UTF-8: " + file.getName)
+      true
+    } catch {
+      case NonFatal(e) =>
+        Logger.debug(s"Determined that file is not UTF-8 or not readable: ${e.getClass.getName}: ${e.getMessage}")
+        false
+    }
   }
 
   // Here's the JSON rendering of template metadata.
