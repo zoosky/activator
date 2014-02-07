@@ -186,7 +186,7 @@ object Application extends Controller {
       var i = 0;
       var j = 0;
       while (i < name.length && j < search.length) {
-        if (name.charAt(i) == search.charAt(j)) {
+        if (Character.toLowerCase(name.charAt(i)) == Character.toLowerCase(search.charAt(j))) {
           j += 1
         }
         i += 1
