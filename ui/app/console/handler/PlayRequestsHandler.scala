@@ -45,7 +45,7 @@ trait PlayRequestsHandlerBase extends RequestHandler[PlayRequestsHandler.PlayReq
         mi.time.endTime,
         (for { p <- mi.pagingInformation } yield p.offset).getOrElse(0),
         (for { p <- mi.pagingInformation } yield p.limit).getOrElse(50),
-        PlayStatsSorts.TimeSort,
+        mi.sortOn,
         mi.sortDirection.toLegacy))
   }
 }
