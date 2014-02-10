@@ -1,37 +1,76 @@
 /**
  * Copyright (C) 2013 Typesafe <http://typesafe.com/>
  */
-package console.handler
+package console
+package handler
 
-import console.{ ModuleInformation, RequestHandler }
-import scala.concurrent.{ Future, ExecutionContext }
-import akka.actor.ActorRef
-import play.api.libs.json.{ JsString, JsObject, JsValue }
-import console.Responses.{ ErrorResponse, InvalidLicense, ValidResponse }
+import akka.actor.{ ActorRef, Props }
+import activator.analytics.data._
 
-class DeviationsHandler extends RequestHandler {
-  import ExecutionContext.Implicits.global
+case class ChunkRange(min: Int, max: Int)
 
-  def handle(receiver: ActorRef, mi: ModuleInformation): Future[(ActorRef, JsValue)] = {
-    val params = mi.time.queryParams ++ mi.scope.queryParams
-    val url =
-      if (mi.scope.actorPath.isDefined) RequestHandler.actorURL
-      else RequestHandler.deviationsURL
-    val deviationsPromise = call(url, params)
-    for {
-      deviations <- deviationsPromise
-    } yield {
-      val result = validateResponse(deviations) match {
-        case ValidResponse =>
-          val data = JsObject(Seq("deviations" -> deviations.json))
-          JsObject(Seq(
-            "type" -> JsString("deviations"),
-            "data" -> data))
-        case InvalidLicense(jsonLicense) => jsonLicense
-        case ErrorResponse(jsonErrorCodes) => jsonErrorCodes
+object DeviationsHandler {
+
+  case class DeviationsModuleInfo(scope: Scope,
+    time: TimeRange,
+    dataFrom: Option[Long],
+    chunkRange: Option[ChunkRange]) extends ModuleInformationBase {
+    def useActorStats: Boolean = scope.dispatcher.isDefined || scope.tag.isDefined || scope.path.isDefined
+  }
+}
+
+trait DeviationsHandlerBase extends RequestHandlerLike[DeviationsHandler.DeviationsModuleInfo] {
+  import DeviationsHandler._
+
+  def useDeviationResult(sender: ActorRef, result: Either[Seq[ErrorStats], Seq[ActorStats]]): Unit
+
+  private def filterByTime(from: Option[Long], stats: ErrorStats): ErrorStats = {
+    val filtered = for {
+      f <- from
+    } yield stats.copy(
+      metrics = stats.metrics.copy(
+        deviations =
+          stats.metrics.deviations.filterByTime(f)))
+
+    val recounted = for {
+      f <- filtered
+    } yield f.copy(
+      metrics = f.metrics.copy(
+        counts = Counts(
+          errors = f.metrics.deviations.errors.size,
+          warnings = f.metrics.deviations.warnings.size,
+          deadLetters = f.metrics.deviations.deadLetters.size,
+          unhandledMessages = f.metrics.deviations.unhandledMessages.size,
+          deadlocks = f.metrics.deviations.deadlockedThreads.size)))
+
+    recounted.getOrElse(stats)
+  }
+
+  def onModuleInformation(sender: ActorRef, mi: DeviationsModuleInfo): Unit = {
+    if (mi.useActorStats) {
+      val stats = repository.actorStatsRepository.findWithinTimePeriod(mi.time, mi.scope)
+      val result: Seq[ActorStats] = mi.chunkRange match {
+        case None => Seq(ActorStats.concatenate(stats, mi.time, mi.scope))
+        case Some(ChunkRange(min, max)) => ActorStats.chunk(min, max, stats, mi.time, mi.scope)
       }
-
-      (receiver, result)
+      useDeviationResult(sender, Right(result))
+    } else {
+      val stats = repository.errorStatsRepository.findWithinTimePeriod(mi.time, mi.scope.node, mi.scope.actorSystem)
+      val result: Seq[ErrorStats] = mi.chunkRange match {
+        case None ⇒ Seq(filterByTime(mi.dataFrom, ErrorStats.concatenate(stats, mi.time, mi.scope.node, mi.scope.actorSystem)))
+        case Some(ChunkRange(min, max)) ⇒ ErrorStats.chunk(min, max, stats, mi.time, mi.scope.node, mi.scope.actorSystem) map { filterByTime(mi.dataFrom, _) }
+      }
+      useDeviationResult(sender, Left(result))
     }
+  }
+}
+
+class DeviationsHandler(builderProps: Props, val defaultLimit: Int) extends RequestHandler[DeviationsHandler.DeviationsModuleInfo] with DeviationsHandlerBase {
+  import console.handler.rest.DeviationsJsonBuilder._
+
+  val builder = context.actorOf(builderProps, "deviationsBuilder")
+
+  def useDeviationResult(sender: ActorRef, result: Either[Seq[ErrorStats], Seq[ActorStats]]): Unit = {
+    builder ! DeviationsResult(sender, result)
   }
 }

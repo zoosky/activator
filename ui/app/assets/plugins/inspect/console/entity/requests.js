@@ -20,22 +20,22 @@ define(['text!./requests.html', 'main/pluginapi', './../widget', '../format'], f
     dataScope: {},
     dataRequest: function() {
       return {
-        'paging': { 'offset': 1, 'limit': parseInt(this.limit(), 10) }
+        'paging': { 'offset': 0, 'limit': parseInt(this.limit(), 10) }
       };
     },
     onData: function(data) {
       var newRequests = [];
-      var requestData = data.playRequestSummaries.playRequestSummaries;
+      var requestData = data.playRequestSummaries;
       for (var i = 0; i < requestData.length; i++) {
         var req = requestData[i];
         var requestId = req.traceId.substring(req.traceId.lastIndexOf("/") + 1)
         var requestLink = "#inspect/request/" + requestId;
-        var path = req.invocationInfo.path;
-        var controller = req.invocationInfo.controller;
-        var controllerMethod = req.invocationInfo.method;
-        var httpMethod = req.invocationInfo.httpMethod;
-        var invocationTimeMillis = format.nanosToMillis(req.endNanoTime - req.startNanoTime, 2);
-        var responseCode = req.response.httpResponseCode;
+        var path = req.path;
+        var controller = req.controller;
+        var controllerMethod = req.controllerMethod;
+        var httpMethod = req.httpMethod;
+        var invocationTimeMillis = req.invocationTimeMillis;
+        var responseCode = req.httpResponseCode;
         var request = {
           'path' : path,
           'requestLink' : requestLink,

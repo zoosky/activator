@@ -9,28 +9,19 @@ object Dependencies {
   val sbtSnapshotVersion = "0.13.0"
   val luceneVersion = "4.2.1"
   val templateCacheVersion = "0.3.0"
-  val sbtRcVersion = "1.0-2c8e80f5d3e1dba2418210b43b0e372cf331a8cd"
+  // echo enabled version (1.1.x)
+  val sbtRcVersion = "1.0-beca93bf09ed13b8475d874f512348e92980d9ae"
+
   val playVersion = "2.2.1"
   val webJarsVersion = "2.2.0"
   val akkaVersion = "2.1.2"
   val slickVersion = "2.0.0"
-  val atmosVersion = "1.3.1"
-  val atmosPluginVersion = "0.3.2"
-
-  val atmosArtifacts = Seq(
-    "com.typesafe.atmos" % "atmos-dev" % atmosVersion,
-    "com.typesafe.atmos" % "atmos-sigar-libs" % atmosVersion,
-    "com.typesafe.atmos" % "trace-akka-2.2.1_2.10" % atmosVersion,
-    "com.typesafe.atmos" % "trace-play-2.2.0" % atmosVersion,
-    "com.typesafe.atmos" % "trace-play-common" % atmosVersion,
-    "com.typesafe.atmos" % "trace-scala-2.10.2" % atmosVersion,
-    "com.typesafe.console" % "console-solo" % atmosVersion,
-    "org.aspectj" % "aspectjweaver" % "1.7.3"
-  )
+  val echoPluginVersion = "0.1.0"
+  val activatorAnalyticsVersion = "0.1.1"
+  val aspectJVersion = "1.7.3"
 
   val activatorCommon      = "com.typesafe.activator" % "activator-common" % templateCacheVersion
   val templateCache        = "com.typesafe.activator" % "activator-templates-cache" % templateCacheVersion
-
 
   val sbtIo210             = "org.scala-sbt" % "io" % sbtSnapshotVersion
   val sbtLauncherInterface = "org.scala-sbt" % "launcher-interface" % sbtVersion
@@ -39,7 +30,6 @@ object Dependencies {
   val sbtIo                = "org.scala-sbt" % "io" % sbtVersion
   val sbtLogging           = "org.scala-sbt" % "logging" % sbtVersion
   val sbtProcess           = "org.scala-sbt" % "process" % sbtVersion
-
 
   // sbtrc projects
   val sbtrcRemoteController = "com.typesafe.sbtrc" % "sbt-rc-remote-controller" % sbtRcVersion
@@ -66,8 +56,8 @@ object Dependencies {
   val playSbt13Plugin        =  Defaults.sbtPluginExtra("com.typesafe.play" % "sbt-plugin" % playVersion, "0.13", "2.10")
   val eclipseSbt13Plugin     =  Defaults.sbtPluginExtra("com.typesafe.sbteclipse" % "sbteclipse-plugin" % "2.2.0", "0.13", "2.10")
   val ideaSbt13Plugin        =  Defaults.sbtPluginExtra("com.github.mpeltonen" % "sbt-idea" % "1.5.2", "0.13", "2.10")
-  val atmosSbt13Plugin       =  Defaults.sbtPluginExtra("com.typesafe.sbt" % "sbt-atmos-play" % atmosPluginVersion, "0.13", "2.10")
-  val atmosPlaySbt13Plugin   =  Defaults.sbtPluginExtra("com.typesafe.sbt" % "sbt-atmos" % atmosPluginVersion, "0.13", "2.10")
+  val echoSbt13Plugin        =  Defaults.sbtPluginExtra("com.typesafe.sbt" % "sbt-echo-play" % echoPluginVersion, "0.13", "2.10")
+  val echoPlaySbt13Plugin    =  Defaults.sbtPluginExtra("com.typesafe.sbt" % "sbt-echo" % echoPluginVersion, "0.13", "2.10")
 
   // Embedded databases / index
   val lucene = "org.apache.lucene" % "lucene-core" % luceneVersion
@@ -85,6 +75,8 @@ object Dependencies {
   val requireText      = "org.webjars" % "requirejs-text" % "2.0.10"
   val keymage          = "org.webjars" % "keymage" % "1.0.1"
 
+  // Analyzers used by Inspect
+  val activatorAnalytics = "com.typesafe.activator"  %% "analytics" % activatorAnalyticsVersion
 
   // Mini DSL
   // DSL for adding remote deps like local deps.

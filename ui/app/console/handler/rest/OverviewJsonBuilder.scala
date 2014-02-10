@@ -1,0 +1,33 @@
+package console.handler.rest
+
+import akka.actor.ActorRef
+import activator.analytics.data._
+import play.api.libs.json._
+import console.ClientController.Update
+import play.api.libs.json.JsObject
+import activator.analytics.data.MetadataStats
+
+class OverviewJsonBuilder extends JsonBuilderActor {
+  import OverviewJsonBuilder._
+
+  def receive = {
+    case r: OverviewResult => r.receiver ! Update(createJson(r.metadata, r.deviations))
+  }
+}
+
+object OverviewJsonBuilder {
+  case class OverviewResult(receiver: ActorRef, metadata: MetadataStats, deviations: ErrorStats)
+
+  def createJson(metadata: MetadataStats, deviations: ErrorStats): JsObject = {
+    Json.obj(
+      "type" -> "overview",
+      "data" ->
+        Json.obj(
+          "metadata" ->
+            Json.obj(
+              "playPatternCount" -> metadata.metrics.playPatterns.size,
+              "actorPathCount" -> metadata.metrics.paths.size),
+          "deviations" -> Json.obj(
+            "deviationCount" -> deviations.metrics.counts.total)))
+  }
+}

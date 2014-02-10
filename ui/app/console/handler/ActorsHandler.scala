@@ -4,37 +4,60 @@
 package console
 package handler
 
-import akka.actor.ActorRef
-import play.api.libs.json._
-import scala.concurrent.{ ExecutionContext, Future }
+import akka.actor.{ ActorRef, Props }
+import activator.analytics.data._
+import console.handler.rest.ActorsJsonBuilder.ActorsResult
+import activator.analytics.repository.ActorStatsSorted
+import console.PagingInformation
+import console.ScopeModifiers
+import activator.analytics.rest.http.SortingHelpers.SortDirection
 
-class ActorsHandler extends RequestHandler {
-  import Responses._
-  import ExecutionContext.Implicits.global
-  import RequestHandler._
+object ActorsHandler {
+  case class ActorsModuleInfo(scope: Scope,
+    modifiers: ScopeModifiers,
+    time: TimeRange,
+    pagingInformation: Option[PagingInformation],
+    sortOn: ActorStatsSort,
+    sortDirection: SortDirection,
+    dataFrom: Option[Long],
+    traceId: Option[String]) extends MultiValueModuleInformation[ActorStatsSort]
 
-  def handle(receiver: ActorRef, mi: ModuleInformation): Future[(ActorRef, JsValue)] = {
-    val params =
-      mi.time.queryParams ++
-        mi.scope.queryParams ++
-        mapifyF("offset", mi.pagingInformation, { pi: PagingInformation => pi.offset }) ++
-        mapifyF("limit", mi.pagingInformation, { pi: PagingInformation => pi.limit }) ++
-        mapify("sortOn", mi.sortCommand)
-    val actorsStatsPromise = call(RequestHandler.actorsURL, params)
-    for {
-      actorsStats <- actorsStatsPromise
-    } yield {
-      val result = validateResponse(actorsStats) match {
-        case ValidResponse =>
-          val data = JsObject(Seq("actors" -> actorsStats.json))
-          JsObject(Seq(
-            "type" -> JsString("actors"),
-            "data" -> data))
-        case InvalidLicense(jsonLicense) => jsonLicense
-        case ErrorResponse(jsonErrorCodes) => jsonErrorCodes
-      }
-
-      (receiver, result)
+  def extractSortOn(sortCommand: Option[String]): ActorStatsSort = sortCommand match {
+    case Some(sort) ⇒ sort match {
+      case "deviation" ⇒ ActorStatsSorts.DeviationsSort
+      case "maxTimeInMailbox" ⇒ ActorStatsSorts.MaxTimeInMailboxSort
+      case "maxMailboxSize" ⇒ ActorStatsSorts.MaxMailboxSizeSort
+      case "actorPath" ⇒ ActorStatsSorts.ActorPath
+      case "actorName" ⇒ ActorStatsSorts.ActorName
+      case _ ⇒ ActorStatsSorts.ProcessedMessagesSort
     }
+    case _ ⇒ ActorStatsSorts.ProcessedMessagesSort
+  }
+}
+
+trait ActorsHandlerBase extends PagingRequestHandlerLike[ActorStatsSort, ActorsHandler.ActorsModuleInfo] {
+  import ActorsHandler._
+  import SortDirections._
+
+  def useActorStats(sender: ActorRef, stats: ActorStatsSorted): Unit
+
+  def onModuleInformation(sender: ActorRef, mi: ActorsModuleInfo): Unit = withPagingDefaults(mi) { (offset, limit) =>
+    useActorStats(sender,
+      repository.actorStatsRepository.findSorted(mi.time,
+        mi.scope,
+        mi.modifiers.anonymous,
+        mi.modifiers.temporary,
+        offset,
+        limit,
+        mi.sortOn,
+        mi.sortDirection.toLegacy))
+  }
+}
+
+class ActorsHandler(builderProps: Props, val defaultLimit: Int) extends PagingRequestHandler[ActorStatsSort, ActorsHandler.ActorsModuleInfo] with ActorsHandlerBase {
+  val builder = context.actorOf(builderProps, "actorsBuilder")
+
+  def useActorStats(sender: ActorRef, stats: ActorStatsSorted): Unit = {
+    builder ! ActorsResult(sender, stats)
   }
 }

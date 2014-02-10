@@ -29,4 +29,6 @@ trait ConsoleController extends Controller {
   def actorSystem(implicit app: play.api.Application): ActorSystem = plugin.actorSystem
 
   def clientHandlerActor(implicit app: play.api.Application): ActorRef = plugin.clientHandlerActor
+
+  def defaultPageLimit(implicit app: play.api.Application): Int = plugin.defaultPageLimit
 }

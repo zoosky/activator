@@ -10,7 +10,7 @@ define(['services/build', 'main/model', 'text!./run.html', 'main/pluginapi', 'co
     id: 'play-run-widget',
     template: template,
     init: function(parameters){
-      var self = this
+      var self = this;
 
       this.title = ko.observable("Run");
       this.startStopLabel = ko.computed(function() {
@@ -34,11 +34,8 @@ define(['services/build', 'main/model', 'text!./run.html', 'main/pluginapi', 'co
       this.mainClasses = build.run.mainClasses;
       this.rerunOnBuild = settings.build.rerunOnBuild;
       this.restartPending = build.run.restartPending;
-
-      this.atmosLink = build.run.atmosLink;
+      this.consoleCompatible = build.app.hasConsole;
       this.statusMessage = build.run.statusMessage;
-      this.atmosCompatible = build.app.hasConsole;
-
       this.outputScroll = this.outputLogView.findScrollState();
     },
     update: function(parameters){
