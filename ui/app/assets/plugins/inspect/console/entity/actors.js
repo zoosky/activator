@@ -23,6 +23,7 @@ define(['text!./actors.html', 'main/pluginapi', '../widget', '../format', '../ho
           self.sortBy(sortBy);
         }
       };
+      this.sortDirection = ko.observable('desc');
       this.data = ko.observable({ 'actors': [], 'total': 0 });
       this.total = ko.computed(function() {
         return self.data().total;
@@ -95,6 +96,7 @@ define(['text!./actors.html', 'main/pluginapi', '../widget', '../format', '../ho
       }
       return {
         'sortCommand': sortBy,
+        'sortDirection': this.sortDirection(),
         'paging': { 'offset': 0, 'limit': parseInt(this.limit(), 10) }
       };
     },
