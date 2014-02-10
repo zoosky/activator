@@ -41,6 +41,8 @@ object PlayRequestJsonBuilder {
       "controller" -> result.invocationInfo.controller,
       "controllerMethod" -> result.invocationInfo.method,
       "httpMethod" -> result.invocationInfo.httpMethod,
+      "startTimeMillis" -> result.start.millis,
+      "endTimeMillis" -> result.end.millis,
       "invocationTimeMillis" -> (result.end.millis - result.start.millis),
       "httpResponseCode" -> result.response.resultInfo.httpResponseCode,
       "headers" -> generateHeaders(result.requestInfo.headers),
