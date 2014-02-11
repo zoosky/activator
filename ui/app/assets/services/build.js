@@ -3,7 +3,7 @@
  */
 define(['webjars!knockout', 'commons/settings', 'widgets/log/log', 'commons/utils', 'commons/events', './sbt', 'commons/markers'],
     function(ko, settings, logModule, utils, events, sbt, markers){
-  settings.register("build.startApp", true);
+
   settings.register("build.rerunOnBuild", true);
   settings.register("build.runInConsole", false);
   settings.register("build.retestOnSuccessfulBuild", false);
@@ -1116,6 +1116,15 @@ define(['webjars!knockout', 'commons/settings', 'widgets/log/log', 'commons/util
     });
   };
 
+  var statusTooltips = {
+      run: ko.computed(function() {
+        if (activity.running())
+          return "Application running";
+        else
+          return "Application stopped";
+      })
+  };
+
   var build = utils.Singleton({
     init: function() {
     },
@@ -1124,6 +1133,7 @@ define(['webjars!knockout', 'commons/settings', 'widgets/log/log', 'commons/util
     errors: errors, // errors.{compile,run,etc} = observable array of Error
     Status: Status,
     status: statuses, // status.{compile,run,etc} = observable Status.FOO strings
+    statusTooltips: statusTooltips, // statusTooltips.{run} = tooltip describing status
     activity: activity, // convenience booleans when full status detail isn't needed
     log: log,
     app: app,
