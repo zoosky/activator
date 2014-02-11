@@ -9,20 +9,20 @@ import play.api.libs.json._
 import play.api.libs.json.JsArray
 import console.ClientController.Update
 import play.api.libs.json.JsObject
-import com.typesafe.trace.{ ActionSimpleResult, ActionChunkedResult, ActionResponseAnnotation }
+import com.typesafe.trace.{ ActorInfo, ActionSimpleResult, ActionChunkedResult, ActionResponseAnnotation }
 
 class PlayRequestJsonBuilder extends JsonBuilderActor {
   import PlayRequestJsonBuilder._
 
   def receive = {
-    case r: PlayRequestResult => r.receiver ! Update(createJson(r.stats))
+    case r: PlayRequestResult => r.receiver ! Update(createJson(r))
   }
 }
 
 object PlayRequestJsonBuilder {
-  case class PlayRequestResult(receiver: ActorRef, stats: PlayRequestSummary)
+  case class PlayRequestResult(receiver: ActorRef, stats: PlayRequestSummary, actorInfo: Set[ActorInfo])
 
-  def createJson(result: PlayRequestSummary): JsObject = {
+  def createJson(result: PlayRequestResult): JsObject = {
     Json.obj(
       "type" -> "request",
       "data" ->
@@ -30,7 +30,8 @@ object PlayRequestJsonBuilder {
           "playRequestSummary" -> createPlayRequestJson(result)))
   }
 
-  def createPlayRequestJson(result: PlayRequestSummary): JsObject = {
+  def createPlayRequestJson(prr: PlayRequestResult): JsObject = {
+    val result = prr.stats
     Json.obj(
       "traceId" -> result.traceId.toString,
       "id" -> result.invocationInfo.id,
@@ -52,9 +53,8 @@ object PlayRequestJsonBuilder {
       "host" -> result.host,
       "node" -> result.node,
       "summaryType" -> result.summaryType.toString,
-      "type" -> generateType(result.response))
-
-    // TODO : Add SummaryType, Type and ActorInfo
+      "type" -> generateType(result.response),
+      "actors" -> generateActorInfo(prr.actorInfo))
   }
 
   private def generateHeaders(headers: Map[String, Seq[String]]): JsValue = {
@@ -65,8 +65,14 @@ object PlayRequestJsonBuilder {
         })
   }
 
-  def generateType(info: ActionResponseAnnotation): JsString = info match {
+  private def generateType(info: ActionResponseAnnotation): JsString = info match {
     case _: ActionSimpleResult => JsString("simple")
     case _ => JsString("chunked")
+  }
+
+  private def generateActorInfo(info: Set[ActorInfo]): JsValue = {
+    Json.toJson(info.map { i =>
+      Json.obj("path" -> i.path)
+    })
   }
 }
