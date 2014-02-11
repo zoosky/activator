@@ -25,6 +25,19 @@ object PlayRequestsJsonBuilder {
       "data" ->
         Json.obj(
           "playRequestSummaries" ->
-            Json.toJson(stats.map { PlayRequestJsonBuilder.createPlayRequestJson(_) })))
+            Json.toJson(stats.map { createPlayRequestJson(_) })))
+  }
+
+  def createPlayRequestJson(req: PlayRequestSummary): JsObject = {
+    Json.obj(
+      "traceId" -> req.traceId.toString,
+      "id" -> req.invocationInfo.id,
+      "startTimeMillis" -> req.start.millis,
+      "path" -> req.invocationInfo.path,
+      "controller" -> req.invocationInfo.controller,
+      "controllerMethod" -> req.invocationInfo.method,
+      "httpMethod" -> req.invocationInfo.httpMethod,
+      "httpResponseCode" -> req.response.resultInfo.httpResponseCode,
+      "invocationTimeMillis" -> (req.end.millis - req.start.millis))
   }
 }

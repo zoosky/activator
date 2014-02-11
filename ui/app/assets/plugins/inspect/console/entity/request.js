@@ -34,7 +34,7 @@ define(['text!./request.html', 'main/pluginapi', './../widget'], function(templa
         return newCollection;
       }
 
-      this.actors(this.formatActorLinks(data.playRequestSummary.actorInfo));
+      this.actors(this.formatActorLinks(data.playRequestSummary.actors));
       this.req(data.playRequestSummary);
     }
   });
