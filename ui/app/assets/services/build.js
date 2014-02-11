@@ -3,11 +3,20 @@
  */
 define(['webjars!knockout', 'commons/settings', 'widgets/log/log', 'commons/utils', 'commons/events', './sbt', 'commons/markers'],
     function(ko, settings, logModule, utils, events, sbt, markers){
+
   settings.register("build.startApp", true);
   settings.register("build.rerunOnBuild", true);
   settings.register("build.runInConsole", false);
   settings.register("build.retestOnSuccessfulBuild", false);
   settings.register("build.recompileOnChange", true);
+
+  // Actions on toggle
+  settings.build.startApp.subscribe(function(value) {
+    if (value)
+      startTask('compile');
+    else
+      startTask('compile');
+  });
 
   var Error = utils.Class({
     init: function(fields) {

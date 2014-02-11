@@ -3,7 +3,7 @@
  */
 define(['commons/utils', 'webjars!knockout', 'commons/settings'],
     function(utils, ko, settings) {
-  settings.register("app.panelOpened", false);
+  settings.register("app.panelOpened", true);
   settings.register("app.panelShape", "right1");
 
   var panel = utils.Singleton({

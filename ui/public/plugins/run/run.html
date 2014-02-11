@@ -7,15 +7,23 @@
                 <span data-bind="text: startStopLabel"></span>
             </button>
             <button class="restart groupMid" data-bind="enable: haveActiveTask() && !restartPending(), click: restartButtonClicked"><span class="icon">&#x27f3;</span>Restart</button>
-            <!--<span data-bind="visible: !haveMainClass()">(no main class)</span>-->
-            <dl class="dropdown groupMid" data-bind="visible: haveMainClass()">
-                <dt>Main class: <span data-bind="text: currentMainClass">&nbsp;</span></dt>
-                <dd>
-                    <!-- ko foreach: mainClasses -->
-                    <label><input type="radio" name="mainClass" data-bind="value: $data"><span data-bind="text: $data"></span></label>
-                    <!-- /ko -->
+
+            <dl class="dropdown groupMid chooseProjectAndMain" data-bind="visible: projects().length">
+                <dt>Project: <span data-bind="text: currentProject().title"></span></dt>
+                <dd data-bind="foreach: projects">
+                    <label class="project">
+                        <input type="radio" name="project" data-bind="value: $data">
+                        <span data-bind="text: $data.title"></span>
+                    </label>
+                    <div data-bind="foreach: $data.mainClasses, visible: $data.mainClasses.length">
+                        <label>
+                            <input type="radio" name="mainClass" data-bind="value: $data">
+                            <span data-bind="text: $data"></span>
+                        </label>
+                    </div>
                 </dd>
             </dl>
+
             <!--<span data-bind="visible: haveMainClass()">Main class: <select data-bind="options: mainClasses, value: currentMainClass"></select></span>-->
             <dl class="dropdown dropdownRightAlign groupRight">
                 <dt><span class="icon">&#x2699;</span></dt>
