@@ -29,9 +29,29 @@ define(['services/build', 'main/model', 'text!./run.html', 'main/pluginapi', 'co
       this.playAppLink = build.run.playAppLink;
       this.playAppStarted = build.run.playAppStarted;
       this.haveActiveTask = build.run.haveActiveTask;
+
+      // TODO MAIN CLASSES
+      // Projects list
+      this.projects = ko.observable([
+        {
+          title: "actors",
+          mainClasses: ["Actors.java","Actors.scala"],
+          currentMainClass: "Actors.scala"
+        },
+        {
+          title: "ui",
+          mainClasses: []
+        },
+        {
+          title: "commons",
+          mainClasses: []
+        }
+      ]);
+      this.currentProject = ko.observable(this.projects()[1]);
       this.haveMainClass = build.run.haveMainClass;
-      this.currentMainClass = build.run.currentMainClass;
-      this.mainClasses = build.run.mainClasses;
+      // this.currentMainClass = build.run.currentMainClass;
+      // this.mainClasses = build.run.mainClasses;
+      // \\
       this.rerunOnBuild = settings.build.rerunOnBuild;
       this.restartPending = build.run.restartPending;
       this.consoleCompatible = build.app.hasConsole;
