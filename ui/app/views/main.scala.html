@@ -85,8 +85,6 @@
         <span class="tooltip running" data-bind="text: settings.build.startApp() ? 'App runnning':'App stopped' "></span>
         <button class="refresh" data-bind="toggle: settings.build.rerunOnBuild, css: {active: settings.build.rerunOnBuild}"></button>
         <span class="tooltip refresh" data-bind="text: settings.build.rerunOnBuild() ? 'Autocompile on':'Autocompile off' "></span>
-        <button class="console" data-bind="toggle: settings.build.runInConsole, css: {active: settings.build.runInConsole}"></button>
-        <span class="tooltip console" data-bind="text: settings.build.runInConsole() ? 'Console on':'Console off' "></span>
         <button class="testing" data-bind="toggle: settings.build.retestOnSuccessfulBuild, css: {active: settings.build.retestOnSuccessfulBuild}"></button>
         <span class="tooltip testing" data-bind="text: settings.build.retestOnSuccessfulBuild() ? 'Autotest on':'Autotest off' "></span>
       </div>
