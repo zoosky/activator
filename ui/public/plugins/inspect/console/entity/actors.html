@@ -75,6 +75,8 @@
         </footer>
     </article>
 </div>
-<div data-bind="visible: !hasActors">
-    You can see actor information here but so far there has been no activity in your application.
+<div id="splash" data-bind="visible: !hasActors()">
+    You can see actor information here but so far there has been no activity in your application or<br>
+    <br>
+    you're running an unsupported version of Akka (>2.2.1).
 </div>
