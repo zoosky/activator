@@ -6,7 +6,6 @@ define(['webjars!knockout', 'commons/settings', 'widgets/log/log', 'commons/util
 
   settings.register("build.startApp", true);
   settings.register("build.rerunOnBuild", true);
-  settings.register("build.runInConsole", false);
   settings.register("build.retestOnSuccessfulBuild", false);
   settings.register("build.recompileOnChange", true);
 
