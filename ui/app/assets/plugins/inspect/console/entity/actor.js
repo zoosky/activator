@@ -11,9 +11,6 @@ define(['text!./actor.html', 'main/pluginapi', './../widget', '../format'], func
       };
       this.actor = ko.observable();
       this.actorPath = ko.observable();
-      this.close = function() {
-        window.location.hash = "inspect/actors";
-      }
       this.deviationCount = ko.observable(0);
       this.hasDeviations = api.valueGTZero(this.deviationCount);
       this.deviationsLink = ko.computed(function() {
