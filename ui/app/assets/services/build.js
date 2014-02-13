@@ -5,7 +5,6 @@ define(['webjars!knockout', 'commons/settings', 'widgets/log/log', 'commons/util
     function(ko, settings, logModule, utils, events, sbt, markers){
 
   settings.register("build.rerunOnBuild", true);
-  settings.register("build.runInConsole", false);
   settings.register("build.retestOnSuccessfulBuild", false);
   settings.register("build.recompileOnChange", true);
 
