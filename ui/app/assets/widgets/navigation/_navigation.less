@@ -2,6 +2,31 @@
 // Copyright (C) 2013 Typesafe, Inc <http://typesafe.com>
 //
 
+@-webkit-keyframes glow {
+  0% {
+    background-color: @blue;
+  }
+  100% {
+    background-color: @grey;
+  }
+}
+@-moz-keyframes glow {
+  0% {
+    background-color: @blue;
+  }
+  100% {
+    background-color: @grey;
+  }
+}
+@keyframes glow {
+  0% {
+    background-color: @blue;
+  }
+  100% {
+    background-color: @grey;
+  }
+}
+
 #navigation {
   background: @navy;
   overflow: hidden;
@@ -202,13 +227,6 @@
   }
 }
 
-.makeStatus(@x) {
-  background-position: @x 5px;
-  &:hover, &.active {
-    background-position: @x -25px;
-  }  
-}
-
 #appStatus {
   text-align: center;
   padding: 10px 0 5px;
@@ -218,15 +236,24 @@
   button {
     display: inline-block;
     .square(30px);
-    background: url(/public/images/icons/console.svg) 5px 5px no-repeat;
+    background: url(/public/images/icons/status.svg) 0 0 no-repeat;
+    background-color: @grey;
+    .transition();
     &:hover {
       opacity: .7;
+      background-color: @blue;
       + .tooltip {
         display: block;
       }
     }
+    &.working {
+      -webkit-animation: 300ms glow infinite alternate linear;
+      -moz-animation: 300ms glow infinite alternate linear;
+      animation: 300ms glow infinite alternate linear;
+    }
     &.active {
       opacity: 1;
+      background-color: @blue;
     }
   }
   .tooltip {
@@ -256,25 +283,25 @@
     }
   }
   button.running {
-    .makeStatus(5px);
+    background-position: 0 0;
   }
   .running.tooltip:before {
     left: 20px;
   }
   button.refresh {
-    .makeStatus(-25px);
+    background-position: -30px 0;
   }
   .refresh.tooltip:before {
     left: 55px;
   }
   button.console {
-    .makeStatus(-55px);
+    background-position: -60px 0;
   }
   .console.tooltip:before {
     left: 90px;
   }
   button.testing {
-    .makeStatus(-85px);
+    background-position: -90px 0;
   }
   .testing.tooltip:before {
     left: 120px;
