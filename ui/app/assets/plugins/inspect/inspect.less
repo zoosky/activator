@@ -1,0 +1,24 @@
+/*
+ Copyright (C) 2013 Typesafe, Inc <http://typesafe.com>
+ */
+
+/*
+run
+*/
+
+@import '../../commons/_base.less';
+
+.inspect header nav {
+  padding: 10px;
+  .startAtmos {
+    padding: 0 10px 0 2px;
+    &:before {
+      background: url(/public/images/icons/console.svg) -55px -26px no-repeat;
+      content: " ";
+      display: inline-block;
+      width: 25px;
+      height: 25px;
+      vertical-align: -7px;
+    }
+  }
+}

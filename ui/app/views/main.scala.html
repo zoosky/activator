@@ -81,7 +81,7 @@
       </dl>
 
       <div id="appStatus">
-        <button class="running" data-bind="toggle: settings.build.startApp, css: {active: build.run.haveActiveTask}"></button>
+        <button class="running" data-bind="toggle: settings.build.startApp, css: {active: build.run.haveActiveTask, working: build.activity.compiling}"></button>
         <span class="tooltip running" data-bind="text: build.run.haveActiveTask ? 'App runnning':'App stopped' "></span>
         <button class="refresh" data-bind="toggle: settings.build.rerunOnBuild, css: {active: settings.build.rerunOnBuild}"></button>
         <span class="tooltip refresh" data-bind="text: settings.build.rerunOnBuild() ? 'Autocompile on':'Autocompile off' "></span>
