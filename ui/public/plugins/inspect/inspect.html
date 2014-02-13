@@ -1,26 +1,9 @@
 <article class="inspect">
     <header>
         <nav>
-            <button class="startAtmos" data-bind="click: startStopAtmosClicked">
-                <span data-bind="text: startStopAtmosLabel"></span>
-            </button>
+            <button data-bind="click: reset"><span class="icon">&#128683;</span> Reset data</button>
         </nav>
-
         <h1>Inspect</h1>
-        <div class="subheader" data-bind="visible: atmosCompatible">
-            <p data-bind="visible: notRunningAndAtmosEnabled">
-              Inspector is enabled, but wait for the app to (re)start
-            </p>
-            <p data-bind="visible: atmosDisabled">
-              Inspector is disabled
-            </p>
-        </div>
-
-        <div class="subheader" data-bind="visible: !atmosCompatible()">
-          <p>
-            Inspector is not available for your app
-          </p>
-        </div>
     </header>
     <section>
         <div data-bind="snapView: consoleWidget"></div>

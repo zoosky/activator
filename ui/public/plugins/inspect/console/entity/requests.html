@@ -4,15 +4,17 @@
             <table>
                 <thead>
                     <tr>
+                        <th rowspan="2" data-bind="click: changeSort('time'), css: { sortBy: 'time' == sortBy() }" class="sortBy"><span>Time</span></th>
                         <th><span>Request</span></th>
-                        <th><span>Controller</span></th>
-                        <th class="right"><span>Method</span></th>
-                        <th class="right"><span>Response Code</span></th>
-                        <th class="right"><span>Invocation Time (ms)</span></th>
+                        <th rowspan="2" data-bind="click: changeSort('controller'), css: { sortBy: 'controller' == sortBy() }" class="sortBy"><span>Controller</span></th>
+                        <th rowspan="2" data-bind="click: changeSort('method'), css: { sortBy: 'method' == sortBy() }" class="sortBy"><span>Method</span></th>
+                        <th rowspan="2" data-bind="click: changeSort('responseCode'), css: { sortBy: 'responseCode' == sortBy() }" class="sortBy"><span>Response Code</span></th>
+                        <th rowspan="2" data-bind="click: changeSort('invocationTime'), css: { sortBy: 'invocationTime' == sortBy() }" class="sortBy"><span>Invocation Time (ms)</span></th>
                     </tr>
                 </thead>
                 <tbody class="listing" data-bind="foreach: {data: requests, as: 'req'}">
                     <tr>
+                        <td class="time right" data-bind="text: startTime"></td>
                         <td class="path"><a href="#" data-bind="text: path, attr: { href: requestLink }"></a></td>
                         <td class="controller" data-bind="text: controller"></td>
                         <td class="method right" data-bind="text: method"></td>
@@ -33,9 +35,20 @@
                     <option value="500">500</option>
                 </select>
             </p>
+            <p class="sorting select">
+                <label>Sort Direction</label>
+                <select data-bind="value: sortDirection">
+                    <option value="desc">Descending</option>
+                    <option value="asc">Ascending</option>
+                </select>
+            </p>
         </footer>
     </article>
 </div>
 <div id="splash" data-bind="visible: !hasRequests()">
-    You can see http requests here for your Play application, but your application has not yet received any http requests.
+    No requests found. There could be two reasons for this:<br>
+    <ul>
+        <li>either there haven't been any requests to your Play application yet or</li>
+        <li>you're running an unsupported Play version (&gt;2.2.0)</li>
+    </ul>
 </div>

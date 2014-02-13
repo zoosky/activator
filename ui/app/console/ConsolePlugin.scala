@@ -4,24 +4,32 @@
 package console
 
 import play.api.{ Logger, Plugin, Application }
-import com.typesafe.config.Config
+import com.typesafe.config.{ ConfigFactory, Config }
 import akka.actor.{ PoisonPill, ActorRef, Props, ActorSystem }
 import scala.util.control.NonFatal
+import activator.analytics.analyzer.AnalyzerManager
+import com.typesafe.trace.ReceiveMain
 
 class ConsolePlugin(app: Application) extends Plugin {
   private var env: ConsolePluginEnvironment = null
   def config = env.config
   def actorSystem = env.system
   def clientHandlerActor = env.clientHandlerActor
+  def defaultPageLimit = config.getInt("activator.default-page-limit")
 
   override def onStart(): Unit = {
     require(env eq null)
     env = ConsolePluginEnvironment(app.configuration.underlying)
+    // TODO -> disable not used analyzers
+    ReceiveMain.main(Array())
+    AnalyzerManager.create(config)
   }
 
   override def onStop(): Unit = {
     try {
       require(env ne null)
+      AnalyzerManager.delete()
+      ReceiveMain.shutdownReceiver()
       env.close()
     } finally {
       env = null
@@ -46,6 +54,7 @@ private object ConsolePluginEnvironment {
   def apply(config: Config): ConsolePluginEnvironment = {
     val system = ActorSystem("ConsoleActorSystem")
     val clientHandler = system.actorOf(Props[ClientController], "clientController")
+    config.checkValid(ConfigFactory.defaultReference, "activator")
     ConsolePluginEnvironment(config, system, clientHandler)
   }
 }

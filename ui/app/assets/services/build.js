@@ -623,14 +623,10 @@ define(['webjars!knockout', 'commons/settings', 'widgets/log/log', 'commons/util
 
       var task = {};
       if (self.haveMainClass() && !mainClassIsPlayServer) {
-        task.task = 'run-main';
+        task.task = 'echo:run-main';
         task.params = { mainClass: self.currentMainClass() };
       } else {
-        task.task = 'run';
-      }
-
-      if (settings.build.runInConsole()) {
-        task.task = 'atmos:' + task.task;
+        task.task = 'echo:run';
       }
 
       debug && console.log("launching " + task.task + " task");
@@ -1129,6 +1125,15 @@ define(['webjars!knockout', 'commons/settings', 'widgets/log/log', 'commons/util
     });
   };
 
+  var statusTooltips = {
+      run: ko.computed(function() {
+        if (activity.running())
+          return "Application running";
+        else
+          return "Application stopped";
+      })
+  };
+
   var build = utils.Singleton({
     init: function() {
     },
@@ -1137,6 +1142,7 @@ define(['webjars!knockout', 'commons/settings', 'widgets/log/log', 'commons/util
     errors: errors, // errors.{compile,run,etc} = observable array of Error
     Status: Status,
     status: statuses, // status.{compile,run,etc} = observable Status.FOO strings
+    statusTooltips: statusTooltips, // statusTooltips.{run} = tooltip describing status
     activity: activity, // convenience booleans when full status detail isn't needed
     log: log,
     app: app,

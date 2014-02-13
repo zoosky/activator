@@ -1,4 +1,4 @@
-<div data-bind="visible: hasActors()">
+<div data-bind="visible: hasActors">
     <article class="actors" data-bind="hoverPopup: 'hoverPopup'">
         <section class="withFooter">
             <table class="sortable">
@@ -54,6 +54,13 @@
                     <option value="1000">1000</option>
                 </select>
             </p>
+            <p class="sorting select">
+                <label>Sort Direction</label>
+                <select data-bind="value: sortDirection">
+                    <option value="desc">Descending</option>
+                    <option value="asc">Ascending</option>
+                </select>
+            </p>
             <div class="toggles menu">
                 <span>Toggles</span>
                 <ul>
@@ -65,13 +72,11 @@
                     </li>
                 </ul>
             </div>
-            <p class="search input" data-hover-text="Filter actors">
-                <input type="text" data-bind="value: filter, valueUpdate: 'afterkeydown'" data-hover-text="Filter actors">
-                <span class="clear" data-bind="click: clearFilter"></span>
-            </p>
         </footer>
     </article>
 </div>
 <div id="splash" data-bind="visible: !hasActors()">
-    You can see actor information here but so far there has been no activity in your application.
+    You can see actor information here but so far there has been no activity in your application or<br>
+    <br>
+    you're running an unsupported version of Akka (>2.2.1).
 </div>

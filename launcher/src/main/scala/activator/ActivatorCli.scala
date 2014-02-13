@@ -88,6 +88,7 @@ object ActivatorCli {
   } catch {
     case e: Exception =>
       System.err.println(e.getMessage)
+      e.printStackTrace()
       1
   }
 

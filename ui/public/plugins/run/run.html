@@ -26,13 +26,13 @@
             </dl>
         </nav>
         <h1>Run</h1>
-        <div class="subheader" data-bind="css: { consoleAvailable: atmosCompatible }">
-            <p data-bind="text: statusMessage"></p>
+        <div class="subheader" data-bind="css: { consoleAvailable: consoleCompatible }">
+            <p data-bind="text: status"></p>
             <p data-bind="visible: playAppStarted">Open the app: <a data-bind="attr: {href: playAppLink}, text: playAppLink" target="_blank"></a></p>
         </div>
     </header>
     <section class="wrapper">
-        <article class="content" data-bind="css: { consoleAvailable: atmosCompatible }">
+        <article class="content" data-bind="css: { consoleAvailable: consoleCompatible }">
             <div class="output">
                 <div data-bind="snapView: outputLogView" class="runapp">
                 </div>

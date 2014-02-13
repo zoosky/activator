@@ -10,33 +10,44 @@ define(['text!./requests.html', 'main/pluginapi', './../widget', '../format'], f
     template: template,
     init: function(args) {
       var self = this;
+      this.sortBy = ko.observable('request');
+      this.sortDirection = ko.observable('desc');
       this.data = ko.observable({ 'requests': [], 'total': 0 });
       this.limit = ko.observable('25');
       this.requests = ko.observableArray([]);
       this.hasRequests = api.arrayGTZero(self.requests);
+    },
+    changeSort: function(sortBy) {
+      return function(){
+        self.sortBy(sortBy);
+      }
     },
     dataName: 'requests',
     dataTypes: ['requests'],
     dataScope: {},
     dataRequest: function() {
       return {
-        'paging': { 'offset': 1, 'limit': parseInt(this.limit(), 10) }
+        'sortCommand': this.sortBy(),
+        'sortDirection': this.sortDirection(),
+        'paging': { 'offset': 0, 'limit': parseInt(this.limit(), 10) }
       };
     },
     onData: function(data) {
       var newRequests = [];
-      var requestData = data.playRequestSummaries.playRequestSummaries;
+      var requestData = data.playRequestSummaries;
       for (var i = 0; i < requestData.length; i++) {
         var req = requestData[i];
         var requestId = req.traceId.substring(req.traceId.lastIndexOf("/") + 1)
         var requestLink = "#inspect/request/" + requestId;
-        var path = req.invocationInfo.path;
-        var controller = req.invocationInfo.controller;
-        var controllerMethod = req.invocationInfo.method;
-        var httpMethod = req.invocationInfo.httpMethod;
-        var invocationTimeMillis = format.nanosToMillis(req.endNanoTime - req.startNanoTime, 2);
-        var responseCode = req.response.httpResponseCode;
+        var path = req.path;
+        var startTime = format.formatTime(req.startTimeMillis);
+        var controller = req.controller;
+        var controllerMethod = req.controllerMethod;
+        var httpMethod = req.httpMethod;
+        var invocationTimeMillis = req.invocationTimeMillis;
+        var responseCode = req.httpResponseCode;
         var request = {
+          'startTime' : startTime,
           'path' : path,
           'requestLink' : requestLink,
           'requestId' : requestId,

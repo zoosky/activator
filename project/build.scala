@@ -11,7 +11,7 @@ import com.typesafe.sbt.SbtPgp.PgpKeys
 
 
 object TheActivatorBuild extends Build {
-
+  
   def fixFileForURIish(f: File): String = {
     val uriString = f.toURI.toASCIIString
     if(uriString startsWith "file://") uriString.drop("file://".length)
@@ -101,7 +101,7 @@ object TheActivatorBuild extends Build {
   lazy val ui = (
     ActivatorPlayProject("ui")
     dependsOnRemote(
-      webjarsPlay3, requirejs, jquery, knockout, ace, requireCss, requireText, keymage, commonsIo, mimeUtil,
+      webjarsPlay3, requirejs, jquery, knockout, ace, requireCss, requireText, keymage, commonsIo, mimeUtil, activatorAnalytics,
       sbtLauncherInterface % "provided",
       sbtrcRemoteController % "compile;test->test",
       // Here we hack our probes into the UI project.
@@ -110,6 +110,7 @@ object TheActivatorBuild extends Build {
     )
     dependsOn(props, uiCommon)
     settings(play.Project.playDefaultPort := 8888)
+    settings(Keys.initialize ~= { _ => sys.props("scalac.patmat.analysisBudget") = "512" })
     // set up debug props for forked tests
     settings(configureSbtTest(Keys.test): _*)
     settings(configureSbtTest(Keys.testOnly): _*)
@@ -216,8 +217,8 @@ object TheActivatorBuild extends Build {
         playSbt13Plugin,
         eclipseSbt13Plugin,
         ideaSbt13Plugin,
-        atmosSbt13Plugin,
-        atmosPlaySbt13Plugin,
+        echoSbt13Plugin,
+        echoPlaySbt13Plugin,
 
         // featured template deps
         // note: do not use %% here
@@ -251,7 +252,7 @@ object TheActivatorBuild extends Build {
         "com.jcraft" % "jsch" % "0.1.44-1",
         "jline" % "jline" % "0.9.94",
         "com.typesafe.akka" % "akka-slf4j_2.10" % "2.2.0"
-      ) ++ Dependencies.atmosArtifacts,
+      ),
       Keys.mappings in S3.upload <<= (Keys.packageBin in Universal, Packaging.minimalDist, Keys.version) map { (zip, minimalZip, v) =>
         Seq(minimalZip -> ("typesafe-activator/%s/typesafe-activator-%s-minimal.zip" format (v, v)),
             zip -> ("typesafe-activator/%s/typesafe-activator-%s.zip" format (v, v)))

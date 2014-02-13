@@ -1,34 +1,34 @@
 /**
  * Copyright (C) 2013 Typesafe <http://typesafe.com/>
  */
-package console.handler
+package console
+package handler
 
-import console.{ ModuleInformation, RequestHandler }
-import scala.concurrent.{ Future, ExecutionContext }
-import akka.actor.ActorRef
-import play.api.libs.json.{ JsString, JsObject, JsValue }
-import console.Responses.{ ErrorResponse, InvalidLicense, ValidResponse }
-import scala.collection.immutable.Map
+import akka.actor.{ ActorRef, Props }
+import activator.analytics.data.{ TimeRange, Scope, ActorStats }
+import com.typesafe.trace.uuid.UUID
+import com.typesafe.trace.TraceEvent
+import console.handler.rest.DeviationJsonBuilder.DeviationResult
 
-class DeviationHandler extends RequestHandler {
-  import ExecutionContext.Implicits.global
+object DeviationHandler {
+  case class DeviationModuleInfo(eventID: UUID) extends ModuleInformationBase
+}
 
-  def handle(receiver: ActorRef, mi: ModuleInformation): Future[(ActorRef, JsValue)] = {
-    val deviationPromise = call(RequestHandler.traceTreeURL + mi.traceId.get, Map.empty[String, String])
-    for {
-      deviation <- deviationPromise
-    } yield {
-      val result = validateResponse(deviation) match {
-        case ValidResponse =>
-          val data = JsObject(Seq("deviation" -> deviation.json))
-          JsObject(Seq(
-            "type" -> JsString("deviation"),
-            "data" -> data))
-        case InvalidLicense(jsonLicense) => jsonLicense
-        case ErrorResponse(jsonErrorCodes) => jsonErrorCodes
-      }
+trait DeviationHandlerBase extends RequestHandlerLike[DeviationHandler.DeviationModuleInfo] {
+  import DeviationHandler._
 
-      (receiver, result)
-    }
+  def useDeviation(sender: ActorRef, eventId: UUID, traces: Seq[TraceEvent]): Unit
+
+  def onModuleInformation(sender: ActorRef, mi: DeviationModuleInfo): Unit = {
+    useDeviation(sender, mi.eventID, repository.traceRepository.event(mi.eventID).map(ed => repository.traceRepository.trace(ed.trace))
+      .getOrElse(Seq.empty[TraceEvent]))
+  }
+}
+
+class DeviationHandler(builderProps: Props) extends RequestHandler[DeviationHandler.DeviationModuleInfo] with DeviationHandlerBase {
+  val builder = context.actorOf(builderProps, "deviationBuilder")
+
+  def useDeviation(sender: ActorRef, eventId: UUID, traces: Seq[TraceEvent]): Unit = {
+    builder ! DeviationResult(sender, eventId, traces)
   }
 }

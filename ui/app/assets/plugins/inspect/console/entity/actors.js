@@ -23,12 +23,13 @@ define(['text!./actors.html', 'main/pluginapi', '../widget', '../format', '../ho
           self.sortBy(sortBy);
         }
       };
+      this.sortDirection = ko.observable('desc');
       this.data = ko.observable({ 'actors': [], 'total': 0 });
       this.total = ko.computed(function() {
         return self.data().total;
       });
       this.limit = ko.observable('50');
-      this.hideAnonymous = ko.observable(true);
+      this.hideAnonymous = ko.observable(false);
       this.fullActorPath = ko.observable(true);
       this.filter = ko.observable('');
       this.clearFilter = function() {
@@ -51,7 +52,7 @@ define(['text!./actors.html', 'main/pluginapi', '../widget', '../format', '../ho
           var actorLink = "#inspect/actor/" + path;
           var messageRate = a.totalMessageRate || 0;
           var throughput = format.units('messages/second', messageRate, formatUnits);
-          var maxTimeInMailbox = format.units(a.maxTimeInMailboxUnit, a.maxTimeInMailbox, formatUnits);
+          var maxTimeInMailbox = format.units(a.maxTimeInMailbox.unit, a.maxTimeInMailbox.value, formatUnits);
           var maxMailboxSize = a.maxMailboxSize;
           var deviationCount = a.errorCount + a.warningCount + a.deadLetterCount + a.unhandledMessageCount;
           var deviations = deviationCount > 0 ? deviationCount : "";
@@ -95,7 +96,8 @@ define(['text!./actors.html', 'main/pluginapi', '../widget', '../format', '../ho
       }
       return {
         'sortCommand': sortBy,
-        'paging': { 'offset': 1, 'limit': parseInt(this.limit(), 10) }
+        'sortDirection': this.sortDirection(),
+        'paging': { 'offset': 0, 'limit': parseInt(this.limit(), 10) }
       };
     },
     onData: function(data) {

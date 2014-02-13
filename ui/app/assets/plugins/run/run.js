@@ -10,7 +10,7 @@ define(['services/build', 'main/model', 'text!./run.html', 'main/pluginapi', 'co
     id: 'play-run-widget',
     template: template,
     init: function(parameters){
-      var self = this
+      var self = this;
 
       this.title = ko.observable("Run");
       this.startStopLabel = ko.computed(function() {

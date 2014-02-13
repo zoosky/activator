@@ -4,32 +4,31 @@
 package console
 package handler
 
-import akka.actor.ActorRef
-import play.api.libs.json._
-import scala.concurrent.{ ExecutionContext, Future }
+import akka.actor.{ ActorRef, Props }
+import activator.analytics.data.{ TimeRange, Scope, ActorStats }
+import console.handler.rest.ActorJsonBuilder.ActorResult
 
-class ActorHandler extends RequestHandler {
-  import Responses._
-  import ExecutionContext.Implicits.global
-  import RequestHandler._
+object ActorHandler {
+  case class ActorModuleInfo(scope: Scope,
+    modifiers: ScopeModifiers,
+    time: TimeRange,
+    dataFrom: Option[Long],
+    traceId: Option[String]) extends ScopedModuleInformationBase
+}
 
-  def handle(receiver: ActorRef, mi: ModuleInformation): Future[(ActorRef, JsValue)] = {
-    val params = mi.time.queryParams ++ mi.scope.queryParams
-    val actorStatsPromise = call(RequestHandler.actorURL, params)
-    for {
-      actorStats <- actorStatsPromise
-    } yield {
-      val result = validateResponse(actorStats) match {
-        case ValidResponse =>
-          val data = JsObject(Seq("actor" -> actorStats.json))
-          JsObject(Seq(
-            "type" -> JsString("actor"),
-            "data" -> data))
-        case InvalidLicense(jsonLicense) => jsonLicense
-        case ErrorResponse(jsonErrorCodes) => jsonErrorCodes
-      }
+trait ActorHandlerBase extends RequestHandlerLike[ActorHandler.ActorModuleInfo] {
+  import ActorHandler._
+  def useActorStats(sender: ActorRef, stats: ActorStats): Unit
 
-      (receiver, result)
-    }
+  def onModuleInformation(sender: ActorRef, mi: ActorModuleInfo): Unit = {
+    useActorStats(sender, ActorStats.concatenate(repository.actorStatsRepository.findWithinTimePeriod(mi.time, mi.scope), mi.time, mi.scope))
+  }
+}
+
+class ActorHandler(builderProps: Props) extends RequestHandler[ActorHandler.ActorModuleInfo] with ActorHandlerBase {
+  val builder = context.actorOf(builderProps, "actorBuilder")
+
+  def useActorStats(sender: ActorRef, stats: ActorStats): Unit = {
+    builder ! ActorResult(sender, stats)
   }
 }
