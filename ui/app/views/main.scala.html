@@ -81,12 +81,12 @@
       </dl>
 
       <div id="appStatus">
-        <button class="running" data-bind="click: build.toggleTask('run'), css: {active: build.activity.running, working: build.activity.running }"></button>
+        <button class="running" data-bind="click: build.onToggleRun, css: {active: build.activity.running, working: build.activity.busy() && !build.activity.running() }"></button>
         <span class="tooltip running" data-bind="text: build.statusTooltips.run "></span>
-        <button class="refresh" data-bind="toggle: settings.build.rerunOnBuild, css: {active: settings.build.rerunOnBuild}"></button>
-        <span class="tooltip refresh" data-bind="text: settings.build.rerunOnBuild() ? 'Autocompile on':'Autocompile off' "></span>
+        <button class="refresh" data-bind="toggle: settings.build.recompileOnChange, css: {active: settings.build.recompileOnChange }"></button>
+        <span class="tooltip refresh" data-bind="text: settings.build.recompileOnChange() ? 'Rebuild on file changes enabled':'Rebuild on file changes disabled' "></span>
         <button class="testing" data-bind="toggle: settings.build.retestOnSuccessfulBuild, css: {active: settings.build.retestOnSuccessfulBuild}"></button>
-        <span class="tooltip testing" data-bind="text: settings.build.retestOnSuccessfulBuild() ? 'Autotest on':'Autotest off' "></span>
+        <span class="tooltip testing" data-bind="text: settings.build.retestOnSuccessfulBuild() ? 'Test on rebuild enabled':'Test on rebuild disabled' "></span>
       </div>
 
       <dl id="rockets">
@@ -110,7 +110,7 @@
             data-bind="visible: build.activity.testing"></span><span class="counter"
             data-bind="text: build.errors.test().length, visible: build.errors.test().length > 0"></span></a>
           <a data-bind="attr: { href: plugins.lookup.run.url }">Run <span class="working"
-            data-bind="visible: build.activity.running"></span><span class="counter"
+            data-bind="visible: build.activity.launching"></span><span class="counter"
             data-bind="text: build.errors.run().length, visible: build.errors.run().length > 0"></span></a>
           <a data-bind="attr: { href: plugins.lookup.inspect.url }">Inspect <span class="working"
             data-bind="visible: build.activity.inspecting"></span><span class="counter"

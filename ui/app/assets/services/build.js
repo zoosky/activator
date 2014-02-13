@@ -495,12 +495,16 @@ define(['webjars!knockout', 'commons/settings', 'widgets/log/log', 'commons/util
         self.doMainClassLoadThenMaybeRun(false /* shouldWeRun */);
       }
     },
-    beforeRun: function() {
+    beforeRun: function(shouldWeRun) {
       var self = this;
       if (self.reloadMainClassPending()) {
         log.info("Loading main class information...");
         self.statusMessage('Loading main class...');
-        self.status(Status.BUSY);
+        // if we aren't going to run, displaying that we're busy is just confusing.
+        if (shouldWeRun)
+          self.status(Status.BUSY);
+        else
+          self.status(Status.IDLE);
       } else {
         self.statusMessage('Running...');
         self.status(Status.RUNNING);
@@ -510,12 +514,15 @@ define(['webjars!knockout', 'commons/settings', 'widgets/log/log', 'commons/util
       self.restartPending(false);
     },
     doRunWithMainClassLoad: function() {
+      debug && console.log("doRunWithMainClassLoad")
       this.doMainClassLoadThenMaybeRun(true /* shouldWeRun */);
     },
     doMainClassLoadThenMaybeRun: function(shouldWeRun) {
       var self = this;
 
-      self.beforeRun();
+      debug && console.log("doMainClassLoadThenMaybeRun, shouldWeRun=" + shouldWeRun)
+
+      self.beforeRun(shouldWeRun);
 
       // whether we get main classes or not we'll try to
       // run, but get the main classes first so we don't
@@ -526,6 +533,8 @@ define(['webjars!knockout', 'commons/settings', 'widgets/log/log', 'commons/util
         if (shouldWeRun) {
           log.debug("Done loading main classes - now running the project");
           self.doRunWithoutMainClassLoad(true /* clearLogs */);
+        } else {
+          self.status(Status.IDLE);
         }
       }
 
@@ -596,12 +605,14 @@ define(['webjars!knockout', 'commons/settings', 'widgets/log/log', 'commons/util
     doRunWithoutMainClassLoad: function(clearLogs) {
       var self = this;
 
+      debug && console.log("doRunWithoutMainClassLoad")
+
       self.outputLog.clear();
 
       if (clearLogs)
         log.clear();
 
-      self.beforeRun();
+      self.beforeRun(true /* shouldWeRun */);
 
       // as a special-case, exclude Play's main class since running
       // it "by hand" with run-main does not work. But people can
@@ -1015,7 +1026,15 @@ define(['webjars!knockout', 'commons/settings', 'widgets/log/log', 'commons/util
         return compile.haveActiveTask();
       }),
       running: ko.computed(function() {
-        return run.haveActiveTask();
+        var playStarted = run.playAppStarted();
+        var status = run.status();
+        // this play-specific logic should really be moved
+        // into run.status() computation but it will be
+        // easier to do that when we switch to sbt server
+        if (false && app.hasPlay()) // TODO disabled because echo:run breaks it.
+          return playStarted;
+        else
+          return status == Status.RUNNING;
       }),
       testing: ko.computed(function() {
         return test.haveActiveTask();
@@ -1030,12 +1049,23 @@ define(['webjars!knockout', 'commons/settings', 'widgets/log/log', 'commons/util
     var t = activity.testing();
     return c || r || t;
   });
+  // this is meant to be "we are working on running but
+  // not started up yet" (mutually exclusive with "running")
+  activity.launching = ko.computed(function() {
+    var status = run.status();
+    if (activity.running())
+      return false;
+    else {
+      debug && console.log("Run status is: " + status);
+      return status != Status.IDLE && status != Status.FAILED;
+    }
+  });
 
   var isTaskActive = function(name) {
     // eventually this should just pass the task name
     // on to sbt...
     if (name == 'run') {
-      return activity.running();
+      return activity.running() || activity.launching();
     } else if (name == 'compile') {
       return activity.compiling();
     } else if (name == 'test') {
@@ -1118,10 +1148,31 @@ define(['webjars!knockout', 'commons/settings', 'widgets/log/log', 'commons/util
   var statusTooltips = {
       run: ko.computed(function() {
         if (activity.running())
-          return "Application running";
+          return "Application running (click to stop)";
+        else if (activity.launching())
+          return "Launching application (click to stop)";
+        else if (run.status() == Status.FAILED)
+          return "Application failed to start or was killed (click to re-run)";
+        else if (settings.build.rerunOnBuild())
+          return "Application stopped (will auto-run when build completes)";
         else
-          return "Application stopped";
+          return "Application stopped (click to run it)";
       })
+  };
+
+  var onToggleRun = function() {
+    debug && console.log("onToggleRun, run active=" + isTaskActive('run'))
+    // whenever we manually run, we set to auto-run
+    // on build; when we manually stop, we set to
+    // not auto run. Not sure whether this will
+    // work out nicely but let's try it.
+    if (isTaskActive('run')) {
+      settings.build.rerunOnBuild(false);
+      stopTask('run');
+    } else {
+      settings.build.rerunOnBuild(true);
+      startTask('run');
+    }
   };
 
   var build = utils.Singleton({
@@ -1145,6 +1196,7 @@ define(['webjars!knockout', 'commons/settings', 'widgets/log/log', 'commons/util
     restartTask: restartTask,
     stopAllTasks: stopAllTasks,
     restartAllTasks: restartAllTasks,
+    onToggleRun: onToggleRun,
     // these three are the old clunky APIs, probably
     // best to wrap them with a new nicer API above,
     // rather than use directly. The problem with these
