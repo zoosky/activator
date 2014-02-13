@@ -20,6 +20,8 @@ define(['services/build', 'main/model', 'text!./run.html', 'main/pluginapi', 'co
           return "Start";
       }, this);
 
+      this.atmosCompatible = build.app.hasConsole;
+
       // Aliases so we can use these in our html template.
       // This is a mess to clean up; we should just alias
       // 'build' or something then refer to these.
@@ -29,36 +31,13 @@ define(['services/build', 'main/model', 'text!./run.html', 'main/pluginapi', 'co
       this.playAppLink = build.run.playAppLink;
       this.playAppStarted = build.run.playAppStarted;
       this.haveActiveTask = build.run.haveActiveTask;
-
-      // TODO MAIN CLASSES
-      // Projects list
-      this.projects = ko.observable([
-        {
-          title: "actors",
-          mainClasses: ["Actors.java","Actors.scala"],
-          currentMainClass: "Actors.scala"
-        },
-        {
-          title: "ui",
-          mainClasses: []
-        },
-        {
-          title: "commons",
-          mainClasses: []
-        }
-      ]);
-      this.currentProject = ko.observable(this.projects()[1]);
       this.haveMainClass = build.run.haveMainClass;
-      // this.currentMainClass = build.run.currentMainClass;
-      // this.mainClasses = build.run.mainClasses;
-      // \\
+      this.currentMainClass = build.run.currentMainClass;
+      this.mainClasses = build.run.mainClasses;
       this.rerunOnBuild = settings.build.rerunOnBuild;
       this.restartPending = build.run.restartPending;
-
-      this.atmosLink = build.run.atmosLink;
+      this.consoleCompatible = build.app.hasConsole;
       this.statusMessage = build.run.statusMessage;
-      this.atmosCompatible = build.app.hasConsole;
-
       this.outputScroll = this.outputLogView.findScrollState();
     },
     update: function(parameters){
