@@ -53,7 +53,7 @@ private case class ConsolePluginEnvironment(config: Config, system: ActorSystem,
 private object ConsolePluginEnvironment {
   def apply(config: Config): ConsolePluginEnvironment = {
     val system = ActorSystem("ConsoleActorSystem")
-    val clientHandler = system.actorOf(Props[ClientController], "clientController")
+    val clientHandler = system.actorOf(ClientController.derivedProps(AnalyticsRepository.fromSingletonMemoryObjects), "clientController")
     config.checkValid(ConfigFactory.defaultReference, "activator")
     ConsolePluginEnvironment(config, system, clientHandler)
   }
