@@ -73,6 +73,28 @@ define(['webjars!knockout'], function(ko) {
     update: function() {}
   };
 
+  // add active class on link if in url
+  ko.bindingHandlers.isActiveUrl = (function(){
+    var urlChange = ko.observable(window.location.hash);
+    window.addEventListener("hashchange", function(e) {
+      setTimeout(function() {
+        urlChange(window.location.hash);
+      },10);
+    });
+    return {
+      init: function(element, valueAccessor, allBindings, viewModel, bindingContext) {
+        var url = valueAccessor();
+        var isActive = ko.computed(function() {
+          return (urlChange()+"/").indexOf(url+"/") == 0;
+        });
+        ko.applyBindingsToNode(element, { css: {'active': isActive} });
+      },
+      update: function(element, valueAccessor, allBindings, viewModel, bindingContext) {
+      }
+    }
+  }());
+
+
   // Register us immediately.
   ko.setTemplateEngine(createStringTemplateEngine(new ko.nativeTemplateEngine(), templates));
 

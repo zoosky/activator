@@ -52,9 +52,7 @@
     width: 100%;
   }
   dt {
-    margin-bottom: 2px;
-    padding: 0 10px;
-    line-height: 40px;
+    padding: 8px 10px 6px;
     font-size: 14px;
     text-transform: uppercase;
     background: @navy-ltr;
@@ -92,11 +90,11 @@
 
   }
   dd {
-    padding: 5px 10px 7px;
     overflow: visible;
   }
   a {
     display: block;
+    padding: 0 10px;
     position: relative;
     color: @grey;
     line-height: 25px;
@@ -104,6 +102,10 @@
     .transition();
     &:hover {
       color: white;
+    }
+    &.active {
+      color: white;
+      background: @blue;
     }
     &.warning:after {
       background-color: @red;
