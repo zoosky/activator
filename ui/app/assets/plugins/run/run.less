@@ -6,6 +6,8 @@
 run
 */
 
+@import '../../commons/_base.less';
+
 article header dl.dropdown {
   &.dropdownRightAlign {
     dd {
@@ -117,3 +119,31 @@ article header dl.dropdown {
 }
 
 
+
+.chooseProjectAndMain {
+  input {
+    position: absolute;
+    top: -999em;
+  }
+  input:checked + span {
+    color: @blue;
+  }
+  .project {
+    font-weight: bold;
+    font-size: 16px;
+    margin-top: 2px;
+    &:before {
+      content: "\1F4C1";
+      font: 18px icons;
+      line-height: 35px;
+      text-align: center;
+      display: inline-block;
+      width: 20px;
+      height: 30px;
+      margin: -10px 10px 0 0;
+    }
+  }
+  div {
+    padding-left: 20px;
+  }
+}
