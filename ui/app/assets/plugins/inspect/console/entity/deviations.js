@@ -57,6 +57,7 @@ define(['text!./deviations.html', 'main/pluginapi', './../widget', '../format'],
                         var element = {
                             'event' : collection[i].event,
                             'message' : collection[i].message,
+                            'hover' : collection[i].message,
                             'timestamp' : this.formatTimestamp(collection[i].timestamp),
                             'traceLink' : "#inspect/deviation/" + deviationType + "/" + collection[i].trace.substring(collection[i].trace.lastIndexOf('/') + 1)
                         };

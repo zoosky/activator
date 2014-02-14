@@ -9,7 +9,10 @@
             </thead>
             <tbody class="listing" data-bind="foreach: {data: errors}">
             <tr>
-                <td class="message" data-bind="text:message"></td>
+                <td class="message">
+                    <a href="#" data-bind="text: message, attr: { href: traceLink, 'data-hover-text': hover }">
+                    </a>
+                </td>
                 <td class="timestamp" data-bind="text: timestamp"></td>
             </tr>
             </tbody>

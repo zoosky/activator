@@ -11,7 +11,7 @@ import com.typesafe.sbt.SbtPgp.PgpKeys
 
 
 object TheActivatorBuild extends Build {
-  
+
   def fixFileForURIish(f: File): String = {
     val uriString = f.toURI.toASCIIString
     if(uriString startsWith "file://") uriString.drop("file://".length)
@@ -111,6 +111,7 @@ object TheActivatorBuild extends Build {
     dependsOn(props, uiCommon)
     settings(play.Project.playDefaultPort := 8888)
     settings(Keys.initialize ~= { _ => sys.props("scalac.patmat.analysisBudget") = "512" })
+    settings(Keys.libraryDependencies ++= Seq("com.typesafe.akka" % "akka-testkit_2.10" % "2.2.0" % "test", Dependencies.specs2 % "test"))
     // set up debug props for forked tests
     settings(configureSbtTest(Keys.test): _*)
     settings(configureSbtTest(Keys.testOnly): _*)
