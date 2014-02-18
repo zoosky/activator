@@ -1,19 +1,5 @@
 <span data-bind="with: event">
     <!-- ko if: $root.showEvent(annotation.type) -->
-        <div class="" data-bind="attr: { class: $root.isFailureEvent(annotation.type) ? 'errorEvent' : 'event' }">
-            <div class="type" data-bind="text: annotation.type"></div>
-            <div><span class="label">Time</span><span class="value" data-bind="text: $root.formatTime(timestamp)"></span></div>
-            <div data-bind="visible: $root.showNanoSeconds"><span class="label">Nano</span><span class="value" data-bind="text: nanoTime"></span></div>
-            <div data-bind="visible: $root.showActorSystems"><span class="label">Actor System</span><span class="value" data-bind="text: actorSystem"></span></div>
-            <div data-bind="visible: $root.showTraceInformation">
-                <div><span class="label">Id</span><span class="value" data-bind="text: $root.extractTrace(id)"></span></div>
-                <div><span class="label">Trace</span><span class="value" data-bind="text: $root.extractTrace(trace)"></span></div>
-            </div>
-            <div><span class="label">Actor</span><span class="value" data-bind="text: $root.extractActorPath(annotation)"></span></div>
-            <div data-bind="visible: annotation.message != undefined"><span class="label">Message</span><span class="value" data-bind="text: annotation.message"></span></div>
-            <div data-bind="visible: annotation.reason != undefined"><span class="label">Reason</span><span class="value" data-bind="text: annotation.reason"></span></div>
 
-            <!-- ko template: { name: 'traceTreeTemplate', foreach: $parent.children } --><!-- /ko -->
-        </div>
     <!-- /ko -->
 </span>

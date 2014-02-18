@@ -35,7 +35,7 @@ object DeviationJsonBuilder {
       "type" -> "deviation",
       "data" ->
         Json.obj(
-          "actor" -> createDeviationJson(eventId, traces)))
+          "deviation" -> createDeviationJson(eventId, traces)))
 
   def createDeviationJson(eventId: UUID, traces: Seq[TraceEvent]): JsObject = {
     Json.obj(
