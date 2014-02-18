@@ -11,7 +11,7 @@ import com.typesafe.trace.TraceEvent
 import console.handler.rest.DeviationJsonBuilder.DeviationResult
 
 object DeviationHandler {
-  case class DeviationModuleInfo(eventID: UUID) extends ModuleInformationBase
+  case class DeviationModuleInfo(eventID: UUID, traceId: UUID) extends ModuleInformationBase
 }
 
 trait DeviationHandlerBase extends RequestHandlerLike[DeviationHandler.DeviationModuleInfo] {
@@ -20,11 +20,7 @@ trait DeviationHandlerBase extends RequestHandlerLike[DeviationHandler.Deviation
   def useDeviation(sender: ActorRef, eventId: UUID, traces: Seq[TraceEvent]): Unit
 
   def onModuleInformation(sender: ActorRef, mi: DeviationModuleInfo): Unit = {
-    println("*>>>> " + mi.eventID)
-    println(">>>>>>>>>>>>>>>>>> " + repository.traceRepository.event(mi.eventID))
-    println("------------------------------------------------------------------")
-    useDeviation(sender, mi.eventID, repository.traceRepository.event(mi.eventID).map(ed => repository.traceRepository.trace(ed.trace))
-      .getOrElse(Seq.empty[TraceEvent]))
+    useDeviation(sender, mi.eventID, repository.traceRepository.trace(mi.traceId))
   }
 }
 

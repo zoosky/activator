@@ -53,6 +53,8 @@ define(['text!./deviation.html', 'main/pluginapi', './../widget', './../format',
             return { 'traceId': this.traceId };
         },
         onData: function(data) {
+            console.log("**********> " + JSON.stringify(data));
+
             this.extractReason = function(json) {
                 var event = json.event;
 
@@ -69,8 +71,7 @@ define(['text!./deviation.html', 'main/pluginapi', './../widget', './../format',
                 }
             }
 
-            //console.log(">>>>>>>>>>>>>>>>>>>>>>>> " + JSON.stringify(data.deviation.traceEvents));
-            //this.extractReason(data.deviation.traceEvents);
+            this.extractReason(data.deviation.traceEvents);
             this.traceTree(data.deviation);
         }
     });

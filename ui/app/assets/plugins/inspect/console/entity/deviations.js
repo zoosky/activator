@@ -58,7 +58,7 @@ define(['text!./deviations.html', 'main/pluginapi', './../widget', '../format'],
                             'event' : collection[i].event,
                             'message' : collection[i].message,
                             'timestamp' : this.formatTimestamp(collection[i].timestamp),
-                            'traceLink' : "#inspect/deviation/" + deviationType + "/" + collection[i].event.substring(collection[i].event.lastIndexOf('/') + 1)
+                            'traceLink' : "#inspect/deviation/" + deviationType + "/" + collection[i].trace.substring(collection[i].trace.lastIndexOf('/') + 1)
                         };
                         newCollection.push(element);
                     }
