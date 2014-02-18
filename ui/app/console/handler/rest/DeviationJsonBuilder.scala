@@ -40,7 +40,7 @@ object DeviationJsonBuilder {
   def createDeviationJson(eventId: UUID, traces: Seq[TraceEvent]): JsObject = {
     Json.obj(
       "eventId" -> eventId.toString,
-      "traces" -> createTraceEventsJson(traces))
+      "traceEvents" -> createTraceEventsJson(traces))
   }
 
   def createTraceEventsJson(traces: Seq[TraceEvent]): JsArray = {

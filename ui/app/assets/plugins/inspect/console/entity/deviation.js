@@ -55,6 +55,7 @@ define(['text!./deviation.html', 'main/pluginapi', './../widget', './../format',
         onData: function(data) {
             this.extractReason = function(json) {
                 var event = json.event;
+
                 if (event.annotation.reason != undefined) {
                     this.deviationTime(formatter.formatTime(new Date(event.timestamp)));
                     this.deviationActorPath(event.annotation.actorInfo.actorPath);
@@ -68,7 +69,8 @@ define(['text!./deviation.html', 'main/pluginapi', './../widget', './../format',
                 }
             }
 
-            this.extractReason(data.deviation);
+            //console.log(">>>>>>>>>>>>>>>>>>>>>>>> " + JSON.stringify(data.deviation.traceEvents));
+            //this.extractReason(data.deviation.traceEvents);
             this.traceTree(data.deviation);
         }
     });

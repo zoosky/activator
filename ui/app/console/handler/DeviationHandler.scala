@@ -20,7 +20,9 @@ trait DeviationHandlerBase extends RequestHandlerLike[DeviationHandler.Deviation
   def useDeviation(sender: ActorRef, eventId: UUID, traces: Seq[TraceEvent]): Unit
 
   def onModuleInformation(sender: ActorRef, mi: DeviationModuleInfo): Unit = {
-    println("****> GETTING STUFF...")
+    println("*>>>> " + mi.eventID)
+    println(">>>>>>>>>>>>>>>>>> " + repository.traceRepository.event(mi.eventID))
+    println("------------------------------------------------------------------")
     useDeviation(sender, mi.eventID, repository.traceRepository.event(mi.eventID).map(ed => repository.traceRepository.trace(ed.trace))
       .getOrElse(Seq.empty[TraceEvent]))
   }
