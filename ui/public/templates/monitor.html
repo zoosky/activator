@@ -1,21 +1,16 @@
-<main id="wrapper" class="oneColumnAndMenu deploy">
+<main id="wrapper" class="oneColumnAndMenu monitor">
   <nav class="menu" data-bind="memoScroll: 'inspectMenu'">
     <header>
-      <h1>Deploy</h1>
+      <h1>Monitor</h1>
     </header>
-    <h2>Local build</h2>
-    <ul class="list links" data-bind="foreach: local">
-      <li data-bind="class: $data.id"><a data-bind="href:'#deploy/'+$data.id, text: $data.title"></a></li>
-    </ul>
-    <h2>Cloud providers</h2>
     <ul class="list links" data-bind="foreach: providers">
-      <li data-bind="class: $data.id"><a data-bind="href:'#deploy/'+$data.id, text: $data.title"></a></li>
+      <li data-bind="class: $data.id"><a data-bind="href:'#monitor/'+$data.id, text: $data.title"></a></li>
     </ul>
   </nav>
   <!-- ko ifnot: page -->
     <article class="intro typo">
       <div class="description">
-        <h1>Choose a deployment option</h1>
+        <h1>Monitor your production</h1>
         <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras vitae lorem at neque mollis viverra eu eu tortor. Vivamus at viverra risus. Quisque scelerisque felis purus, a tempor elit vulputate tempor. Sed pharetra condimentum elementum.</p>
       </div>
     </article>

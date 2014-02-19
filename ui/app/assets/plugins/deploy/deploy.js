@@ -8,7 +8,51 @@ define([
   template
 ){
 
+  var local = [
+    {
+      id: 'publish-local',
+      title: "Publish Local",
+      plugin: ("plugins/inpsect/console/system")
+    },
+    {
+      id: 'zip',
+      title: "Export a zip",
+      plugin: ("plugins/inpsect/console/system")
+    }
+  ];
+
+  var providers = [
+    {
+      id: 'heroku',
+      title: "Heroku",
+      plugin: ("plugins/inpsect/console/system")
+    },
+    {
+      id: 'cloudbees',
+      title: "CloudBees",
+      plugin: ("plugins/inpsect/console/actors")
+    },
+    {
+      id: 'google-gce',
+      title: "Google GCE",
+      plugin: ("plugins/inpsect/console/requests")
+    },
+    {
+      id: 'amazon-aws',
+      title: "Amazon AWS",
+      plugin: ("plugins/inpsect/console/deviations")
+    },
+    {
+      id: 'clever-cloud',
+      title: "Clever Cloud",
+      plugin: ("plugins/inpsect/console/rest")
+    }
+  ]
+
   var DeployState = {
+    page: ko.observable(),
+    local: local,
+    providers: providers,
     provider: ko.observable()
   };
 
