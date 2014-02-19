@@ -11,7 +11,8 @@
 		<!-- Initialize global Javascript values... -->
 		<script type="text/javascript">
 			var debug = true;
-			var baseFolder = "@model.userHome/";
+			var baseFolder = "@{model.userHome.replaceAllLiterally("\\", "\\\\")}";
+            var separator = (baseFolder.indexOf(":\\") == 1) ? "\\" : "/";
 			var wsUrl = '@webSocketURLWithCSRF(routes.Application.homeStream)';
 
 			var templates = @Html(json.toString);
@@ -83,7 +84,7 @@
 					<input type="hidden" id="appName" name="name" data-bind="value: name">
 					<p>
 					<a href="#" id="browseAppLocation"></a>
-					<input type="text" id="newappLocation" name="location" data-bind="value: baseFolder + name">
+					<input type="text" id="newappLocation" name="location" data-bind="value: baseFolder + separator + name">
 					</p>
 					<div class="select">
 						<input type="submit" class="button" value="Create" id="newButton">
