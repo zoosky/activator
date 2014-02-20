@@ -151,7 +151,10 @@ public class ActivatorProperties {
   }
 
   public static String ACTIVATOR_VERSION_FILE() {
-    return ACTIVATOR_UNVERSIONED_USER_HOME() + "/version.properties";
+    // this filename is also constructed in the launcher config file, so keep
+    // in sync with that...
+    return ACTIVATOR_UNVERSIONED_USER_HOME() + "/version-" + ACTIVATOR_LAUNCHER_GENERATION()
+        + ".properties";
   }
 
   // where to get the latest version
