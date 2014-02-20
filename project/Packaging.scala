@@ -205,7 +205,7 @@ object Packaging {
 
 [boot]
  directory: ${sbt.boot.directory-${sbt.global.base-${user.home}/.sbt}/boot/}
- properties: ${activator.boot.properties-${user.home}/.activator/version-${activator.launcher.generation-read(activator.launcher.generation)[%d]}.properties}
+ properties: ${activator.boot.properties-${user.home}/.activator/version-${activator.launcher.generation-%d}.properties}
 
 [ivy]
   ivy-home: ${user.home}/.ivy2
