@@ -6,7 +6,7 @@ package activator
 import xsbti.{ AppMain, AppConfiguration }
 import activator.properties.ActivatorProperties._
 import java.io.File
-import java.net.{ PasswordAuthentication, Authenticator, InetSocketAddress, HttpURLConnection }
+import java.net._
 import scala.util.control.NonFatal
 import java.util.Properties
 import java.io.FileOutputStream
@@ -15,6 +15,10 @@ import java.io.InputStreamReader
 import java.nio.charset.Charset
 import java.util.concurrent.TimeUnit
 import java.net.Authenticator.RequestorType
+import java.awt.Desktop
+import activator.ApplicationID
+import scala.Some
+import activator.RebootToUI
 
 /** Expose for SBT launcher support. */
 class ActivatorLauncher extends AppMain {
@@ -26,14 +30,49 @@ class ActivatorLauncher extends AppMain {
     try configuration.arguments match {
       case Array("ui") => RebootToUI(configuration, version = checkForUpdatedVersion.getOrElse(APP_VERSION))
       case Array("new") => Exit(ActivatorCli(configuration))
+      case Array("docs") => openDocs
       case Array("shell") => RebootToSbt(configuration, useArguments = false)
       case _ if Sbt.looksLikeAProject(new File(".")) => RebootToSbt(configuration, useArguments = true)
       case _ => displayHelp(configuration)
     } catch {
       case e: Exception => generateErrorReport(e)
     }
+
   // Wrapper to return exit codes.
   case class Exit(val code: Int) extends xsbti.Exit
+
+  def openDocs = {
+
+    val file = new File(ACTIVATOR_HOME, "README.html")
+
+    val readmeUrl = if (file.exists()) {
+      file.toURI
+    } else {
+      new URI("http://typesafe.com/activator/docs")
+    }
+
+    def iCannaeDoIt(): Unit =
+      println(s"""|Unable to open a web browser!
+                  |Please point your browser at:
+                  |$readmeUrl""".stripMargin)
+
+    val desktop: Option[Desktop] =
+      if (Desktop.isDesktopSupported)
+        Some(Desktop.getDesktop) filter (_ isSupported Desktop.Action.BROWSE)
+      else None
+
+    desktop match {
+      case Some(d) =>
+        try {
+          d browse readmeUrl
+        } catch {
+          case _: Exception => iCannaeDoIt()
+        }
+      case _ => iCannaeDoIt()
+    }
+
+    Exit(1)
+  }
 
   def displayHelp(configuration: AppConfiguration) = {
     System.err.println(s"""| Did not detect an ${SCRIPT_NAME} project in this directory.
@@ -43,6 +82,8 @@ class ActivatorLauncher extends AppMain {
                           | 1. Recommended: try `${SCRIPT_NAME} ui` to create a project in the UI
                           | 2. Use `${SCRIPT_NAME} new` to create a project on the command line
                           | 3. Load an existing project by re-running ${SCRIPT_NAME} in a project directory
+                          |
+                          | To view the Activator docs, run: `${SCRIPT_NAME} docs`
                           |""".stripMargin)
     Exit(1)
   }
