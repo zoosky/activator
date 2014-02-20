@@ -27,7 +27,6 @@ class ActivatorLauncher extends AppMain {
     try configuration.arguments match {
       case Array("ui") => RebootToUI(configuration, version = checkForUpdatedVersion.getOrElse(APP_VERSION))
       case Array("new") => Exit(ActivatorCli(configuration))
-      case Array("docs") => openDocs
       case Array("shell") => RebootToSbt(configuration, useArguments = false)
       case _ if Sbt.looksLikeAProject(new File(".")) => RebootToSbt(configuration, useArguments = true)
       case _ => displayHelp(configuration)
@@ -38,8 +37,7 @@ class ActivatorLauncher extends AppMain {
   // Wrapper to return exit codes.
   case class Exit(val code: Int) extends xsbti.Exit
 
-  def openDocs = {
-
+  def openDocs() = {
     val file = new File(ACTIVATOR_HOME, "README.html")
 
     val readmeUrl = if (file.exists()) {
@@ -49,8 +47,7 @@ class ActivatorLauncher extends AppMain {
     }
 
     def iCannaeDoIt(): Unit =
-      println(s"""|Unable to open a web browser!
-                  |Please point your browser at:
+      println(s"""|Unable to open the docs in your web browser.  To open them manually navigate to:
                   |$readmeUrl""".stripMargin)
 
     val desktop: Option[Desktop] =
@@ -67,21 +64,20 @@ class ActivatorLauncher extends AppMain {
         }
       case _ => iCannaeDoIt()
     }
-
-    Exit(1)
   }
 
   def displayHelp(configuration: AppConfiguration) = {
+
+    openDocs()
+
     System.err.println(s"""| Did not detect an ${SCRIPT_NAME} project in this directory.
-                          |
-                          | There are three ways to run ${SCRIPT_NAME}:
-                          |
-                          | 1. Recommended: try `${SCRIPT_NAME} ui` to create a project in the UI
-                          | 2. Use `${SCRIPT_NAME} new` to create a project on the command line
-                          | 3. Load an existing project by re-running ${SCRIPT_NAME} in a project directory
-                          |
-                          | To view the Activator docs, run: `${SCRIPT_NAME} docs`
-                          |""".stripMargin)
+                           |
+                           | There are three ways to run ${SCRIPT_NAME}:
+                           |
+                           | 1. Recommended: try `${SCRIPT_NAME} ui` to create a project in the UI
+                           | 2. Use `${SCRIPT_NAME} new` to create a project on the command line
+                           | 3. Load an existing project by re-running ${SCRIPT_NAME} in a project directory
+                           |""".stripMargin)
     Exit(1)
   }
 
