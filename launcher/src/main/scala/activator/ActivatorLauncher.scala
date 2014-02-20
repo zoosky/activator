@@ -16,9 +16,6 @@ import java.nio.charset.Charset
 import java.util.concurrent.TimeUnit
 import java.net.Authenticator.RequestorType
 import java.awt.Desktop
-import activator.ApplicationID
-import scala.Some
-import activator.RebootToUI
 
 /** Expose for SBT launcher support. */
 class ActivatorLauncher extends AppMain {
