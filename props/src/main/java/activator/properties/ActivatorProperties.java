@@ -163,7 +163,7 @@ public class ActivatorProperties {
   // So we would bump this if we want to require people to
   // update their launcher.
   public static int ACTIVATOR_LAUNCHER_GENERATION() {
-    return Integer.parseInt(lookupOr("activator.launcher.generation", "0"));
+    return Integer.parseInt(requirePropertyWithOverrides("activator.launcher.generation"));
   }
 
   public static String ACTIVATOR_TEMPLATE_CACHE() {
