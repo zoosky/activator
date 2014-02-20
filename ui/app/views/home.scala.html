@@ -1,6 +1,8 @@
 @(model: HomeModel, newApp: Form[NewAppForm], json: play.api.libs.json.JsValue)(implicit flash: Flash, request: RequestHeader)
 
 @import snap.WebSocketUtil.webSocketURLWithCSRF
+@import play.api.libs.json.JsString
+@import java.io.File
 
 <!-- Copyright (C) 2013 Typesafe, Inc <http://typesafe.com> -->
 <!DOCTYPE html>
@@ -11,8 +13,8 @@
 		<!-- Initialize global Javascript values... -->
 		<script type="text/javascript">
 			var debug = true;
-			var baseFolder = "@{model.userHome.replaceAllLiterally("\\", "\\\\")}";
-            var separator = (baseFolder.indexOf(":\\") == 1) ? "\\" : "/";
+			var baseFolder = @Html(JsString(model.userHome).toString())
+			var separator = @Html(JsString(File.separator).toString())
 			var wsUrl = '@webSocketURLWithCSRF(routes.Application.homeStream)';
 
 			var templates = @Html(json.toString);

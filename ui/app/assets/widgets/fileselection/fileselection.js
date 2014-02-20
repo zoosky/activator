@@ -100,25 +100,25 @@ define(['css!./fileselection.css', 'text!./fileselection.html', 'webjars!knockou
     },
     gotoParent: function() {
       var self = this;
-      if (self.shownDirectory().indexOf("\\") > 0) {
+      if (separator == "/") {
+        // Unix
+        self.load("/" + self.shownDirectory().split("/").slice(1,-1).join("/"));
+      }
+      else {
         // Windows
         // assumes single char drive letters
         if (self.shownDirectory().length == 3) {
-            // C: -> Drive listing
-            self.loadRoots();
+          // C:\ -> Drive listing
+          self.loadRoots();
         }
         else if (self.shownDirectory().split("\\").length == 2) {
-            // C:\Users -> C:\
-            self.load(self.shownDirectory().substr(0, 3))
+          // C:\Users -> C:\
+          self.load(self.shownDirectory().substr(0, 3))
         }
         else {
-            // C:\Users\foo -> C:\Users
-            self.load(self.shownDirectory().substr(0, self.shownDirectory().lastIndexOf("\\")));
+          // C:\Users\foo -> C:\Users
+          self.load(self.shownDirectory().substr(0, self.shownDirectory().lastIndexOf("\\")));
         }
-      }
-      else {
-        // Unix
-        self.load("/" + self.shownDirectory().split("/").slice(1,-1).join("/"));
       }
     },
     highlight: function(file) {
