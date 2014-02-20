@@ -141,8 +141,8 @@ class ActivatorLauncher extends AppMain {
 
       versionOption flatMap { version =>
         val launcherGenerationRegex = """.*"launcherGeneration" *: *([0-9]+).*""".r
-        val latestLauncherGeneration = line match {
-          case launcherGenerationRegex(g) => g
+        val latestLauncherGeneration: Int = line match {
+          case launcherGenerationRegex(g) => Integer.parseInt(g)
           case other => 0 // typesafe.com didn't include launcherGeneration in its json for gen 0
         }
         if (currentLauncherGeneration == latestLauncherGeneration) {
@@ -167,7 +167,8 @@ class ActivatorLauncher extends AppMain {
     val now = System.currentTimeMillis()
 
     // if the time ends up in the future, assume something is haywire
-    val needCheck = lastSuccessfulCheck > now || (now - lastSuccessfulCheck) > TimeUnit.HOURS.toMillis(4)
+    val needCheck = ACTIVATOR_CHECK_FOR_UPDATES &&
+      (lastSuccessfulCheck > now || (now - lastSuccessfulCheck) > TimeUnit.HOURS.toMillis(4))
 
     if (needCheck) {
       downloadLatestVersion() map { version =>
