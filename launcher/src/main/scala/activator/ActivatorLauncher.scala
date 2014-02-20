@@ -167,7 +167,8 @@ class ActivatorLauncher extends AppMain {
     val now = System.currentTimeMillis()
 
     // if the time ends up in the future, assume something is haywire
-    val needCheck = lastSuccessfulCheck > now || (now - lastSuccessfulCheck) > TimeUnit.HOURS.toMillis(4)
+    val needCheck = ACTIVATOR_CHECK_FOR_UPDATES &&
+      lastSuccessfulCheck > now || (now - lastSuccessfulCheck) > TimeUnit.HOURS.toMillis(4)
 
     if (needCheck) {
       downloadLatestVersion() map { version =>

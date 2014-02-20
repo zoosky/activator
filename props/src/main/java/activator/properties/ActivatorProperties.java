@@ -219,4 +219,13 @@ public class ActivatorProperties {
   public static java.io.File ACTIVATOR_PID_FILE() {
     return new java.io.File(ACTIVATOR_VERSIONED_USER_HOME() + "/.currentpid");
   }
+
+  public static boolean ACTIVATOR_CHECK_FOR_UPDATES() {
+    try {
+      return Boolean.parseBoolean(lookupOr("activator.checkForUpdates", "true"));
+    } catch (Exception e) {
+      System.err.println("Warning: bad value for activator.checkForUpdates: " + e.getMessage());
+      return true;
+    }
+  }
 }
