@@ -39,19 +39,19 @@ define([
           })
         },
         {
-          url: 'inspect',
-          title: "Inspect",
-          working: build.status.all,
-          counter: ko.computed(function() {
-            return build.errors.inspect().length;
-          })
-        },
-        {
           url: 'test',
           title: "Test",
           working: build.activity.testing,
           counter: ko.computed(function() {
             return build.errors.test().length;
+          })
+        },
+        {
+          url: 'inspect',
+          title: "Inspect",
+          working: build.status.all,
+          counter: ko.computed(function() {
+            return build.errors.inspect().length;
           })
         }
       ]

@@ -20,10 +20,10 @@ define([
     this.page         = ko.observable();
 
     this.gotoPrevPage = function(){
-      window.location.hash = "#tutorial/"+ (self.page().index-1)
+      window.location.hash = "#tutorial/"+ (self.page().index-1 || 0)
     }
     this.gotoNextPage = function(){
-      window.location.hash = "#tutorial/"+ (self.page().index+1)
+      window.location.hash = "#tutorial/"+ (self.page().index+1 || 0)
     }
     this.noPrevPage  = ko.computed(function(){
       if (self.page())
