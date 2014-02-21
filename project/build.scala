@@ -185,6 +185,8 @@ object TheActivatorBuild extends Build {
     settings(offline.settings:_*)
   )
 
+  lazy val logDownloadUrls = taskKey[Unit]("log download urls because we are lazy and don't want to hand-construct them")
+
   lazy val dist = (
     ActivatorProject("dist")
     // TODO - Should publish be pushing the S3 upload?
@@ -258,7 +260,13 @@ object TheActivatorBuild extends Build {
             zip -> ("typesafe-activator/%s/typesafe-activator-%s.zip" format (v, v)))
       },
       S3.host in S3.upload := "downloads.typesafe.com.s3.amazonaws.com",
-      S3.progress in S3.upload := true
+      S3.progress in S3.upload := true,
+      logDownloadUrls := {
+        val log = Keys.streams.value.log
+        val version = Keys.version.value
+        log.info(s"Download: http://downloads.typesafe.com/typesafe-activator/${version}/typesafe-activator-${version}.zip")
+        log.info(s"Minimal:  http://downloads.typesafe.com/typesafe-activator/${version}/typesafe-activator-${version}-minimal.zip")
+      }
     )
   )
 }
