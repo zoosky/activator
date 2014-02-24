@@ -66,7 +66,7 @@ define([
 
   return {
 
-    layout: function(url) {
+    render: function(url) {
       var $tutorial = $(template)[0];
       ko.applyBindings(TutorialState, $tutorial);
       $("#wrapper").replaceWith($tutorial);

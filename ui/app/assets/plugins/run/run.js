@@ -111,7 +111,7 @@ define([
   }
 
   return {
-    layout: function(url) {
+    render: function(url) {
       var $run = $(template)[0];
       ko.applyBindings(RunState, $run);
       $("#wrapper").replaceWith($run);

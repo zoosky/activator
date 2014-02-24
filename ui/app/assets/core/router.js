@@ -19,7 +19,7 @@ define(['./plugins', 'noir', 'jquery'], function(plugins) {
       });
     } else {
       if (current().plugin !== plugin.plugin) {
-        plugin.reference.layout(plugin);
+        plugin.reference.render(plugin);
         current(plugin);
       }
       !!plugin.reference.route && plugin.reference.route(metas, breadcrumb);

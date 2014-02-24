@@ -58,7 +58,7 @@ define([
 
 
   return {
-    layout: function(url) {
+    render: function(url) {
       var $test = $(template)[0];
       ko.applyBindings(TestState, $test);
       $("#wrapper").replaceWith($test);

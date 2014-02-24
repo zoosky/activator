@@ -23,7 +23,7 @@ define([
 
   return {
 
-    layout: function(url) {
+    render: function(url) {
       var $documentation = $(template)[0];
       ko.applyBindings(DocumentationState, $documentation);
       $("#wrapper").replaceWith($documentation);

@@ -94,7 +94,7 @@ define([
   }
 
   return {
-    layout: function(url) {
+    render: function(url) {
       var $inspect = $(template)[0];
       ko.applyBindings(InspectState, $inspect);
       $("#wrapper").replaceWith($inspect);

@@ -29,7 +29,7 @@ define([
 
   return {
 
-    layout: function(url) {
+    render: function(url) {
       var $tutorial = $(template)[0];
       ko.applyBindings(DeployState, $tutorial);
       $("#wrapper").replaceWith($tutorial);

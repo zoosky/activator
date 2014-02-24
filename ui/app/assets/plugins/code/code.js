@@ -122,7 +122,7 @@ define([
 
   return {
 
-    layout: function(url) {
+    render: function(url) {
       var $code = $(template)[0];
       // Dynamically add the browser template
       $(".browser", $code).append(browser());
