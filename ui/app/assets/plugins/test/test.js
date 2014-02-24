@@ -57,7 +57,7 @@ define([
   }
 
 
-  return plugins.make({
+  return {
     layout: function(url) {
       var $test = $(template)[0];
       ko.applyBindings(TestState, $test);
@@ -91,6 +91,6 @@ define([
           return breadcrumb(all);
       }
     }
-  });
+  }
 
 });

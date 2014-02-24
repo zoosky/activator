@@ -1,0 +1,29 @@
+<div id="pannelWrapper" class="tutorial-pannel">
+  <nav>
+      <a class="previous" data-bind="css: {disabled: noPrevPage}, click: gotoPrevPage">&#xe765;</a>
+      <a class="next" data-bind="css: {disabled: noNextPage}, click: gotoNextPage">&#xe766;</a>
+      <dl class="dropdown">
+        <!-- ko if: page -->
+        <dt data-bind="text: page().title"></dt>
+        <!-- /ko -->
+        <dd data-bind="foreach: table">
+            <div class="step" data-bind="click: function(){$root.gotoPage($index())}">
+              <span class="step" data-bind="text: $index"></span>
+              <span data-bind="text: $data"></span>
+            </div>
+        </dd>
+  </nav>
+
+  <!-- ko ifnot: page -->
+    <article class="typo">
+      <ul data-bind="foreach: table">
+        <li data-bind="text: $data, click: function(){$root.gotoPage($index())}"></li>
+      </ul>
+    </article>
+  <!-- /ko -->
+  <!-- ko if: page -->
+    <article class="page">
+      <section class="typo" data-bind="html: page().page, memoScroll: 'tutorialPannel'"></section>
+    </article>
+  <!-- /ko -->
+</div>

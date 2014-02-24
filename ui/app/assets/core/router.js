@@ -8,15 +8,22 @@ define(['./plugins', 'noir', 'jquery'], function(plugins) {
   });
 
   var load = function(url) {
-    var plugin = parseUrl(url);
-    require([plugin.pluginUrl], function(p) {
-      plugin.reference = p;
+    var metas = parseUrl(url);
+    var plugin = plugins.find(metas.plugin);
+
+    // If not loaded yet
+    if (!plugin.reference) {
+      require([plugin.plugin], function(p) {
+        plugin.reference = plugins.make(p);
+        load(url);
+      });
+    } else {
       if (current().plugin !== plugin.plugin) {
-        p.layout(plugin);
+        plugin.reference.layout(plugin);
+        current(plugin);
       }
-      current(plugin);
-      !!p.route && p.route(plugin, breadcrumb);
-    });
+      !!plugin.reference.route && plugin.reference.route(metas, breadcrumb);
+    }
   }
 
   var parseUrl = function(url) {
@@ -36,4 +43,5 @@ define(['./plugins', 'noir', 'jquery'], function(plugins) {
     load: load,
     breadcrumb: breadcrumb
   }
+
 });

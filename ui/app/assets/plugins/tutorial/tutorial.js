@@ -2,6 +2,7 @@ define([
   "core/plugins",
   "services/tutorial",
   "text!templates/tutorial.html",
+  "text!templates/tutorial-pannel.html",
   "commons/functions",
   "css!./tutorial",
   "css!widgets/navigation/menu"
@@ -9,8 +10,13 @@ define([
   plugins,
   tutorialService,
   template,
+  templatePannel,
   funcs
 ){
+
+  var ifCurrentPlugin = function() {
+    return window.location.hash.indexOf("#tutorial") == 0;
+  }
 
   var TutorialState   = new function(){
     var self = this;
@@ -20,11 +26,30 @@ define([
     this.page         = ko.observable();
 
     this.gotoPrevPage = function(){
-      window.location.hash = "#tutorial/"+ (self.page().index-1 || 0)
+      if (ifCurrentPlugin()){
+        window.location.hash = "#tutorial/"+ (self.page().index-1 || 0)
+      } else {
+
+      }
     }
     this.gotoNextPage = function(){
       window.location.hash = "#tutorial/"+ (self.page().index+1 || 0)
     }
+    this.gotoPage = function(i){
+      // Tutorial may not be loaded
+      if (tutorialService.tutorialLoaded.state() == "resolved"){
+        p = tutorialService.getPage(i);
+        self.page(p);
+        if (ifCurrentPlugin()){
+          window.location.hash = "#tutorial/"+i;
+        }
+      } else {
+        tutorialService.tutorialLoaded.then(function() {
+          self.gotoPage(i);
+        });
+      }
+    }
+
     this.noPrevPage  = ko.computed(function(){
       if (self.page())
         return self.page().index == 0;
@@ -39,7 +64,7 @@ define([
     });
   }
 
-  return plugins.make({
+  return {
 
     layout: function(url) {
       var $tutorial = $(template)[0];
@@ -47,22 +72,21 @@ define([
       $("#wrapper").replaceWith($tutorial);
     },
 
+    renderPannel: function() {
+      var $templatePannel = $(templatePannel)[0];
+      $('.dropdown',$templatePannel).dropdown();
+      ko.applyBindings(TutorialState, $templatePannel);
+      $("#pannelWrapper").replaceWith($templatePannel);
+    },
+
     route: function(url, breadcrumb) {
       if (url.parameters[0] === void 0 || url.parameters[0] === "") {
+        TutorialState.page(0); // No page
         breadcrumb([['tutorial/', "Tutorial"]]);
-        TutorialState.page(0);
       } else {
-        // Tutorial may not be loaded
-        if (tutorialService.tutorialLoaded.state() == "resolved"){
-          p = tutorialService.getPage(url.parameters[0]);
-          breadcrumb([['tutorial/', "Tutorial"],['tutorial/'+url.parameters[0], p.title]]);
-          TutorialState.page(p);
-        } else {
-          var func = arguments.callee, args = [].slice.call(arguments);
-          tutorialService.tutorialLoaded.then(function() {
-            func.apply(this, args);
-          });
-        }
+        TutorialState.gotoPage(url.parameters[0]);
+        if (TutorialState.page())
+          breadcrumb([['tutorial/', "Tutorial"],['tutorial/'+url.parameters[0], TutorialState.page().title]]);
       }
     },
 
@@ -74,6 +98,6 @@ define([
       }
     }
 
-  });
+  }
 
 });

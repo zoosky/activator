@@ -1,6 +1,6 @@
 define([
   'commons/settings',
-  'core/router',
+  'core/plugins',
   'services/build',
   'widgets/buttons/dropdown',
   'text!templates/navigation.html',
@@ -8,7 +8,7 @@ define([
   'css!./typesafe'
 ], function(
   settings,
-  router,
+  plugins,
   build,
   dropdown,
   template
@@ -16,54 +16,6 @@ define([
 
   var $navigation = $(template)[0];
   var recentApps = serverAppModel.recentApps;
-  var links = [
-    {
-      title: 'Learn',
-      links: [
-        { url: 'tutorial',      title: "Tutorial" },
-        { url: 'documentation', title: "Documentation" }
-      ]
-    },
-    {
-      title: 'Develop',
-      links: [
-        { url: 'code',           title: "Code" },
-        {
-          url: 'run',
-          title: "Run",
-          working: ko.computed(function() {
-            return build.activity.compiling || build.activity.launching;
-          }),
-          counter: ko.computed(function() {
-            return build.errors.compile().length;
-          })
-        },
-        {
-          url: 'test',
-          title: "Test",
-          working: build.activity.testing,
-          counter: ko.computed(function() {
-            return build.errors.test().length;
-          })
-        },
-        {
-          url: 'inspect',
-          title: "Inspect",
-          working: build.status.all,
-          counter: ko.computed(function() {
-            return build.errors.inspect().length;
-          })
-        }
-      ]
-    },
-    {
-      title: 'Deliver',
-      links: [
-        { url: 'deploy',         title: "Deploy" },
-        { url: 'monitor',        title: "Monitor" }
-      ]
-    }
-  ]
 
   var working = function(f){
     var el = $(e.target).addClass("working");
@@ -106,7 +58,7 @@ define([
   // view model
   var NavigationState = {
     recentApps: recentApps,
-    links: links,
+    links: plugins.plugins,
     status: build.activity,
     build: build,
     settings: {

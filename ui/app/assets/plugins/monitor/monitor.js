@@ -27,7 +27,7 @@ define([
     provider: ko.observable()
   };
 
-  return plugins.make({
+  return {
 
     layout: function(url) {
       var $tutorial = $(template)[0];
@@ -42,5 +42,5 @@ define([
       }
     }
 
-  });
+  }
 });

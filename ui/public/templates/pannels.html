@@ -1,13 +1,14 @@
 <div id="pannels">
   <header>
     <dl id="pannelSelector" class="selector dropdown">
-      <dt>Tutorial</dt>
-      <dd>
-        <a>Tutorial</a>
-        <a>Logs</a>
-        <a>Tests</a>
+      <!-- ko if: currentPannel -->
+      <dt data-bind="text: currentPannel().title"></dt>
+      <!-- /ko -->
+      <dd data-bind="foreach: pannels">
+        <a data-bind="text: $data.title"></a>
       </dd>
     </dl>
   </header>
+  <div id="pannelWrapper"></div>
 </div>
 

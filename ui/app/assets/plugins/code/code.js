@@ -120,7 +120,7 @@ define([
   }
 
 
-  return plugins.make({
+  return {
 
     layout: function(url) {
       var $code = $(template)[0];
@@ -199,5 +199,5 @@ define([
       }
     }
 
-  });
+  }
 });

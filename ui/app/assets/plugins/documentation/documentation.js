@@ -21,7 +21,7 @@ define([
     }
   }
 
-  return plugins.make({
+  return {
 
     layout: function(url) {
       var $documentation = $(template)[0];
@@ -38,6 +38,6 @@ define([
       }
     }
 
-  });
+  }
 
 });

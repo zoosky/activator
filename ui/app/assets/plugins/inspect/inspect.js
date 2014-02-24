@@ -93,7 +93,7 @@ define([
     page: page
   }
 
-  return plugins.make({
+  return {
     layout: function(url) {
       var $inspect = $(template)[0];
       ko.applyBindings(InspectState, $inspect);
@@ -109,6 +109,6 @@ define([
           return breadcrumb(all);
       }
     }
-  });
+  }
 
 });

@@ -110,7 +110,7 @@ define([
     build: build
   }
 
-  return self = plugins.make({
+  return {
     layout: function(url) {
       var $run = $(template)[0];
       ko.applyBindings(RunState, $run);
@@ -122,5 +122,5 @@ define([
       all = [['run/', "Run"]];
       return breadcrumb(all);
     }
-  });
+  }
 });
