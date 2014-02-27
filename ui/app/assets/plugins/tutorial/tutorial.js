@@ -1,5 +1,6 @@
 define([
   "core/plugins",
+  "core/router",
   "services/tutorial",
   "text!templates/tutorial.html",
   "text!templates/tutorial-pannel.html",
@@ -8,6 +9,7 @@ define([
   "css!widgets/navigation/menu"
 ], function(
   plugins,
+  router,
   tutorialService,
   template,
   templatePannel,
@@ -26,14 +28,10 @@ define([
     this.page         = ko.observable();
 
     this.gotoPrevPage = function(){
-      if (ifCurrentPlugin()){
-        window.location.hash = "#tutorial/"+ (self.page().index-1 || 0)
-      } else {
-
-      }
+      self.gotoPage(self.page().index-1 || 0);
     }
     this.gotoNextPage = function(){
-      window.location.hash = "#tutorial/"+ (self.page().index+1 || 0)
+      self.gotoPage(self.page().index+1 || 0);
     }
     this.gotoPage = function(i){
       // Tutorial may not be loaded
@@ -79,10 +77,15 @@ define([
       $("#pannelWrapper").replaceWith($templatePannel);
     },
 
+    // We can't use memorizeUrl because the pannel can modify the url
     route: function(url, breadcrumb) {
       if (url.parameters[0] === void 0 || url.parameters[0] === "") {
-        TutorialState.page(0); // No page
-        breadcrumb([['tutorial/', "Tutorial"]]);
+        if (TutorialState.page()){
+          router.redirect('tutorial/'+TutorialState.page().index)
+        } else {
+          TutorialState.page(0); // No page
+          breadcrumb([['tutorial/', "Tutorial"]]);
+        }
       } else {
         TutorialState.gotoPage(url.parameters[0]);
         if (TutorialState.page())

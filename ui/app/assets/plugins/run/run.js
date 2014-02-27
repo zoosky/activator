@@ -117,10 +117,10 @@ define([
       $("#wrapper").replaceWith($run);
     },
 
-    route: function(url, breadcrumb) {
+    route: plugins.memorizeUrl(function(url, breadcrumb) {
       var all;
       all = [['run/', "Run"]];
       return breadcrumb(all);
-    }
+    })
   }
 });

@@ -81,7 +81,7 @@ define([
       build.restartTask('test');
     },
 
-    route: function(url, breadcrumb) {
+    route: plugins.memorizeUrl(function(url, breadcrumb) {
       var all;
       all = [['test/', "Test"]];
       switch (url.parameters[0]) {
@@ -90,7 +90,7 @@ define([
         default:
           return breadcrumb(all);
       }
-    }
+    })
   }
 
 });

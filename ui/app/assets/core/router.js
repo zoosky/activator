@@ -9,21 +9,13 @@ define(['./plugins', 'noir', 'jquery'], function(plugins) {
 
   var load = function(url) {
     var metas = parseUrl(url);
-    var plugin = plugins.find(metas.plugin);
-
-    // If not loaded yet
-    if (!plugin.reference) {
-      require([plugin.plugin], function(p) {
-        plugin.reference = plugins.make(p);
-        load(url);
-      });
-    } else {
-      if (current().plugin !== plugin.plugin) {
-        plugin.reference.render(plugin);
+    require(['plugins/'+metas.plugin+'/'+metas.plugin], function(plugin) {
+      if (current().plugin !== url) {
+        plugin.render(plugin);
         current(plugin);
       }
-      !!plugin.reference.route && plugin.reference.route(metas, breadcrumb);
-    }
+      !!plugin.route && plugin.route(metas, breadcrumb);
+    });
   }
 
   var parseUrl = function(url) {
@@ -38,10 +30,18 @@ define(['./plugins', 'noir', 'jquery'], function(plugins) {
     }
   }
 
+  // This will redirect without adding a new state in browser history
+  var redirect = function(hash) {
+    if (history.replaceState != null) {
+      return history.replaceState(null, null, '#' + hash);
+    }
+  }
+
   return {
     current: current,
     load: load,
-    breadcrumb: breadcrumb
+    breadcrumb: breadcrumb,
+    redirect: redirect
   }
 
 });

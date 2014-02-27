@@ -1,4 +1,4 @@
-define(['services/build'], function(build) {
+define(['services/build', 'core/router'], function(build, router) {
 
   var plugins = [
     {
@@ -73,59 +73,32 @@ define(['services/build'], function(build) {
     }
   ]
 
-  var find = function(id) {
-    // find plugin
-    gouploop:
-    for (i in plugins){
-      var group = plugins[i].links;
-      for (j in group){
-        var plugin = group[j];
-        if (plugin.url == id){
-          return plugin;
-        }
-      }
-    }
-    // 404??
-  }
-
-  // This will redirect without adding a new state in browser history
-  var redirect = function(hash) {
-    if (history.replaceState != null) {
-      return history.replaceState(null, null, '#' + hash);
-    }
-  }
-
-  var make = function(p) {
+  // this will basically remember last url from this plugin for next time
+  var memorizeUrl = function(ƒ) {
     var routeState = {};
+    return function(url, breadcrumb) {
+      // We have parameters, put in cache
+      if (url.parameters.length) {
+        routeState.url = url;
 
-    return $.extend({}, p, {
-      route: function(url, breadcrumb) {
-        // this will basically remember last url from this plugin for next time
+      // No parameters, but some in cache
+      } else if (routeState.url) {
+        url = routeState.url;
+        router.redirect(url.path);
 
-        // We have parameters, put in cache
-        if (url.parameters.length) {
-          routeState.url = url;
-
-        // No parameters, but some in cache
-        } else if (routeState.url) {
-          url = routeState.url;
-          redirect(url.path);
-
-        // Nothing? Use `home`
-        } else {
-          url.parameters = [];
-        }
-
-        return p.route(url, breadcrumb);
+      // Nothing? Use `home`
+      } else {
+        url.parameters = [];
       }
-    });
-    return self;
+
+      return ƒ(url, breadcrumb);
+    }
   }
 
   // Transform the list to bind some behaviours
   return {
     plugins: plugins,
     find: find,
-    make: make
+    memorizeUrl: memorizeUrl
   }
 });

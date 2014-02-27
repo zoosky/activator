@@ -29,14 +29,14 @@ define([
       $("#wrapper").replaceWith($documentation);
     },
 
-    route: function(url, breadcrumb) {
+    route: plugins.memorizeUrl(function(url, breadcrumb) {
       breadcrumb([['documentation/', "Documentation"]]);
       if (url.parameters[0] === void 0 || url.parameters[0] === "") {
         DocumentationState.page(0);
       } else {
         DocumentationState.page(documentationService.getPage(url.parameters[0]));
       }
-    }
+    })
 
   }
 

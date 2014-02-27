@@ -131,7 +131,7 @@ define([
 
     },
 
-    route: function(url, breadcrumb) {
+    route: plugins.memorizeUrl(function(url, breadcrumb) {
       var all = [['code/', "Code"]];
       breadcrumb(all.concat([["code/"+url.parameters.join("/"),url.parameters.join("/")]]));
 
@@ -146,7 +146,7 @@ define([
         projectFilesAndDir.loadUrl(url);
         window.location.hash = "code/";
       }
-    },
+    }),
 
     // Complex keyboard navigation
     keyboard: function(key,m,e) {

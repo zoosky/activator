@@ -64,12 +64,12 @@ define([
       $("#wrapper").replaceWith($tutorial);
     },
 
-    route: function(url, breadcrumb) {
+    route: plugins.memorizeUrl(function(url, breadcrumb) {
       breadcrumb([['deploy/', "Deploy"]]);
       if (url.parameters[0] === void 0 || url.parameters[0] === "") {
       } else {
       }
-    }
+    })
 
   }
 });

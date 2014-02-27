@@ -100,7 +100,7 @@ define([
       $("#wrapper").replaceWith($inspect);
     },
 
-    route: function(url, breadcrumb) {
+    route: plugins.memorizeUrl(function(url, breadcrumb) {
       var all = [['inspect/', "Inspect"]];
       switch (url.parameters[0]) {
         case "":
@@ -108,7 +108,7 @@ define([
         default:
           return breadcrumb(all);
       }
-    }
+    })
   }
 
 });
