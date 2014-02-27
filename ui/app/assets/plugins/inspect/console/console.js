@@ -13,7 +13,7 @@ define(['text!./console.html', 'css!./console.css', 'main/pluginapi', './connect
       var self = this;
       this.crumbs = ko.observableArray([]);
       this.defaultTime = { "startTime": "", "endTime": "", "rolling": "20minutes" };
-      Connection.init(self.defaultTime);
+      Connection.initTime(self.defaultTime);
       Connection.open(consoleWsUrl, function() {});
       this.connected = ko.observable(true);
       this.navigation = new Overview();
