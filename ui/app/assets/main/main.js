@@ -15,7 +15,9 @@ require.config({
     main:     'main',
     plugins:  'plugins',
     services: 'services',
-    widgets:  'widgets'
+    widgets:  'widgets',
+    jquery: 'vendors/jquery',
+    ko: 'vendors/knockout-3.0.0'
   }
 });
 
@@ -47,7 +49,9 @@ require([
   'webjars!knockout',
   'webjars!keymage',
   'commons/visibility'
-],function() {
+],function(txt,css,$,ko) {
+  window.ko = ko; // it's used on every page...
+
   if (!document[hidden]) {
     startApp()
   }
