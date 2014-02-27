@@ -4,7 +4,6 @@
 define(['text!./console.html', 'css!./console.css', 'main/pluginapi', './connection', './overview', './entity/actors', './entity/actor', './entity/requests', './entity/request', 'commons/utils', './entity/deviations', './entity/deviation'],
   function(template, css, api, Connection, Overview, Actors, Actor, Requests, Request, Utils, Deviations, Deviation) {
 
-  var ko = api.ko;
 
   var Console = api.Class(api.Widget, {
     id: 'console-widget',
