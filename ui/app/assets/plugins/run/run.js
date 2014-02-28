@@ -2,7 +2,7 @@
  Copyright (C) 2013 Typesafe, Inc <http://typesafe.com>
  */
 define(['services/build', 'main/model', 'text!./run.html', 'main/pluginapi', 'commons/settings', 'widgets/log/log', 'css!./run.css'],
-    function(build, model, template, api, settings, log, css){
+    function(build, model, template, api, settings, LogView, css){
 
 
   var runConsole = api.PluginWidget({
@@ -24,7 +24,7 @@ define(['services/build', 'main/model', 'text!./run.html', 'main/pluginapi', 'co
       // 'build' or something then refer to these.
       // But doing this to keep changes in one commit smaller.
       // We want to just change the whole 'build' API anyway.
-      this.outputLogView = new log.LogView(build.run.outputLog);
+      this.outputLogView = new LogView(build.run.outputLog);
       this.playAppLink = build.run.playAppLink;
       this.playAppStarted = build.run.playAppStarted;
       this.haveActiveTask = build.run.haveActiveTask;

@@ -2,7 +2,7 @@
  Copyright (C) 2013 Typesafe, Inc <http://typesafe.com>
  */
 define(['text!./compile.html', 'main/pluginapi', 'services/build', 'commons/settings', 'widgets/log/log', 'css!./compile.css'],
-    function(template, api, build, settings, log) {
+    function(template, api, build, settings, LogView) {
 
 
   var compileConsole = api.PluginWidget({
@@ -19,7 +19,7 @@ define(['text!./compile.html', 'main/pluginapi', 'services/build', 'commons/sett
           return "Start compiling";
       }, this);
 
-      this.logView = new log.LogView(build.log);
+      this.logView = new LogView(build.log);
       this.logScroll = this.logView.findScrollState();
       // TODO get rid of per-plugin status
       this.status = ko.observable(api.STATUS_DEFAULT);

@@ -46,9 +46,10 @@ var startApp = function() {
   require([
   'commons/streams',
   'widgets/fileselection/fileselection',
+  'services/log',
   'widgets/log/log',
   'webjars!knockout',
-  'widgets/lists/templatelist'], function(streams, FileSelection, log, ko, TemplateList) {
+  'widgets/lists/templatelist'], function(streams, FileSelection, Log, LogView, ko, TemplateList) {
     // Register handlers on the UI.
     $(function() {
 
@@ -103,8 +104,8 @@ var startApp = function() {
       ko.applyBindings(new model());
 
       // Create log widget before we start recording websocket events...
-      var logs = new log.Log();
-      var logView = new log.LogView(logs);
+      var logs = new Log();
+      var logView = new LogView(logs);
       logView.renderTo($('#loading-logs'));
       // Register webSocket error handler
       streams.subscribe({
