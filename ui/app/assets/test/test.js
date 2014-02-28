@@ -25,7 +25,6 @@ require([
   '../../webjars/require-css/0.0.7/css',
   'webjars!jquery',
   'webjars!knockout',
-  'webjars!keymage',
   // other
   'commons/utils'
 ],function(v1,v2,v3,v4,v5,v6, utils){

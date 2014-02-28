@@ -1,9 +1,9 @@
 /*
  Copyright (C) 2013 Typesafe, Inc <http://typesafe.com>
  */
-define(['./router', 'commons/settings', 'plugins/tutorial/tutorial', 'services/build', './keyboard', './omnisearch',
+define(['./router', 'commons/settings', 'plugins/tutorial/tutorial', 'services/build', './omnisearch',
         './navigation', './panel', 'widgets/notifications/notifications'],
-    function(router, settings, Tutorial, build, keyboard, omnisearch,
+    function(router, settings, Tutorial, build, omnisearch,
         navigation, panel, Notifications) {
 
   // This is the model for HTML which is directly in main.scala.html.
@@ -41,13 +41,6 @@ define(['./router', 'commons/settings', 'plugins/tutorial/tutorial', 'services/b
         omnisearch.openSearch();
         return true;
       };
-
-      var globalKeybindings = [
-        [ 'ctrl-k', openSearch, { preventDefault: true } ]
-      ];
-
-      // scope '' is global scope
-      keyboard.installBindingsInScope('', globalKeybindings);
 
       // TODO - initialize plugins in a better way perhaps...
       $.each(self.plugins.list, function(idx,plugin) {

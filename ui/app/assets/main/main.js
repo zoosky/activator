@@ -44,7 +44,6 @@ var services = [
 var core = [
   'main/pluginapi',
   'main/router',
-  'main/keyboard',
   'main/globalEventHandlers',
   'main/omnisearch',
   'main/navigation',

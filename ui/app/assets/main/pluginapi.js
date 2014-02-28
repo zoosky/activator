@@ -3,13 +3,12 @@
  */
 define([
   'services/sbt',
-  './keyboard',
   'commons/utils',
   'commons/events',
   'commons/widget',
   'widgets/editor/acebinding',
   './model'],
-  function(sbt, keyboard, utils, events, Widget, acebinding, model) {
+  function(sbt, utils, events, Widget, acebinding, model) {
   var STATUS_DEFAULT = 'default';
   var STATUS_BUSY = 'busy';
   var STATUS_ERROR = 'error;'
@@ -18,40 +17,7 @@ define([
 
   var PluginWidget = utils.Class(Widget, {
     onPostActivate: noOp,
-    onPreDeactivate: noOp,
-    // a list of parameter lists for keymage(),
-    // they automatically get scoped to this widget
-    keybindings: [],
-    _keyScope: null,
-    _keysInstalled: false,
-    // called by the plugin framework to give each plugin
-    // widget a unique scope
-    setKeybindingScope: function(scope) {
-      if (this._keyScope !== null) {
-        debug && console.log("Attempt to set key scope twice", scope);
-        return;
-      }
-      this._keyScope = scope;
-      keyboard.installBindingsInScope(scope, this.keybindings)
-    },
-    // automatically called when widget becomes active
-    installKeybindings: function() {
-      if (this._keyScope === null) {
-        debug && console.log("nobody set the key scope");
-        return;
-      }
-      if (this._keysInstalled) {
-        debug && console.log("tried to install keybindings twice", this);
-        return;
-      }
-      this._keysInstalled = true;
-      keyboard.pushScope(this._keyScope);
-    },
-    // automatically called when widget becomes inactive
-    uninstallKeybindings: function() {
-      this._keysInstalled = false;
-      keyboard.popScope(this._keyScope);
-    }
+    onPreDeactivate: noOp
   });
 
   var Plugin = utils.Class({
@@ -79,12 +45,11 @@ define([
         return model.activeWidget() == this.widgets[0].id;
       }, this);
 
-      // validate widgets and set their key scope
+      // validate widgets
       $.each(this.widgets, function(i, widget) {
         if (!(widget instanceof PluginWidget)) {
           console.error("widget for plugin " + this.id + " is not a PluginWidget ", widget);
         }
-        widget.setKeybindingScope(this.id.replace('.', '-') + ":" + widget.id.replace('.', '-'));
       });
     }
   });
@@ -127,14 +92,11 @@ define([
     }
 
     if (oldWidget !== null) {
-      oldWidget.uninstallKeybindings();
       oldWidget.onPreDeactivate();
     }
 
     model.activeWidget(newId);
-
     newWidget.onPostActivate();
-    newWidget.installKeybindings();
   }
 
   function arrayGTZero(obs) {
