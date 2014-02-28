@@ -65,8 +65,7 @@ define(['text!./deviation.html', 'main/pluginapi', './../widget', './../format',
         return result;
     }
 
-    var ko = api.ko;
-    return api.Class(ConsoleWidget, {
+      return api.Class(ConsoleWidget, {
         id: 'console-deviation-widget',
         template: template,
         classInit: function(proto) {
