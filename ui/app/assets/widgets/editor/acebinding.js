@@ -16,8 +16,8 @@ define([
     Dark: 'ace/theme/solarized_dark',
     Light: 'ace/theme/solarized_light'
   };
-  settings.register("editor.theme", "Dark");
-  settings.register("editor.fontSize", 12);
+  var _theme = settings.observable("editor.theme", "Dark");
+  var _fontSize = settings.observable("editor.fontSize", 12);
 
 
   function refreshFileMarkers(editor, markers) {
@@ -134,7 +134,7 @@ define([
         editor.setTheme(aceThemes[options.theme]);
       }
       // Set font size
-      settings.editor.fontSize(options.fontSize);
+      _fontSize(options.fontSize);
     }
   };
   return {};

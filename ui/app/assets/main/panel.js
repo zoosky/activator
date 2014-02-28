@@ -3,18 +3,20 @@
  */
 define(['commons/utils', 'commons/settings'],
     function(utils, settings) {
-  settings.register("app.panelOpened", true);
-  settings.register("app.panelShape", "right1");
+  var panelOpened = settings.observable("app.panelOpened", true);
+  var panelShape = settings.observable("app.panelShape", "right1");
 
   var panel = utils.Singleton({
     init: function() {
       this.dropdownActive = ko.observable(false);
+      this.panelOpened = panelOpened;
+      this.panelShape = panelShape;
     },
     toggle: function() {
-      settings.app.panelOpened(!settings.app.panelOpened());
+      panelOpened(!panelOpened());
     },
     toggleShape: function(data, event){
-      settings.app.panelShape(event.target.dataset.panelShape);
+      panelShape(event.target.dataset.panelShape);
       this.dropdownActive(false);
     },
     toggleDropdown: function(data, event){

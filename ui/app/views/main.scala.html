@@ -25,7 +25,7 @@
     </script>
     <script data-main='@routes.Assets.at("main/main.js")' type='text/javascript' src='@routes.WebJarAssets.requirejs()'></script>
   </head>
-  <body data-bind="css: {navigationOpened: settings.app.navigationOpened, navigationSneak: navigation.sneak, panelOpened: settings.app.panelOpened}, attr: { 'data-shape': settings.app.panelShape }">
+  <body data-bind="css: {navigationOpened: navigation.navigationOpened, navigationSneak: navigation.sneak, panelOpened: panel.panelOpened}, attr: { 'data-shape': panel.panelShape }">
 
     <header id="header">
       <button class="toggleNavigation" data-bind="click: navigation.toggle.bind(navigation), event: {mouseover: navigation.sneakOn.bind(navigation)}"></button>
@@ -84,12 +84,12 @@
       <div id="appStatus">
         <button class="running" data-bind="click: build.onToggleRun, css: {active: build.activity.running, working: build.activity.busy() && !build.activity.running() }"></button>
         <span class="tooltip running" data-bind="text: build.statusTooltips.run "></span>
-        <button class="refresh" data-bind="toggle: settings.build.recompileOnChange, css: {active: settings.build.recompileOnChange }"></button>
-        <span class="tooltip refresh" data-bind="text: settings.build.recompileOnChange() ? 'Rebuild on file changes enabled':'Rebuild on file changes disabled' "></span>
-        <button class="console" data-bind="toggle: settings.build.automaticFlushInspect, css: {active: settings.build.automaticFlushInspect}"></button>
-        <span class="tooltip console" data-bind="text: settings.build.automaticFlushInspect() ? 'Automatic flushing of Inspect enabled':'Automatic flushing of Inspect disabled' "></span>
-        <button class="testing" data-bind="toggle: settings.build.retestOnSuccessfulBuild, css: {active: settings.build.retestOnSuccessfulBuild}"></button>
-        <span class="tooltip testing" data-bind="text: settings.build.retestOnSuccessfulBuild() ? 'Test on rebuild enabled':'Test on rebuild disabled' "></span>
+        <button class="refresh" data-bind="toggle: build.settings.recompileOnChange, css: {active: build.settings.recompileOnChange }"></button>
+        <span class="tooltip refresh" data-bind="text: build.settings.recompileOnChange() ? 'Rebuild on file changes enabled':'Rebuild on file changes disabled' "></span>
+        <button class="console" data-bind="toggle: build.settings.automaticFlushInspect, css: {active: build.settings.automaticFlushInspect}"></button>
+        <span class="tooltip console" data-bind="text: build.settings.automaticFlushInspect() ? 'Automatic flushing of Inspect enabled':'Automatic flushing of Inspect disabled' "></span>
+        <button class="testing" data-bind="toggle: build.settings.retestOnSuccessfulBuild, css: {active: build.settings.retestOnSuccessfulBuild}"></button>
+        <span class="tooltip testing" data-bind="text: build.settings.retestOnSuccessfulBuild() ? 'Test on rebuild enabled':'Test on rebuild disabled' "></span>
       </div>
 
       <dl id="rockets">

@@ -31,7 +31,7 @@ define(['services/build', 'main/model', 'text!./run.html', 'main/pluginapi', 'co
       this.haveMainClass = build.run.haveMainClass;
       this.currentMainClass = build.run.currentMainClass;
       this.mainClasses = build.run.mainClasses;
-      this.rerunOnBuild = settings.build.rerunOnBuild;
+      this.rerunOnBuild = settings.observable('build.rerunOnBuild', true);
       this.restartPending = build.run.restartPending;
       this.consoleCompatible = build.app.hasConsole;
       this.statusMessage = build.run.statusMessage;

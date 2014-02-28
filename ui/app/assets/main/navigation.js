@@ -3,19 +3,20 @@
  */
 define(['commons/utils', 'webjars!knockout', 'commons/settings'],
     function(utils, ko, settings) {
-  settings.register("app.navigationOpened", true);
+  var navigationOpened = settings.observable("app.navigationOpened", true);
 
   var navigation = utils.Singleton({
     init: function() {
+      this.navigationOpened = navigationOpened;
       this.sneak = ko.observable(false);
       this.sneakTimer = 0;
     },
     toggle: function() {
-      settings.app.navigationOpened(!settings.app.navigationOpened());
-      this.sneak(settings.app.navigationOpened());
+      navigationOpened(!navigationOpened());
+      this.sneak(navigationOpened());
     },
     sneakOn: function() {
-      if (!settings.app.navigationOpened()) {
+      if (!navigationOpened()) {
         this.sneak(true);
       }
     },

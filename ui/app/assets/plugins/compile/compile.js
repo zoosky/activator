@@ -25,7 +25,7 @@ define(['text!./compile.html', 'main/pluginapi', 'services/build', 'commons/sett
       this.status = ko.observable(api.STATUS_DEFAULT);
 
       // aliased here so our html template can find it
-      this.recompileOnChange = settings.build.recompileOnChange;
+      this.recompileOnChange = settings.observable('build.recompileOnChange', true);
     },
     update: function(parameters){
     },

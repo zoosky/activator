@@ -6,7 +6,8 @@ define(["text!./viewCode.html", 'main/pluginapi', 'commons/settings'], function(
 
   // !settings.editor.theme && settings.register("editor.theme", false);
   // !settings.editor.fontSize && settings.register("editor.fontSize", false);
-
+  var theme = settings.observable("editor.theme", "Dark");
+  var fontSize = settings.observable("editor.fontSize", 12);
 
   function endsWith(str, suffix) {
     return str.indexOf(suffix, str.length - suffix.length) !== -1;
@@ -64,8 +65,8 @@ define(["text!./viewCode.html", 'main/pluginapi', 'commons/settings'], function(
       // TODO - Grab the extension for now to figure out highlighting...
       this.highlight = highlightModeFor(args.file().name());
       this.file().loadContents();
-      this.theme = settings.editor.theme();
-      this.fontSize = settings.editor.fontSize();
+      this.theme = theme();
+      this.fontSize = fontSize();
     },
     load: function() {
       this.file().loadContents();
@@ -85,10 +86,10 @@ define(["text!./viewCode.html", 'main/pluginapi', 'commons/settings'], function(
       }
     },
     switchTheme: function(name) {
-      settings.editor.theme(name);
+      theme(name);
     },
     setFontSize: function(size) {
-      settings.editor.fontSize(size);
+      fontSize(size);
     }
   });
   return CodeView;
