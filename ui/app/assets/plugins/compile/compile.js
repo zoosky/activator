@@ -22,6 +22,7 @@ define(['text!./compile.html', 'main/plugins', 'services/build', 'commons/settin
 
     // aliased here so our html template can find it
     recompileOnChange: settings.build.recompileOnChange,
+
     update: function(parameters){
     },
     startStopButtonClicked: function(self) {

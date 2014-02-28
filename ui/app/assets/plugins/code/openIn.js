@@ -1,8 +1,8 @@
 /*
  Copyright (C) 2013 Typesafe, Inc <http://typesafe.com>
  */
-define(['text!./openInEclipse.html', 'text!./openInIdea.html', 'main/pluginapi', 'widgets/overlay/overlay', 'widgets/log/log'],
-function(eclipseTemplate, ideaTemplate, api, Overlay, log){
+define(['text!./openInEclipse.html', 'text!./openInIdea.html', 'main/pluginapi', 'widgets/overlay/overlay', 'services/log', 'widgets/log/log'],
+function(eclipseTemplate, ideaTemplate, api, Overlay, Log, LogView){
 
   var sbt = api.sbt;
 
@@ -24,8 +24,8 @@ function(eclipseTemplate, ideaTemplate, api, Overlay, log){
         contents: this,
         css: this.overlayClass
       });
-      self.log = new log.Log();
-      self.logView = new log.LogView(self.log);
+      self.log = new Log();
+      self.logView = new LogView(self.log);
       self.haveProjectFiles = ko.observable(false);
       self.workingStatus = ko.observable("");
       self.projectDirectory = ko.observable(serverAppModel.location);
