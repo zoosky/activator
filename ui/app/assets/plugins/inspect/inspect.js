@@ -1,7 +1,7 @@
 /*
  Copyright (C) 2013 Typesafe, Inc <http://typesafe.com>
  */
-define(['main/pluginapi', 'services/build', './console/console', './console/connection', 'text!./inspect.html', 'css!./inspect.css'],
+define(['main/pluginapi', 'services/build', './console/console', 'services/connection', 'text!./inspect.html', 'css!./inspect.css'],
   function(api, build, Console, Connection, template){
 
     var inspectConsole = api.PluginWidget({
