@@ -1,0 +1,3 @@
+<main id="wrapper" data-bind="foreach: { data: widgets }, visible: activeWidget() != undefined">
+  <div class="widget" data-bind="snapView: $data, visible: id == $parent.activeWidget()"></div>
+</main>
