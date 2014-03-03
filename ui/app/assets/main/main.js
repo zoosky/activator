@@ -37,7 +37,7 @@ var services = [
     'services/sbt',
     'services/build',
     'widgets/log/log',
-    'plugins/inspect/console/connection',
+    'services/connection',
     'widgets/notifications/notifications'
 ]
 
