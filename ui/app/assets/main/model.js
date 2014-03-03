@@ -57,7 +57,6 @@ define(['./router', 'commons/settings', 'plugins/tutorial/tutorial', 'services/b
         });
       });
       self.router.init();
-      ko.applyBindings(self, window.body);
     }
   };
 });
