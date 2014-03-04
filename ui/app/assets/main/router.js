@@ -136,7 +136,7 @@ define(['./plugins'], function(plugins) {
       breadcrumbs = bcs;
     };
 
-    var legacyPlugins = ['code','compile','run','inspect','tutorial','welcome'];
+    var legacyPlugins = ['compile','run','inspect','tutorial','welcome'];
     require(['main/plugin','main/model'], function(p,m) {
 
       // TODO - initialize plugins in a better way perhaps...
@@ -195,11 +195,7 @@ define(['./plugins'], function(plugins) {
     // --------------------------------
     require(['plugins/'+metas.plugin+'/'+metas.plugin], function(plugin) {
       if (current().plugin !== url) {
-<<<<<<< HEAD
         $("#main").replaceWith( plugin.render(metas) );
-=======
-        $("#wrapper").replaceWith( plugin.render(metas) );
->>>>>>> 8cdfa34... Plug UI to new router
         current(plugin);
       }
       !!plugin.route && plugin.route(metas, breadcrumb);
