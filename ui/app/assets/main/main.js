@@ -43,6 +43,7 @@ var services = [
 ]
 
 var core = [
+  'main/model',
   'main/view',
   'main/pluginapi',
   'main/router',
@@ -53,15 +54,16 @@ var core = [
   'main/panel'
 ]
 
-var init = ['main/model','main/init']
+var init = ['main/plugin']
 
 require(vendors, function($, ko) {
   window.ko = ko; // it's used on every page...
   require(commons, function() {
     require(services, function() {
-      require(core, function(view) {
-        require(init, function(init, model) {
+      require(core, function(model, view) {
+        require(init, function(plugins) {
           // Done.
+          model.init(plugins);
           view.render(model);
         })
       })

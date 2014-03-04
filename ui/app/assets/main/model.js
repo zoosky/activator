@@ -2,9 +2,9 @@
  Copyright (C) 2013 Typesafe, Inc <http://typesafe.com>
  */
 define(['./router', 'commons/settings', 'plugins/tutorial/tutorial', 'services/build', './keyboard', './omnisearch',
-        './navigation', './panel', 'widgets/notifications/notifications'],
+        './navigation', './panel', 'widgets/notifications/notifications', 'services/typesafe'],
     function(router, settings, Tutorial, build, keyboard, omnisearch,
-        navigation, panel, Notifications) {
+        navigation, panel, Notifications, typesafe) {
 
   // This is the model for HTML which is directly in main.scala.html.
   // In many cases it's better to create a widget, which has its own
@@ -12,7 +12,7 @@ define(['./router', 'commons/settings', 'plugins/tutorial/tutorial', 'services/b
   // and main.scala.html.
   // This can also be kept tidy by using separate files for related
   // functionality (see omnisearch, navigation, panel below for examples).
-  return {
+  var model = {
     plugins: null, // filled in by init
     router: router,
     tutorial: new Tutorial(),
@@ -42,13 +42,6 @@ define(['./router', 'commons/settings', 'plugins/tutorial/tutorial', 'services/b
         return true;
       };
 
-      var globalKeybindings = [
-        [ 'ctrl-k', openSearch, { preventDefault: true } ]
-      ];
-
-      // scope '' is global scope
-      keyboard.installBindingsInScope('', globalKeybindings);
-
       // TODO - initialize plugins in a better way perhaps...
       $.each(self.plugins.list, function(idx,plugin) {
         self.router.registerRoutes(plugin.routes);
@@ -58,5 +51,13 @@ define(['./router', 'commons/settings', 'plugins/tutorial/tutorial', 'services/b
       });
       self.router.init();
     }
-  };
+  }
+
+  typesafe.subscribe('signedIn', function(signedIn){
+    if (typeof signedIn == 'boolean'){
+      model.signedIn(signedIn);
+    }
+  });
+
+  return model;
 });
