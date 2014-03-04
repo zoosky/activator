@@ -1,6 +1,11 @@
+<<<<<<< HEAD
 <main id="wrapper">
   <div id="main"  data-bind="visible: activeWidget"></div>
   <!-- ko foreach: { data: widgets } -->
   <div class="widget" data-bind="snapView: $data, visible: id == $parent.activeWidget()"></div>
   <!-- /ko -->
+=======
+<main id="wrapper" data-bind="foreach: { data: widgets }, visible: activeWidget() != undefined">
+  <div class="widget" data-bind="snapView: $data, visible: id == $parent.activeWidget()"></div>
+>>>>>>> master
 </main>

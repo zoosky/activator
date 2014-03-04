@@ -46,7 +46,7 @@ define(['./router', 'commons/settings', 'plugins/tutorial/tutorial', 'services/b
 
   typesafe.subscribe('signedIn', function(signedIn){
     if (typeof signedIn == 'boolean'){
-      model.signedIn(obj.signedIn);
+      model.signedIn(signedIn);
     }
   });
 
