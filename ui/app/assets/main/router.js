@@ -136,9 +136,24 @@ define(['./plugins'], function(plugins) {
       breadcrumbs = bcs;
     };
 
+    var legacyPlugins = ['code','compile','run','test','inspect','tutorial','welcome'];
+    require(['main/plugin','main/model'], function(p,m) {
+      console.log(m)
+
+      // TODO - initialize plugins in a better way perhaps...
+      $.each(p.list, function(idx,plugin) {
+        if ( legacyPlugins.indexOf(plugin.id) < 0 ) return 0;
+        legacy.registerRoutes(plugin.routes);
+        $.each(plugin.widgets, function(idx, widget) {
+          m.widgets.push(widget);
+        });
+      });
+
+    });
+
     return {
       parse: parse,
-      plugins: ['code','compile','run','test','inspect','tutorial'],
+      plugins: legacyPlugins,
       // Register a plugin's routes.
       registerRoutes: function(newRoutes) {
         for(route in newRoutes) {
@@ -151,7 +166,7 @@ define(['./plugins'], function(plugins) {
   }());
   // --------------------------------
   // --------------------------------
-  // / LEGACY ROUTER
+  // END LEGACY ROUTER
   // --------------------------------
   // --------------------------------
 
@@ -170,19 +185,23 @@ define(['./plugins'], function(plugins) {
     // --------------------------------
     if (legacy.plugins.indexOf(metas.plugin) >= 0){
       legacy.parse(url);
+      $("#main").html('');
       return 0;
     }
+    require(['main/model'], function(m) {
+      m.activeWidget(null);
+    });
     // --------------------------------
-    // / LEGACY ROUTER
+    // END LEGACY ROUTER
     // --------------------------------
     require(['plugins/'+metas.plugin+'/'+metas.plugin], function(plugin) {
       if (current().plugin !== url) {
-        plugin.render(plugin);
+        $("#main").replaceWith( plugin.render(metas) );
         current(plugin);
       }
       !!plugin.route && plugin.route(metas, breadcrumb);
     }, function(){
-      // 404
+      // TODO 404
     });
   }
 

@@ -70,4 +70,4 @@ require(vendors, function($, ko) {
       })
     })
   })
-})
+});
