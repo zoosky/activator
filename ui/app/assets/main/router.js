@@ -136,7 +136,7 @@ define(['./plugins'], function(plugins) {
       breadcrumbs = bcs;
     };
 
-    var legacyPlugins = ['inspect','tutorial','welcome'];
+    var legacyPlugins = ['tutorial','welcome'];
     require(['main/plugin','main/model'], function(p,m) {
 
       // TODO - initialize plugins in a better way perhaps...
