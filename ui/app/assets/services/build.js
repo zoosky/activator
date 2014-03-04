@@ -1,7 +1,8 @@
 /*
  Copyright (C) 2013 Typesafe, Inc <http://typesafe.com>
  */
-define(['webjars!knockout', 'commons/settings', 'services/log', 'commons/utils', 'commons/events', './sbt', 'commons/markers', 'plugins/inspect/console/connection'],
+
+define(['webjars!knockout', 'commons/settings', 'services/log', 'commons/utils', 'commons/events', './sbt', 'commons/markers', './connection'],
     function(ko, settings, Log, utils, events, sbt, markers, Connection){
 
   settings.register("build.rerunOnBuild", true);

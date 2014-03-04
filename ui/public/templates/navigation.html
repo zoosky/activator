@@ -1,0 +1,48 @@
+    <nav id="navigation" data-bind="event: {mouseover: navigation.sneakShow.bind(navigation), mouseout: navigation.sneakHide.bind(navigation)}">
+
+      <dl id="switch" class="dropdown">
+        <dt data-bind="text: build.app.name"></dt>
+        <dd>
+          <a class="new-app button" href="/home">Manage applications</a>
+          <!-- ko foreach:serverAppModel.recentApps -->
+          <a class="new-app" data-bind="text: cachedName, attr: {href: '/app/'+id}"></a>
+          <!-- /ko -->
+        </dd>
+      </dl>
+
+      <div id="appStatus">
+        <button class="running" data-bind="click: build.onToggleRun, css: {active: build.activity.running, working: build.activity.busy() && !build.activity.running() }"></button>
+        <span class="tooltip running" data-bind="text: build.statusTooltips.run "></span>
+        <button class="refresh" data-bind="toggle: settings.build.recompileOnChange, css: {active: settings.build.recompileOnChange }"></button>
+        <span class="tooltip refresh" data-bind="text: settings.build.recompileOnChange() ? 'Rebuild on file changes enabled':'Rebuild on file changes disabled' "></span>
+        <button class="console" data-bind="toggle: settings.build.automaticFlushInspect, css: {active: settings.build.automaticFlushInspect}"></button>
+        <span class="tooltip console" data-bind="text: settings.build.automaticFlushInspect() ? 'Automatic flushing of Inspect enabled':'Automatic flushing of Inspect disabled' "></span>
+        <button class="testing" data-bind="toggle: settings.build.retestOnSuccessfulBuild, css: {active: settings.build.retestOnSuccessfulBuild}"></button>
+        <span class="tooltip testing" data-bind="text: settings.build.retestOnSuccessfulBuild() ? 'Test on rebuild enabled':'Test on rebuild disabled' "></span>
+      </div>
+
+      <dl id="rockets">
+        <dt><a href="#">Develop</a></dt>
+        <dd>
+          <a data-bind="attr: { href: plugins.lookup.code.url }, isActiveUrl: '#code'">Code</a>
+          <a data-bind="attr: { href: plugins.lookup.compile.url }, isActiveUrl: '#compile'">Compile <span class="working"
+            data-bind="visible: build.activity.compiling"></span><span class="counter"
+            data-bind="text: build.errors.compile().length, visible: build.errors.compile().length > 0"></span></a>
+          <a data-bind="attr: { href: plugins.lookup.test.url }, isActiveUrl: '#test'">Test <span class="working"
+            data-bind="visible: build.activity.testing"></span><span class="counter"
+            data-bind="text: build.errors.test().length, visible: build.errors.test().length > 0"></span></a>
+          <a data-bind="attr: { href: plugins.lookup.run.url }, isActiveUrl: '#run'">Run <span class="working"
+            data-bind="visible: build.activity.launching"></span><span class="counter"
+            data-bind="text: build.errors.run().length, visible: build.errors.run().length > 0"></span></a>
+          <a data-bind="attr: { href: plugins.lookup.inspect.url }, isActiveUrl: '#inspect'">Inspect <span class="working"
+            data-bind="visible: build.activity.inspecting"></span><span class="counter"
+            data-bind="text: build.errors.inspect().length, visible: build.errors.inspect().length > 0"></span></a>
+        </dd>
+      </dl>
+      <div id="typesafe">
+        <a href="http://typesafe.com" target="_blank" class="website">
+          <img src="/public/images/typesafe.svg">
+        </a>
+        <a href="#" class="infos">i</a>
+      </div>
+    </nav>

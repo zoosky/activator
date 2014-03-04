@@ -37,11 +37,12 @@ var services = [
     'services/sbt',
     'services/build',
     'services/log',
-    'plugins/inspect/console/connection',
+    'services/connection',
     'widgets/notifications/notifications'
 ]
 
 var core = [
+  'main/view',
   'main/pluginapi',
   'main/router',
   'main/keyboard',
@@ -57,9 +58,10 @@ require(vendors, function($, ko) {
   window.ko = ko; // it's used on every page...
   require(commons, function() {
     require(services, function() {
-      require(core, function() {
+      require(core, function(view) {
         require(init, function(init, model) {
           // Done.
+          view.render(model);
         })
       })
     })
