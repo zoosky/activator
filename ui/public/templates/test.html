@@ -1,0 +1,30 @@
+<div id="main">
+  <article class="test">
+    <header>
+      <nav>
+              <span class="button start groupLeft" data-bind="click: startStopButtonClicked">
+                  <span class="icon" data-bind="visible: !haveActiveTask()">&#x25b6;</span>
+                  <span class="icon" data-bind="visible: haveActiveTask">&#x25a0;</span>
+                  <span data-bind="text: startStopLabel"></span>
+              </span>
+              <span class="button restart groupMid" data-bind="enable: haveActiveTask() && !restartPending(), click: restartButtonClicked"><span class="icon">&#x27f3;</span>Restart</span>
+              <dl class="dropdown dropdownRightAlign groupRight">
+                  <dt><span class="icon">&#x2699;</span></dt>
+                  <dd>
+                      <input type="checkbox" data-bind="checked: rerunOnBuild" id="retestOnSuccessfulBuild" class="styled dark" /><label for="retestOnSuccessfulBuild"><span></span>Re-test on successful build</label>
+                  </dd>
+              </dl>
+      </nav>
+      <h1>Test</h1>
+      <p class="subheader">
+        <span data-bind="text: testStatus"></span> -
+        <strong data-bind="text: resultStats().passed"></strong> Passed, <strong data-bind="text: resultStats().failed"></strong> Failed
+      </p>
+    </header>
+    <section class="wrapper">
+      <ul class="results" data-bind="foreach: displayedResults">
+        <li data-bind="text: name, css: outcomeClass"></li>
+      </ul>
+    </section>
+  </article>
+</div>
