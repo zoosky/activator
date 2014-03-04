@@ -38,7 +38,8 @@ var services = [
     'services/build',
     'services/log',
     'services/connection',
-    'widgets/notifications/notifications'
+    'widgets/notifications/notifications',
+    'services/typesafe'
 ]
 
 var core = [
