@@ -3,7 +3,7 @@
  */
 
 // Sort of MVC (Module, Grid, Router)
-define(['./model', 'commons/streams', './plugin', './globalEventHandlers', 'services/typesafe'], function(model, streams, plugins, globalEventHandlers, typesafe) {
+define(['./model', 'commons/streams', './plugin', 'services/typesafe'], function(model, streams, plugins, globalEventHandlers, typesafe) {
 
   // Register webSocket error handler
   streams.subscribe({
@@ -17,7 +17,6 @@ define(['./model', 'commons/streams', './plugin', './globalEventHandlers', 'serv
 
   // Here's the app initialization ordering!
   model.init(plugins);
-  globalEventHandlers.init();
 
   typesafe.subscribe('signedIn', function(signedIn){
     if (typeof signedIn == 'boolean'){
