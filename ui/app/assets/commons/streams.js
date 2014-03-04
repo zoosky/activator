@@ -188,8 +188,17 @@ define(function() {
   socket.onclose = onClose;
   socket.onerror = onError;
 
-  // TODO - Create global event stream or some such so we can add listeners and fire events.
 
+  subscribe({
+    handler: function(event) {
+      alert("Connection lost; you will need to reload the page or restart Activator. It's also possible that Activator is open in another tab, which causes this error.");
+    },
+    filter: function(event) {
+      return event.type == WEB_SOCKET_CLOSED;
+    }
+  });
+
+  // TODO - Create global event stream or some such so we can add listeners and fire events.
   return {
     // TODO - we need more public API then just "send message".
     send: sendMessage,
