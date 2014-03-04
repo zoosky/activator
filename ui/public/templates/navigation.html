@@ -25,7 +25,7 @@
         <dt><a href="#">Develop</a></dt>
         <dd>
           <a href="#code" data-bind="isActiveUrl: '#code'">Code</a>
-          <a data-bind="attr: { href: plugins.lookup.compile.url }, isActiveUrl: '#compile'">Compile <span class="working"
+          <a href="#compile" data-bind="isActiveUrl: '#compile'">Compile <span class="working"
             data-bind="visible: build.activity.compiling"></span><span class="counter"
             data-bind="text: build.errors.compile().length, visible: build.errors.compile().length > 0"></span></a>
           <a href="#test" data-bind="isActiveUrl: '#test'">Test <span class="working"
