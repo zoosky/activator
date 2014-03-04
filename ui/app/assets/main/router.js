@@ -196,7 +196,11 @@ define(['./plugins'], function(plugins) {
     // --------------------------------
     require(['plugins/'+metas.plugin+'/'+metas.plugin], function(plugin) {
       if (current().plugin !== url) {
+<<<<<<< HEAD
         $("#main").replaceWith( plugin.render(metas) );
+=======
+        $("#wrapper").replaceWith( plugin.render(metas) );
+>>>>>>> 8cdfa34... Plug UI to new router
         current(plugin);
       }
       !!plugin.route && plugin.route(metas, breadcrumb);
