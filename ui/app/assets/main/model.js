@@ -44,12 +44,11 @@ define(['./router', 'commons/settings', 'plugins/tutorial/tutorial', 'services/b
 
       // TODO - initialize plugins in a better way perhaps...
       $.each(self.plugins.list, function(idx,plugin) {
-        self.router.registerRoutes(plugin.routes);
+        self.router.legacy.registerRoutes(plugin.routes);
         $.each(plugin.widgets, function(idx, widget) {
           self.widgets.push(widget);
         });
       });
-      self.router.init();
     }
   }
 
