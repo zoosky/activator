@@ -36,7 +36,7 @@ var commons = [
 var services = [
     'services/sbt',
     'services/build',
-    'widgets/log/log',
+    'services/log',
     'services/connection',
     'widgets/notifications/notifications'
 ]

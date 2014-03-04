@@ -1,8 +1,9 @@
 /*
  Copyright (C) 2013 Typesafe, Inc <http://typesafe.com>
  */
-define(['webjars!knockout', 'commons/settings', 'widgets/log/log', 'commons/utils', 'commons/events', './sbt', 'commons/markers', './connection'],
-    function(ko, settings, logModule, utils, events, sbt, markers, Connection){
+
+define(['webjars!knockout', 'commons/settings', 'services/log', 'commons/utils', 'commons/events', './sbt', 'commons/markers', './connection'],
+    function(ko, settings, Log, utils, events, sbt, markers, Connection){
 
   settings.register("build.rerunOnBuild", true);
   settings.register("build.retestOnSuccessfulBuild", false);
@@ -78,7 +79,7 @@ define(['webjars!knockout', 'commons/settings', 'widgets/log/log', 'commons/util
       RESTARTING: "RESTARTING"
   };
 
-  var log = new logModule.Log();
+  var log = new Log();
 
   var markerOwner = "build-log";
 
@@ -366,7 +367,7 @@ define(['webjars!knockout', 'commons/settings', 'widgets/log/log', 'commons/util
 
       this.status = ko.observable(Status.IDLE);
       this.statusMessage = ko.observable('Application is stopped.');
-      this.outputLog = new logModule.Log();
+      this.outputLog = new Log();
     },
     loadMainClasses: function(success, failure) {
       var self = this;
