@@ -1,0 +1,179 @@
+<h1>Get started monitoring with NewRelic</h1>
+
+<h2>1. Get a NewRelic account</h2>
+
+<p>If you don't already have a NewRelic account you'll need to create one <a
+href="http://newrelic.com/">here</a>.</p>
+
+<h2>2. Get your personalized NewRelic agent bundle</h2>
+
+<p>After you have signed up for NewRelic sign up and go to your application dashboard.  Then click
+  on the <b><code>Add more</code></b> button.</p>
+
+<img class="example" src="/public/plugins/monitor/solutions/newrelic/dashboard_addmore.png" alt="NewRelic application dashboard">
+
+<p>This will take you to the page containing instructions for how to get your personalized agent
+bundle.</p>
+
+<img class="example" src="/public/plugins/monitor/solutions/newrelic/setup_application.png" alt="NewRelic agent bundle page">
+
+<p>Follow the instructions on that page to install the NewRelic agent.</p>
+
+<h2>3. Setup your Play application to use NewRelic</h2>
+
+<p>The NewRelic agent consists of two pieces, the agent jar (<b>newrelic.jar</b>) and the
+configuration file (<b>newrelic.yml</b>).  The NewRelic agent will look for the configuration in the
+same directory as the <b>newrelic.jar</b>.  If you wish to monitor multiple applications then you
+will need to have copies of the <b>newrelic.jar</b> colocated with its <b>newrelic.yml</b>
+configuration file.</p>
+
+<h3>a. Edit the <b>newrelic.yml</b> configuration file</h3>
+
+<p>Below is an example configuration file.  The configuration file that is distributed with your
+bundle will have your developer key embedded as well as descriptive comments for each setting
+value.</p>
+
+<code><pre>
+common: &default_settings
+  # Your key will be embedded here if you downloaded your custom bundle
+  license_key: '[YOUR KEY]'
+  agent_enabled: true
+
+  # You will need to change this for each application you want to monitor
+  app_name: My Application
+
+  enable_auto_app_naming: false
+  enable_auto_transaction_naming: true
+  log_level: info
+  audit_mode: false
+  log_file_count: 1
+  log_limit_in_kbytes: 0
+  log_daily: false
+  log_file_name: newrelic_agent.log
+  ssl: true
+  max_stack_trace_lines: 30
+  capture_params: false
+  capture_messaging_params: false
+
+  transaction_tracer:
+    enabled: true
+    transaction_threshold: apdex_f
+    record_sql: obfuscated
+    log_sql: false
+    stack_trace_threshold: 0.5
+    explain_enabled: true
+    explain_threshold: 0.5
+    top_n: 20
+
+  error_collector:
+    enabled: true
+    ignore_errors: akka.actor.ActorKilledException
+    ignore_status_codes: 404
+
+  analytics_events:
+    enabled: true
+    max_samples_stored: 2000
+
+  cross_application_tracer:
+    enabled: true
+
+  thread_profiler:
+    enabled: true
+
+  browser_monitoring:
+    auto_instrument: true
+
+
+# Application Environments
+
+development:
+  <<: *default_settings
+  # You will need to change this for each application you want to monitor
+  app_name: My Application (Development)
+
+test:
+  <<: *default_settings
+  # You will need to change this for each application you want to monitor
+  app_name: My Application (Test)
+
+production:
+  <<: *default_settings
+
+staging:
+  <<: *default_settings
+  # You will need to change this for each application you want to monitor
+  app_name: My Application (Staging)
+</pre></code>
+
+<p>You will want to set your application name (in the base-case and all configuration sections).</p>
+
+<p>There are separate steps for configuring Play for NewRelic in <b>development</b> and
+<b>production</b> modes.  Also, the steps to use the NewRelic agent differ depending on whether or
+not you are using direct sbt or via the <code>play</code> script bundled with the Play
+distribution.</p>
+
+<h3>b. Development mode configuration</h3>
+
+<h4>Using the Play <code>play</code> script</h4>
+
+<p>Ultimately, the <code>play</code> script bundled with Play invokes sbt, but, before it does we
+want to specify the <code>-javaagent</code> argument before sbt is invoked.  You need to modify the
+Play <code>build</code> script in order to enable the NewRelic weaving agent.  This file can be
+found in the <code>framework</code> directory where you installed Play.</p>
+
+<p>Edit the <b><code>build</code></b> script with your favorite editor. Add the
+<code>JAVA_OPTS</code> command above the java exec call:</p>
+
+<code><pre>
+JAVA_OPTS="$JAVA_OPTS -Dnewrelic.environment=development -javaagent:/full/path/to/newrelic/newrelic.jar"
+</pre></code>
+
+<p>Where <code>/full/path/to/newrelic</code> is replaced with where you installed the
+<b>newrelic.jar</b> file.</p>
+
+<p>You can now use the <b><code>play run</code></b> command (<code>play start</code> is not
+supported with the above configuration.)  Your application tracing data should soon appear in your
+NewRelic dashboard.</p>
+
+<h4>Using sbt</h4>
+
+<p>These instructions assume that your sbt command is invoked using a script something like:</p>
+
+<code><pre>
+#!/usr/bin/env bash
+
+java [VARIOUS JAVA OPTIONS] ${JAVA_OPTS} -jar /full/path/to/sbt/sbt-launch.jar "$@"
+</pre></code>
+
+<p>Similar to the instructions for Play above you can add:</p>
+
+<code><pre>
+JAVA_OPTS="$JAVA_OPTS -Dnewrelic.environment=development -javaagent:/full/path/to/newrelic/newrelic.jar"
+</pre></code>
+
+<p>or supply the argument on the command line before starting sbt:</p>
+
+<code><pre>
+$ JAVA_OPTS="-Dnewrelic.environment=development -javaagent:/full/path/to/newrelic/newrelic.jar" sbt
+</pre></code>
+
+<h3>c. Production mode (like) configuration</h3>
+
+<p>This configuration is appropriate for any kind of deployed version of Play such as production,
+staging, QA, etc.  After creating a distribution for your Play application you will have an
+automatically generated <b><code>start</code></b> script.  Wherever the distribution package is
+unzipped you will need to invoke the <b><code>start</code></b> with the <code>-javaagent</code>
+argument:</p>
+
+<h4>For Play 2-2.1</h4>
+<code><pre>
+./start -Dnewrelic.environment=[ENVIRONMENT] -javaagent:/full/path/to/newrelic/newrelic.jar
+</pre></code>
+
+<h4>For Play 2.2+</h4>
+<code><pre>
+./bin/start -Dnewrelic.environment=[ENVIRONMENT] -J-javaagent:/full/path/to/newrelic/newrelic.jar
+</pre></code>
+
+<p>The <b>newrelic.jar</b> must have an accompanying <b>newrelic.yml</b> configuration file
+appropriately set up.</p>

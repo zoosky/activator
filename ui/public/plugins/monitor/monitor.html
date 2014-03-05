@@ -1,0 +1,31 @@
+<article class="monitor">
+  <header>
+    <h1>Monitor</h1>
+  </header>
+  <section>
+    <div id="monitor">
+      <div class="module navigation">
+        <ul class="listing">
+          <li class="item">
+            <a href="#monitor/newrelic">
+              <span data-bind="css: { 'active': isSelectedSolution('newrelic'), 'inactive': !isSelectedSolution('newrelic')}">NewRelic</span>
+            </a>
+          </li>
+          <li class="item">
+            <a href="#monitor/appdynamics">
+              <span data-bind="css: { 'active': isSelectedSolution('appdynamics'), 'inactive': !isSelectedSolution('appdynamics')}">AppDynamics</span>
+            </a>
+          </li>
+        </ul>
+      </div>
+      <div class="module contents">
+        <div id="splash" data-bind="visible: noSolutionChosen">
+        Choose a monitoring solution from one of the Typesafe partners
+        </div>
+        <!-- ko ifnot:  noSolutionChosen -->
+        <div data-bind="template: { name : solutionTemplate }"></div>
+        <!-- /ko -->
+      </div>
+    </div>
+  </section>
+</article>

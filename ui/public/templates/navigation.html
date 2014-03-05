@@ -38,6 +38,10 @@
             data-bind="visible: build.activity.inspecting"></span><span class="counter"
             data-bind="text: build.errors.inspect().length, visible: build.errors.inspect().length > 0"></span></a>
         </dd>
+        <dt><a href="#">Deliver</a></dt>
+        <dd>
+          <a data-bind="attr: { href: plugins.lookup.monitor.url }, isActiveUrl: '#monitor'">Monitor</a>
+        </dd>
       </dl>
       <div id="typesafe">
         <a href="http://typesafe.com" target="_blank" class="website">

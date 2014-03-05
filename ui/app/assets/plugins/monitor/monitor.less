@@ -1,0 +1,250 @@
+// @import 'colors';
+// @import '../../../commons/_base';
+@import '../../commons/_base';
+
+@blue_text: @blue-dkr;
+@grey: #D3D9DF;
+@grey_alt: #F0F3F6;
+@grey_text: @grey-dkr;
+
+.monitor header nav {
+  padding: 10px;
+}
+
+#splash {
+  font-family: "HelveticaNeue-CondensedBold", "Open Sans Condensed", "Helvetica", sans-serif;
+  font-weight: bold;
+  position: relative;
+  padding-top: 50px;
+  text-align: center;
+  font-size: 20;
+  color: @grey-dkr;
+  a {
+    display: block;
+    text-decoration: underline;
+    padding-top: 20px;
+  }
+  .light {
+    color: white;
+  }
+}
+
+#monitor {
+  position: absolute;
+  top: 50px;
+  left: 0;
+  right: 0;
+  bottom: 0px;
+  overflow: hidden;
+  white-space: nowrap;
+  background: @grey;
+  z-index: 2;
+
+  .module {
+    position: relative;
+    vertical-align: top;
+    white-space: normal;
+    width: 50%;
+    height: 100%;
+    display: inline-block;
+    background: #fff;
+
+    article {
+      height: 100%;
+    }
+
+    article {
+      section {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        overflow: auto;
+      }
+    }
+  }
+
+  .navigation {
+    width: 20%;
+  }
+
+  .contents {
+    padding: 12px;
+    width: 80%;
+    border-left: 1px solid @grey;
+    overflow: auto;
+    background: #fff;
+    -webkit-user-select: all;
+    -moz-user-select: all;
+    -ms-user-select: all;
+    user-select: all;
+    a {
+      color: #E25758;
+    }
+    a.shortcut {
+      background: #E25758;
+      color: #FFFFFF;
+      letter-spacing: 0.12em;
+      border-radius: 2px;
+      padding: 0 4px;
+      margin: 0 3px;
+      white-space: nowrap;
+      &:before {
+        content: "\E75D";
+        font: 15px icons;
+        line-height: 15px;
+        display: inline-block;
+        padding-right: 5px;
+        height: 12px;
+      }
+    }
+    .monospace {
+      font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', 'Consolas', 'source-code-pro', monospace;
+      font-size: 13px;
+    }
+    code {
+      .monospace;
+    }
+    pre {
+      .monospace;
+      padding: 0.5em 0;
+      margin-bottom: 1em;
+      border: 1px solid #eee;
+      border-width: 1px 0;
+    }
+    h2, h3, h4 {
+      background-color: transparent;
+      color: #364550;
+      font-weight: bold;
+      padding: 0;
+      margin: 0;
+      white-space: nowrap;
+    }
+    h2 {
+      height: 30px;
+      line-height: 30px;
+      font-size: 1.2em;
+    }
+    h3 {
+      height: 25px;
+      line-height: 25px;
+      font-size: 1.1em;
+    }
+    h4 {
+      font-style:italic;
+      height: 25px;
+      line-height: 25px;
+      font-size: 1.1em;
+    }
+    p {
+      margin: 1em 0;
+    }
+    ul, ol {
+      margin: 10px 0;
+      padding-left: 40px;
+      li {
+        margin: 5px 0;
+      }
+    }
+    ul li {
+      list-style-type: square;
+    }
+    ol li {
+      list-style-type: decimal;
+    }
+    strong {
+      font-weight: bold;
+    }
+    img {
+      max-width: 1024px;
+      height: auto;
+    }
+    img.example {
+      padding: 20px;
+      max-width: 1024px;
+    }
+  }
+
+  .module .listing {
+    li {
+      position: relative;
+      cursor: pointer;
+      padding: 10px;
+      border-bottom: 1px solid @grey;
+      .clear-after();
+      a {
+        .title();
+        font-size: 22px;
+        .active {
+          color: @blue-dkr;
+        }
+        .inactive {
+          color: @grey-dkr;
+        }
+        line-height: 24px;
+        &:after {
+          content: " ";
+          position: absolute;
+          top: 0;
+          left: 0;
+          right: 0;
+          bottom: 0;
+        }
+      }
+
+      &.active, &:hover {
+        background: @grey_alt;
+        border-color: @grey;
+      }
+
+      .counter {
+        color: @grey_text;
+        float: right;
+        &.error {
+          color: #fff;
+          background: @red;
+          display: inline-block;
+          padding: 3px 6px;
+          border-radius: 2px;
+        }
+      }
+
+      .focus & {
+        &.active {
+          background: @grey_alt;
+          border-color: @grey;
+        }
+        &.focus {
+          border-color: @red - #222;
+          background: @red;
+          color: #fff;
+          h2 a {
+            color: #fff;
+          }
+          &:before {
+            color: #fff;
+          }
+          .counter {
+            color: white;
+          }
+        }
+      }
+    }
+
+    h2 a {
+      color: @blue_text;
+      font-weight: 700;
+      font-size: 20px;
+      &:after {
+        content: " ";
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        z-index: 99;
+      }
+    }
+  }
+}
