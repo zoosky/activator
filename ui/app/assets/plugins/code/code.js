@@ -1,8 +1,8 @@
 /*
  Copyright (C) 2013 Typesafe, Inc <http://typesafe.com>
  */
-define(['main/plugins', 'text!./home.html', './files', './browse', './view', './openIn', 'css!./code.css'],
-    function(plugins, template, files, Browser, Viewer, openIn, css) {
+define(['main/plugins', 'text!./home.html', './files', './browse', './view', './openIn', 'css!./code.css', 'main/keyboard'],
+    function(plugins, template, files, Browser, Viewer, openIn, css, keyboard) {
 
   var CodeState = (function(){
     var self = {};
@@ -52,21 +52,30 @@ define(['main/plugins', 'text!./home.html', './files', './browse', './view', './
     self.viewer = new Viewer({
       file: self.currentFile
     });
+
     var onSave = function() {
       if (self.viewer.subView().save)
         self.viewer.subView().save();
       else
         alert("Saving this kind of file is not supported");
     };
-    self.keybindings = [
-      [ 'ctrl-s', onSave, { preventDefault: true } ],
-      [ 'defmod-s', onSave, { preventDefault: true } ]
-    ];
+
+    // TODO : Remove when new keyboard functionality is working
+    // Temporary fix for not using the PluginWidget lifecycle anymore (moving away from classes to functions)
+    self.pushKeyboardSettings = function() {
+      // The keyboard bindings for code plugin
+      keyboard.installBindingsInScope("code-widget-scope", [
+        [ 'ctrl-s', onSave, { preventDefault: true } ],
+        [ 'defmod-s', onSave, { preventDefault: true } ]
+      ]);
+      // Push code plugin scope to top of stack
+      keyboard.pushScope("code-widget-scope");
+    };
 
     self.setCrumbs = function(crumbs) {
       var line = -1;
       var length = crumbs.length;
-      if (length != 0) {
+      if (length !== 0) {
         var last = crumbs[length - 1];
         var colon = last.lastIndexOf(':');
         if (colon >= 0) {
@@ -81,7 +90,8 @@ define(['main/plugins', 'text!./home.html', './files', './browse', './view', './
       this.relativeCrumbs(crumbs);
       if (line >= 0)
         this.viewer.scrollToLine(line);
-    }
+    };
+
     self.setCrumbsAfterSave = function(crumbs) {
       var self = this;
       this.viewer.saveBeforeSwitchFiles(function() {
@@ -92,7 +102,7 @@ define(['main/plugins', 'text!./home.html', './files', './browse', './view', './
         // re-select the previous file
         self.currentFile().select();
       });
-    }
+    };
 
     return self;
   }());
@@ -101,6 +111,8 @@ define(['main/plugins', 'text!./home.html', './files', './browse', './view', './
     render: function(url) {
       var $code = $(template)[0];
       ko.applyBindings(CodeState, $code);
+      // TODO : Remove when new keyboard functionality is working
+      CodeState.pushKeyboardSettings();
       return $code;
     },
 
@@ -112,6 +124,5 @@ define(['main/plugins', 'text!./home.html', './files', './browse', './view', './
         CodeState.setCrumbsAfterSave(url.parameters);
       }
     })
-  }
-
+  };
 });
