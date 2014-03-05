@@ -4,42 +4,29 @@
 define(['main/pluginapi', 'services/build', './console/console', 'services/connection', 'text!./inspect.html', 'css!./inspect.css'],
   function(api, build, Console, Connection, template){
 
-    var inspectConsole = api.PluginWidget({
-        id: 'inspect-console-widget',
-        template: template,
-        init: function() {
-            // When we start a new application the data should always be flushed
-            Connection.flush();
-            this.consoleWidget = new Console();
-            this.flush = function() {
-              Connection.flush();
-            }
+    var InspectState = {
+        flush: Connection.flush,
+        consoleWidget: new Console()
+    }
+    Connection.flush();
+
+    return {
+        render: function() {
+            var $inspect = $(template)[0];
+            ko.applyBindings(InspectState, $inspect);
+            return $inspect;
         },
-        route: function(path) {
-            if (path == undefined || path.length == 0) {
+        route: function(url, breadcrumb) {
+            if (url.parameters == undefined || url.parameters.length == 0) {
               if (build.app.hasPlay()) {
-                path = ["requests"];
+                url.parameters = ["requests"];
               } else if (build.app.hasAkka()) {
-                path = ["actors"];
+                url.parameters = ["actors"];
               } else {
-                path = ["deviations"];
+                url.parameters = ["deviations"];
               }
             }
-            this.consoleWidget.route(path);
+            InspectState.consoleWidget.route(url.parameters);
         }
-    });
-
-    return api.Plugin({
-        id: 'inspect',
-        name: "Inspect",
-        icon: "C",
-        url: "#inspect",
-        routes: {
-            'inspect': function(path) {
-                api.setActiveWidget(inspectConsole);
-                inspectConsole.route(path.rest);
-            }
-        },
-        widgets: [inspectConsole]
-    });
+    }
 });
