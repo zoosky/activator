@@ -1,32 +1,28 @@
 /*
  Copyright (C) 2013 Typesafe, Inc <http://typesafe.com>
  */
-define(['text!./compile.html', 'main/pluginapi', 'services/build', 'commons/settings', 'widgets/log/log', 'css!./compile.css'],
-    function(template, api, build, settings, LogView) {
+define(['text!./compile.html', 'main/plugins', 'services/build', 'commons/settings', 'widgets/log/log', 'css!./compile.css'],
+    function(template, plugins, build, settings, LogView) {
 
+  var logView = new LogView(build.log);
 
-  var compileConsole = api.PluginWidget({
-    id: 'compile-widget',
-    template: template,
-    init: function(parameters){
-      var self = this
+  var CompileState = {
+    title: ko.observable("Compile"),
+    startStopLabel: ko.computed(function() {
+      if (build.compile.haveActiveTask())
+        return "Stop compiling";
+      else
+        return "Start compiling";
+    }),
 
-      this.title = ko.observable("Compile");
-      this.startStopLabel = ko.computed(function() {
-        if (build.compile.haveActiveTask())
-          return "Stop compiling";
-        else
-          return "Start compiling";
-      }, this);
+    logView: logView,
+    logScroll: logView.findScrollState(),
+    // TODO get rid of per-plugin status
+    status: ko.observable('default'),
 
-      this.logView = new LogView(build.log);
-      this.logScroll = this.logView.findScrollState();
-      // TODO get rid of per-plugin status
-      this.status = ko.observable(api.STATUS_DEFAULT);
+    // aliased here so our html template can find it
+    recompileOnChange: settings.build.recompileOnChange,
 
-      // aliased here so our html template can find it
-      this.recompileOnChange = settings.build.recompileOnChange;
-    },
     update: function(parameters){
     },
     startStopButtonClicked: function(self) {
@@ -34,22 +30,20 @@ define(['text!./compile.html', 'main/pluginapi', 'services/build', 'commons/sett
       build.toggleTask('compile');
     },
     onPreDeactivate: function() {
-      this.logScroll = this.logView.findScrollState();
+      logView.findScrollState();
     },
-    onPostActivate: function() {
-      this.logView.applyScrollState(this.logScroll);
+    onPostDeactivate: function() {
+      logView.applyScrollState(CompileState.logScroll);
     }
-  });
+  };
 
-  return api.Plugin({
-    id: 'compile',
-    name: "Compile & Logs",
-    icon: "B",
-    url: "#compile",
-    routes: {
-      'compile': function() { api.setActiveWidget(compileConsole); }
+  return {
+    render: function() {
+      var $compile = $(template)[0];
+      ko.applyBindings(CompileState, $compile);
+      return $compile;
     },
-    widgets: [compileConsole],
-    status: compileConsole.status
-  });
+    route: function(url, breadcrumb) {
+    }
+  };
 });
