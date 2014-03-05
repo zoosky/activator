@@ -15,6 +15,7 @@ define(['./router', 'commons/settings', 'plugins/tutorial/tutorial', 'services/b
   var model = {
     plugins: null, // filled in by init
     router: router,
+    widgets: [],
     tutorial: new Tutorial(),
     settings: settings,
     // TODO this needs to be removed after it's no longer used
@@ -34,7 +35,6 @@ define(['./router', 'commons/settings', 'plugins/tutorial/tutorial', 'services/b
     // This is the initialization of the application...
     init: function(plugins) {
       var self = this;
-      self.widgets = [];
       self.plugins = plugins;
 
       var openSearch = function(e, ctx) {
@@ -42,13 +42,6 @@ define(['./router', 'commons/settings', 'plugins/tutorial/tutorial', 'services/b
         return true;
       };
 
-      // TODO - initialize plugins in a better way perhaps...
-      $.each(self.plugins.list, function(idx,plugin) {
-        self.router.legacy.registerRoutes(plugin.routes);
-        $.each(plugin.widgets, function(idx, widget) {
-          self.widgets.push(widget);
-        });
-      });
     }
   }
 

@@ -1,7 +1,7 @@
 /*
  Copyright (C) 2013 Typesafe, Inc <http://typesafe.com>
  */
-define(['./plugins'], function(plugins) {
+define(function() {
 
   // --------------------------------
   // --------------------------------
@@ -136,9 +136,21 @@ define(['./plugins'], function(plugins) {
       breadcrumbs = bcs;
     };
 
+    var legacyPlugins = ['code','compile','test','run','inspect','tutorial','welcome'];
+    require(['main/plugin','main/model'], function(p,m) {
+      // TODO - initialize plugins in a better way perhaps...
+      $.each(p.list, function(idx,plugin) {
+        if ( legacyPlugins.indexOf(plugin.id) < 0 ) return 0;
+        legacy.registerRoutes(plugin.routes);
+        $.each(plugin.widgets, function(idx, widget) {
+          m.widgets.push(widget);
+        });
+      });
+    });
+
     return {
       parse: parse,
-      plugins: ['code','compile','run','test','inspect','tutorial', 'welcome'],
+      plugins: legacyPlugins,
       // Register a plugin's routes.
       registerRoutes: function(newRoutes) {
         for(route in newRoutes) {
@@ -172,8 +184,13 @@ define(['./plugins'], function(plugins) {
     // First check if this plugin is part of the legacy
     if (legacy.plugins.indexOf(metaInfo.plugin) > -1){
       legacy.parse(url);
+      $("#main").html('');
       return 0;
     }
+    // TODO : remove legacy active widget, once new navigation is plugged in
+    require(['main/model'], function(m) {
+      m.activeWidget(null);
+    });
 
     // Structure of plugins are: 'plugins' + pluginName + '/' + pluginName
     // e.g 'plugins/tutorial/tutorial'
@@ -181,7 +198,7 @@ define(['./plugins'], function(plugins) {
 
       // if the current plugin is different from the new then we render the new plugin
       if (current().plugin !== url) {
-        plugin.render(plugin);
+        $("#main").replaceWith( plugin.render(metaInfo) );
         current(plugin);
       }
 
