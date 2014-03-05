@@ -24,7 +24,7 @@
       <dl id="rockets">
         <dt><a href="#">Develop</a></dt>
         <dd>
-          <a data-bind="attr: { href: plugins.lookup.code.url }, isActiveUrl: '#code'">Code</a>
+          <a data-bind="attr: { href: '#code' }, isActiveUrl: '#code'">Code</a>
           <a data-bind="attr: { href: plugins.lookup.compile.url }, isActiveUrl: '#compile'">Compile <span class="working"
             data-bind="visible: build.activity.compiling"></span><span class="counter"
             data-bind="text: build.errors.compile().length, visible: build.errors.compile().length > 0"></span></a>
