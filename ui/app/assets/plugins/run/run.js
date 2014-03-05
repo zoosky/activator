@@ -4,39 +4,35 @@
 define(['services/build', 'main/model', 'text!./run.html', 'main/pluginapi', 'commons/settings', 'widgets/log/log', 'css!./run.css'],
     function(build, model, template, api, settings, LogView, css){
 
+  var logView = new LogView(build.run.outputLog);
 
-  var runConsole = api.PluginWidget({
-    id: 'play-run-widget',
-    template: template,
-    init: function(parameters){
-      var self = this;
+  var RunState = {
+    title: ko.observable("Run"),
+    startStopLabel: ko.computed(function() {
+      if (build.run.haveActiveTask())
+        return "Stop";
+      else
+        return "Start";
+    }, this),
 
-      this.title = ko.observable("Run");
-      this.startStopLabel = ko.computed(function() {
-        if (build.run.haveActiveTask())
-          return "Stop";
-        else
-          return "Start";
-      }, this);
+    // Aliases so we can use these in our html template.
+    // This is a mess to clean up; we should just alias
+    // 'build' or something then refer to these.
+    // But doing this to keep changes in one commit smaller.
+    // We want to just change the whole 'build' API anyway.
+    outputLogView: logView,
+    playAppLink: build.run.playAppLink,
+    playAppStarted: build.run.playAppStarted,
+    haveActiveTask: build.run.haveActiveTask,
+    haveMainClass: build.run.haveMainClass,
+    currentMainClass: build.run.currentMainClass,
+    mainClasses: build.run.mainClasses,
+    rerunOnBuild: settings.build.rerunOnBuild,
+    restartPending: build.run.restartPending,
+    consoleCompatible: build.app.hasConsole,
+    statusMessage: build.run.statusMessage,
+    outputScroll: logView.findScrollState(),
 
-      // Aliases so we can use these in our html template.
-      // This is a mess to clean up; we should just alias
-      // 'build' or something then refer to these.
-      // But doing this to keep changes in one commit smaller.
-      // We want to just change the whole 'build' API anyway.
-      this.outputLogView = new LogView(build.run.outputLog);
-      this.playAppLink = build.run.playAppLink;
-      this.playAppStarted = build.run.playAppStarted;
-      this.haveActiveTask = build.run.haveActiveTask;
-      this.haveMainClass = build.run.haveMainClass;
-      this.currentMainClass = build.run.currentMainClass;
-      this.mainClasses = build.run.mainClasses;
-      this.rerunOnBuild = settings.build.rerunOnBuild;
-      this.restartPending = build.run.restartPending;
-      this.consoleCompatible = build.app.hasConsole;
-      this.statusMessage = build.run.statusMessage;
-      this.outputScroll = this.outputLogView.findScrollState();
-    },
     update: function(parameters){
     },
     startStopButtonClicked: function(self) {
@@ -48,20 +44,19 @@ define(['services/build', 'main/model', 'text!./run.html', 'main/pluginapi', 'co
       build.restartTask('run');
     },
     onPreDeactivate: function() {
-      this.outputScroll = this.outputLogView.findScrollState();
+      RunState.outputScroll = logView.findScrollState();
     },
     onPostActivate: function() {
-      this.outputLogView.applyScrollState(this.outputScroll);
-    }  });
+      logView.applyScrollState(RunState.outputScroll);
+    }
+  }
 
-  return api.Plugin({
-    id: 'run',
-    name: "Run",
-    icon: "▶",
-    url: "#run",
-    routes: {
-      'run': function() { api.setActiveWidget(runConsole); }
+  return {
+    render: function() {
+      var $run = $(template)[0];
+      ko.applyBindings(RunState, $run);
+      return $run;
     },
-    widgets: [runConsole]
-  });
+    route: function(){}
+  }
 });
