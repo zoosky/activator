@@ -108,7 +108,7 @@ define(['main/plugins', 'text!./home.html', './files', './browse', './view', './
       var all = [['code/', "Code"]];
       breadcrumb(all.concat([["code/"+url.parameters.join("/"),url.parameters.join("/")]]));
 
-      if (url.parameters[0]){
+      if (url.parameters.length > 0){
         CodeState.setCrumbsAfterSave(url.parameters);
       }
     })
