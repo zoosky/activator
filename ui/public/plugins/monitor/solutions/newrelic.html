@@ -1,28 +1,28 @@
-<h1>Get started monitoring with NewRelic</h1>
+<h1>Get started monitoring with New Relic</h1>
 
-<h2>1. Get a NewRelic account</h2>
+<h2>1. Get a New Relic account</h2>
 
-<p>If you don't already have a NewRelic account you'll need to create one <a
+<p>If you don't already have a New Relic account you'll need to create one <a
 href="http://newrelic.com/">here</a>.</p>
 
-<h2>2. Get your personalized NewRelic agent bundle</h2>
+<h2>2. Get your personalized New Relic agent bundle</h2>
 
-<p>After you have signed up for NewRelic sign up and go to your application dashboard.  Then click
+<p>After you have signed up for New Relic sign up and go to your application dashboard.  Then click
   on the <b><code>Add more</code></b> button.</p>
 
-<img class="example" src="/public/plugins/monitor/solutions/newrelic/dashboard_addmore.png" alt="NewRelic application dashboard">
+<img class="example" src="/public/plugins/monitor/solutions/newrelic/dashboard_addmore.png" alt="New Relic application dashboard">
 
 <p>This will take you to the page containing instructions for how to get your personalized agent
 bundle.</p>
 
-<img class="example" src="/public/plugins/monitor/solutions/newrelic/setup_application.png" alt="NewRelic agent bundle page">
+<img class="example" src="/public/plugins/monitor/solutions/newrelic/setup_application.png" alt="New Relic agent bundle page">
 
-<p>Follow the instructions on that page to install the NewRelic agent.</p>
+<p>Follow the instructions on that page to install the New Relic agent.</p>
 
-<h2>3. Setup your Play application to use NewRelic</h2>
+<h2>3. Setup your Play application to use New Relic</h2>
 
-<p>The NewRelic agent consists of two pieces, the agent jar (<b>newrelic.jar</b>) and the
-configuration file (<b>newrelic.yml</b>).  The NewRelic agent will look for the configuration in the
+<p>The New Relic agent consists of two pieces, the agent jar (<b>newrelic.jar</b>) and the
+configuration file (<b>newrelic.yml</b>).  The New Relic agent will look for the configuration in the
 same directory as the <b>newrelic.jar</b>.  If you wish to monitor multiple applications then you
 will need to have copies of the <b>newrelic.jar</b> colocated with its <b>newrelic.yml</b>
 configuration file.</p>
@@ -107,8 +107,8 @@ staging:
 
 <p>You will want to set your application name (in the base-case and all configuration sections).</p>
 
-<p>There are separate steps for configuring Play for NewRelic in <b>development</b> and
-<b>production</b> modes.  Also, the steps to use the NewRelic agent differ depending on whether or
+<p>There are separate steps for configuring Play for New Relic in <b>development</b> and
+<b>production</b> modes.  Also, the steps to use the New Relic agent differ depending on whether or
 not you are using direct sbt or via the <code>play</code> script bundled with the Play
 distribution.</p>
 
@@ -118,7 +118,7 @@ distribution.</p>
 
 <p>Ultimately, the <code>play</code> script bundled with Play invokes sbt, but, before it does we
 want to specify the <code>-javaagent</code> argument before sbt is invoked.  You need to modify the
-Play <code>build</code> script in order to enable the NewRelic weaving agent.  This file can be
+Play <code>build</code> script in order to enable the New Relic weaving agent.  This file can be
 found in the <code>framework</code> directory where you installed Play.</p>
 
 <p>Edit the <b><code>build</code></b> script with your favorite editor. Add the
@@ -133,7 +133,7 @@ JAVA_OPTS="$JAVA_OPTS -Dnewrelic.environment=development -javaagent:/full/path/t
 
 <p>You can now use the <b><code>play run</code></b> command (<code>play start</code> is not
 supported with the above configuration.)  Your application tracing data should soon appear in your
-NewRelic dashboard.</p>
+New Relic dashboard.</p>
 
 <h4>Using sbt</h4>
 
