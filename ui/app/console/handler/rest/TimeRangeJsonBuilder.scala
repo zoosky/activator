@@ -10,5 +10,5 @@ object TimeRangeJsonBuilder {
     Json.obj(
       "startTime" -> timeRange.startTime,
       "endTime" -> timeRange.endTime,
-      "rangeType" -> timeRange.toString)
+      "rangeType" -> timeRange.rangeType.toString)
 }
