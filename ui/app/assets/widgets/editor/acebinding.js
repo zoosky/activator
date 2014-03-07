@@ -9,16 +9,29 @@ define([
   'css!./theme.css'],
   function(settings, ko, ignore_ace, markers) {
 
-  // This is how you change theme path for Ace, but
-  //ace.config.set('themePath', '/public/ace/themes/');
+  // Create Editor container
+  var editorDom = document.createElement('div');
+
+  // Create the actual editor instance once and for all
+  var editor = ace.edit(editorDom);
+
+  // Store all Editor Sessions (cursor position, scroll, undo...)
+  var savedSession = {};
 
   var aceThemes = {
     Dark: 'ace/theme/solarized_dark',
     Light: 'ace/theme/solarized_light'
   };
   settings.register("editor.theme", "Dark");
-  settings.register("editor.fontSize", 12);
-
+  settings.register("editor.fontSize", "12");
+  editor.setTheme(aceThemes[settings.editor.theme()]);
+  editor.setFontSize(settings.editor.fontSize());
+  settings.editor.theme.subscribe(function(v) {
+    editor.setTheme(aceThemes[v])
+  });
+  settings.editor.fontSize.subscribe(function(v) {
+    editor.setFontSize(v)
+  });
 
   function refreshFileMarkers(editor, markers) {
     var annotations = [];
@@ -45,48 +58,8 @@ define([
   // <div class="editor" data-bind="ace: { contents: contents, theme: 'ace/theme/xcode', dirty: isEditorDirty, highlight: 'scala', file: filemodel }"/>
   ko.bindingHandlers.ace = {
     init: function (element, valueAccessor, allBindingsAccessor, viewModel, bindingContext) {
-      // First pull out all the options we may or may not use.
-      var options = valueAccessor();
-      // If they only provide a text field to bind into, we allow that too.
-      var editorValue = options.contents || options;
-      var dirtyValue = options.dirty;
-      // TODO - unwrap observable?
-      var highlight = ko.utils.unwrapObservable(options.highlight || 'text');
-      var theme = ko.utils.unwrapObservable(options.theme) || 'Dark';
-      var fontSize = ko.utils.unwrapObservable(options.fontSize) || 12;
-
-      // We have to write our text into the element before instantiating the editor.
-      $(element).text(ko.utils.unwrapObservable(editorValue))
-
-      var editor = ace.edit(element);
-
-      // TODO - Check for no highlight mode as well, or allow non-built-in
-      // highlighting...
-      editor.getSession().setMode('ace/mode/'+highlight);
-
-      // Theme & font size
-      editor.setTheme(aceThemes[theme]);
-      editor.setFontSize(fontSize);
-
-      // Assume we can sneak this on here.
-      viewModel.editor = editor;
-      //handle edits made in the editor
-      editor.getSession().on('change', function (e) {
-        if (ko.isWriteableObservable(editorValue)) {
-          editorValue(editor.getValue());
-        }
-        // mark things dirty after an edit.
-        if(ko.isWriteableObservable(dirtyValue)) {
-          dirtyValue(true);
-        }
-      });
-      // Ensure things are cleaned on destruction.
-      ko.utils.domNodeDisposal.addDisposeCallback(element, function() {
-        if ('fileMarkersSub' in editor) {
-          editor.fileMarkersSub.dispose();
-        }
-        editor.destroy();
-      });
+      // Append editor
+      element.appendChild(editor.container);
     },
     update: function (element, valueAccessor, allBindingsAccessor, viewModel) {
       var options = valueAccessor();
@@ -94,9 +67,20 @@ define([
       var dirtyValue = options.dirty;
       var content = ko.utils.unwrapObservable(editorValue);
       var file = ko.utils.unwrapObservable(ko.utils.unwrapObservable(options.file).relative);
-      var editor = viewModel.editor;
-      var theme = ko.utils.unwrapObservable(options.theme);
-      var fontSize = ko.utils.unwrapObservable(options.fontSize);
+      var location = ko.utils.unwrapObservable(viewModel.file).location;
+      var highlight = ko.utils.unwrapObservable(options.highlight || 'text');
+
+      if (!content) return 0;
+      savedSession[location] = savedSession[location] || new ace.EditSession(content, 'ace/mode/'+highlight);
+      editor.setSession(savedSession[location]);
+
+      var line = getLine();
+      if (line) {
+        editor.moveCursorTo(line - 1, 0);
+        editor.scrollToRow(line - 1);
+      }
+
+      editor.focus();
 
       var fileMarkers = markers.ensureFileMarkers(file);
       var oldMarkers = null;
@@ -120,22 +104,30 @@ define([
         refreshFileMarkers(editor, fileMarkers());
       }
 
-      // TODO - Don't freaking do this all the time.  We should not
-      // involved in changes we caused.
-      if(editor.getValue() != content) {
-        editor.setValue(content, editor.getCursorPosition());
-        // Update dirty value.
-        if(ko.isWriteableObservable(dirtyValue)) {
-          dirtyValue(false);
+      //handle edits made in the editor
+      editor.getSession().on('change', function (e) {
+        if (ko.isWriteableObservable(editorValue)) {
+          editorValue(editor.getValue());
         }
-      }
-      // Switch theme
-      if (options.theme in aceThemes && editor.getTheme != aceThemes[options.theme]) {
-        editor.setTheme(aceThemes[options.theme]);
-      }
-      // Set font size
-      settings.editor.fontSize(options.fontSize);
+        // mark things dirty after an edit.
+        if(ko.isWriteableObservable(dirtyValue)) {
+          dirtyValue(true);
+        }
+      });
+
     }
   };
+
+  function getLine(){
+    var colon = window.location.hash.lastIndexOf(':'), line;
+    if (colon > 0) {
+      var maybe = parseInt(window.location.hash.substring(colon + 1), 10);
+      if (typeof(maybe) == 'number' && !isNaN(maybe)) {
+        line = maybe;
+      }
+    }
+    return line;
+  }
+
   return {};
 });
