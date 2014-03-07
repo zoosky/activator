@@ -718,7 +718,7 @@ define(['webjars!knockout', 'commons/settings', 'services/log', 'commons/utils',
       if (this.haveActiveTask()) {
         this.doStop();
         this.restartPending(true);
-        self.status(Status.RESTARTING);
+        this.status(Status.RESTARTING);
       } else {
         this.doRun();
       }
