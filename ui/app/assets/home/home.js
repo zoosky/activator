@@ -21,12 +21,13 @@ require.config({
 
 require([
   // Vendors
+  'webjars!knockout',
   '../../webjars/requirejs-text/2.0.10/text',
   '../../webjars/require-css/0.0.7/css',
   'webjars!jquery',
-  'webjars!knockout',
   'commons/visibility'
-],function() {
+],function(ko) {
+  window.ko = ko;
   if (!document[hidden]) {
     startApp()
   }
@@ -48,8 +49,7 @@ var startApp = function() {
   'widgets/fileselection/fileselection',
   'services/log',
   'widgets/log/log',
-  'webjars!knockout',
-  'widgets/lists/templatelist'], function(streams, FileSelection, Log, LogView, ko, TemplateList) {
+  'widgets/lists/templatelist'], function(streams, FileSelection, Log, LogView, TemplateList) {
     // Register handlers on the UI.
     $(function() {
 
