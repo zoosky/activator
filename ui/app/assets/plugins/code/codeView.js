@@ -64,8 +64,7 @@ define(["text!./viewCode.html", 'main/pluginapi', 'commons/settings'], function(
       // TODO - Grab the extension for now to figure out highlighting...
       this.highlight = highlightModeFor(args.file().name());
       this.file().loadContents();
-      this.theme = settings.editor.theme();
-      this.fontSize = settings.editor.fontSize();
+      this.focusLine = ko.observable(null);
     },
     load: function() {
       this.file().loadContents();
@@ -74,15 +73,7 @@ define(["text!./viewCode.html", 'main/pluginapi', 'commons/settings'], function(
       this.file().saveContents(onDone, onCancel);
     },
     scrollToLine: function(line) {
-      // naughty knowledge of our view... not sure how else
-      // to go about this.
-      if ('editor' in this) {
-        // rows are 0-based, lines 1-based
-        this.editor.moveCursorTo(line - 1, 0);
-        this.editor.scrollToRow(line - 1);
-      } else {
-        console.error("No editor to scroll to? bug");
-      }
+      this.focusLine(line);
     },
     switchTheme: function(name) {
       settings.editor.theme(name);

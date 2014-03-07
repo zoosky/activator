@@ -136,7 +136,7 @@ define(function() {
       breadcrumbs = bcs;
     };
 
-    var legacyPlugins = ['code','compile','test','run','inspect','tutorial','welcome'];
+    var legacyPlugins = ['compile','test','run','inspect','tutorial','welcome'];
     require(['main/plugin','main/model'], function(p,m) {
       // TODO - initialize plugins in a better way perhaps...
       $.each(p.list, function(idx,plugin) {
@@ -184,7 +184,7 @@ define(function() {
     // First check if this plugin is part of the legacy
     if (legacy.plugins.indexOf(metaInfo.plugin) > -1){
       legacy.parse(url);
-      $("#main").html('');
+      $("#main").empty();
       return 0;
     }
     // TODO : remove legacy active widget, once new navigation is plugged in
@@ -198,7 +198,7 @@ define(function() {
 
       // if the current plugin is different from the new then we render the new plugin
       if (current().plugin !== url) {
-        $("#main").replaceWith( plugin.render(metaInfo) );
+        $("#main").empty().append(plugin.render(metaInfo));
         current(plugin);
       }
 
