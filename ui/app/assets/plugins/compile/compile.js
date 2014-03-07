@@ -1,55 +1,56 @@
 /*
  Copyright (C) 2013 Typesafe, Inc <http://typesafe.com>
  */
-define(['text!./compile.html', 'main/pluginapi', 'services/build', 'commons/settings', 'widgets/log/log', 'css!./compile.css'],
-    function(template, api, build, settings, LogView) {
+define(['text!./compile.html', 'main/plugins', 'main/pluginapi', 'services/build', 'commons/settings', 'widgets/log/log', 'css!./compile.css'],
+  function(template, plugins, api, build, settings, LogView) {
 
+    var logView = new LogView(build.log);
 
-  var compileConsole = api.PluginWidget({
-    id: 'compile-widget',
-    template: template,
-    init: function(parameters){
-      var self = this
+    var CompileState = (function(){
+      var self = {};
 
-      this.title = ko.observable("Compile");
-      this.startStopLabel = ko.computed(function() {
+      self.title = ko.observable("Compile");
+      self.startStopLabel = ko.computed(function() {
         if (build.compile.haveActiveTask())
           return "Stop compiling";
         else
           return "Start compiling";
-      }, this);
-
-      this.logView = new LogView(build.log);
-      this.logScroll = this.logView.findScrollState();
+      });
+      self.logView = logView;
+      self.logScroll = logView.findScrollState();
       // TODO get rid of per-plugin status
-      this.status = ko.observable(api.STATUS_DEFAULT);
-
+      self.status = ko.observable(api.STATUS_DEFAULT);
       // aliased here so our html template can find it
-      this.recompileOnChange = settings.build.recompileOnChange;
-    },
-    update: function(parameters){
-    },
-    startStopButtonClicked: function(self) {
-      debug && console.log("Start/stop compile was clicked");
-      build.toggleTask('compile');
-    },
-    onPreDeactivate: function() {
-      this.logScroll = this.logView.findScrollState();
-    },
-    onPostActivate: function() {
-      this.logView.applyScrollState(this.logScroll);
-    }
-  });
+      self.recompileOnChange = settings.build.recompileOnChange;
+      self.update = function(parameters){
+      };
+      self.startStopButtonClicked = function(self) {
+        debug && console.log("Start/stop compile was clicked");
+        build.toggleTask('compile');
+      };
+      self.onPreDeactivate = function() {
+        this.logScroll = this.logView.findScrollState();
+      };
+      self.onPostActivate = function() {
+        this.logView.applyScrollState(this.logScroll);
+      };
 
-  return api.Plugin({
-    id: 'compile',
-    name: "Compile & Logs",
-    icon: "B",
-    url: "#compile",
-    routes: {
-      'compile': function() { api.setActiveWidget(compileConsole); }
-    },
-    widgets: [compileConsole],
-    status: compileConsole.status
+      return self;
+    }());
+
+    return {
+      beforeRender: function() {
+        CompileState.onPostActivate();
+      },
+      render: function() {
+        var $compile = $(template)[0];
+        ko.applyBindings(CompileState, $compile);
+        return $compile;
+      },
+      afterRender: function() {
+        CompileState.onPreDeactivate();
+      },
+      route: function(url, breadcrumb) {
+      }
+    };
   });
-});
