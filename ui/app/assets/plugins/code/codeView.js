@@ -64,7 +64,7 @@ define(["text!./viewCode.html", 'main/pluginapi', 'commons/settings'], function(
       // TODO - Grab the extension for now to figure out highlighting...
       this.highlight = highlightModeFor(args.file().name());
       this.file().loadContents();
-      this.focusLine = ko.observable();
+      this.focusLine = ko.observable(null);
     },
     load: function() {
       this.file().loadContents();

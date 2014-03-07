@@ -75,7 +75,7 @@ define([
       editor.setSession(savedSession[location]);
 
       var line = viewModel.focusLine();
-      if (line) {
+      if (line !== null) {
         editor.moveCursorTo(line - 1, 0);
         editor.scrollToRow(line - 1);
         viewModel.focusLine(null);
