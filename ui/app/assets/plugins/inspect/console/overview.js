@@ -12,6 +12,10 @@ define(['text!./overview.html', 'main/pluginapi', './widget', './format'], funct
       this.actors = ko.observable(0);
       this.requests = ko.observable(0);
       this.deviations = ko.observable(0);
+      this.currentStorageTime = ko.observable(0);
+      this.cacheTime = ko.computed(function() {
+        return format.humanReadableDuration(self.currentStorageTime(), "milliseconds");
+      });
       this.hasPlayRequests = ko.computed(function() {
         return self.requests() > 0;
       });
@@ -29,6 +33,7 @@ define(['text!./overview.html', 'main/pluginapi', './widget', './format'], funct
       this.actors(data.metadata.actorPathCount);
       this.requests(data.metadata.playPatternCount);
       this.deviations(data.deviations.deviationCount);
+      this.currentStorageTime(data.currentStorageTime);
     },
     dataRequest: function() {
       return {

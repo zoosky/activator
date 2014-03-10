@@ -55,16 +55,18 @@ object OverviewHandler {
 trait OverviewHandlerBase extends PagingRequestHandler[OverviewSort, OverviewHandler.OverviewModuleInfo] {
   import OverviewHandler._
 
-  def useMetadataStats(sender: ActorRef, stats: MetadataStats, errorStats: ErrorStats): Unit
+  def useMetadataStats(sender: ActorRef, stats: MetadataStats, errorStats: ErrorStats, currentStorageTime: Long): Unit
   def onModuleInformation(sender: ActorRef, mi: OverviewModuleInfo): Unit = withPagingDefaults(mi) { (offset, limit) =>
     val metadataFuture = future { repository.metadataStatsRepository.findFiltered(mi.time, mi.scope, mi.modifiers.anonymous, mi.modifiers.temporary) }
     val spanFuture = future { repository.summarySpanStatsRepository.findMetadata(mi.time, mi.scope, mi.modifiers.anonymous, mi.modifiers.temporary) }
     val deviationFuture = future { repository.errorStatsRepository.findWithinTimePeriod(mi.time, mi.scope.node, mi.scope.actorSystem) }
+    val currentStorageTimeFuture = future { repository.lifecycleRepository.currentStorageTime }
     for {
       metadata <- metadataFuture
       spans <- spanFuture
       deviations <- deviationFuture
-    } useMetadataStats(sender, mergeMetadata(spans, metadata, limit), ErrorStats.concatenate(deviations, mi.time, mi.scope.node, mi.scope.actorSystem))
+      currentStorageTime <- currentStorageTimeFuture
+    } useMetadataStats(sender, mergeMetadata(spans, metadata, limit), ErrorStats.concatenate(deviations, mi.time, mi.scope.node, mi.scope.actorSystem), currentStorageTime)
   }
 }
 
@@ -72,10 +74,11 @@ class OverviewHandler(val repository: AnalyticsRepository,
   builderProps: Props,
   val defaultLimit: Int) extends OverviewHandlerBase {
   val builder = context.actorOf(builderProps, "overviewBuilder")
-  def useMetadataStats(sender: ActorRef, stats: MetadataStats, errorStats: ErrorStats): Unit = {
+  def useMetadataStats(sender: ActorRef, stats: MetadataStats, errorStats: ErrorStats, currentStorageTime: Long): Unit = {
     builder ! OverviewResult(receiver = sender,
       metadata = stats,
-      deviations = errorStats)
+      deviations = errorStats,
+      currentStorageTime = currentStorageTime)
   }
 
 }
