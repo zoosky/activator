@@ -136,7 +136,7 @@ define(function() {
       breadcrumbs = bcs;
     };
 
-    var legacyPlugins = ['compile','test','run','inspect','tutorial','welcome'];
+    var legacyPlugins = ['test','run','inspect','tutorial','welcome'];
     require(['main/plugin','main/model'], function(p,m) {
       // TODO - initialize plugins in a better way perhaps...
       $.each(p.list, function(idx,plugin) {
@@ -198,6 +198,11 @@ define(function() {
 
       // if the current plugin is different from the new then we render the new plugin
       if (current().plugin !== url) {
+        // call the after lifecycle function, if any, on the plugin being switched out
+        if (typeof current().afterRender == 'function') current().afterRender();
+        // call the before lifecycle function, if any, on the plugin begin switched in
+        if (typeof plugin.beforeRender == 'function') plugin.beforeRender();
+        // render the new plugin
         $("#main").empty().append(plugin.render(metaInfo));
         current(plugin);
       }
