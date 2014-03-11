@@ -1,4 +1,8 @@
 <ul class="listing">
+    <li>
+        <span>Data collected since</span>
+        <span data-bind="text: cacheTime()" class="cache counter">&ndash;</span>
+    </li>
     <li class="item">
         <a class="test" href="#inspect/requests"><span data-bind="css: { 'active': hasPlayRequests(), 'inactive': !hasPlayRequests()}">Play requests</span></a>
         <span data-bind="visible: hasPlayRequests(), text: 'Y'" class="error counter">&ndash;</span>

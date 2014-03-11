@@ -11,7 +11,7 @@ class OverviewJsonBuilder extends JsonBuilderActor {
   import OverviewJsonBuilder._
 
   def receive = {
-    case r: OverviewResult => r.receiver ! Update(createJson(r.metadata, r.deviations))
+    case r: OverviewResult => r.receiver ! Update(createJson(r.metadata, r.deviations, r.currentStorageTime))
   }
 }
 
@@ -19,9 +19,9 @@ object OverviewJsonBuilder {
   def props(): Props =
     Props(classOf[OverviewJsonBuilder])
 
-  case class OverviewResult(receiver: ActorRef, metadata: MetadataStats, deviations: ErrorStats)
+  case class OverviewResult(receiver: ActorRef, metadata: MetadataStats, deviations: ErrorStats, currentStorageTime: Long)
 
-  def createJson(metadata: MetadataStats, deviations: ErrorStats): JsObject = {
+  def createJson(metadata: MetadataStats, deviations: ErrorStats, currentStorageTime: Long): JsObject = {
     Json.obj(
       "type" -> "overview",
       "data" ->
@@ -31,6 +31,7 @@ object OverviewJsonBuilder {
               "playPatternCount" -> metadata.metrics.playPatterns.size,
               "actorPathCount" -> metadata.metrics.paths.size),
           "deviations" -> Json.obj(
-            "deviationCount" -> deviations.metrics.counts.total)))
+            "deviationCount" -> deviations.metrics.counts.total),
+          "currentStorageTime" -> currentStorageTime))
   }
 }
