@@ -4,64 +4,65 @@
 define(['services/build', 'main/model', 'text!./run.html', 'main/pluginapi', 'commons/settings', 'widgets/log/log', 'css!./run.css'],
     function(build, model, template, api, settings, LogView, css){
 
+  var logView = new LogView(build.run.outputLog);
 
-  var runConsole = api.PluginWidget({
-    id: 'play-run-widget',
-    template: template,
-    init: function(parameters){
-      var self = this;
+  var RunState = (function(){
+    var self = {};
 
-      this.title = ko.observable("Run");
-      this.startStopLabel = ko.computed(function() {
-        if (build.run.haveActiveTask())
-          return "Stop";
-        else
-          return "Start";
-      }, this);
+    self.title = ko.observable("Run");
+    self.startStopLabel = ko.computed(function() {
+      if (build.run.haveActiveTask())
+        return "Stop";
+      else
+        return "Start";
+    }, this);
 
-      // Aliases so we can use these in our html template.
-      // This is a mess to clean up; we should just alias
-      // 'build' or something then refer to these.
-      // But doing this to keep changes in one commit smaller.
-      // We want to just change the whole 'build' API anyway.
-      this.outputLogView = new LogView(build.run.outputLog);
-      this.playAppLink = build.run.playAppLink;
-      this.playAppStarted = build.run.playAppStarted;
-      this.haveActiveTask = build.run.haveActiveTask;
-      this.haveMainClass = build.run.haveMainClass;
-      this.currentMainClass = build.run.currentMainClass;
-      this.mainClasses = build.run.mainClasses;
-      this.rerunOnBuild = settings.build.rerunOnBuild;
-      this.restartPending = build.run.restartPending;
-      this.consoleCompatible = build.app.hasConsole;
-      this.statusMessage = build.run.statusMessage;
-      this.outputScroll = this.outputLogView.findScrollState();
-    },
-    update: function(parameters){
-    },
-    startStopButtonClicked: function(self) {
+    // Aliases so we can use these in our html template.
+    // This is a mess to clean up; we should just alias
+    // 'build' or something then refer to these.
+    // But doing this to keep changes in one commit smaller.
+    // We want to just change the whole 'build' API anyway.
+    self.outputLogView = logView;
+    self.playAppLink = build.run.playAppLink;
+    self.playAppStarted = build.run.playAppStarted;
+    self.haveActiveTask = build.run.haveActiveTask;
+    self.haveMainClass = build.run.haveMainClass;
+    self.currentMainClass = build.run.currentMainClass;
+    self.mainClasses = build.run.mainClasses;
+    self.rerunOnBuild = settings.build.rerunOnBuild;
+    self.restartPending = build.run.restartPending;
+    self.consoleCompatible = build.app.hasConsole;
+    self.statusMessage = build.run.statusMessage;
+    self.outputScroll = logView.findScrollState();
+
+    self.update = function(parameters){
+    }
+    self.startStopButtonClicked = function(self) {
       debug && console.log("Start or Stop was clicked");
       build.toggleTask('run');
-    },
-    restartButtonClicked: function(self) {
+    }
+    self.restartButtonClicked = function(self) {
       debug && console.log("Restart was clicked");
       build.restartTask('run');
-    },
-    onPreDeactivate: function() {
-      this.outputScroll = this.outputLogView.findScrollState();
-    },
-    onPostActivate: function() {
-      this.outputLogView.applyScrollState(this.outputScroll);
-    }  });
+    }
+    self.onPreDeactivate = function() {
+      RunState.outputScroll = logView.findScrollState();
+    }
+    self.onPostActivate = function() {
+      logView.applyScrollState(RunState.outputScroll);
+    }
 
-  return api.Plugin({
-    id: 'run',
-    name: "Run",
-    icon: "▶",
-    url: "#run",
-    routes: {
-      'run': function() { api.setActiveWidget(runConsole); }
+    return self;
+  }());
+
+  return {
+    render: function() {
+      var $run = $(template)[0];
+      ko.applyBindings(RunState, $run);
+      return $run;
     },
-    widgets: [runConsole]
-  });
+    beforeRender: RunState.onPostActivate,
+    afterRender: RunState.onPreDeactivate,
+    route: function(){}
+  }
 });

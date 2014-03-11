@@ -31,7 +31,7 @@
           <a data-bind="attr: { href: plugins.lookup.test.url }, isActiveUrl: '#test'">Test <span class="working"
             data-bind="visible: build.activity.testing"></span><span class="counter"
             data-bind="text: build.errors.test().length, visible: build.errors.test().length > 0"></span></a>
-          <a data-bind="attr: { href: plugins.lookup.run.url }, isActiveUrl: '#run'">Run <span class="working"
+          <a href="#run" data-bind="isActiveUrl: '#run'">Run <span class="working"
             data-bind="visible: build.activity.launching"></span><span class="counter"
             data-bind="text: build.errors.run().length, visible: build.errors.run().length > 0"></span></a>
           <a data-bind="attr: { href: plugins.lookup.inspect.url }, isActiveUrl: '#inspect'">Inspect <span class="working"
