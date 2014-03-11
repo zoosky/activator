@@ -183,6 +183,8 @@ define(function() {
     // TODO : remove legacy check once all plugins use the new structure
     // First check if this plugin is part of the legacy
     if (legacy.plugins.indexOf(metaInfo.plugin) > -1){
+      // call the after lifecycle function, if any, on the plugin being switched out
+      if (typeof current().afterRender == 'function') current().afterRender();
       legacy.parse(url);
       $("#main").empty();
       return 0;
@@ -195,9 +197,10 @@ define(function() {
     // Structure of plugins are: 'plugins' + pluginName + '/' + pluginName
     // e.g 'plugins/tutorial/tutorial'
     require(['plugins/'+metaInfo.plugin+'/'+metaInfo.plugin], function(plugin) {
+      plugin.id = plugin.id || metaInfo.plugin;
 
       // if the current plugin is different from the new then we render the new plugin
-      if (current().plugin !== url) {
+      if (current().id !== metaInfo.plugin){
         // call the after lifecycle function, if any, on the plugin being switched out
         if (typeof current().afterRender == 'function') current().afterRender();
         // call the before lifecycle function, if any, on the plugin begin switched in
