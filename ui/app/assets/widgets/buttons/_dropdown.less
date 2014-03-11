@@ -123,4 +123,13 @@ article header dl.dropdown {
   &.active dd {
     opacity: 1;
   }
+  &.dropdownRightAlign {
+    dd {
+      left: -200%;
+      //right: 0;
+      &:before {
+        left: 95%;
+      }
+    }
+  }
 }
