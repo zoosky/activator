@@ -5,10 +5,10 @@ define(['main/pluginapi', 'services/build', './console/console', 'services/conne
   function(api, build, Console, Connection, template){
 
     var InspectState = {
-        flush: Connection.flush,
+        reset: Connection.reset,
         consoleWidget: new Console()
     }
-    Connection.flush();
+    Connection.reset();
 
     return {
         render: function() {

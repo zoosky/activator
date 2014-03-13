@@ -7,7 +7,7 @@ define(['webjars!knockout', 'commons/settings', 'services/log', 'commons/utils',
 
   settings.register("build.rerunOnBuild", true);
   settings.register("build.retestOnSuccessfulBuild", false);
-  settings.register("build.automaticFlushInspect", true);
+  settings.register("build.automaticResetInspect", true);
   settings.register("build.recompileOnChange", true);
 
   var Error = utils.Class({
@@ -686,8 +686,8 @@ define(['webjars!knockout', 'commons/settings', 'services/log', 'commons/utils',
       self.activeTask(taskId);
     },
     doRun: function() {
-      if (settings.build.automaticFlushInspect()) {
-        Connection.flush();
+      if (settings.build.automaticResetInspect()) {
+        Connection.reset();
       }
 
       if (this.reloadMainClassPending())
