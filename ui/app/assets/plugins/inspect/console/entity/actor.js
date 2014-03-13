@@ -6,7 +6,7 @@ define(['text!./actor.html', 'main/pluginapi', './../widget', '../format'], func
     init: function(args) {
       var self = this;
       this.parameters = function(params) {
-        self.actorPath(params.toString().replace(/,/g, "/"));
+        self.actorPath(params.toString().replace(/,/g, "/").replace(':', ':/'));
       };
       this.actor = ko.observable();
       this.actorPath = ko.observable();
