@@ -10,6 +10,7 @@ define(['commons/utils'], function(utils) {
       this.sendQueue = [];
       this.modules = [];
       this.request = {};
+      this.reset = $.proxy(this.reset, this);
     },
 
     initTime: function(time) {
@@ -64,8 +65,8 @@ define(['commons/utils'], function(utils) {
       }
     },
 
-    flush: function() {
-      console.log("Flushing inspect statistics");
+    reset: function() {
+      console.log("Resetting inspect statistics");
       this.send({
         "commands": [
           {
