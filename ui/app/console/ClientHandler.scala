@@ -19,7 +19,7 @@ import console.ClientModuleHandler.{ DeviationModule, RequestModule }
 import akka.event.LoggingAdapter
 import com.typesafe.trace.uuid.UUID
 
-trait ClientHandlerBase extends Actor with ActorLogging with ClientModuleHandler {
+trait ClientHandlerBase extends Actor with ActorLogging with ClientModuleHandler with RequestHelpers {
   import ClientController._
 
   def jsonHandlerProps: Props
@@ -54,7 +54,17 @@ trait ClientHandlerBase extends Actor with ActorLogging with ClientModuleHandler
   def onLifecycleRequest(in: LifecycleHandler.LifecycleModuleInfo): Unit = lifecycleHandler ! in
 
   def withHandlers(handlers: Seq[RawInformationBase]): Receive = {
-    case Tick => handlers filter { m => !ClientModuleHandler.oneTimeHandlers.contains(m.handler) } foreach callHandler
+    case Tick =>
+      handlers filter {
+        m => !ClientModuleHandler.oneTimeHandlers.contains(m.handler)
+      } map {
+        // Updates the user defined rolling time window based on the input to "now"
+        m =>
+          m match {
+            case rmi: RawModuleInformation => rmi.copy(time = toTimeRange(rmi.originalTime, log))
+            case x => x
+          }
+      } foreach callHandler
     case Update(js) => channel.push(js)
     case r: HandleRequest => jsonHandler ! r
     case mi: RawInformationBase => callHandler(mi)
@@ -141,7 +151,8 @@ trait RequestHelpers { this: ActorLogging =>
         }
       }
 
-    val time = toTimeRange((js \ "time" \ "rolling").asOpt[String], log)
+    val originalTime = (js \ "time" \ "rolling").asOpt[String]
+    val time = toTimeRange(originalTime, log)
 
     def parseModules(modules: List[InnerModuleInformation]): Seq[RawInformationBase] =
       modules map { i =>
@@ -149,6 +160,7 @@ trait RequestHelpers { this: ActorLogging =>
           case Some(m) => RawModuleInformation(
             handler = m,
             scope = toScope(i.scope, log),
+            originalTime = originalTime,
             time = time,
             pagingInformation = i.pagingInformation,
             dataFrom = i.dataFrom,
@@ -305,6 +317,7 @@ case class RawModuleInformation(
   handler: ClientModuleHandler.Handler,
   scope: Scope,
   modifiers: ScopeModifiers = ScopeModifiers(),
+  originalTime: Option[String],
   time: TimeRange,
   pagingInformation: Option[PagingInformation] = None,
   sortCommand: Option[String],
