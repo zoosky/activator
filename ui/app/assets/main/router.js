@@ -125,7 +125,7 @@ define(function() {
       // If no arguments, take the hash
       url = url || window.location.hash;
       // Split full path in modules
-      var bcs = url ? /^#?\/?(.+)\/?$/.exec(url)[1].split("/") : ['welcome'];
+      var bcs = url ? /^#?\/?(.+)\/?$/.exec(url)[1].split("/") : null;
       // Make arguments to churn through routers...
       var args = createArgs(bcs);
 
@@ -136,7 +136,7 @@ define(function() {
       breadcrumbs = bcs;
     };
 
-    var legacyPlugins = ['tutorial','welcome'];
+    var legacyPlugins = ['tutorial'];
     require(['main/plugin','main/model'], function(p,m) {
       // TODO - initialize plugins in a better way perhaps...
       $.each(p.list, function(idx,plugin) {
@@ -217,7 +217,7 @@ define(function() {
   }
 
   var parseUrl = function(url) {
-    if (!url) url = "tutorial"; // Default plugin
+    if (!url) url = "welcome"; // Default plugin
     if (url[0] === "#") url = url.slice(1); // Remove extra hash
     var plugin = url.split("/")[0]; // Divide the path in sections
     return {

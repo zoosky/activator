@@ -4,16 +4,13 @@
 define(['text!./welcome.html', 'css!./welcome.css', 'main/pluginapi' ], function(template, css, api){
 
 
-  var welcomePage = api.PluginWidget({
-    id: 'welcome-page-screen',
-    template: template,
-    appVersion: window.serverAppVersion,
-    init: function(config) {
-      var self = this;
-      self.newsHtml = ko.observable('<div></div>');
-      self.loadNews();
-    },
-    loadNews: function() {
+  var WelcomeState = (function(){
+    var self = {};
+
+    self.appVersion = window.serverAppVersion
+    self.newsHtml = ko.observable('<div></div>');
+
+    self.loadNews = function() {
       var areq = {
           url: "http://downloads.typesafe.com/typesafe-activator/" + window.serverAppVersion + "/news.js",
           type: 'GET',
@@ -24,8 +21,8 @@ define(['text!./welcome.html', 'css!./welcome.css', 'main/pluginapi' ], function
         };
         debug && console.log("sending ajax news request ", areq)
         return $.ajax(areq);
-    },
-    setNewsJson: function(json) {
+    }
+    self.setNewsJson = function(json) {
       debug && console.log("setting news json to ", json);
       if ('html' in json) {
         this.newsHtml(json.html);
@@ -33,20 +30,20 @@ define(['text!./welcome.html', 'css!./welcome.css', 'main/pluginapi' ], function
         console.error("json does not have an html field");
       }
     }
-  });
 
-  window.setNewsJson = welcomePage.setNewsJson.bind(welcomePage);
+    self.loadNews();
+    return self;
+  }());
 
-  return api.Plugin({
-    id: 'welcome',
-    name: "Welcome",
-    icon: "",
-    url: "#",
-    routes: {
-      'welcome': function(url) {
-        api.setActiveWidget(welcomePage);
-      }
+  window.setNewsJson = WelcomeState.setNewsJson.bind(WelcomeState);
+
+  return {
+    render: function() {
+      var $welcome = $(template)[0];
+      ko.applyBindings(WelcomeState, $welcome);
+      return $welcome;
     },
-    widgets: [welcomePage]
-  });
+    route: function(){}
+  }
+
 });
