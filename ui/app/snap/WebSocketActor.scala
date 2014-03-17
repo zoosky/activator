@@ -36,6 +36,18 @@ abstract class WebSocketActor[MessageType](implicit frameFormatter: FrameFormatt
   private case object Ready extends InternalWebSocketMessage
   private case object InitialReadyTimeout extends InternalWebSocketMessage
   private case object TimeoutAfterHalfCompleted extends InternalWebSocketMessage
+  case class InspectRequest(json: JsValue)
+  object InspectRequest {
+    def unapply(in: JsValue): Option[InspectRequest] = {
+      try if ((in \ "request").as[String] == "InspectRequest")
+        Some(InspectRequest((in \ "location").as[JsValue]))
+      else None
+      catch {
+        case e: JsResultException => None
+      }
+    }
+  }
+  case class InspectResponse()
 
   // This is a consumer which is pushed to by the websocket handler
   private class ActorIteratee[In](val actorWrapper: ActorWrapperHelper) extends Iteratee[In, Unit] {
@@ -159,9 +171,16 @@ abstract class WebSocketActor[MessageType](implicit frameFormatter: FrameFormatt
       case other => log.warning("Received unexpected internal websocket message {}", other)
     }
     case Incoming(message) =>
-      onMessage(message.asInstanceOf[MessageType])
-      // reply with the new iteratee
-      sender ! new ActorIteratee[MessageType](ActorWrapperHelper(self))
+      val msg = message.asInstanceOf[MessageType]
+      // Check what type of message it is to determine where to route the incoming call.
+      msg match {
+        case js: JsValue => js match {
+          case InspectRequest(m) =>
+            for (cActor <- consoleActor) cActor ! HandleRequest(js)
+          case _ => onMessage(msg)
+        }
+        case _ => onMessage(msg)
+      }
     case GetWebSocket =>
       if (createdSocket) {
         log.warning("second connection attempt will fail")

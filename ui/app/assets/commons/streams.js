@@ -70,6 +70,7 @@ define(function() {
    *                   Note: You need to remember the ID to unregister.
    */
   function subscribe(o) {
+    // Copies existing methods (which is needed for Inspect)
     var subscriber = {};
     if(typeof(o) == 'function') {
       subscriber.handler = o
