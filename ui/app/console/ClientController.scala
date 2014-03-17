@@ -12,8 +12,6 @@ import scala.concurrent.duration._
 import scala.concurrent.{ Future, ExecutionContext }
 import controllers.ConsoleController
 import play.api.Play.current
-import console.handler._
-import console.handler.rest._
 
 class ClientController(clientHandlerProps: Props,
   updateInterval: Option[FiniteDuration]) extends Actor with ActorLogging {
@@ -24,9 +22,9 @@ class ClientController(clientHandlerProps: Props,
     updateInterval.map(ui => context.system.scheduler.schedule(ui, ui, self, Tick))
 
   def receive = {
-    case CreateClient(id) =>
+    case ic @ InitializeCommunication(id, _) =>
       if (context.child(id).isEmpty)
-        context.actorOf(clientHandlerProps, id) forward InitializeCommunication
+        context.actorOf(clientHandlerProps, id) forward ic
     case Tick => context.children foreach { _ ! Tick }
     case Shutdown =>
       context.children foreach { _ ! Shutdown }
@@ -39,7 +37,7 @@ object ClientController {
   case class Connection(ref: ActorRef, enum: Enumerator[JsValue])
   case class HandleRequest(payload: JsValue)
   case class Update(js: JsValue)
-  case object InitializeCommunication
+  case class InitializeCommunication(id: String, consumer: ActorRef)
   case object Tick
   case object Shutdown
 

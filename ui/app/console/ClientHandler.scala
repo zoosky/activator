@@ -4,20 +4,16 @@
 package console
 
 import scala.language.implicitConversions
-import akka.actor.{ Props, ActorLogging, Actor, ActorRef }
+import akka.actor.{ ActorRef, Props, ActorLogging, Actor }
 import console.handler._
 import play.api.libs.iteratee.Concurrent
 import play.api.libs.json._
 import scala.collection.Seq
 import activator.analytics.data.{ TimeRange, Scope }
-import scala.reflect.ClassTag
 import activator.analytics.rest.http.SortingHelpers.{ Descending, Ascending, SortDirection }
-import scala.util.{ Failure, Success, Try }
-import akka.event.LoggingAdapter
-import scala.util.matching.Regex
-import console.ClientModuleHandler.{ DeviationModule, RequestModule }
 import akka.event.LoggingAdapter
 import com.typesafe.trace.uuid.UUID
+import snap.OutgoingMessage
 
 trait ClientHandlerBase extends Actor with ActorLogging with ClientModuleHandler with RequestHelpers {
   import ClientController._
@@ -53,6 +49,8 @@ trait ClientHandlerBase extends Actor with ActorLogging with ClientModuleHandler
   def onDeviationRequest(in: DeviationHandler.DeviationModuleInfo): Unit = deviationHandler ! in
   def onLifecycleRequest(in: LifecycleHandler.LifecycleModuleInfo): Unit = lifecycleHandler ! in
 
+  var producer: Option[ActorRef] = None
+
   def withHandlers(handlers: Seq[RawInformationBase]): Receive = {
     case Tick =>
       handlers filter {
@@ -65,10 +63,13 @@ trait ClientHandlerBase extends Actor with ActorLogging with ClientModuleHandler
             case x => x
           }
       } foreach callHandler
-    case Update(js) => channel.push(js)
+    case Update(js) => for (p <- producer) p ! OutgoingMessage(js)
     case r: HandleRequest => jsonHandler ! r
     case mi: RawInformationBase => callHandler(mi)
-    case InitializeCommunication => sender ! Connection(self, enum)
+    case InitializeCommunication(id, producer) =>
+      this.producer = Some(producer)
+      sender ! InitializeCommunication(id, self)
+
     case RegisterModules(newHandlers) =>
       // Only module handlers should be registered -
       // commands should not because they will only be invoked once and should not affect the module handlers.
@@ -130,7 +131,11 @@ class JsonHandler extends Actor with ActorLogging with RequestHelpers {
   import JsonHandler._
 
   def receive = {
-    case HandleRequest(js) => sender ! RegisterModules(parseRequest(js, log))
+    case HandleRequest(js) =>
+      // The json we're interested in resides under "location" since we reuse the common structure used for sbt communication
+      // It could be improved but since the WS structure is going to be overhauled I figured we can keep this crap for now... (famous last words)
+      val unbakedJson = (js \ "location").as[JsValue]
+      sender ! RegisterModules(parseRequest(unbakedJson, log))
   }
 }
 

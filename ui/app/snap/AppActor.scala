@@ -11,6 +11,7 @@ import java.net.URLEncoder
 import play.api.libs.concurrent.Execution.Implicits.defaultContext
 import scala.concurrent.duration._
 import play.api.libs.json._
+import console.ClientController.HandleRequest
 
 sealed trait AppRequest
 
@@ -27,6 +28,18 @@ sealed trait AppReply
 case class TaskActorReply(ref: ActorRef) extends AppReply
 case object WebSocketAlreadyUsed extends AppReply
 case class WebSocketCreatedReply(created: Boolean) extends AppReply
+
+case class InspectRequest(json: JsValue)
+object InspectRequest {
+  def unapply(in: JsValue): Option[InspectRequest] = {
+    try if ((in \ "request").as[String] == "InspectRequest")
+      Some(InspectRequest((in \ "location").as[JsValue]))
+    else None
+    catch {
+      case e: JsResultException => None
+    }
+  }
+}
 
 class AppActor(val config: AppConfig, val sbtProcessLauncher: SbtProcessLauncher) extends Actor with ActorLogging {
 
@@ -239,6 +252,7 @@ class AppActor(val config: AppConfig, val sbtProcessLauncher: SbtProcessLauncher
   class AppSocketActor extends WebSocketActor[JsValue] with ActorLogging {
     override def onMessage(json: JsValue): Unit = {
       json match {
+        case InspectRequest(m) => for (cActor <- consoleActor) cActor ! HandleRequest(json)
         case WebSocketActor.Ping(ping) => produce(WebSocketActor.Pong(ping.cookie))
         case _ => log.info("unhandled message on web socket: {}", json)
       }

@@ -1,103 +1,60 @@
 /*
  Copyright (C) 2014 Typesafe, Inc <http://typesafe.com>
  */
-define(['commons/utils'], function(utils) {
+define(['commons/utils', 'commons/streams'], function(utils, streams) {
 
   var Connection = utils.Class({
+
     init: function() {
-      this.webSocket = null;
-      this.connected = false;
-      this.sendQueue = [];
+      var self = this;
+      this.reset =
+        function() {
+          self.send({
+            "commands": [
+              {
+                "module": "lifecycle",
+                "command": "reset"
+              }]
+          })
+        };
+      this.send =
+        function(message) {
+          var fullMessage = {
+            request: 'InspectRequest',
+            location: message
+          };
+
+          debug && console.log("Sending message: ", fullMessage);
+          streams.send(fullMessage);
+        };
       this.modules = [];
       this.request = {};
-      this.reset = $.proxy(this.reset, this);
+      this.request.time = { "startTime": "", "endTime": "", "rolling": "20minutes" };
     },
 
-    initTime: function(time) {
-      this.request.time = time;
-    },
-
-    open: function(url, onOpenCallback) {
-      var self = this;
-      self.close();
-
-      var webSocket = new WebSocket(url);
-      webSocket.onerror = function(event) {
-        console.log("Console WebSocket error: " + event);
-      }
-
-      webSocket.onopen = function(event) {
-        self.connected = true;
-        console.log("Console WebSocket opened: " + event);
-        var messages = self.sendQueue;
-        self.resetSendQueue();
-        if (messages != undefined) {
-          for (var i = 0; i < messages.length; i++) {
-            self.send(messages[i]);
-          }
-        }
-
-        if (onOpenCallback != undefined) {
-          onOpenCallback(event);
-        }
-      }
-
-      webSocket.onmessage = function(event) {
-        self.receive(event.data);
-      }
-
-      webSocket.onclose = function(event) {
-        console.log("Console WebSocket closing: " + event);
-      }
-
-      self.webSocket = webSocket;
-    },
-
-    resetSendQueue: function() {
-      this.sendQueue = [];
-    },
-
-    close: function() {
-      if (this.webSocket != undefined) {
-        this.connected = false;
-        this.webSocket.close();
-        this.resetSendQueue();
-      }
-    },
-
-    reset: function() {
-      console.log("Resetting inspect statistics");
-      this.send({
-        "commands": [
-          {
-            "module": "lifecycle",
-            "command": "reset"
-          }]
-      })
-    },
-
-    send: function(message) {
-      var json = JSON.stringify(message);
-
-      if (this.connected) {
-        this.webSocket.send(json);
-      } else {
-        this.sendQueue.push(json);
-      }
-    },
-
-    receive: function (message) {
+    handler: function(event) {
       try {
-        var json = JSON.parse(message);
-
         for(var i = 0; i < this.modules.length; i++) {
           var module = this.modules[i];
-          if (module.dataTypes != undefined && json.type == module.dataTypes) {
-            module.onData(json.data);
+          if (module.dataTypes != undefined && event.type == module.dataTypes) {
+            module.onData(event.data);
           }
         }
       } catch(error) {
+        debug && console.log("Error in receive method: ", error)
       }
+    },
+
+    filter: function(event) {
+      var t = event.type;
+      if (t == 'overview' ||
+        t == 'actor' ||
+        t == 'actors' ||
+        t == 'deviation' ||
+        t == 'deviations' ||
+        t == 'request' ||
+        t == 'requests') return true;
+      return false;
     },
 
     updateModules: function(ms) {

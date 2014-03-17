@@ -74,7 +74,7 @@ define(function() {
     if(typeof(o) == 'function') {
       subscriber.handler = o
     } else {
-      subscriber.handler = o.handler;
+      subscriber = o;
     }
     subscriber.filter = o.filter || allPass;
     subscriber.id = o.id || randomId();
