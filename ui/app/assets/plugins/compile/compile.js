@@ -1,7 +1,7 @@
 /*
  Copyright (C) 2013 Typesafe, Inc <http://typesafe.com>
  */
-define(['text!./compile.html', 'main/plugins', 'main/pluginapi', 'services/build', 'commons/settings', 'widgets/log/log', 'css!./compile.css'],
+define(['text!./compile.html', 'main/plugins', 'main/pluginapi', 'services/build', 'commons/settings', 'widgets/log/log', 'css!./compile.css', "widgets/navigation/menu"],
   function(template, plugins, api, build, settings, LogView) {
 
     var logView = new LogView(build.log);
