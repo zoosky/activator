@@ -1,44 +1,50 @@
-<div data-bind="visible: hasActors">
-    <article class="actors" data-bind="hoverPopup: 'hoverPopup'">
-        <section class="withFooter">
-            <table class="sortable">
-                <thead>
-                    <tr>
-                        <th rowspan="2" data-bind="click: changeSort('actor'), css: { sortBy: 'actor' == sortBy() }" class="sortBy"><span>Actor</span></th>
+<article class="actors" data-bind="hoverPopup: 'hoverPopup'">
+    <header>
+        <h1>Actors</h1>
+    </header>
+    <section class="withFooter">
+        <div id="splash" data-bind="visible: !hasActors()">
+        You can see actor information here but so far there has been no activity in your application or<br>
+        <br>
+        you're running an unsupported version of Akka (>2.2.1).
+        </div>
+        <table class="sortable"  data-bind="visible: hasActors">
+            <thead>
+                <tr>
+                    <th rowspan="2" data-bind="click: changeSort('actor'), css: { sortBy: 'actor' == sortBy() }" class="sortBy"><span>Actor</span></th>
 
-                        <th rowspan="2" data-bind="click: changeSort('throughput'), css: { sortBy: 'throughput' == sortBy() }" class="right"><span>Throughput</span></th>
+                    <th rowspan="2" data-bind="click: changeSort('throughput'), css: { sortBy: 'throughput' == sortBy() }" class="right"><span>Throughput</span></th>
 
-                        <th colspan="2" class="center">Mailbox</th>
+                    <th colspan="2" class="center">Mailbox</th>
 
-                        <th rowspan="2" data-bind="click: changeSort('deviation'), css: { sortBy: 'deviation' == sortBy() }" class="right"><span>Deviations</span></th>
-                    </tr>
-                    <tr class="legend">
-                        <th data-bind="click: changeSort('maxTimeInMailbox'), css: { sortBy: 'maxTimeInMailbox' == sortBy() }" class="right"><span>Max Time</span></th>
-                        <th data-bind="click: changeSort('maxMailboxSize'), css: { sortBy: 'maxMailboxSize' == sortBy() }" class="right"><span>Max Size</span></th>
-                    </tr>
-                </thead>
-                
-                <tbody class="listing" data-bind="foreach: actors">
-                    <tr>
-                        <td class="name">
-                            <div data-bind="if: !isSystemActor(actorLink)">
-                                <a href="#" data-bind="text: path, attr: { href: actorLink, 'data-hover-text': hover }">
-                                    <!-- ko foreach: prefix--><!-- ko text: $data--><!-- /ko -->/<wbr><!-- /ko --><strong data-bind="text: name, attr: { 'data-hover-text': hover }"></strong>
-                                </a>
-                            </div>
-                            <div data-bind="if: isSystemActor(actorLink)">
-                                <span data-bind="text: path"></span>
-                            </div>
-                        </td>
-                        <td class="throughput right" data-bind="text: throughput"></td>
-                        <td class="maxTimeInMailbox right" data-bind="text: maxTimeInMailbox"></td>
-                        <td class="maxMailboxSize right" data-bind="text: maxMailboxSize"></td>
-                        <td class="deviation-counter right" data-bind="text: deviations"></td>
-                    </tr>
-                </tbody>
-            </table>
-        </section>
-
+                    <th rowspan="2" data-bind="click: changeSort('deviation'), css: { sortBy: 'deviation' == sortBy() }" class="right"><span>Deviations</span></th>
+                </tr>
+                <tr class="legend">
+                    <th data-bind="click: changeSort('maxTimeInMailbox'), css: { sortBy: 'maxTimeInMailbox' == sortBy() }" class="right"><span>Max Time</span></th>
+                    <th data-bind="click: changeSort('maxMailboxSize'), css: { sortBy: 'maxMailboxSize' == sortBy() }" class="right"><span>Max Size</span></th>
+                </tr>
+            </thead>
+            
+            <tbody class="listing" data-bind="foreach: actors">
+                <tr>
+                    <td class="name">
+                        <div data-bind="if: !isSystemActor(actorLink)">
+                            <a href="#" data-bind="text: path, attr: { href: actorLink, 'data-hover-text': hover }">
+                                <!-- ko foreach: prefix--><!-- ko text: $data--><!-- /ko -->/<wbr><!-- /ko --><strong data-bind="text: name, attr: { 'data-hover-text': hover }"></strong>
+                            </a>
+                        </div>
+                        <div data-bind="if: isSystemActor(actorLink)">
+                            <span data-bind="text: path"></span>
+                        </div>
+                    </td>
+                    <td class="throughput right" data-bind="text: throughput"></td>
+                    <td class="maxTimeInMailbox right" data-bind="text: maxTimeInMailbox"></td>
+                    <td class="maxMailboxSize right" data-bind="text: maxMailboxSize"></td>
+                    <td class="deviation-counter right" data-bind="text: deviations"></td>
+                </tr>
+            </tbody>
+        </table>
+    </section>
         <footer class="filters fourFilters">
             <p class="showing">
                 Showing <span class="itemsShown" data-bind="text: actors().length">?</span>
@@ -69,9 +75,4 @@
             </p>
         </footer>
     </article>
-</div>
-<div id="splash" data-bind="visible: !hasActors()">
-    You can see actor information here but so far there has been no activity in your application or<br>
-    <br>
-    you're running an unsupported version of Akka (>2.2.1).
 </div>
