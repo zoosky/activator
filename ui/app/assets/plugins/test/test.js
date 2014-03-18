@@ -5,7 +5,8 @@ define([
   "main/plugins",
   "text!./test.html",
   'services/build',
-  "css!./test"
+  "css!./test",
+  "widgets/navigation/menu"
 ], function(
   plugins,
   template,
