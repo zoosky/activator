@@ -13,28 +13,41 @@ import activator._
 
 // THE API for the HomePage actor.
 object HomePageActor {
+  import play.api.libs.json._
+  import play.api.libs.json.Json._
+  import play.api.libs.functional.syntax._
+  import JsonHelper._
+
   case class OpenExistingApplication(location: String)
+
   object OpenExistingApplication {
+    val tag = "OpenExistingApplication"
+    implicit val openExistingApplicationReads: Reads[OpenExistingApplication] =
+      extractRequest[OpenExistingApplication](tag)((__ \ "location").read[String].map(OpenExistingApplication.apply _))
+    implicit val openExistingApplicationWrites: Writes[OpenExistingApplication] =
+      emitRequest(tag)(in => obj("location" -> in.location))
+
     def unapply(in: JsValue): Option[OpenExistingApplication] =
-      try if ((in \ "request").as[String] == "OpenExistingApplication")
-        Some(OpenExistingApplication((in \ "location").as[String]))
-      else None
-      catch {
-        case e: JsResultException => None
-      }
+      Json.fromJson[OpenExistingApplication](in).asOpt
   }
   case class CreateNewApplication(location: String, templateId: String, projectName: Option[String])
   object CreateNewApplication {
-    def unapply(in: JsValue): Option[CreateNewApplication] =
-      try if ((in \ "request").as[String] == "CreateNewApplication")
-        Some(CreateNewApplication(
-          (in \ "location").as[String],
-          (in \ "template").asOpt[String] getOrElse "",
-          (in \ "name").asOpt[String]))
-      else None
-      catch {
-        case e: JsResultException => None
+    val tag = "CreateNewApplication"
+    implicit val createNewApplicationReads: Reads[CreateNewApplication] =
+      extractRequest(tag) {
+        ((__ \ "location").read[String] and
+          (__ \ "template").readNullable[String] and
+          (__ \ "name").readNullable[String])((l, t, n) => CreateNewApplication(l, t.getOrElse(""), n))
       }
+    implicit val createNewApplicationWrites: Writes[CreateNewApplication] =
+      emitRequest(tag) { in =>
+        obj("location" -> in.location,
+          "template" -> in.templateId,
+          "name" -> in.projectName)
+      }
+
+    def unapply(in: JsValue): Option[CreateNewApplication] =
+      Json.fromJson[CreateNewApplication](in).asOpt
   }
   object RedirectToApplication {
     def apply(id: String): JsValue =
