@@ -164,16 +164,9 @@ abstract class WebSocketActor[MessageType](implicit frameFormatter: FrameFormatt
       case other => log.warning("Received unexpected internal websocket message {}", other)
     }
     case Incoming(message) =>
-      val msg = message.asInstanceOf[MessageType]
-      // Check what type of message it is to determine where to route the incoming call.
-      msg match {
-        case js: JsValue => js match {
-          case InspectRequest(m) =>
-            for (cActor <- consoleActor) cActor ! HandleRequest(js)
-          case _ => onMessage(msg)
-        }
-        case _ => onMessage(msg)
-      }
+      onMessage(message.asInstanceOf[MessageType])
+      // reply with the new iteratee
+      sender ! new ActorIteratee[MessageType](ActorWrapperHelper(self))
     case GetWebSocket =>
       if (createdSocket) {
         log.warning("second connection attempt will fail")
