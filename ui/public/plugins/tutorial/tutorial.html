@@ -31,11 +31,12 @@
     </article>
    /ko -->
   <!-- ko if: page -->
+  <section class="wrapper">
     <header>
       <h1 data-bind="text: page().title"></h1>
     </header>
-    <article class="page">
-      <section class="typo" data-bind="html: page().page"></section>
+    <article class="page typo" data-bind="html: page().page">
     </article>
+  </section>
   <!-- /ko -->
 </article>

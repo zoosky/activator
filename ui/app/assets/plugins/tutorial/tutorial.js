@@ -24,9 +24,9 @@ define([
   var TutorialState   = new function(){
     var self = this;
 
-    this.tutorial     = tutorialService.getTutorial();
-    this.table        = tutorialService.getTable();
-    this.page         = ko.observable();
+    this.tutorial     = tutorialService.getTutorial(null);
+    this.table        = tutorialService.getTable(null);
+    this.page         = ko.observable(null);
 
     this.gotoPrevPage = function(){
       self.gotoPage(self.page().index-1 || 0);
@@ -81,7 +81,8 @@ define([
 
     // We can't use memorizeUrl because the pannel can modify the url
     route: function(url, breadcrumb) {
-      if (url.parameters[0] === void 0 || url.parameters[0] === "") {
+      // TODO: Add introduction view
+      if (url.parameters[0] === undefined || url.parameters[0] === "") {
         if (TutorialState.page()){
           router.redirect('tutorial/'+TutorialState.page().index)
         } else {
