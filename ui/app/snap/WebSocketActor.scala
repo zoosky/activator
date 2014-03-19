@@ -13,12 +13,9 @@ import play.api.libs.iteratee._
 import scala.collection.immutable.Queue
 import play.api.mvc.WebSocket.FrameFormatter
 import console.ConsolePlugin
-import console.ClientController.{ HandleRequest, InitializeCommunication }
-import play.api.libs.json.{ JsResultException, JsValue }
+import console.ClientController.InitializeCommunication
 import JsonHelper._
-import play.api.libs.json._
 import play.api.libs.json.Json._
-import play.api.libs.functional.syntax._
 
 private case object Ack
 
