@@ -2,10 +2,9 @@ package snap
 
 import org.junit.Assert._
 import org.junit._
-import WebSocketActor._
 import play.api.libs.json._
 
-class WebSocketActorTest {
+class AppActorTest {
   @Test
   def testMessageSerialization(): Unit = {
     val message1 = InspectRequest(Json.obj("foo" -> "bar"))

@@ -10,8 +10,11 @@ import java.io.File
 import java.net.URLEncoder
 import play.api.libs.concurrent.Execution.Implicits.defaultContext
 import scala.concurrent.duration._
-import play.api.libs.json._
 import console.ClientController.HandleRequest
+import JsonHelper._
+import play.api.libs.json._
+import play.api.libs.json.Json._
+import play.api.libs.functional.syntax._
 
 sealed trait AppRequest
 
@@ -31,14 +34,15 @@ case class WebSocketCreatedReply(created: Boolean) extends AppReply
 
 case class InspectRequest(json: JsValue)
 object InspectRequest {
-  def unapply(in: JsValue): Option[InspectRequest] = {
-    try if ((in \ "request").as[String] == "InspectRequest")
-      Some(InspectRequest((in \ "location").as[JsValue]))
-    else None
-    catch {
-      case e: JsResultException => None
-    }
-  }
+  val tag = "InspectRequest"
+
+  implicit val inspectRequestReads: Reads[InspectRequest] =
+    extractRequest[InspectRequest](tag)((__ \ "location").read[JsValue].map(InspectRequest.apply _))
+
+  implicit val inspectRequestWrites: Writes[InspectRequest] =
+    emitRequest(tag)(in => obj("location" -> in.json))
+
+  def unapply(in: JsValue): Option[InspectRequest] = Json.fromJson[InspectRequest](in).asOpt
 }
 
 class AppActor(val config: AppConfig, val sbtProcessLauncher: SbtProcessLauncher) extends Actor with ActorLogging {
