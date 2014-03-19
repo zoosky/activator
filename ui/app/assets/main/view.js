@@ -19,7 +19,7 @@ define([
         .append($(header)[0])
         .append($(navigation)[0])
         .append($(wrapper)[0])
-        .append($(pannels)[0]);
+        // .append($(pannels)[0]);
 
       ko.applyBindings(model, document.body);
     }
