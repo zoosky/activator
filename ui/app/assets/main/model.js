@@ -27,7 +27,6 @@ define(['./router', 'commons/settings', 'services/build', './keyboard', './omnis
     // make this available in knockout bindings
     omnisearch: omnisearch,
     navigation: navigation,
-    panel: panel,
     build: build,
     notifications: new Notifications()
   }

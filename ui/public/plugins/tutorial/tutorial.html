@@ -2,40 +2,24 @@
   <nav class="menu" data-bind="memoScroll: 'tutorialMenu'">
     <header>
       <h1>Tutorial</h1>
-      <!-- ko if: page -->
       <div class="nextPrev">
-        <button class="prev" data-bind="click: gotoPrevPage, css: {disabled: noPrevPage}"></button><button class="next" data-bind="click: gotoNextPage, css: {disabled: noNextPage}"></button>
+        <button class="prev" data-bind="click: gotoPrevPage, css: {disabled: !hasPrevPage()}"></button><button class="next" data-bind="click: gotoNextPage, css: {disabled: !hasNextPage()}"></button>
       </div>
-      <!-- /ko -->
     </header>
     <div class="list links">
       <ul data-bind="foreach: table">
-        <li data-bind="isActive: '#tutorial/' + $index()">
+        <li data-bind="isActiveUrl: '#tutorial/' + $index()">
           <a data-bind="href: '#tutorial/' + $index(), text: $data"></a>
         </li>
       </ul>
     </div>
   </nav>
-  <!-- -ko ifnot: page 
-    <article class="intro typo">
-      <div class="description">
-        <h1>Tutorial Name</h1>
-        <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras vitae lorem at neque mollis viverra eu eu tortor. Vivamus at viverra risus. Quisque scelerisque felis purus, a tempor elit vulputate tempor. Sed pharetra condimentum elementum. Aliquam lobortis, metus ut luctus commodo, neque justo cursus diam, eu semper augue dui a erat. Praesent eget augue dignissim, aliquet erat lobortis, feugiat dui.</p>
-        <p class="author"><cite>by John Does (<a href="//twitter.com/johndoe">@@johndoe</a>) - </cite><a class="source" href="http://github.com/johndoe/activator-akka-spray">http://github.com/johndoe/activator-akka-spray</a></p>
-      </div>
-      <div class="training">
-        <a href="http://partner.com" target="_blank"><img src="http://dommkopfq6m1m.cloudfront.net/assets/1387589794721/images/partners/svcs/chariot.png"></a>
-        <h3>Typesafe Training Partner</h3>
-        <p>Maecenas lorem arcu, tristique ut accumsan ac, ultricies non nulla. Pellentesque adipiscing venenatis risus at faucibus. In vehicula fermentum enim et placerat.</p>
-      </div>
-    </article>
-   /ko -->
   <!-- ko if: page -->
-  <section class="wrapper">
+  <section>
     <header>
       <h1 data-bind="text: page().title"></h1>
     </header>
-    <article class="page typo" data-bind="html: page().page">
+    <article class="page typo wrapper" data-bind="html: page().page">
     </article>
   </section>
   <!-- /ko -->

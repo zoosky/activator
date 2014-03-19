@@ -13,6 +13,40 @@
     header {
       background: none;
     }
+    .nextPrev {
+      position: absolute;
+      top: 15px;
+      right: 15px;
+    }
+    button {
+      border: 1px solid @white-dkr;
+      background: url(/public/images/prevNext.svg) no-repeat;
+      width: 27px;
+      height: 24px;
+      line-height: 15px;
+      color: @white-dkr;
+      font-weight: 900;
+      font-size: 14px;
+      &.disabled {
+        pointer-events: none;
+        color: @grey-ltr;
+      }
+      &.prev {
+        border-radius: 2px 0 0 2px;
+        border-right: none;
+        background-position: -30px 0;
+        &.disabled {
+          background-position: -30px -30px;
+        }
+      }
+      &.next {
+        border-radius: 0 2px 2px 0;
+        background-position: 0 0;
+        &.disabled {
+          background-position: 0 -30px;
+        }
+      }
+    }
   }
   > header {
     position: absolute;
@@ -26,92 +60,6 @@
     padding: 10px 20px;
     width: 100%;
     overflow: auto;
-    background: none;
-    background: white;
-    color: #6F7F89;
-    line-height: 1.3em;
-    font-size: 13.5px;
-    a {
-      color: #E25758;
-    }
-    a.shortcut {
-      background: #E25758;
-      color: #FFFFFF;
-      letter-spacing: 0.12em;
-      border-radius: 2px;
-      padding: 0 4px;
-      margin: 0 3px;
-      white-space: nowrap;
-      &:before {
-        content: "\E75D";
-        font: 15px icons;
-        line-height: 15px;
-        display: inline-block;
-        padding-right: 5px;
-        height: 12px;
-      }
-    }
-    .monospace {
-      font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', 'Consolas', 'source-code-pro', monospace;
-      font-size: 13px;
-    }
-    code {
-      .monospace;
-    }
-    pre {
-      .monospace;
-      padding: 0.5em 0;
-      margin-bottom: 1em;
-      border: 1px solid #eee;
-      border-width: 1px 0;
-    }
-    h1, h2, h3 {
-      background-color: transparent;
-      color: #364550;
-      font-weight: bold;
-      padding: 0;
-      margin: 0;
-      white-space: nowrap;
-    }
-    h1 {
-      height: 40px;
-      line-height: 40px;
-      font-size: 1.4em;
-    }
-    h2 {
-      height: 30px;
-      line-height: 30px;
-      font-size: 1.2em;
-    }
-    h3 {
-      height: 25px;
-      line-height: 25px;
-      font-size: 1.1em;
-    }
-    p {
-      margin: 1em 0;
-    }
-    ul, ol {
-      margin: 10px 0;
-      padding-left: 40px;
-      li {
-        margin: 5px 0;
-      }
-    }
-    ul li {
-      list-style-type: square;
-    }
-    ol li {
-      list-style-type: decimal;
-    }
-    strong {
-      font-weight: bold;
-    }
-    img {
-      max-width: 100%;
-      height: auto;
-      cursor: pointer;
-    }
   }
   span.tutorialreload {
     font-size: 1.0em;

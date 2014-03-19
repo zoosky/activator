@@ -6,15 +6,15 @@ define([
   "main/router",
   "services/tutorial",
   "text!./tutorial.html",
-  // "text!templates/tutorial-pannel.html",
+  "text!./tutorial-panel.html",
   "css!./tutorial",
   "css!widgets/navigation/menu"
 ], function(
   plugins,
   router,
   tutorialService,
-  template
-  // templatePannel
+  template,
+  templatePanel
 ){
 
   var ifCurrentPlugin = function() {
@@ -29,10 +29,12 @@ define([
     this.page         = ko.observable(null);
 
     this.gotoPrevPage = function(){
-      self.gotoPage(self.page().index-1 || 0);
+      if (self.hasPrevPage())
+        self.gotoPage(self.page().index-1);
     }
     this.gotoNextPage = function(){
-      self.gotoPage(self.page().index+1 || 0);
+      if (self.hasNextPage())
+        self.gotoPage(self.page().index+1);
     }
     this.gotoPage = function(i){
       // Tutorial may not be loaded
@@ -49,15 +51,15 @@ define([
       }
     }
 
-    this.noPrevPage  = ko.computed(function(){
+    this.hasPrevPage  = ko.computed(function(){
       if (self.page())
-        return self.page().index == 0;
+        return self.page().index != 0;
       else
         return false;
     });
-    this.noNextPage  = ko.computed(function(){
+    this.hasNextPage  = ko.computed(function(){
       if (self.page())
-        return self.page().index == (self.table().length-1);
+        return self.page().index != (self.table().length-1);
       else
         return false;
     });
@@ -71,15 +73,14 @@ define([
       return $tutorial;
     },
 
-    // TODO: put this back when Pannels are re-activated
-    // renderPannel: function() {
-    //   var $templatePannel = $(templatePannel)[0];
-    //   $('.dropdown',$templatePannel).dropdown();
-    //   ko.applyBindings(TutorialState, $templatePannel);
-    //   $("#pannelWrapper").replaceWith($templatePannel);
-    // },
+    renderPanel: function() {
+      if (!TutorialState.page()) TutorialState.gotoPage(0);
+      var $templatePanel = $(templatePanel)[0];
+      ko.applyBindings(TutorialState, $templatePanel);
+      return  $templatePanel;
+    },
 
-    // We can't use memorizeUrl because the pannel can modify the url
+    // We can't use memorizeUrl because the panel can modify the url
     route: function(url, breadcrumb) {
       // TODO: Add introduction view
       if (url.parameters[0] === undefined || url.parameters[0] === "") {
@@ -99,9 +100,9 @@ define([
 
     // TODO : Plugin this when keyboard is introduced
     // keyboard: function(key) {
-    //   if (key == "TOP" && !TutorialState.noPrevPage()) {
+    //   if (key == "TOP" && TutorialState.hasPrevPage()) {
     //     TutorialState.gotoPrevPage();
-    //   } else if (key == "BOTTOM" && !TutorialState.noNextPage()) {
+    //   } else if (key == "BOTTOM" && TutorialState.hasNextPage()) {
     //     TutorialState.gotoNextPage();
     //   }
     // }
