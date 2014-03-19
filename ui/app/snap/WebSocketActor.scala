@@ -12,7 +12,13 @@ import play.api._
 import play.api.libs.iteratee._
 import scala.collection.immutable.Queue
 import play.api.mvc.WebSocket.FrameFormatter
-import play.api.mvc._
+import console.ConsolePlugin
+import console.ClientController.{ HandleRequest, InitializeCommunication }
+import play.api.libs.json.{ JsResultException, JsValue }
+import JsonHelper._
+import play.api.libs.json._
+import play.api.libs.json.Json._
+import play.api.libs.functional.syntax._
 
 private case object Ack
 
@@ -24,6 +30,7 @@ private case object CloseWebSocket
 // There's probably a better approach, oh well.
 abstract class WebSocketActor[MessageType](implicit frameFormatter: FrameFormatter[MessageType], mf: Manifest[MessageType]) extends Actor with ActorLogging {
   import WebSocketActor.timeout
+  import WebSocketActor._
   private implicit def ec: ExecutionContext = context.system.dispatcher
 
   protected sealed trait WebSocketMessage
@@ -94,6 +101,15 @@ abstract class WebSocketActor[MessageType](implicit frameFormatter: FrameFormatt
   override val supervisorStrategy = SupervisorStrategy.stoppingStrategy
 
   private val producerActorWrapper = ActorWrapperHelper(context.actorOf(Props(new ProducerProxy[MessageType]), name = "producer"))
+
+  // Hook Console related actors up with this actor by initializing the communication.
+  // A reply with a reference to the console actor will be sent to "self" (see internalReceive below).
+  def plugin(implicit app: play.api.Application): ConsolePlugin =
+    app.plugin(classOf[ConsolePlugin]).getOrElse(throw new RuntimeException("The Console plugin does not exist"))
+
+  implicit val ctx = play.api.Play.current
+  plugin.clientHandlerActor ! InitializeCommunication(id = "Actor" + System.currentTimeMillis, consumer = producerActorWrapper.actor)
+  var consoleActor: Option[ActorRef] = None
 
   override def preStart(): Unit = {
     log.debug("starting")
@@ -179,6 +195,8 @@ abstract class WebSocketActor[MessageType](implicit frameFormatter: FrameFormatt
     case CloseWebSocket =>
       log.debug("got CloseWebSocket poisoning the producer")
       producerActorWrapper.actor ! PoisonPill
+    case InitializeCommunication(_, ref) =>
+      consoleActor = Some(ref)
   }
 
   final override def receive = internalReceive orElse subReceive
@@ -210,6 +228,20 @@ object WebSocketActor {
   implicit val timeout = Timeout(20.seconds)
   import play.api.mvc.WebSocket
   import play.api.libs.json._
+
+  case class InspectRequest(json: JsValue)
+  object InspectRequest {
+    val tag = "InspectRequest"
+    implicit val inspectRequestReads: Reads[InspectRequest] =
+      extractRequest[InspectRequest](tag)((__ \ "location").read[JsValue].map(InspectRequest.apply _))
+
+    implicit val inspectRequestWrites: Writes[InspectRequest] =
+      emitRequest(tag)(in => obj("location" -> in.json))
+
+    def unapply(in: JsValue): Option[InspectRequest] = Json.fromJson[InspectRequest](in).asOpt
+  }
+
+  case class InspectResponse()
 
   case class Ping(cookie: String)
   case object Ping {
@@ -254,11 +286,11 @@ object WebSocketActor {
   }
 }
 
-private sealed trait ProducerProxyMessage
+sealed trait ProducerProxyMessage
 private case class OutgoingReady[Out](channel: Concurrent.Channel[Out]) extends ProducerProxyMessage
 private case object OutgoingComplete extends ProducerProxyMessage
 private case class OutgoingError[Out](s: String, input: Input[Out]) extends ProducerProxyMessage
-private case class OutgoingMessage[Out](message: Out) extends ProducerProxyMessage
+case class OutgoingMessage[Out](message: Out) extends ProducerProxyMessage
 private case object GetProducer extends ProducerProxyMessage
 
 private sealed trait ProducerProxyReply

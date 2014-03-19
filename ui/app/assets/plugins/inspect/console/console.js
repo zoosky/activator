@@ -11,10 +11,6 @@ define(['text!./console.html', 'css!./console.css', 'main/pluginapi', 'services/
     init: function(args) {
       var self = this;
       this.crumbs = ko.observableArray([]);
-      this.defaultTime = { "startTime": "", "endTime": "", "rolling": "20minutes" };
-      Connection.initTime(self.defaultTime);
-      Connection.open(consoleWsUrl, function() {});
-      this.connected = ko.observable(true);
       this.navigation = new Overview();
       this.views = {
         'actors': { 'contents': new Actors() },

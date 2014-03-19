@@ -10,6 +10,33 @@ import scala.util.parsing.json.JSONArray
 
 /** Helper methods to convert between JSON libraries. */
 object JsonHelper {
+  import play.api.libs.json._
+  import play.api.libs.json.Json._
+  import play.api.libs.functional.syntax._
+  import play.api.libs.json.Reads._
+  import play.api.libs.json.Writes._
+  import play.api.libs.functional.FunctionalBuilder
+
+  def extractTagged[T](key: String, tag: String)(reads: Reads[T]): Reads[T] =
+    (__ \ key).read[String](pattern(tag.r)) ~> reads
+
+  def extractRequest[T](tag: String)(reads: Reads[T]): Reads[T] =
+    extractTagged("request", tag)(reads)
+
+  def extractResponse[T](tag: String)(reads: Reads[T]): Reads[T] =
+    extractTagged("response", tag)(reads)
+
+  def emitTagged[T](key: String, tag: String)(bodyFunc: T => JsObject): Writes[T] = new Writes[T] {
+    def writes(in: T): JsValue =
+      Json.obj(key -> tag) ++ bodyFunc(in)
+  }
+
+  def emitRequest[T](tag: String)(bodyFunc: T => JsObject): Writes[T] =
+    emitTagged("request", tag)(bodyFunc)
+
+  def emitResponse[T](tag: String)(bodyFunc: T => JsObject): Writes[T] =
+    emitTagged("response", tag)(bodyFunc)
+
   def playJsonToScalaJson(playJson: JsValue): JSONType = {
     def playJsonToScalaJsonValue(playJson: JsValue): Any = {
       playJson match {

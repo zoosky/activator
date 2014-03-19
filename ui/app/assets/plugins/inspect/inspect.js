@@ -1,13 +1,19 @@
 /*
  Copyright (C) 2013 Typesafe, Inc <http://typesafe.com>
  */
-define(['main/pluginapi', 'services/build', './console/console', 'services/connection', 'text!./inspect.html', 'css!./inspect.css'],
-  function(api, build, Console, Connection, template){
+define(['main/pluginapi', 'commons/streams', 'services/build', './console/console', 'services/connection', 'text!./inspect.html', 'css!./inspect.css'],
+  function(api, streams, build, Console, Connection, template){
 
     var InspectState = {
         reset: Connection.reset,
         consoleWidget: new Console()
+
     }
+
+    // Make connection a subscriber to events sent to the streams WS
+    streams.subscribe(Connection);
+
+    // Reset data previously collected
     Connection.reset();
 
     return {
