@@ -38,14 +38,16 @@ abstract class WebSocketActor[MessageType](implicit frameFormatter: FrameFormatt
   private case object TimeoutAfterHalfCompleted extends InternalWebSocketMessage
   case class InspectRequest(json: JsValue)
   object InspectRequest {
-    def unapply(in: JsValue): Option[InspectRequest] = {
-      try if ((in \ "request").as[String] == "InspectRequest")
-        Some(InspectRequest((in \ "location").as[JsValue]))
-      else None
-      catch {
-        case e: JsResultException => None
-      }
-    }
+    import play.api.libs.json._
+    import play.api.libs.json.Json._
+    import play.api.libs.functional.syntax._
+    import play.api.libs.json.Reads._
+
+    implicit val inspectRequestReads: Reads[InspectRequest] =
+      ((__ \ "request").read[String](pattern("InspectRequest".r)) and
+        (__ \ "location").read[JsValue])((_, j) => InspectRequest(j))
+
+    def unapply(in: JsValue): Option[InspectRequest] = Json.fromJson[InspectRequest](in).asOpt
   }
   case class InspectResponse()
 
