@@ -15,6 +15,10 @@ import play.api.mvc.WebSocket.FrameFormatter
 import console.ConsolePlugin
 import console.ClientController.{ HandleRequest, InitializeCommunication }
 import play.api.libs.json.{ JsResultException, JsValue }
+import JsonHelper._
+import play.api.libs.json._
+import play.api.libs.json.Json._
+import play.api.libs.functional.syntax._
 
 private case object Ack
 
@@ -26,6 +30,7 @@ private case object CloseWebSocket
 // There's probably a better approach, oh well.
 abstract class WebSocketActor[MessageType](implicit frameFormatter: FrameFormatter[MessageType], mf: Manifest[MessageType]) extends Actor with ActorLogging {
   import WebSocketActor.timeout
+  import WebSocketActor._
   private implicit def ec: ExecutionContext = context.system.dispatcher
 
   protected sealed trait WebSocketMessage
@@ -223,6 +228,20 @@ object WebSocketActor {
   implicit val timeout = Timeout(20.seconds)
   import play.api.mvc.WebSocket
   import play.api.libs.json._
+
+  case class InspectRequest(json: JsValue)
+  object InspectRequest {
+    val tag = "InspectRequest"
+    implicit val inspectRequestReads: Reads[InspectRequest] =
+      extractRequest[InspectRequest](tag)((__ \ "location").read[JsValue].map(InspectRequest.apply _))
+
+    implicit val inspectRequestWrites: Writes[InspectRequest] =
+      emitRequest(tag)(in => obj("location" -> in.json))
+
+    def unapply(in: JsValue): Option[InspectRequest] = Json.fromJson[InspectRequest](in).asOpt
+  }
+
+  case class InspectResponse()
 
   case class Ping(cookie: String)
   case object Ping {
