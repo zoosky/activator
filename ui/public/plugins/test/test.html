@@ -25,7 +25,7 @@
       </li>
     </ul>
   </nav>
-  <section class="wrapper">
+  <section>
     <header>
       <h1>Test</h1>
       <p class="subheader">
@@ -33,7 +33,7 @@
         <strong data-bind="text: resultStats().passed"></strong> Passed, <strong data-bind="text: resultStats().failed"></strong> Failed
       </p>
     </header>
-    <ul class="results" data-bind="foreach: displayedResults">
+    <ul class="wrapper results" data-bind="foreach: displayedResults">
       <li data-bind="text: name, css: outcomeClass"></li>
     </ul>
   </section>

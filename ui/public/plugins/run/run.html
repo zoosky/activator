@@ -37,7 +37,7 @@
       </li>
     </ul>
   </nav>
-  <section class="wrapper">
+  <section>
     <header>
       <h1>Logs</h1>
       <div class="subheader" data-bind="css: { consoleAvailable: consoleCompatible }">
@@ -45,7 +45,7 @@
         <p data-bind="visible: playAppStarted">Open the app: <a data-bind="attr: {href: playAppLink}, text: playAppLink" target="_blank"></a></p>
       </div>
     </header>
-    <article class="content" data-bind="css: { consoleAvailable: consoleCompatible }">
+    <article class="wrapper content" data-bind="css: { consoleAvailable: consoleCompatible }">
       <div class="output">
         <div data-bind="snapView: outputLogView" class="runapp">
         </div>
