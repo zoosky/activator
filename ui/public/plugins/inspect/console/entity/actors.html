@@ -61,17 +61,12 @@
                     <option value="asc">Ascending</option>
                 </select>
             </p>
-            <div class="toggles menu">
-                <span>Toggles</span>
-                <ul>
-                    <li class="filterAnonymous">
-                        <label><input type="checkbox" data-bind="checked: hideAnonymous"> Hide anonymous actors</label>
-                    </li>
-                    <li class="showFullPath">
-                        <label><input type="checkbox" data-bind="checked: fullActorPath"> Show full actor paths</label>
-                    </li>
-                </ul>
-            </div>
+            <p class="showing">
+                <label><input type="checkbox" data-bind="checked: hideAnonymous"> Hide anonymous actors</label>
+            </p>
+            <p class="showing">
+                <label><input type="checkbox" data-bind="checked: fullActorPath"> Show full actor paths</label>
+            </p>
         </footer>
     </article>
 </div>
