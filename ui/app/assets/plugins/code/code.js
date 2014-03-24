@@ -1,7 +1,7 @@
 /*
  Copyright (C) 2013 Typesafe, Inc <http://typesafe.com>
  */
-define(['main/plugins', 'text!./home.html', './files', './browse', './view', './openIn', 'css!./code.css', 'main/keyboard'],
+define(['main/plugins', 'text!./home.html', './files', './browse', './view', './openIn', 'css!./code.css', 'main/keyboard', "widgets/navigation/menu"],
     function(plugins, template, files, Browser, Viewer, openIn, css, keyboard) {
 
   var CodeState = (function(){
@@ -26,6 +26,7 @@ define(['main/plugins', 'text!./home.html', './files', './browse', './view', './
       }
       return dir;
     });
+    var openedFile;
     self.currentFile = ko.computed(function() {
       var file= self.root;
       var crumbs = self.relativeCrumbs();
@@ -34,11 +35,13 @@ define(['main/plugins', 'text!./home.html', './files', './browse', './view', './
         var crumb = crumbs[idx];
         if(files.hasOwnProperty(crumb)) {
           file = files[crumb];
-        } else {
-          return file;
+          if (file.type() && file.type() != "directory"){
+            openedFile = file;
+          }
         }
       }
-      return file;
+      if (openedFile) return openedFile;
+      else return file;
     });
     self.status = ko.observable('');
     self.openInEclipse = new openIn.OpenInEclipse();
@@ -117,12 +120,7 @@ define(['main/plugins', 'text!./home.html', './files', './browse', './view', './
     },
 
     route: plugins.memorizeUrl(function(url, breadcrumb) {
-      var all = [['code/', "Code"]];
-      breadcrumb(all.concat([["code/"+url.parameters.join("/"),url.parameters.join("/")]]));
-
-      if (url.parameters.length > 0){
-        CodeState.setCrumbsAfterSave(url.parameters);
-      }
+      CodeState.setCrumbsAfterSave(url.parameters);
     })
   };
 });
