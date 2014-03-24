@@ -28,6 +28,7 @@ define(['./router', 'commons/settings', 'services/build', './keyboard', './omnis
     omnisearch: omnisearch,
     navigation: navigation,
     build: build,
+    panel: panel,
     notifications: new Notifications()
   }
 

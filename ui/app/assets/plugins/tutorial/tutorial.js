@@ -24,6 +24,7 @@ define([
   var TutorialState   = new function(){
     var self = this;
 
+    this.hasTutorial  = tutorialService.hasTutorial;
     this.tutorial     = tutorialService.getTutorial(null);
     this.table        = tutorialService.getTable(null);
     this.page         = ko.observable(null);

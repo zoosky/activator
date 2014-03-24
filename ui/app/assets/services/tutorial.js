@@ -2,19 +2,25 @@ define(function() {
 
   var pages = ko.observableArray([]);
   var table = ko.observableArray([]);
+  var hasTutorial = ko.observable(false);
   var tutorialLoaded = $.when($.ajax("tutorial/index.html")).then(function(data){
     // parseHTML dumps the <html> <head> and <body> tags
     // so we'll get a list with <title> some <div> and some text nodes
+    hasTutorial(true);
     var htmlNodes = $.parseHTML(data);
     $(htmlNodes).filter("div").each(function(i,el){
       var title = $("h2", el).remove().html() || $(el).text().substring(0,40) + "...";
       pages.push({ index: i, title: title, page: el.innerHTML });
       table.push(title);
     });
-  }, function(){ alert("Can't load tutorial."); });
+  }, function(){
+    hasTutorial(false);
+    debug && console.log("Can't load the tutorial.");
+  });
 
   return {
 
+    hasTutorial: hasTutorial,
     tutorialLoaded: tutorialLoaded,
     // todo
     getTutorial: function() {
