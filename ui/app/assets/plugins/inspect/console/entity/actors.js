@@ -55,6 +55,7 @@ define(['text!./actors.html', 'main/pluginapi', '../widget', '../format', '../ho
           var maxMailboxSize = a.maxMailboxSize;
           var deviationCount = a.errorCount + a.warningCount + a.deadletterCount + a.unhandledMessageCount;
           var deviations = deviationCount > 0 ? deviationCount : "";
+          if (!self.fullActorPath() && path.indexOf('/user/') > -1) path = path.substring(path.indexOf('/user/') + 6);
           var actor = {
             'path': path,
             'actorLink': actorLink,
@@ -67,7 +68,7 @@ define(['text!./actors.html', 'main/pluginapi', '../widget', '../format', '../ho
             'deviations': deviations
           };
           var show = true;
-          if (hideAnonymous && name.charAt(0) == '$') show = false;
+          if (self.hideAnonymous() && name.charAt(0) == '$') show = false;
           if (filter.length > 0) {
             var filters = filter.toLowerCase().split(' ');
             var matchWith = fullPath ? path.toLowerCase() : name.toLowerCase();
