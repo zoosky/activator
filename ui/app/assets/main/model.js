@@ -22,7 +22,6 @@ define(['./router', 'commons/settings', 'plugins/tutorial/tutorial', 'services/b
     // in application.scala.html
     testCallBinding: function(a,b,c,d){
     },
-    activeWidget: ko.observable(""),
     pageTitle: ko.observable(),
     // TODO load last value from somewhere until we get a message from the iframe
     signedIn: ko.observable(false),
@@ -31,18 +30,7 @@ define(['./router', 'commons/settings', 'plugins/tutorial/tutorial', 'services/b
     navigation: navigation,
     panel: panel,
     build: build,
-    notifications: new Notifications(),
-    // This is the initialization of the application...
-    init: function(plugins) {
-      var self = this;
-      self.plugins = plugins;
-
-      var openSearch = function(e, ctx) {
-        omnisearch.openSearch();
-        return true;
-      };
-
-    }
+    notifications: new Notifications()
   }
 
   typesafe.subscribe('signedIn', function(signedIn){
