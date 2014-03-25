@@ -53,19 +53,13 @@ var core = [
   'main/panel'
 ]
 
-var init = ['main/plugin']
-
 require(vendors, function($, ko) {
   window.ko = ko; // it's used on every page...
   require(commons, function() {
     require(services, function() {
       require(core, function(model,view, router) {
-        require(init, function(plugins) {
-          // Done.
-          model.init(plugins);
-          view.render(model);
-          router.load(window.location.hash)
-        })
+        view.render(model);
+        router.load(window.location.hash)
       })
     })
   })
