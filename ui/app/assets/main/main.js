@@ -37,6 +37,7 @@ var services = [
     'services/sbt',
     'services/build',
     'services/log',
+    'services/tutorial',
     'services/connection',
     'widgets/notifications/notifications',
     'services/typesafe'
@@ -49,8 +50,7 @@ var core = [
   'main/pluginapi',
   'main/keyboard',
   'main/omnisearch',
-  'main/navigation',
-  'main/panel'
+  'main/navigation'
 ]
 
 require(vendors, function($, ko) {

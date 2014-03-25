@@ -111,6 +111,15 @@ define(function() {
       }
   };
 
+  ko.bindingHandlers.href = {
+    init: function(element, valueAccessor, allBindings, viewModel, bindingContext) {
+      var url = valueAccessor();
+      ko.applyBindingsToNode(element, { attr: {'href': url} });
+    },
+    update: function(element, valueAccessor, allBindings, viewModel, bindingContext) {
+    }
+  }
+
   return {
     registerTemplate: registerTemplate,
     templates: templates

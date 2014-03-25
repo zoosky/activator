@@ -1,9 +1,9 @@
 /*
  Copyright (C) 2013 Typesafe, Inc <http://typesafe.com>
  */
-define(['./router', 'commons/settings', 'plugins/tutorial/tutorial', 'services/build', './keyboard', './omnisearch',
+define(['./router', 'commons/settings', 'services/build', './keyboard', './omnisearch',
         './navigation', './panel', 'widgets/notifications/notifications', 'services/typesafe'],
-    function(router, settings, Tutorial, build, keyboard, omnisearch,
+    function(router, settings, build, keyboard, omnisearch,
         navigation, panel, Notifications, typesafe) {
 
   // This is the model for HTML which is directly in main.scala.html.
@@ -16,7 +16,6 @@ define(['./router', 'commons/settings', 'plugins/tutorial/tutorial', 'services/b
     plugins: null, // filled in by init
     router: router,
     widgets: [],
-    tutorial: new Tutorial(),
     settings: settings,
     // TODO this needs to be removed after it's no longer used
     // in application.scala.html
@@ -28,8 +27,8 @@ define(['./router', 'commons/settings', 'plugins/tutorial/tutorial', 'services/b
     // make this available in knockout bindings
     omnisearch: omnisearch,
     navigation: navigation,
-    panel: panel,
     build: build,
+    panel: panel,
     notifications: new Notifications()
   }
 
