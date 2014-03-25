@@ -29,6 +29,9 @@
     left: 0;
     right: 0;
   }
+  h1 {
+    float: left;
+  }
   h2 {
     background: @grey-ltr;
     padding: 0 20px;
@@ -97,6 +100,7 @@
     margin: 0 10px 10px;
     padding: 10px;
     background: @grey-dkr;
+    .clear-after;
     div {
       line-height: 30px;
     }
@@ -127,6 +131,14 @@
       padding: 0 4px;
       min-width: 20px;
       text-align: center;
+      border-radius: 2px;
+    }
+  }
+  .nav-options {
+    float: right;
+    line-height: 50px;
+    dt {
+      padding: 2px 5px;
       border-radius: 2px;
     }
   }
