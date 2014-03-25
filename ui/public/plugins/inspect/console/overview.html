@@ -1,10 +1,10 @@
 <ul class="listing">
     <li>
-        <span>Data collected since</span>
+        <span>Data collected for</span>
         <span data-bind="text: cacheTime()" class="cache counter">&ndash;</span>
     </li>
     <li class="item">
-        <a class="test" href="#inspect/requests"><span data-bind="css: { 'active': hasPlayRequests(), 'inactive': !hasPlayRequests()}">Play requests</span></a>
+        <a class="test" href="#inspect/requests"><span data-bind="css: { 'active': hasPlayRequests(), 'inactive': !hasPlayRequests()}">Incoming Requests</span></a>
         <span data-bind="visible: hasPlayRequests(), text: 'Y'" class="error counter">&ndash;</span>
     </li>
     <li class="item">
@@ -12,7 +12,7 @@
         <span data-bind="visible: hasActors(), text: shorten(actors())" class="error counter">&ndash;</span>
     </li>
     <li class="item">
-        <a href="#inspect/deviations"><span data-bind="css: { 'active': hasDeviations(), 'inactive': !hasDeviations()}">Deviations</span></a>
+        <a href="#inspect/deviations"><span data-bind="css: { 'active': hasDeviations(), 'inactive': !hasDeviations()}">Actor Issues</span></a>
         <span data-bind="visible: hasDeviations(), text: shorten(deviations())" class="error counter">&ndash;</span>
     </li>
 </ul>
