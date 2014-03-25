@@ -3,11 +3,8 @@
         <h1>Deviation</h1>
     </header>
     <div id="splash" data-bind="visible: !hasDeviations()">
-        In this view you can see actor issues (errors, warnings,<br>
-        <br>
-        dead letters, unhandled messages or deadlocks).<br>
-        <br><br>
-        So far no issues found. Keep on rocking!
+        <p>In this view you can see actor issues (errors, warnings, dead letters, unhandled messages or deadlocks).</p>
+        <p>So far no issues found. Keep on rocking!</p>
     </div>
     <table data-bind="visible: hasDeviations()">
         <thead data-bind="visible: hasErrors">
