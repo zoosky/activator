@@ -45,9 +45,12 @@
         <p data-bind="visible: playAppStarted">Open the app: <a data-bind="attr: {href: playAppLink}, text: playAppLink" target="_blank"></a></p>
       </div>
     </header>
-    <article class="wrapper content" data-bind="css: { consoleAvailable: consoleCompatible }">
+    <article class="wrapper content" data-bind="css: { consoleAvailable: consoleCompatible }, logScroll: 'runLog', scrollTrigger: log.entries">
       <div class="output">
-        <div data-bind="snapView: outputLogView" class="runapp">
+        <div class="runapp">
+          <ul class="logsList" data-bind="foreach: log.entries">
+            <li data-bind="css: level, compilerMessage: $data"></li>
+          </ul>
         </div>
       </div>
     </article>
