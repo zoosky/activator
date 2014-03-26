@@ -41,23 +41,23 @@
   line-height: 1.3em;
   font-size: 13.5px;
   a {
-    color: #E25758;
+    color: @blue-text;
   }
   a.shortcut {
-    background: #E25758;
-    color: #FFFFFF;
-    letter-spacing: 0.12em;
-    border-radius: 2px;
-    padding: 0 4px;
-    margin: 0 3px;
     white-space: nowrap;
     &:before {
-      content: "\E75D";
-      font: 15px icons;
-      line-height: 15px;
+      border-radius: 2px;
+      padding: 4px;
+      margin: 0 3px;
+      background: @blue;
+      color: #fff;
       display: inline-block;
-      padding-right: 5px;
-      height: 12px;
+      content: url(/public/images/icons/shortcut.svg);
+      display: inline-block;
+      vertical-align: top;
+    }
+    &:hover:before {
+      background: @red;
     }
   }
   .monospace {
