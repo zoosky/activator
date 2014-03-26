@@ -102,6 +102,7 @@ define(['commons/utils'], function(utils){
 
   var Log = utils.Class({
     init: function(parameters) {
+      var self = this;
       this.entries = ko.observableArray();
       // a subset of entries that had file:line errors
       this.parsedErrorEntries = ko.observableArray();

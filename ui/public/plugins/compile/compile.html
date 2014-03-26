@@ -23,9 +23,11 @@
   <section>
     <header>
       <h1>Log output</h1>
-      <p class="subheader"></p>
     </header>
-    <div data-bind="snapView: logView" class="wrapper">
+    <div data-bind="logScroll: 'compileLog', scrollTrigger: log.entries" class="wrapper">
+      <ul class="logsList" data-bind="foreach: log.entries">
+        <li data-bind="css: level, compilerMessage: $data"></li>
+      </ul>
     </div>
   </section>
 </article>

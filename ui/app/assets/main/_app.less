@@ -117,6 +117,9 @@
         width: 16px;
         display: inline-block;
       }
+      &.tallHeader + .wrapper {
+        top: 90px;
+      }
     }
 
     footer {
@@ -169,3 +172,23 @@
     z-index: 1;
   }
 }
+
+.logsList {
+
+  li {
+    padding: 4px 16px;
+    border-left: 4px solid #E4EAEF;
+    box-shadow: 0 -1px 0 #E4EAEF;
+    font-family: Monaco, monospace;
+    font-size: 12px;
+    color: #6F7F89;
+    line-height: 16px;
+  }
+
+  li.success { border-color: #4BA300; }
+  li.error { border-color: #E25758; }
+  li.warn { border-color: #F89614; }
+  li.info { border-color: #53cdec; }
+
+}
+

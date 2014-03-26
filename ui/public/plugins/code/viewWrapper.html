@@ -1,5 +1,5 @@
 <!-- ko if: isFile() -->
-<header>
+<header class="tallHeader">
 	<nav>
         <span class="button delete groupLeft" data-bind="click: deleteFile"><span class="icon">&#xe729;</span>Delete</span>
 		<span class="button revert groupMid" data-bind="click: subView().load, enable: subView().isDirty"><span class="icon">&#x27f2;</span>Revert</span>
@@ -26,8 +26,8 @@
     <!-- /ko -->
 	</nav>
 	<h1 data-bind='text: title'></h1>
-	<p class="subheader" data-bind="text: fileStats"></span>
-	</p>
+    <p class="subheader" data-bind="text: fileStats"></span>
+    </p>
 </header>
 <div class="wrapper" data-bind="snapView: subView()"></div>
 <!-- /ko -->

@@ -120,6 +120,80 @@ define(function() {
     }
   }
 
+  ko.bindingHandlers.memoScroll = (function(){
+    var memos = {}
+    return {
+      init: function(element, valueAccessor, allBindings, viewModel, bindingContext) {
+      },
+      update: function(element, valueAccessor, allBindings, viewModel, bindingContext) {
+        var label = valueAccessor();
+        if (!memos[label]) {
+          memos[label] = [0,0];
+        }
+        setTimeout(function() {
+          element.scrollLeft = memos[label][0];
+          element.scrollTop  = memos[label][1];
+        }, 0);
+        $(element).off('scroll').on('scroll', function(e) {
+          memos[label][0] = element.scrollLeft;
+          memos[label][1] = element.scrollTop;
+        });
+      }
+    }
+  }());
+
+
+  function throttle(f){
+    var timer;
+    return function(){
+      if (timer) clearTimeout(timer);
+      timer = setTimeout(f, 1);
+    }
+  }
+  ko.bindingHandlers.logScroll = (function(){
+    var memos = {}
+    return {
+      init: function(element, valueAccessor, allBindings, viewModel, bindingContext) {
+        if (!allBindings().scrollTrigger) throw("logScroll must have a scrollTrigger, wich is the observable array.")
+      },
+      update: function(element, valueAccessor, allBindings, viewModel, bindingContext) {
+        var label = valueAccessor();
+        if (!memos[label]) {
+          memos[label] = "stick";
+        }
+        setTimeout(function() {
+          if (memos[label] == 'stick'){
+            element.scrollTop = 9e9;
+          } else {
+            element.scrollTop = memos[label];
+          }
+        }, 0);
+
+        // Create a clone
+        var trigger = ko.computed(function() {
+          return allBindings().scrollTrigger();
+        });
+
+        // When an element is added to the node, we reactualise the scroll.
+        // This is more efficient than anything else since this callback is
+        // removed when the element is gone.
+        element.addEventListener("DOMNodeInserted", throttle(function() {
+          if (memos[label] == 'stick'){
+            element.scrollTop = element.scrollHeight;
+          }
+        }), false);
+
+        $(element).off('scroll').on('scroll', function(e) {
+          if ((element.scrollTop + element.offsetHeight) > (element.scrollHeight - 20)) { // 20 is the error margin
+            memos[label] = 'stick';
+          } else {
+            memos[label] = element.scrollTop;
+          }
+        });
+      }
+    }
+  }());
+
   return {
     registerTemplate: registerTemplate,
     templates: templates
