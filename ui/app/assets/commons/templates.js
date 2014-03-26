@@ -142,7 +142,6 @@ define(function() {
     }
   }());
 
-
   function throttle(f){
     var timer;
     return function(){
