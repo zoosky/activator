@@ -92,6 +92,7 @@ var startApp = function() {
           }
           value = self.filterValue().toLowerCase();
           self.filteredTemplates(templates.filter(function(o){
+            console.log(o)
             return JSON.stringify(o).indexOf(value) >= 0
           }));
         }

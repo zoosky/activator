@@ -28,6 +28,7 @@ define(['services/log','text!./log.html', 'commons/widget', 'commons/utils'], fu
       });
     },
     onRender: function(childNodes) {
+      console.log(this,childNodes)
       this.node = $(childNodes).parent();
 
       // force scroll to bottom to start, in case
