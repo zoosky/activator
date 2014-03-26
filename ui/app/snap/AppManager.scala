@@ -277,7 +277,7 @@ object AppManager {
       // NOTE -> We have to use the factory to ensure that shims are installed BEFORE we try to load the app.
       // While we should consolidate all sbt specific code, right now the child factory is the correct entry point.
       val factory = new DefaultSbtProcessFactory(location, sbtChildProcessMaker)
-      // TODO - we should actually have ogging of this sucker
+      // TODO - we should actually have logging of this sucker
       factory.init(akka.event.NoLogging)
       val sbt = factory.newChild(snap.Akka.system)
       implicit val timeout = Akka.longTimeoutThatIsAProblem;

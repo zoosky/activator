@@ -51,8 +51,18 @@ class AppActor(val config: AppConfig, val sbtProcessLauncher: SbtProcessLauncher
 
   def location = config.location
 
-  val childFactory = new DefaultSbtProcessFactory(location, sbtProcessLauncher)
-  val sbts = context.actorOf(Props(new ChildPool(childFactory)), name = "sbt-pool")
+  val uninstrumentedChildFactory = new DefaultSbtProcessFactory(location, sbtProcessLauncher)
+  val sbts = context.actorOf(Props(new ChildPool(uninstrumentedChildFactory)), name = "sbt-pool")
+  val instrumentedChildFactory = config.instrumentation.map(_ match {
+    case NewRelic(configFile, agentJar, environment) =>
+      new DefaultSbtProcessFactory(location,
+        sbtProcessLauncher,
+        extraJvmArgs = Seq(
+          s"-javaagent:${agentJar.getPath()}",
+          s"-Dnewrelic.config.file=${configFile.getPath()}",
+          s"-Dnewrelic.environment=$environment"))
+  })
+  val instrumentatedSbts = instrumentedChildFactory.map(cf => context.actorOf(Props(new ChildPool(cf)), name = "instrumented-sbt-pool"))
   val socket = context.actorOf(Props(new AppSocketActor()), name = "socket")
   val projectWatcher = context.actorOf(Props(new ProjectWatcher(location, newSourcesSocket = socket, sbtPool = sbts)),
     name = "projectWatcher")
