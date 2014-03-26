@@ -13,7 +13,12 @@ import scala.concurrent.duration._
 import sbt.IO
 
 // createdTime and usedTime are only optional due to legacy config files
-case class AppConfig(location: File, id: String, createdTime: Option[Long], usedTime: Option[Long], cachedName: Option[String] = None)
+case class AppConfig(location: File,
+  id: String,
+  createdTime: Option[Long],
+  usedTime: Option[Long],
+  cachedName: Option[String] = None,
+  instrumentation: Option[Instrumentation] = None)
 
 object AppConfig {
   import play.api.data.validation.ValidationError

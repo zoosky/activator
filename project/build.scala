@@ -229,7 +229,7 @@ object TheActivatorBuild extends Build {
         "com.typesafe.akka" % "akka-actor_2.10" % "2.2.1",
         "com.typesafe.akka" % "akka-testkit_2.10" % "2.2.1",
         "com.typesafe.akka" % "akka-slf4j_2.10" % "2.2.1",
-        "com.typesafe.akka" % "akka-contrib_2.10" % "2.2.1",
+	      "com.typesafe.akka" % "akka-contrib_2.10" % "2.2.1",
         "org.scalatest" % "scalatest_2.10" % "2.0",
         "junit" % "junit" % "4.11",
         "org.fusesource.jansi" % "jansi" % "1.11",
