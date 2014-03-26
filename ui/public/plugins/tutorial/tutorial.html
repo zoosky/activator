@@ -21,7 +21,7 @@
     <header>
       <h1 data-bind="text: page().title"></h1>
     </header>
-    <article class="page typo wrapper" data-bind="html: page().page">
+    <article class="page typo wrapper" data-bind="html: page().page, memoScroll: 'tutorialPage'+page().title">
     </article>
   </section>
   <!-- /ko -->

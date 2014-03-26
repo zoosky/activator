@@ -120,6 +120,28 @@ define(function() {
     }
   }
 
+  ko.bindingHandlers.memoScroll = (function(){
+    var memos = {}
+    return {
+      init: function(element, valueAccessor, allBindings, viewModel, bindingContext) {
+      },
+      update: function(element, valueAccessor, allBindings, viewModel, bindingContext) {
+        var label = valueAccessor();
+        if (!memos[label]) {
+          memos[label] = [0,0];
+        }
+        setTimeout(function() {
+          element.scrollLeft = memos[label][0];
+          element.scrollTop  = memos[label][1];
+        }, 0);
+        $(element).off('scroll').on('scroll', function(e) {
+          memos[label][0] = element.scrollLeft;
+          memos[label][1] = element.scrollTop;
+        });
+      }
+    }
+  }());
+
   return {
     registerTemplate: registerTemplate,
     templates: templates
