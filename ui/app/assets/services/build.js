@@ -9,6 +9,7 @@ define(['webjars!knockout', 'commons/settings', 'services/log', 'commons/utils',
   settings.register("build.retestOnSuccessfulBuild", false);
   settings.register("build.automaticResetInspect", true);
   settings.register("build.recompileOnChange", true);
+  settings.register("run.instrumentation", "inspect");
 
   var Error = utils.Class({
     init: function(fields) {
@@ -369,6 +370,7 @@ define(['webjars!knockout', 'commons/settings', 'services/log', 'commons/utils',
       this.status = ko.observable(Status.IDLE);
       this.statusMessage = ko.observable('Application is stopped.');
       this.outputLog = new Log();
+      this.instrumentation = settings.run.instrumentation();
     },
     loadMainClasses: function(success, failure) {
       var self = this;
@@ -391,7 +393,7 @@ define(['webjars!knockout', 'commons/settings', 'services/log', 'commons/utils',
           return true;
         } else if (weWereStopped) {
           debug && console.log("Stopped, restart not requested");
-          log.debug("Stopped");
+         log.debug("Stopped");
           // true = abort abort
           return true;
         } else {
@@ -633,9 +635,11 @@ define(['webjars!knockout', 'commons/settings', 'services/log', 'commons/utils',
         task.task = 'run';
       }
 
-      if (build.app.hasEcho()) {
+      if (build.app.hasEcho() && build.run.instrumentation == "inspect") {
         task.task = 'echo:' + task.task;
       }
+
+      task.params = {instrumentation: build.run.instrumentation};
 
       debug && console.log("launching " + task.task + " task");
       var taskId = sbt.runTask({

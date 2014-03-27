@@ -4,9 +4,15 @@
 define(['services/build', 'main/model', 'text!./run.html', 'main/pluginapi', 'commons/settings', 'css!./run.css', "widgets/navigation/menu"],
     function(build, model, template, api, settings, LogView, css){
 
+  var instrumentationOptions = [
+    { name: "Inspect", id: "inspect" },
+    { name: "New Relic", id: "newRelic" }
+  ];
+
   var RunState = (function(){
     var self = {};
 
+    self.instrumentationOptions = ko.observableArray(instrumentationOptions);
     self.title = ko.observable("Run");
     self.startStopLabel = ko.computed(function() {
       if (build.run.haveActiveTask())
@@ -37,6 +43,7 @@ define(['services/build', 'main/model', 'text!./run.html', 'main/pluginapi', 'co
     self.currentMainClass = build.run.currentMainClass;
     self.mainClasses = build.run.mainClasses;
     self.rerunOnBuild = settings.build.rerunOnBuild;
+    self.instrumentation = settings.run.instrumentation;
     self.restartPending = build.run.restartPending;
     self.consoleCompatible = build.app.hasConsole;
     self.statusMessage = build.run.statusMessage;

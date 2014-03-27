@@ -18,7 +18,7 @@ import play.api.libs.functional.syntax._
 
 sealed trait AppRequest
 
-case class GetTaskActor(id: String, description: String) extends AppRequest
+case class GetTaskActor(id: String, description: String, request: protocol.Request) extends AppRequest
 case object GetWebSocketCreated extends AppRequest
 case object CreateWebSocket extends AppRequest
 case class NotifyWebSocket(json: JsObject) extends AppRequest
@@ -45,33 +45,69 @@ object InspectRequest {
   def unapply(in: JsValue): Option[InspectRequest] = Json.fromJson[InspectRequest](in).asOpt
 }
 
+object AppActor {
+  final val runTasks: Set[String] = Set(
+    protocol.TaskNames.run,
+    protocol.TaskNames.runMain,
+    protocol.TaskNames.runEcho,
+    protocol.TaskNames.runMainEcho)
+
+  final val instrumentedRun: Map[String, String] = Map(
+    protocol.TaskNames.run -> protocol.TaskNames.run,
+    protocol.TaskNames.runMain -> protocol.TaskNames.runMain,
+    protocol.TaskNames.runEcho -> protocol.TaskNames.run,
+    protocol.TaskNames.runMainEcho -> protocol.TaskNames.runMain)
+
+  def isRunRequest(request: protocol.Request): Boolean = request match {
+    case protocol.GenericRequest(_, command, _) => runTasks(command)
+    case _ => false
+  }
+
+  def isRunWithNewRelic(request: protocol.Request): Boolean = request match {
+    case protocol.GenericRequest(_, command, params) if runTasks(command) =>
+      params.get("instrumentation").map(_ == "newRelic").getOrElse(false)
+    case _ => false
+  }
+
+  def instrumentedRequest(request: protocol.Request): protocol.Request = request match {
+    case r: protocol.GenericRequest =>
+      if (isRunRequest(r)) r.copy(name = instrumentedRun(r.name))
+      else r
+    case r => r
+  }
+}
+
 class AppActor(val config: AppConfig, val sbtProcessLauncher: SbtProcessLauncher) extends Actor with ActorLogging {
+  import AppActor._
 
   AppManager.registerKeepAlive(self)
 
   def location = config.location
 
   val uninstrumentedChildFactory = new DefaultSbtProcessFactory(location, sbtProcessLauncher)
-  val sbts = context.actorOf(Props(new ChildPool(uninstrumentedChildFactory)), name = "sbt-pool")
-  val instrumentedChildFactory = config.instrumentation.map(_ match {
+  val uninstrumentedSbts = context.actorOf(Props(new ChildPool(uninstrumentedChildFactory)), name = "sbt-pool")
+  // TODO: well, this is pretty New Relic-specific.  Need a way to dynamically
+  // generate pools with appropriate instrumentation support.
+  val instrumentedChildFactory = config.instrumentation.flatMap(_ match {
+    case Inspect => None
     case NewRelic(configFile, agentJar, environment) =>
-      new DefaultSbtProcessFactory(location,
+      Some(new DefaultSbtProcessFactory(location,
         sbtProcessLauncher,
         extraJvmArgs = Seq(
           s"-javaagent:${agentJar.getPath()}",
           s"-Dnewrelic.config.file=${configFile.getPath()}",
-          s"-Dnewrelic.environment=$environment"))
+          s"-Dnewrelic.environment=$environment")))
   })
   val instrumentatedSbts = instrumentedChildFactory.map(cf => context.actorOf(Props(new ChildPool(cf)), name = "instrumented-sbt-pool"))
   val socket = context.actorOf(Props(new AppSocketActor()), name = "socket")
-  val projectWatcher = context.actorOf(Props(new ProjectWatcher(location, newSourcesSocket = socket, sbtPool = sbts)),
+  val projectWatcher = context.actorOf(Props(new ProjectWatcher(location, newSourcesSocket = socket, sbtPool = uninstrumentedSbts)),
     name = "projectWatcher")
 
   var webSocketCreated = false
 
   var tasks = Map.empty[String, ActorRef]
 
-  context.watch(sbts)
+  context.watch(uninstrumentedSbts)
   context.watch(socket)
   context.watch(projectWatcher)
 
@@ -83,7 +119,7 @@ class AppActor(val config: AppConfig, val sbtProcessLauncher: SbtProcessLauncher
 
   override def receive = {
     case Terminated(ref) =>
-      if (ref == sbts) {
+      if (ref == uninstrumentedSbts || instrumentatedSbts.map(_ == ref).getOrElse(false)) {
         log.info(s"sbt pool terminated, killing AppActor ${self.path.name}")
         self ! PoisonPill
       } else if (ref == socket) {
@@ -103,8 +139,12 @@ class AppActor(val config: AppConfig, val sbtProcessLauncher: SbtProcessLauncher
       }
 
     case req: AppRequest => req match {
-      case GetTaskActor(taskId, description) =>
-        val task = context.actorOf(Props(new ChildTaskActor(taskId, description, sbts)),
+      case GetTaskActor(taskId, description, request) =>
+        val pool =
+          // Way too specific.
+          if (isRunWithNewRelic(request)) instrumentatedSbts.getOrElse(uninstrumentedSbts)
+          else uninstrumentedSbts
+        val task = context.actorOf(Props(new ChildTaskActor(taskId, description, pool)),
           name = "task-" + URLEncoder.encode(taskId, "UTF-8"))
         tasks += (taskId -> task)
         context.watch(task)
