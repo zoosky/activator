@@ -22,6 +22,10 @@
                 <dt><span class="icon">&#x2699;</span></dt>
                 <dd>
                     <input type="checkbox" id="reloadOnChange" class="styled dark" data-bind="checked: rerunOnBuild"><label for="reloadOnChange"><span></span>Re-run on successful build</label>
+                    <label class="selectLabel" for="instrumentation">Instrumentation:</label><select data-bind="options: instrumentationOptions,
+                                                                                                                optionsText: 'name',
+                                                                                                                optionsValue: 'id',
+                                                                                                                value: instrumentation"></select>
                 </dd>
             </dl>
         </nav>
