@@ -25,7 +25,7 @@ or just
 
         sbt stage
 
-2. Force the launcer to use the newly built launcher:
+2. Force the launcher to use the newly built launcher:
 
         rm -r ~/.activator
 
@@ -88,7 +88,19 @@ Activator auto-checks for new versions so to test a new unreleased version you w
 
 ## Publishing the Distribution
 
-First, make sure your credentials are in an appropriate spot.  For me, that's in `~/.sbt/user.sbt` with the following content:
+Release overview:
+ * if you want to make a "real" release, create a git tag for it like `v1.0.2`.
+ * relaunch sbt; type `show version` and it should have picked up the tag.
+ * if you want to make a snapshot/test release, just let sbt use the git commit as the version. `show version` to verify.
+ * be sure `test`, `integration-tests`, and `offline-tests` are passing.
+ * `publishSigned` then `s3Upload`.
+ * push the version tag to github
+
+We do both `publishSigned` and `s3Upload`. To `publishSigned` you need a GPG key.
+
+After `publishSigned`, upload to S3.
+
+Make sure your credentials are in an appropriate spot.  For me, that's in `~/.sbt/user.sbt` with the following content:
 
     credentials += Credentials("Amazon S3", "downloads.typesafe.com.s3.amazonaws.com", <AWS KEY>, <AWS PW>)
 
