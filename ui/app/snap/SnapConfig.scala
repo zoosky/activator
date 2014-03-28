@@ -17,8 +17,7 @@ case class AppConfig(location: File,
   id: String,
   createdTime: Option[Long],
   usedTime: Option[Long],
-  cachedName: Option[String] = None,
-  instrumentation: Option[Instrumentation] = None)
+  cachedName: Option[String] = None)
 
 object AppConfig {
   import play.api.data.validation.ValidationError
