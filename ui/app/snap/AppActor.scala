@@ -15,6 +15,7 @@ import JsonHelper._
 import play.api.libs.json._
 import play.api.libs.json.Json._
 import play.api.libs.functional.syntax._
+import java.util.concurrent.atomic.AtomicLong
 
 sealed trait AppRequest
 
@@ -25,6 +26,7 @@ case class NotifyWebSocket(json: JsObject) extends AppRequest
 case object InitialTimeoutExpired extends AppRequest
 case class ForceStopTask(id: String) extends AppRequest
 case class UpdateSourceFiles(files: Set[File]) extends AppRequest
+case class ProvisionSbtPool(instrumentation: String, originalMessage: GetTaskActor, sender: ActorRef) extends AppRequest
 
 sealed trait AppReply
 
@@ -63,10 +65,10 @@ object AppActor {
     case _ => false
   }
 
-  def isRunWithNewRelic(request: protocol.Request): Boolean = request match {
+  def getRunInstrumentation(request: protocol.Request): String = request match {
     case protocol.GenericRequest(_, command, params) if runTasks(command) =>
-      params.get("instrumentation").map(_ == "newRelic").getOrElse(false)
-    case _ => false
+      params.get("instrumentation").asInstanceOf[Option[String]].map(Instrumentations.validate).getOrElse(Instrumentations.inspect)
+    case _ => throw new RuntimeException(s"Cannot get instrumentation from a non-run request: $request")
   }
 
   def instrumentedRequest(request: protocol.Request): protocol.Request = request match {
@@ -84,21 +86,28 @@ class AppActor(val config: AppConfig, val sbtProcessLauncher: SbtProcessLauncher
 
   def location = config.location
 
+  val poolCounter = new AtomicLong(0)
+
   val uninstrumentedChildFactory = new DefaultSbtProcessFactory(location, sbtProcessLauncher)
   val uninstrumentedSbts = context.actorOf(Props(new ChildPool(uninstrumentedChildFactory)), name = "sbt-pool")
-  // TODO: well, this is pretty New Relic-specific.  Need a way to dynamically
-  // generate pools with appropriate instrumentation support.
-  val instrumentedChildFactory = config.instrumentation.flatMap(_ match {
-    case Inspect => None
-    case NewRelic(configFile, agentJar, environment) =>
-      Some(new DefaultSbtProcessFactory(location,
-        sbtProcessLauncher,
-        extraJvmArgs = Seq(
-          s"-javaagent:${agentJar.getPath()}",
-          s"-Dnewrelic.config.file=${configFile.getPath()}",
-          s"-Dnewrelic.environment=$environment")))
-  })
-  val instrumentatedSbts = instrumentedChildFactory.map(cf => context.actorOf(Props(new ChildPool(cf)), name = "instrumented-sbt-pool"))
+
+  private var instrumentedSbtPools: Map[String, ActorRef] = Map.empty[String, ActorRef]
+
+  def addInstrumentedSbtPool(name: String, factory: SbtProcessFactory): Unit = {
+    val n = name.trim()
+    if (n != Instrumentations.inspect) {
+      instrumentedSbtPools.get(n).foreach(_ ! PoisonPill)
+      instrumentedSbtPools += (n -> context.actorOf(Props(new ChildPool(factory)), name = s"sbt-pool-$n-${poolCounter.getAndIncrement()}"))
+    }
+  }
+
+  def getSbtPoolFor(name: String): Option[ActorRef] = name.trim() match {
+    case Instrumentations.inspect => Some(uninstrumentedSbts)
+    case n =>
+      Instrumentations.validate(n)
+      instrumentedSbtPools.get(n)
+  }
+
   val socket = context.actorOf(Props(new AppSocketActor()), name = "socket")
   val projectWatcher = context.actorOf(Props(new ProjectWatcher(location, newSourcesSocket = socket, sbtPool = uninstrumentedSbts)),
     name = "projectWatcher")
@@ -119,7 +128,7 @@ class AppActor(val config: AppConfig, val sbtProcessLauncher: SbtProcessLauncher
 
   override def receive = {
     case Terminated(ref) =>
-      if (ref == uninstrumentedSbts || instrumentatedSbts.map(_ == ref).getOrElse(false)) {
+      if (ref == uninstrumentedSbts || instrumentedSbtPools.values.exists(_ == ref)) {
         log.info(s"sbt pool terminated, killing AppActor ${self.path.name}")
         self ! PoisonPill
       } else if (ref == socket) {
@@ -139,11 +148,39 @@ class AppActor(val config: AppConfig, val sbtProcessLauncher: SbtProcessLauncher
       }
 
     case req: AppRequest => req match {
-      case GetTaskActor(taskId, description, request) =>
-        val pool =
-          // Way too specific.
-          if (isRunWithNewRelic(request)) instrumentatedSbts.getOrElse(uninstrumentedSbts)
-          else uninstrumentedSbts
+      case m @ GetTaskActor(taskId, description, request) if isRunRequest(request) =>
+        val instrumentation = getRunInstrumentation(request)
+        getSbtPoolFor(instrumentation) match {
+          case None =>
+            self ! ProvisionSbtPool(instrumentation, m, sender)
+          case Some(pool) =>
+            val task = context.actorOf(Props(new ChildTaskActor(taskId, description, pool)),
+              name = "task-" + URLEncoder.encode(taskId, "UTF-8"))
+            tasks += (taskId -> task)
+            context.watch(task)
+            log.debug("created task {} {}", taskId, task)
+            sender ! TaskActorReply(task)
+        }
+      case ProvisionSbtPool(instrumentation, originalMessage, originalSender) =>
+        getSbtPoolFor(instrumentation) match {
+          case Some(_) =>
+            self.tell(originalMessage, originalSender)
+          case None =>
+            instrumentation match {
+              case Instrumentations.newRelic =>
+                // Hack for demo purposes only.
+                // The real solution would involve inspecting the project for a New Relic config file
+                // and a TBD mechanism for getting the NR instrumentation jar.
+                val nrConfigFile = new File(config.location, "conf/newrelic.yml")
+                val nrJar = new File(config.location, "conf/newrelic.jar")
+                val inst = NewRelic(nrConfigFile, nrJar)
+                val processFactory = new DefaultSbtProcessFactory(location, sbtProcessLauncher, inst.jvmArgs)
+                addInstrumentedSbtPool(Instrumentations.newRelic, processFactory)
+                self.tell(originalMessage, originalSender)
+            }
+        }
+      case GetTaskActor(taskId, description, _) =>
+        val pool = uninstrumentedSbts
         val task = context.actorOf(Props(new ChildTaskActor(taskId, description, pool)),
           name = "task-" + URLEncoder.encode(taskId, "UTF-8"))
         tasks += (taskId -> task)
