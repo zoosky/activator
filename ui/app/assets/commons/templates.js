@@ -133,7 +133,7 @@ define(function() {
         setTimeout(function() {
           element.scrollLeft = memos[label][0];
           element.scrollTop  = memos[label][1];
-        }, 0);
+        }, 100);
         $(element).off('scroll').on('scroll', function(e) {
           memos[label][0] = element.scrollLeft;
           memos[label][1] = element.scrollTop;
@@ -166,7 +166,7 @@ define(function() {
           } else {
             element.scrollTop = memos[label];
           }
-        }, 0);
+        }, 100);
 
         // Create a clone
         var trigger = ko.computed(function() {
