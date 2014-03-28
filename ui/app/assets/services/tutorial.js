@@ -9,6 +9,17 @@ define(function() {
     hasTutorial(true);
     var htmlNodes = $.parseHTML(data);
     $(htmlNodes).filter("div").each(function(i,el){
+      $("a", el).each(function(j, link) {
+        // Open external links in new window.
+        if (link.getAttribute('href').indexOf("http://") == 0){
+          link.target = "_blank";
+        // Force shorcut class on links to code
+        } else if (link.getAttribute('href').indexOf("#code/") == 0){
+          $(link).addClass("shorcut");
+        }
+      });
+      $("a", el).each(function(j, link) {
+      });
       var title = $("h2", el).remove().html() || $(el).text().substring(0,40) + "...";
       pages.push({ index: i, title: title, page: el.innerHTML });
       table.push(title);

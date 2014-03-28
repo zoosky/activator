@@ -94,6 +94,7 @@
       transform: none !important;
     }
     .groupLeft {
+      dt {font-size: 19px;}
       dd {
         right: -46px !important;
         &:before {
@@ -102,6 +103,7 @@
       }
     }
     .groupRight {
+      dt {font-size: 22px;}
       dd {
         right: -15px !important;
         &:before {
@@ -143,6 +145,17 @@ div.code-editor {
   bottom: 0;
   left: 0;
   position: absolute;
+}
+
+.image-editor {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  max-width: 90%;
+  max-height: 90%;
+  -webkit-transform: translate(-50%,-50%);
+  -moz-transform: translate(-50%,-50%);
+  transform: translate(-50%,-50%);
 }
 
 .code-viewer {
