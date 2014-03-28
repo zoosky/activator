@@ -50,24 +50,20 @@
     padding: 10px 20px;
     border-bottom: 1px solid @grey-ltr;
     .ellipsis();
+    &:hover, &.active {
+      background-color: @grey-dkr-alt;
+    }
+    &.focus {
+      background-color: @blue;
+    }
     li {
       padding: 5px 0 5px 20px;
       border-bottom: none;
     }
   }
-  .links {
-    li {
-      &:hover, &.active {
-        background-color: @grey-dkr-alt;
-      }
-      &.focus {
-        background-color: @blue;
-      }
-    }
-    a {
-      .cover();
-      color: #fff;
-    }
+  a {
+    .cover();
+    color: #fff;
   }
   fieldset {
     margin: 8px 0;
