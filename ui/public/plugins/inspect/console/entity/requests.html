@@ -30,23 +30,25 @@
             </tbody>
         </table>
     </section>
-    <footer class="filters fourFilters">
-        <p class="limit select">
-            <label>Limit</label>
-            <select data-bind="value: limit">
-                <option value="25">25</option>
-                <option value="50">50</option>
-                <option value="100">100</option>
-                <option value="200">200</option>
-                <option value="500">500</option>
-            </select>
-        </p>
-        <p class="sorting select">
-            <label>Sort Direction</label>
-            <select data-bind="value: sortDirection">
-                <option value="desc">Descending</option>
-                <option value="asc">Ascending</option>
-            </select>
-        </p>
-    </footer>
+    <!-- ko if: requests().length -->
+        <footer class="filters fourFilters">
+            <p class="limit select">
+                <label>Limit</label>
+                <select data-bind="value: limit">
+                    <option value="25">25</option>
+                    <option value="50">50</option>
+                    <option value="100">100</option>
+                    <option value="200">200</option>
+                    <option value="500">500</option>
+                </select>
+            </p>
+            <p class="sorting select">
+                <label>Sort Direction</label>
+                <select data-bind="value: sortDirection">
+                    <option value="desc">Descending</option>
+                    <option value="asc">Ascending</option>
+                </select>
+            </p>
+        </footer>
+    <!-- /ko -->
 </article>

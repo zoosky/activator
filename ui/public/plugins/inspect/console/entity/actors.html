@@ -43,6 +43,7 @@
             </tbody>
         </table>
     </section>
+    <!-- ko if: actors().length -->
         <footer class="filters fourFilters">
             <p class="showing">
                 Showing <span class="itemsShown" data-bind="text: actors().length">?</span>
@@ -72,5 +73,5 @@
                 <label><input type="checkbox" data-bind="checked: fullActorPath"> Show full actor paths</label>
             </p>
         </footer>
-    </article>
+    <!-- /ko -->
 </div>
