@@ -1,0 +1,41 @@
+@import "../../commons/_base";
+
+.switch-input {
+  position: absolute;
+  top: -9999em;
+}
+label.switch {
+  display: block;
+  position: relative;
+  span {
+    display: block;
+  }
+  .outer {
+    position: relative;
+    width: 30px;
+    height: 16px;
+    border-radius: 8px;
+    border: 2px solid @white-dkr;
+    .transition();
+  }
+  .inner {
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    background: @white-dkr;
+    width: 8px;
+    height: 8px;
+    border-radius: 4px;
+    .transition();
+  }
+  input:checked + & {
+    .outer {
+      background: @blue;
+      border-color: #fff;
+    }
+    .inner {
+      background: #fff;
+      left: 16px;
+    }
+  }
+}

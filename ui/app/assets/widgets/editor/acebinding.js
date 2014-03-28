@@ -70,8 +70,11 @@ define([
       var location = ko.utils.unwrapObservable(viewModel.file).location;
       var highlight = ko.utils.unwrapObservable(options.highlight || 'text');
 
-      if (!content) return 0;
-      savedSession[location] = savedSession[location] || new ace.EditSession(content, 'ace/mode/'+highlight);
+      if (content == undefined) return 0;
+      if (!savedSession[location]){
+        savedSession[location] = new ace.EditSession(content, 'ace/mode/'+highlight);
+        savedSession[location].setUndoManager(new ace.UndoManager());
+      }
       editor.setSession(savedSession[location]);
 
       var line = viewModel.focusLine();

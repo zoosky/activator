@@ -16,8 +16,7 @@
 
 body {
   font: 13px "Helvetica Neue", sans-serif;
-  background: #384046 url("/public/images/home.png");
-  background-image: url("/public/images/home@2x.png") center bottom;
+  background: @slate url("/public/images/home.svg") no-repeat;
   background-size: cover;
   color: #D3D9DF;
   -webkit-font-smoothing: antialiased;
@@ -26,28 +25,16 @@ html, body {
   overflow: auto;
 }
 
-.hidden {
-  display: none;
+#logo {
+  position: absolute;
+  top: 30px;
+  left: 50%;
+  width: 200px;
+  margin-left: -100px;
 }
 
-h1 {
-  font-family: "HelveticaNeue-UltraLight", "Helvetica Neue", sans-serif;
-  font-weight: 100;
-  font-size: 50px;
-  color: #6F7F89;
-  line-height: 45px;
-  white-space: nowrap;
-  margin: 25px 15px;
-  strong {
-    font-weight: 600;
-  }
-  .typesafe:before {
-    content: "\e000";
-    font-family: logos;
-    vertical-align: -10%;
-    padding-right: .2em;
-    display: inline-block;
-  }
+.hidden {
+  display: none;
 }
 
 h2 {

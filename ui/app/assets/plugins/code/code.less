@@ -8,6 +8,7 @@
 	.list {
     li {
       position: relative;
+      font-family: icons;
     }
     a {
       .cover();
@@ -27,8 +28,12 @@
     }
 	}
 	.breadcrumb {
+    position: relative;
 		font-weight: 900;
-		padding-left: 40px;
+		padding-left: 25px;
+    font-size: 12px;
+    font-weight: 500;
+    overflow: hidden;
 		.wrap {
 			float: right;
 			white-space: nowrap;
@@ -38,13 +43,13 @@
 		.home {
 			position: absolute;
 			display: inline-block;
-			float: left;
-			width: 40px;
-			background: #46BCD9;
-			left: 0;
-			font: 20px icons;
-            line-height: 40px;
-			text-align: center;
+			left: -5px;
+      top: 5px;
+      width: 25px;
+      text-align: center;
+			font: 16px icons;
+      background: @grey-dkr;
+      z-index: 9;
 		}
 		a {
 			display: inline-block;
@@ -79,6 +84,34 @@
 		right: 0;
 		background: rgb(211, 217, 223);
 	}
+
+  // TODO: clean, this is hardcode
+  .nav-options {
+    dd {
+      left: auto !important;
+      -webkit-transform: none !important;
+      -moz-transform: none !important;
+      transform: none !important;
+    }
+    .groupLeft {
+      dt {font-size: 19px;}
+      dd {
+        right: -46px !important;
+        &:before {
+          left: 187px;
+        }
+      }
+    }
+    .groupRight {
+      dt {font-size: 22px;}
+      dd {
+        right: -15px !important;
+        &:before {
+          left: 219px;
+        }
+      }
+    }
+  }
 }
 
 div.file-tree {
@@ -112,6 +145,17 @@ div.code-editor {
   bottom: 0;
   left: 0;
   position: absolute;
+}
+
+.image-editor {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  max-width: 90%;
+  max-height: 90%;
+  -webkit-transform: translate(-50%,-50%);
+  -moz-transform: translate(-50%,-50%);
+  transform: translate(-50%,-50%);
 }
 
 .code-viewer {

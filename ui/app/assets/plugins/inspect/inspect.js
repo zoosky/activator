@@ -5,9 +5,7 @@ define(['main/pluginapi', 'commons/streams', 'services/build', './console/consol
   function(api, streams, build, Console, Connection, template){
 
     var InspectState = {
-        reset: Connection.reset,
         consoleWidget: new Console()
-
     }
 
     // Make connection a subscriber to events sent to the streams WS

@@ -1,7 +1,7 @@
 /*
  Copyright (C) 2013 Typesafe, Inc <http://typesafe.com>
  */
-define(['text!./overview.html', 'main/pluginapi', './widget', './format'], function(template, api, ConsoleWidget, format) {
+define(['text!./overview.html', 'main/pluginapi', './widget', './format', 'services/connection'], function(template, api, ConsoleWidget, format, Connection) {
 
 
   return api.Class(ConsoleWidget, {
@@ -25,6 +25,9 @@ define(['text!./overview.html', 'main/pluginapi', './widget', './format'], funct
       this.hasDeviations = ko.computed(function() {
         return self.deviations() > 0;
       });
+    },
+    reset: function() {
+      Connection.reset()
     },
     active: ko.observable(''),
     dataName: 'overview',

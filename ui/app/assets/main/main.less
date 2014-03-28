@@ -13,13 +13,14 @@ html, body {
 body {
   background: @grey;
   color: @grey-dkr;
-  font: 500 14px/1em "Helvetica Neue", "Helvetica", sans-serif;
+  font: 500 14px "Helvetica Neue", "Helvetica", sans-serif;
   -webkit-font-smoothing: antialiased;
   overflow: hidden;
   -webkit-user-select: none;
   -moz-user-select: none;
   -ms-user-select: none;
   user-select: none;   
+  cursor: default;
 }
 
 button {
@@ -76,44 +77,34 @@ a[href="#todo"], [todo] {
   }
 }
 
-/* Styled checkbox */
-input[type="checkbox"].styled {
-    display:none;
-}
-input[type="checkbox"].styled + label span {
-    vertical-align: text-bottom;
-    margin-right: 5px;
-    border: 2px solid rgba(255, 255, 255, .5);
-    border-radius: 2px;
-    display: inline-block;
-    width: 16px;
-    height: 16px;
-    cursor: pointer;
-}
-input[type="checkbox"].styled:checked + label span:before {
-    content: "\2713";
-    color: #ffffff;
-    font: 18px icons;
-    line-height: 16px;
-    display: inline;
-}
-input[type="checkbox"].styled.dark + label span {
-    border-color: rgba(0, 0, 0, .25);
-}
-input[type="checkbox"].styled.dark:checked + label span:before {
-    color: #000000;
+#overlay {
+  background-color: fade(@slate, 50);
+  width: 100%;
+  height: 100%;
+  z-index: 100;
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  & > * {
+    box-shadow: 0 3px 0 rgba(0,0,0,.5);
+    margin: auto;
+    position: absolute;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    right: 0;
+  }
 }
 
-
+@import "./_app";
 @import "../commons/_tables";
-@import '_app.less';
-@import '../widgets/lists/_list';
 @import "../widgets/breadcrumb/_breadcrumb";
 @import "../widgets/buttons/_button";
 @import "../widgets/buttons/_dropdown";
 @import "../widgets/header/_header";
 @import "../widgets/layout/_layout";
-@import "../widgets/panels/_panels";
 @import "../widgets/navigation/_navigation";
 @import "../widgets/omnisearch/_omnisearch";
 @import "../widgets/typesafe/_typesafe";

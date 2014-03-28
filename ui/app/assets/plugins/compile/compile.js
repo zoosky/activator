@@ -1,10 +1,8 @@
 /*
  Copyright (C) 2013 Typesafe, Inc <http://typesafe.com>
  */
-define(['text!./compile.html', 'main/plugins', 'main/pluginapi', 'services/build', 'commons/settings', 'widgets/log/log', 'css!./compile.css'],
+define(['text!./compile.html', 'main/plugins', 'main/pluginapi', 'services/build', 'commons/settings', 'css!./compile.css', "widgets/navigation/menu"],
   function(template, plugins, api, build, settings, LogView) {
-
-    var logView = new LogView(build.log);
 
     var CompileState = (function(){
       var self = {};
@@ -16,8 +14,16 @@ define(['text!./compile.html', 'main/plugins', 'main/pluginapi', 'services/build
         else
           return "Start compiling";
       });
-      self.logView = logView;
-      self.logScroll = logView.findScrollState();
+      self.log = build.log;
+
+      // Limit log size
+      // TODO: factorise this, maybe add a setting
+      self.log.entries.subscribe(function(el) {
+        if (el.length > 120){
+          self.log.entries.splice(0, el.length - 100);
+        }
+      });
+
       // TODO get rid of per-plugin status
       self.status = ko.observable(api.STATUS_DEFAULT);
       // aliased here so our html template can find it
@@ -28,27 +34,15 @@ define(['text!./compile.html', 'main/plugins', 'main/pluginapi', 'services/build
         debug && console.log("Start/stop compile was clicked");
         build.toggleTask('compile');
       };
-      self.onPreDeactivate = function() {
-        this.logScroll = this.logView.findScrollState();
-      };
-      self.onPostActivate = function() {
-        this.logView.applyScrollState(this.logScroll);
-      };
 
       return self;
     }());
 
     return {
-      beforeRender: function() {
-        CompileState.onPostActivate();
-      },
       render: function() {
         var $compile = $(template)[0];
         ko.applyBindings(CompileState, $compile);
         return $compile;
-      },
-      afterRender: function() {
-        CompileState.onPreDeactivate();
       },
       route: function(url, breadcrumb) {
       }

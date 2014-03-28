@@ -5,8 +5,8 @@ table {
   font-size: 13px;
   th, td {
     white-space: nowrap;
-    border-bottom: 1px solid @light;
-    border-left: 1px solid @light;
+    border-bottom: 1px solid @white-dkr;
+    border-left: 1px solid @white-dkr;
     padding: 5px 15px;
     &.right {
       text-align: right;
@@ -29,10 +29,9 @@ table {
   }
   th {
     font-weight: 700;
-    border-color: #A6B7C3;
-    background-color: #899CA9;
-    color: #fff;
-    font-size: 16px;
+    background-color: @white-ltr;
+    color: @grey;
+    font-size: 14px;
     text-align: left;
     vertical-align: bottom;
     &.sortBy {
@@ -41,7 +40,7 @@ table {
       }
       span:after {
         content: "\25be";
-        color: white;
+        color: @grey-ltr;
         font: 16px icons;
         line-height: inherit;
         margin-right: -10px;
@@ -53,10 +52,10 @@ table {
   }
   tr {
     &:hover td {
-      background: @clear;
+      background: @white-ltr;
     }
     &.active td, &:active td {
-      background-color: @clear;
+      background-color: @white-ltr;
     }
   }
   a {

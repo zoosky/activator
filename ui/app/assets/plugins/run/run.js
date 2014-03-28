@@ -1,10 +1,8 @@
 /*
  Copyright (C) 2013 Typesafe, Inc <http://typesafe.com>
  */
-define(['services/build', 'main/model', 'text!./run.html', 'main/pluginapi', 'commons/settings', 'widgets/log/log', 'css!./run.css'],
+define(['services/build', 'main/model', 'text!./run.html', 'main/pluginapi', 'commons/settings', 'css!./run.css', "widgets/navigation/menu"],
     function(build, model, template, api, settings, LogView, css){
-
-  var logView = new LogView(build.run.outputLog);
 
   var RunState = (function(){
     var self = {};
@@ -17,12 +15,21 @@ define(['services/build', 'main/model', 'text!./run.html', 'main/pluginapi', 'co
         return "Start";
     }, this);
 
+    self.log = build.run.outputLog;
+
+    // Limit log size
+    // TODO: factorise this, maybe add a setting
+    self.log.entries.subscribe(function(el) {
+      if (el.length > 120){
+        self.log.entries.splice(0, el.length - 100);
+      }
+    });
+
     // Aliases so we can use these in our html template.
     // This is a mess to clean up; we should just alias
     // 'build' or something then refer to these.
     // But doing this to keep changes in one commit smaller.
     // We want to just change the whole 'build' API anyway.
-    self.outputLogView = logView;
     self.playAppLink = build.run.playAppLink;
     self.playAppStarted = build.run.playAppStarted;
     self.haveActiveTask = build.run.haveActiveTask;
@@ -33,7 +40,6 @@ define(['services/build', 'main/model', 'text!./run.html', 'main/pluginapi', 'co
     self.restartPending = build.run.restartPending;
     self.consoleCompatible = build.app.hasConsole;
     self.statusMessage = build.run.statusMessage;
-    self.outputScroll = logView.findScrollState();
 
     self.update = function(parameters){
     }
@@ -45,12 +51,6 @@ define(['services/build', 'main/model', 'text!./run.html', 'main/pluginapi', 'co
       debug && console.log("Restart was clicked");
       build.restartTask('run');
     }
-    self.onPreDeactivate = function() {
-      RunState.outputScroll = logView.findScrollState();
-    }
-    self.onPostActivate = function() {
-      logView.applyScrollState(RunState.outputScroll);
-    }
 
     return self;
   }());
@@ -61,8 +61,6 @@ define(['services/build', 'main/model', 'text!./run.html', 'main/pluginapi', 'co
       ko.applyBindings(RunState, $run);
       return $run;
     },
-    beforeRender: RunState.onPostActivate,
-    afterRender: RunState.onPreDeactivate,
     route: function(){}
   }
 });

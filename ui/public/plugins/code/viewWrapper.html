@@ -10,24 +10,26 @@
       <dd>
         <!-- ko if: canSetFontSize() -->
         Font size
+        <p>
         <a class="button inline switchFontSize" style="font-size: 12px;" data-bind="click: onSetFontSize" data-font-size="12">Aa</a>
         <a class="button inline switchFontSize" style="font-size: 14px;" data-bind="click: onSetFontSize" data-font-size="14">Aa</a>
         <a class="button inline switchFontSize" style="font-size: 16px;" data-bind="click: onSetFontSize" data-font-size="16">Aa</a>
         <a class="button inline switchFontSize" style="font-size: 18px;" data-bind="click: onSetFontSize" data-font-size="18">Aa</a>
+        </p>
         <br>
         <!-- /ko -->
         <!-- ko if: canSwitchTheme() -->
-        Color scheme<br>
+        Color scheme
+        <p>
         <a class="button inline switchTheme" data-bind="click: onSwitchTheme">Dark</a>
         <a class="button inline switchTheme" data-bind="click: onSwitchTheme">Light</a>
+        </p>
         <!-- /ko -->
       </dd>
     </dl>
     <!-- /ko -->
 	</nav>
 	<h1 data-bind='text: title'></h1>
-	<p class="subheader" data-bind="text: fileStats"></span>
-	</p>
 </header>
 <div class="wrapper" data-bind="snapView: subView()"></div>
 <!-- /ko -->

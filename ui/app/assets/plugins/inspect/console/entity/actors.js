@@ -80,7 +80,7 @@ define(['text!./actors.html', 'main/pluginapi', '../widget', '../format', '../ho
         }
         return actors;
       });
-      isSystemActor = function(path) {
+      this.isSystemActor = function(path) {
         if (path.indexOf("/user") == path.length - 5) return true;
         return false;
       };

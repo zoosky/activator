@@ -90,8 +90,46 @@ body.panelOpened {
         left: @drawer-width;
       }
     }
-    main {
+    #wrapper {
       bottom: @panel-width;
     }
+  }
+}
+
+
+.modal {
+  position: fixed;
+  z-index: 9999;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  right: 0;
+}
+
+
+.oneColumn {
+  > div, > section {
+    position: absolute;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    right: 1px;
+  }
+}
+
+.oneColumnAndMenu {
+  > nav {
+    width: @menu-width;
+    position: absolute;
+    top: 0;
+    left: 0;
+    bottom: 0;
+  }
+  > div, > section {
+    position: absolute;
+    top: 0;
+    left: @menu-width;
+    bottom: 0;
+    right: 1px;
   }
 }

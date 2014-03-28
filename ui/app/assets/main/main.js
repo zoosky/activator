@@ -37,6 +37,7 @@ var services = [
     'services/sbt',
     'services/build',
     'services/log',
+    'services/tutorial',
     'services/connection',
     'widgets/notifications/notifications',
     'services/typesafe'
@@ -49,23 +50,16 @@ var core = [
   'main/pluginapi',
   'main/keyboard',
   'main/omnisearch',
-  'main/navigation',
-  'main/panel'
+  'main/navigation'
 ]
-
-var init = ['main/plugin']
 
 require(vendors, function($, ko) {
   window.ko = ko; // it's used on every page...
   require(commons, function() {
     require(services, function() {
       require(core, function(model,view, router) {
-        require(init, function(plugins) {
-          // Done.
-          model.init(plugins);
-          view.render(model);
-          router.load(window.location.hash)
-        })
+        view.render(model);
+        router.load(window.location.hash)
       })
     })
   })
