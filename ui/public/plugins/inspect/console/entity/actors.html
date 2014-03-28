@@ -26,12 +26,12 @@
             <tbody class="listing" data-bind="foreach: actors">
                 <tr>
                     <td class="name">
-                        <div data-bind="if: !isSystemActor(actorLink)">
+                        <div data-bind="if: !$root.isSystemActor(actorLink)">
                             <a href="#" data-bind="text: path, attr: { href: actorLink, 'data-hover-text': hover }">
                                 <!-- ko foreach: prefix--><!-- ko text: $data--><!-- /ko -->/<wbr><!-- /ko --><strong data-bind="text: name, attr: { 'data-hover-text': hover }"></strong>
                             </a>
                         </div>
-                        <div data-bind="if: isSystemActor(actorLink)">
+                        <div data-bind="if: $root.isSystemActor(actorLink)">
                             <span data-bind="text: path"></span>
                         </div>
                     </td>
@@ -74,4 +74,4 @@
             </p>
         </footer>
     <!-- /ko -->
-</div>
+</article>
