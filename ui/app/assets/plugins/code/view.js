@@ -127,11 +127,9 @@ define(["text!./viewWrapper.html", "text!./viewDefault.html", "./imageView", "./
     saveBeforeSwitchFiles: function(onDone, onCancel) {
       var self = this;
       if (self.file().isContentsDirty()) {
-        var result = window.confirm('Save changes to "' + self.file().name() + '"?');
+        var result = window.confirm('Do you want to close "' + self.file().name() + '" without saving?');
         if (result) {
-          self.subView().save(function() {
-            if (onDone) onDone();
-          }, onCancel);
+          if (onDone) onDone();
         } else {
           if (onCancel) onCancel();
         }
