@@ -949,7 +949,9 @@ define(['webjars!knockout', 'commons/settings', 'services/log', 'commons/utils',
         var test = new TestResult(params);
         this.results.push(test);
       } else {
-        match.update(params);
+        if (match.outcome == 'passed') {
+          match.update(params);
+        }
       }
     },
     onCompileSucceeded: function(event) {
