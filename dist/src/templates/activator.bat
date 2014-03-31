@@ -90,7 +90,7 @@ if "%_JAVA_OPTS%"=="" set _JAVA_OPTS=%CFG_OPTS%
 if "%*"=="" (
   if defined DOUBLECLICKED (
     set CMDS="ui"
-  ) else set CMD=%*
+  ) else set CMDS=%*
 ) else set CMDS=%*
 
 rem We add a / in front, so we get file:///C: instead of file://C:
