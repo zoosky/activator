@@ -310,6 +310,7 @@ define(['webjars!knockout', 'commons/settings', 'services/log', 'commons/utils',
       self.reloadProjectInfoThenCompile();
     },
     stopCompile: function() {
+      var self = this;
       if (self.haveActiveTask()) {
         sbt.killTask({
           taskId: self.activeTask(),
@@ -1114,8 +1115,7 @@ define(['webjars!knockout', 'commons/settings', 'services/log', 'commons/utils',
       run.restartPending(false);
       run.doStop();
     } else if (name == 'compile') {
-      compile.restartPending(false);
-      compile.doCompile();
+      compile.stopCompile();
     } else if (name == 'test') {
       test.restartPending(false);
       test.doTest(false);
