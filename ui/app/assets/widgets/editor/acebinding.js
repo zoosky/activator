@@ -74,6 +74,9 @@ define([
       if (!savedSession[location]){
         savedSession[location] = new ace.EditSession(content, 'ace/mode/'+highlight);
         savedSession[location].setUndoManager(new ace.UndoManager());
+      } else if(content != editor.getValue()){
+        editor.setValue(content);
+        editor.clearSelection();
       }
       editor.setSession(savedSession[location]);
 
