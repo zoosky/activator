@@ -38,12 +38,7 @@ object Properties {
       val parent= dir / "activator" / "properties"
       IO createDirectory parent
       val target = parent / "activator.properties"
-
-      if (!version.startsWith(configVersion))
-        sys.error(s"It looks like you might want to update configVersion ${configVersion} to match version ${version}? or improve this error-detection logic")
-
       writeIfChanged(target, makeJavaPropertiesString(version, sbtDefaultVersion, scalaVersion, configVersion, previousConfigVersion, launcherGeneration))
-
       Seq(target)
     }
   )
