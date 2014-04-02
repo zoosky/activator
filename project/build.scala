@@ -229,7 +229,7 @@ object TheActivatorBuild extends Build {
         "com.typesafe.akka" % "akka-actor_2.10" % "2.2.1",
         "com.typesafe.akka" % "akka-testkit_2.10" % "2.2.1",
         "com.typesafe.akka" % "akka-slf4j_2.10" % "2.2.1",
-	"com.typesafe.akka" % "akka-contrib_2.10" % "2.2.1",
+        "com.typesafe.akka" % "akka-contrib_2.10" % "2.2.1",
         "org.scalatest" % "scalatest_2.10" % "2.0",
         "junit" % "junit" % "4.11",
         "org.fusesource.jansi" % "jansi" % "1.11",
@@ -247,14 +247,15 @@ object TheActivatorBuild extends Build {
         "com.typesafe.play.extras" % "play-geojson_2.10" % "1.0.0",
         "org.webjars" % "bootstrap" % "3.0.0",
         "org.webjars" % "knockout" % "2.3.0",
-        "org.webjars" % "leaflet" % "0.6.4",
+        "org.webjars" % "leaflet" % "0.7.2",
         "com.typesafe.sbt" % "sbt-atmos-play" % "0.3.1",
 
         // failed transatives
         "junit" % "junit" % "3.8.1",
         "com.jcraft" % "jsch" % "0.1.44-1",
         "jline" % "jline" % "0.9.94",
-        "com.typesafe.akka" % "akka-slf4j_2.10" % "2.2.0"
+        "com.typesafe.akka" % "akka-slf4j_2.10" % "2.2.0",
+        "com.typesafe.akka" % "akka-contrib_2.10" % "2.2.3"
       ),
       Keys.mappings in S3.upload <<= (Keys.packageBin in Universal, Packaging.minimalDist, Keys.version) map { (zip, minimalZip, v) =>
         Seq(minimalZip -> ("typesafe-activator/%s/typesafe-activator-%s-minimal.zip" format (v, v)),
