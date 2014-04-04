@@ -126,7 +126,10 @@ get_mem_opts () {
   (( $perm < 1024 )) || perm=1024
   local codecache=$(( $perm / 2 ))
 
-  echo "-Xms${mem}m -Xmx${mem}m -XX:MaxPermSize=${perm}m -XX:ReservedCodeCacheSize=${codecache}m"
+  if [[ "$java_version" < "1.8" ]]; then
+    PERMSIZE=-XX:MaxPermSize=${perm}m
+  fi
+  echo "-Xms${mem}m -Xmx${mem}m $PERMSIZE -XX:ReservedCodeCacheSize=${codecache}m"
 }
 require_arg () {
   local type="$1"
