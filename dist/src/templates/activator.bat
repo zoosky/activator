@@ -56,7 +56,7 @@ for /F %%j in ('"%_JAVACCMD%" -version 2^>^&1') do (
   if %%~j==javac set JAVACINSTALLED=1
 )
 
-rem BAT has no logiclal or, so we do it OLD SCHOOL! Oppan Redmond Style
+rem BAT has no logical or, so we do it OLD SCHOOL! Oppan Redmond Style
 set JAVAOK=true
 if not defined JAVAINSTALLED set JAVAOK=false
 if not defined JAVACINSTALLED set JAVAOK=false
@@ -80,6 +80,27 @@ if "%JAVAOK%"=="false" (
   exit /B 1
 )
 
+rem Check what Java version is being used to determine what memory options to use
+for /f "tokens=3" %%g in ('java -version 2^>^&1 ^| findstr /i "version"') do (
+    set JAVA_VERSION=%%g
+    set JAVA_VERSION=%JAVA_VERSION:"=%
+)
+
+rem TODO Check if there are existing mem settings in JAVA_OPTS/CFG_OPTS and use those instead of the below
+for /f "delims=. tokens=1,2,3" %%v in ("%JAVA_VERSION%") do (
+    set MAJOR=%%major
+    set MINOR=%%minor
+    set BUILD=%%build
+
+﻿   set PERM_SIZE=-XX:PermSize=64M
+    set MAX_PERM_SIZE=
+
+    if "%MINOR%" LSS "8" (
+      set MAX_PERM_SIZE=-XX:MaxPermSize=256M
+    )
+
+    set MEM_OPTS=%PERM_SIZE% %MAX_PERM_SIZE%
+)
 
 rem We use the value of the JAVA_OPTS environment variable if defined, rather than the config.
 set _JAVA_OPTS=%JAVA_OPTS%
@@ -100,7 +121,7 @@ rem We don't even bother with UNC paths.
 set JAVA_FRIENDLY_HOME_1=/!ACTIVATOR_HOME:\=/!
 set JAVA_FRIENDLY_HOME=/!JAVA_FRIENDLY_HOME_1: =%%20!
 
-"%_JAVACMD%" %_JAVA_OPTS% -XX:PermSize=64M -XX:MaxPermSize=256M %ACTIVATOR_OPTS% "-Dactivator.home=%JAVA_FRIENDLY_HOME%" -jar "%ACTIVATOR_HOME%\%ACTIVATOR_LAUNCH_JAR%" %CMDS%
+"%_JAVACMD%" %_JAVA_OPTS% %MEM_OPTS% %ACTIVATOR_OPTS% "-Dactivator.home=%JAVA_FRIENDLY_HOME%" -jar "%ACTIVATOR_HOME%\%ACTIVATOR_LAUNCH_JAR%" %CMDS%
 if ERRORLEVEL 1 goto error
 goto end
 
