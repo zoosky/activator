@@ -125,10 +125,8 @@ get_mem_opts () {
   (( $perm > 256 )) || perm=256
   (( $perm < 1024 )) || perm=1024
 
-  local memopts="-XX:PermSize=64M"
-
   if [[ "$java_version" < "1.8" ]]; then
-    memopts="$memopts -XX:MaxPermSize=${perm}m"
+    memopts="-XX:PermSize=64M -XX:MaxPermSize=${perm}m"
   fi
 
   echo "-Xms${mem}m -Xmx${mem}m $memopts"
