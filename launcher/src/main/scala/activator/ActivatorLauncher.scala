@@ -22,17 +22,18 @@ class ActivatorLauncher extends AppMain {
 
   val currentLauncherGeneration = ACTIVATOR_LAUNCHER_GENERATION
 
-  def run(configuration: AppConfiguration) =
+  def run(configuration: AppConfiguration) = {
     // TODO - Detect if we're running against a local project.
     try configuration.arguments match {
       case Array("ui") => RebootToUI(configuration, version = checkForUpdatedVersion.getOrElse(APP_VERSION))
-      case Array("new") => Exit(ActivatorCli(configuration))
+      case Array("new", _*) => Exit(ActivatorCli(configuration))
       case Array("shell") => RebootToSbt(configuration, useArguments = false)
       case _ if Sbt.looksLikeAProject(new File(".")) => RebootToSbt(configuration, useArguments = true)
       case _ => displayHelp(configuration)
     } catch {
       case e: Exception => generateErrorReport(e)
     }
+  }
 
   // Wrapper to return exit codes.
   case class Exit(val code: Int) extends xsbti.Exit
