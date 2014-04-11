@@ -67,7 +67,7 @@ object AppActor {
 
   def getRunInstrumentation(request: protocol.Request): InstrumentationTag = request match {
     case protocol.GenericRequest(_, command, params) if runTasks(command) =>
-      params.get("instrumentation").asInstanceOf[Option[String]].map(Instrumentations.validate).getOrElse(Instrumentations.Inspect)
+      params.get("instrumentation").asInstanceOf[Option[String]].map(Instrumentations.validate).getOrElse(Instrumentations.InspectTag)
     case _ => throw new RuntimeException(s"Cannot get instrumentation from a non-run request: $request")
   }
 
@@ -95,7 +95,7 @@ class AppActor(val config: AppConfig, val sbtProcessLauncher: SbtProcessLauncher
 
   def addInstrumentedSbtPool(tag: InstrumentationTag, factory: SbtProcessFactory): Unit = {
     tag match {
-      case Instrumentations.Inspect =>
+      case Instrumentations.InspectTag =>
       case i =>
         instrumentedSbtPools.get(i).foreach(_ ! PoisonPill)
         instrumentedSbtPools += (i -> context.actorOf(Props(new ChildPool(factory)), name = s"sbt-pool-${i.name}-${poolCounter.getAndIncrement()}"))
@@ -103,7 +103,7 @@ class AppActor(val config: AppConfig, val sbtProcessLauncher: SbtProcessLauncher
   }
 
   def getSbtPoolFor(tag: InstrumentationTag): Option[ActorRef] = tag match {
-    case Instrumentations.Inspect => Some(uninstrumentedSbts)
+    case Instrumentations.InspectTag => Some(uninstrumentedSbts)
     case i => instrumentedSbtPools.get(i)
   }
 
@@ -166,8 +166,8 @@ class AppActor(val config: AppConfig, val sbtProcessLauncher: SbtProcessLauncher
             self.tell(originalMessage, originalSender)
           case None =>
             instrumentation match {
-              case Instrumentations.Inspect =>
-              case Instrumentations.NewRelic =>
+              case Instrumentations.InspectTag =>
+              case Instrumentations.NewRelicTag =>
                 // Hack for demo purposes only.
                 // The real solution would involve inspecting the project for a New Relic config file
                 // and a TBD mechanism for getting the NR instrumentation jar.
@@ -175,7 +175,7 @@ class AppActor(val config: AppConfig, val sbtProcessLauncher: SbtProcessLauncher
                 val nrJar = new File(config.location, "conf/newrelic.jar")
                 val inst = NewRelic(nrConfigFile, nrJar)
                 val processFactory = new DefaultSbtProcessFactory(location, sbtProcessLauncher, inst.jvmArgs)
-                addInstrumentedSbtPool(Instrumentations.NewRelic, processFactory)
+                addInstrumentedSbtPool(Instrumentations.NewRelicTag, processFactory)
                 self.tell(originalMessage, originalSender)
             }
         }

@@ -258,6 +258,8 @@ object AppManager {
     (appCache ? ForgetApp(id)).map(_ => ())
   }
 
+  private def instrumentationExtractor(in: Map[String, Any]): Seq[Instrumentation] = ???
+
   // choose id "name", "name-1", "name-2", etc.
   // should always be called inside rewriteUser to avoid
   // a race creating the same ID
@@ -268,6 +270,7 @@ object AppManager {
       case None => candidate
     }
   }
+
   private def doInitialAppAnalysis(location: File, eventHandler: Option[JsObject => Unit] = None): Future[ProcessResult[AppConfig]] = {
     val validated = ProcessSuccess(location).validate(
       Validation.isDirectory,
@@ -289,9 +292,9 @@ object AppManager {
         })), name = "request-manager-" + requestManagerCount.getAndIncrement())
       val resultFuture: Future[ProcessResult[AppConfig]] =
         (requestManager ? protocol.NameRequest(sendEvents = true)) map {
-          case protocol.NameResponse(name, _) => {
+          case protocol.NameResponse(name, attributes) => {
             Logger.info("sbt told us the name is: '" + name + "'")
-            name
+            (name, attributes)
           }
           case protocol.ErrorResponse(error) =>
             // here we need to just recover, because if you can't open the app
@@ -299,22 +302,25 @@ object AppManager {
             Logger.info("error getting name from sbt: " + error)
             val name = location.getName
             Logger.info("using file basename as app name: " + name)
-            name
-        } flatMap { name =>
-          RootConfig.rewriteUser { root =>
-            val oldConfig = root.applications.find(_.location == location)
-            val now = System.currentTimeMillis
-            val createdTime = oldConfig.flatMap(_.createdTime).getOrElse(now)
-            val usedTime = now
-            val config = AppConfig(id = newIdFromName(root, name), cachedName = Some(name),
-              createdTime = Some(createdTime), usedTime = Some(usedTime), location = location)
-            val newApps = root.applications.filterNot(_.location == config.location) :+ config
-            root.copy(applications = newApps)
-          } map { Unit =>
-            import ProcessResult.opt2Process
-            RootConfig.user.applications.find(_.location == location)
-              .validated(s"Somehow failed to save new app at ${location.getPath} in config")
-          }
+            (name, Map.empty[String, Any])
+        } flatMap {
+          case (name, attributes) =>
+            RootConfig.rewriteUser { root =>
+              val oldConfig = root.applications.find(_.location == location)
+              val now = System.currentTimeMillis
+              val createdTime = oldConfig.flatMap(_.createdTime).getOrElse(now)
+              val usedTime = now
+              val availableInstrumentations = instrumentationExtractor(attributes)
+              val config = AppConfig(id = newIdFromName(root, name), cachedName = Some(name),
+                createdTime = Some(createdTime), usedTime = Some(usedTime), location = location,
+                availableInstrumentations = availableInstrumentations)
+              val newApps = root.applications.filterNot(_.location == config.location) :+ config
+              root.copy(applications = newApps)
+            } map { Unit =>
+              import ProcessResult.opt2Process
+              RootConfig.user.applications.find(_.location == location)
+                .validated(s"Somehow failed to save new app at ${location.getPath} in config")
+            }
         }
       resultFuture onComplete { result =>
         Logger.debug(s"Stopping sbt child because we got our app config or error ${result}")
