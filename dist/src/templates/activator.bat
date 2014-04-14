@@ -8,7 +8,25 @@
 @setlocal enabledelayedexpansion
 
 @echo off
+
+set "var1=%~1"
+if defined var1 (
+  if "%var1%"=="help" (
+    echo.
+    echo Usage: activator <command>
+    echo.
+    echo Commands:
+    echo ui               Start the Activator UI
+    echo new [name] [template-id]  Create a new project with [name] using template [template-id]
+    echo list-templates   Print all available template names
+    echo help             Print this message
+    echo.
+    goto :end
+  )
+)
+
 if "%ACTIVATOR_HOME%"=="" set "ACTIVATOR_HOME=%~dp0"
+
 set ERROR_CODE=0
 ${{template_declares}}
 set ACTIVATOR_LAUNCH_JAR=activator-launch-%APP_VERSION%.jar
@@ -93,7 +111,6 @@ for /f "delims=. tokens=1-3" %%v in ("%JAVA_VERSION%") do (
     set MAJOR=%%v
     set MINOR=%%w
     set BUILD=%%x
-
 
     set PERM_SIZE=
     if "%MINOR%" LSS "8" (

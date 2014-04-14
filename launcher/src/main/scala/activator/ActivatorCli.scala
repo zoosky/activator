@@ -10,21 +10,15 @@ import java.io.File
 import sbt.complete.{ Parser, Parsers }
 import scala.concurrent.Await
 import scala.concurrent.duration._
-import akka.actor.ActorSystem
-import java.util.concurrent.TimeoutException
 import activator.cache.{ TemplateMetadata, TemplateCache }
 
-object ActivatorCli {
-  val system = ActorSystem("default")
-  val defaultDuration = Duration(system.settings.config.getMilliseconds("activator.timeout"), MILLISECONDS)
-  implicit val timeout = akka.util.Timeout(defaultDuration)
-
+object ActivatorCli extends ActivatorCliHelper {
   case class ProjectInfo(projectName: String = "N/A", templateName: String = "N/A", file: Option[File] = None)
 
   def apply(configuration: AppConfiguration): Int = try withContextClassloader {
     // TODO - move this into a common shared location between CLI and GUI.
-    val cache = UICacheHelper.makeDefaultCache(system)
-    val metadata: Iterable[TemplateMetadata] = downloadTemplates(cache, defaultDuration)
+    val cache = UICacheHelper.makeDefaultCache(ActivatorCliHelper.system)
+    val metadata = TemplateHandler.downloadTemplates(cache, ActivatorCliHelper.defaultDuration)
 
     // Handling input based on length (yes, it is brittle to do argument parsing like this...):
     // length = 2 : "new" and "project name" => generate project automatically, but query for template to use
@@ -38,7 +32,7 @@ object ActivatorCli {
             case f @ Some(_) =>
               ProjectInfo(
                 projectName = pName,
-                templateName = getTemplateName(metadata.map(_.name).toSeq.distinct),
+                templateName = TemplateHandler.getTemplateName(metadata.map(_.name).toSeq.distinct),
                 file = f)
             case None => ProjectInfo()
           }
@@ -55,7 +49,7 @@ object ActivatorCli {
             case f @ Some(_) =>
               ProjectInfo(
                 projectName = pName,
-                templateName = getTemplateName(metadata.map(_.name).toSeq.distinct),
+                templateName = TemplateHandler.getTemplateName(metadata.map(_.name).toSeq.distinct),
                 file = f)
             case None => ProjectInfo()
           }
@@ -63,8 +57,8 @@ object ActivatorCli {
 
     val result = for {
       f <- projectInfo.file
-      t <- findTemplate(metadata, projectInfo.templateName)
-    } yield generateTemplate(t, projectInfo.templateName, projectInfo.projectName, cache, f)
+      t <- TemplateHandler.findTemplate(metadata, projectInfo.templateName)
+    } yield generateProjectTemplate(t, projectInfo.templateName, projectInfo.projectName, cache, f)
 
     result.getOrElse(1)
   }
@@ -78,35 +72,7 @@ object ActivatorCli {
     }
   }
 
-  private def findTemplate(metadata: Iterable[TemplateMetadata], tName: String): Option[TemplateMetadata] = {
-    metadata.find(_.name == tName) match {
-      case tm @ Some(_) => tm
-      case None =>
-        System.err.println(s"Could not find template with name: $tName")
-        None
-    }
-  }
-
-  private def downloadTemplates(cache: TemplateCache, duration: FiniteDuration): Iterable[TemplateMetadata] = {
-    try {
-      System.out.println()
-      System.out.println("Fetching the latest list of templates...")
-      System.out.println()
-      Await.result(cache.metadata, duration)
-    } catch {
-      case e: TimeoutException =>
-        // fall back to just using whatever we have in the local cache
-        System.out.println()
-        System.out.println("Could not fetch the updated list of templates.  Using the local cache.")
-        System.out.println("Check your proxy settings or increase the timeout.  For more details see:\nhttp://typesafe.com/activator/docs")
-        System.out.println()
-
-        val localOnlyCache = UICacheHelper.makeLocalOnlyCache(ActorSystem("fallback"))
-        Await.result(localOnlyCache.metadata, duration)
-    }
-  }
-
-  private def generateTemplate(template: TemplateMetadata, tName: String, pName: String, cache: TemplateCache, projectDir: File): Int = {
+  private def generateProjectTemplate(template: TemplateMetadata, tName: String, pName: String, cache: TemplateCache, projectDir: File): Int = {
     System.out.println(s"""OK, application "$pName" is being created using the "${template.name}" template.""")
     System.out.println()
     import scala.concurrent.ExecutionContext.Implicits.global
@@ -124,6 +90,7 @@ object ActivatorCli {
         filterMetadata = !template.templateTemplate,
         additionalFiles = UICacheHelper.scriptFilesForCloning),
       Duration(5, MINUTES))
+
     printUsage(pName, projectDir)
 
     // don't wait too long on this remote call, we ignore the
@@ -156,28 +123,6 @@ object ActivatorCli {
     readLine(appNameParser) filterNot (_.isEmpty) getOrElse sys.error("No application name specified.")
   }
 
-  private def getTemplateName(possible: Seq[String]): String = {
-    val templateNameParser: Parser[String] = {
-      import Parser._
-      import Parsers._
-      token(any.* map { _ mkString "" }, "<template name>").examples(possible.toSet, false)
-    }
-    System.out.println("Browse the list of templates: http://typesafe.com/activator/templates")
-    System.out.println("Enter a template name, or hit tab to see a list")
-    readLine(templateNameParser) filterNot (_.isEmpty) getOrElse sys.error("No template name specified.")
-  }
-
-  /** Uses SBT complete library to read user input with a given auto-completing parser. */
-  private def readLine[U](parser: Parser[U], prompt: String = "> ", mask: Option[Char] = None): Option[U] = {
-    val reader = new sbt.FullReader(None, parser)
-    reader.readLine(prompt, mask) flatMap { line =>
-      val parsed = Parser.parse(line, parser)
-      parsed match {
-        case Right(value) => Some(value)
-        case Left(e) => None
-      }
-    }
-  }
   def withContextClassloader[A](f: => A): A = {
     val current = Thread.currentThread
     val old = current.getContextClassLoader

@@ -27,6 +27,7 @@ class ActivatorLauncher extends AppMain {
     try configuration.arguments match {
       case Array("ui") => RebootToUI(configuration, version = checkForUpdatedVersion.getOrElse(APP_VERSION))
       case Array("new", _*) => Exit(ActivatorCli(configuration))
+      case Array("list-templates") => Exit(TemplateHandler())
       case Array("shell") => RebootToSbt(configuration, useArguments = false)
       case _ if Sbt.looksLikeAProject(new File(".")) => RebootToSbt(configuration, useArguments = true)
       case _ => displayHelp(configuration)
