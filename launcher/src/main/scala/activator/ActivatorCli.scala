@@ -12,31 +12,87 @@ import scala.concurrent.Await
 import scala.concurrent.duration._
 import akka.actor.ActorSystem
 import java.util.concurrent.TimeoutException
+import activator.cache.{ TemplateMetadata, TemplateCache }
 
 object ActivatorCli {
+  val system = ActorSystem("default")
+  val defaultDuration = Duration(system.settings.config.getMilliseconds("activator.timeout"), MILLISECONDS)
+  implicit val timeout = akka.util.Timeout(defaultDuration)
+
+  case class ProjectInfo(projectName: String = "N/A", templateName: String = "N/A", file: Option[File] = None)
+
   def apply(configuration: AppConfiguration): Int = try withContextClassloader {
-    System.out.println()
-    val name = getApplicationName()
-
-    val system = ActorSystem("default")
-
-    val defaultDuration = Duration(system.settings.config.getMilliseconds("activator.timeout"), MILLISECONDS)
-
-    val projectDir = new File(name).getAbsoluteFile
-    // Ok, now we load the template cache...
-
-    implicit val timeout = akka.util.Timeout(defaultDuration)
-
-    // Create our default cache
     // TODO - move this into a common shared location between CLI and GUI.
     val cache = UICacheHelper.makeDefaultCache(system)
-    // Get all possible names.
-    // TODO - Drive this whole thing through futures, if we feel SAUCY enough, rather than waiting for results.
-    System.out.println()
-    System.out.println("Fetching the latest list of templates...")
-    System.out.println()
-    val metadata = try {
-      Await.result(cache.metadata, defaultDuration)
+    val metadata: Iterable[TemplateMetadata] = downloadTemplates(cache, defaultDuration)
+
+    // Handling input based on length (yes, it is brittle to do argument parsing like this...):
+    // length = 2 : "new" and "project name" => generate project automatically, but query for template to use
+    // length = 3 : "new", "project name" and "template name" => generate project and template automatically
+    // length != (2 || 3) : query for both project name and template
+    val projectInfo =
+      configuration.arguments().length match {
+        case 2 =>
+          val pName = configuration.arguments()(1)
+          createFile(pName) match {
+            case f @ Some(_) =>
+              ProjectInfo(
+                projectName = pName,
+                templateName = getTemplateName(metadata.map(_.name).toSeq.distinct),
+                file = f)
+            case None => ProjectInfo()
+          }
+        case 3 =>
+          val pName = configuration.arguments()(1)
+          val tName = configuration.arguments()(2)
+          ProjectInfo(
+            projectName = pName,
+            templateName = tName,
+            file = createFile(pName))
+        case _ =>
+          val pName = getApplicationName()
+          createFile(pName) match {
+            case f @ Some(_) =>
+              ProjectInfo(
+                projectName = pName,
+                templateName = getTemplateName(metadata.map(_.name).toSeq.distinct),
+                file = f)
+            case None => ProjectInfo()
+          }
+      }
+
+    val result = for {
+      f <- projectInfo.file
+      t <- findTemplate(metadata, projectInfo.templateName)
+    } yield generateTemplate(t, projectInfo.templateName, projectInfo.projectName, cache, f)
+
+    result.getOrElse(1)
+  }
+
+  private def createFile(name: String): Option[File] = {
+    val file = new File(name)
+    if (!file.exists()) Some(file.getAbsoluteFile)
+    else {
+      System.err.println(s"There already is a project with name: $name. Either remove the existing project or create one with a unique name. ")
+      None
+    }
+  }
+
+  private def findTemplate(metadata: Iterable[TemplateMetadata], tName: String): Option[TemplateMetadata] = {
+    metadata.find(_.name == tName) match {
+      case tm @ Some(_) => tm
+      case None =>
+        System.err.println(s"Could not find template with name: $tName")
+        None
+    }
+  }
+
+  private def downloadTemplates(cache: TemplateCache, duration: FiniteDuration): Iterable[TemplateMetadata] = {
+    try {
+      System.out.println()
+      System.out.println("Fetching the latest list of templates...")
+      System.out.println()
+      Await.result(cache.metadata, duration)
     } catch {
       case e: TimeoutException =>
         // fall back to just using whatever we have in the local cache
@@ -46,50 +102,34 @@ object ActivatorCli {
         System.out.println()
 
         val localOnlyCache = UICacheHelper.makeLocalOnlyCache(ActorSystem("fallback"))
-        Await.result(localOnlyCache.metadata, defaultDuration)
+        Await.result(localOnlyCache.metadata, duration)
     }
-    val templateNames = metadata.map(_.name).toSeq.distinct
+  }
+
+  private def generateTemplate(template: TemplateMetadata, tName: String, pName: String, cache: TemplateCache, projectDir: File): Int = {
+    System.out.println(s"""OK, application "$pName" is being created using the "${template.name}" template.""")
     System.out.println()
-    System.out.println(s"The new application will be created in ${projectDir.getAbsolutePath}")
-    System.out.println()
-    val templateName = getTemplateName(templateNames)
-    // Check validity, and check for direct match first
-    val template = (metadata.find(_.name == templateName) orElse
-      metadata.find(_.name.toLowerCase contains templateName.toLowerCase))
-    template match {
-      case Some(t) =>
-        System.out.println(s"""OK, application "$name" is being created using the "${t.name}" template.""")
-        System.out.println()
-        import scala.concurrent.ExecutionContext.Implicits.global
+    import scala.concurrent.ExecutionContext.Implicits.global
 
-        // record stats in parallel while we are cloning
-        val statsRecorded = TemplatePopularityContest.recordClonedIgnoringErrors(t.name)
+    // record stats in parallel while we are cloning
+    val statsRecorded = TemplatePopularityContest.recordClonedIgnoringErrors(template.name)
 
-        // TODO - Is this duration ok?
-        Await.result(
-          cloneTemplate(
-            cache,
-            t.id,
-            projectDir,
-            Some(name),
-            filterMetadata = !t.templateTemplate,
-            additionalFiles = UICacheHelper.scriptFilesForCloning),
-          Duration(5, MINUTES))
-        printUsage(name, projectDir)
+    // TODO - Is this duration ok?
+    Await.result(
+      cloneTemplate(
+        cache,
+        template.id,
+        projectDir,
+        Some(pName),
+        filterMetadata = !template.templateTemplate,
+        additionalFiles = UICacheHelper.scriptFilesForCloning),
+      Duration(5, MINUTES))
+    printUsage(pName, projectDir)
 
-        // don't wait too long on this remote call, we ignore the
-        // result anyway; just don't want to exit the JVM too soon.
-        Await.result(statsRecorded, Duration(5, SECONDS))
-
-        0
-      case _ =>
-        sys.error("Could not find template with name: $templateName")
-    }
-  } catch {
-    case e: Exception =>
-      System.err.println(e.getMessage)
-      e.printStackTrace()
-      1
+    // don't wait too long on this remote call, we ignore the
+    // result anyway; just don't want to exit the JVM too soon.
+    Await.result(statsRecorded, Duration(5, SECONDS))
+    0
   }
 
   private def printUsage(name: String, dir: File): Unit = {
