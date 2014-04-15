@@ -17,12 +17,10 @@ case class AppConfig(location: File,
   id: String,
   createdTime: Option[Long],
   usedTime: Option[Long],
-  cachedName: Option[String] = None,
-  availableInstrumentations: Seq[Instrumentation] = Seq.empty[Instrumentation])
+  cachedName: Option[String] = None)
 
 object AppConfig {
   import JsonHelper._
-  import Instrumentations._
 
   implicit val writes = Json.writes[AppConfig]
 

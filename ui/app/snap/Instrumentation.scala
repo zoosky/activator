@@ -4,8 +4,16 @@
 package snap
 
 import java.io._
-import play.api.libs.json._
-import play.api.libs.functional.syntax._
+import akka.util.Timeout
+import scala.concurrent.duration._
+import scala.concurrent.{ Future, ExecutionContext }
+import play.api.libs.ws._
+import java.security.MessageDigest
+import java.io.FileInputStream
+import com.typesafe.config.{ Config => TSConfig }
+import play.api.Play
+import Play.current
+import scala.util.matching.Regex
 
 sealed abstract class InstrumentationTag(val name: String)
 
@@ -29,9 +37,171 @@ object NewRelic {
   sealed abstract class CheckResult(val message: String)
   case object MissingConfigFile extends CheckResult("Missing configuration file")
   case object MissingInstrumentationJar extends CheckResult("Missing instrumentation jar")
+
+  final val versionRegex = "\\{version\\}".r
+
+  def fromConfig(in: TSConfig): Config = {
+    import Instrumentations.withMonitoringConfig
+    withMonitoringConfig(in) { configRoot =>
+      val config = configRoot.getConfig("new-relic")
+      Config(downloadUrlTemplate = config.getString("download-template"),
+        version = config.getString("version"),
+        sha = config.getString("checksum"),
+        timeout = Timeout(config.getMilliseconds("timeout").intValue.millis),
+        extractRootTemplate = config.getString("extract-root-template"))
+    }
+  }
+
+  val libFiles = Seq("newrelic.jar")
+  val newRelicConfigFile = "newrelic.yml"
+
+  def provisionNewRelic(source: File, destination: File, key: String, appName: String): Unit = {
+    val destRelative = FileHelper.relativeTo(destination)_
+    val sourceRelative = FileHelper.relativeTo(source)_
+    val lib = destRelative("lib")
+    val conf = destRelative("conf")
+    val libRelative = FileHelper.relativeTo(lib)_
+    val confRelative = FileHelper.relativeTo(conf)_
+    lib.mkdirs()
+    libFiles.foreach(f => FileHelper.copyFile(sourceRelative(f), libRelative(f)))
+    val processedConfigFile = new StringBuilder()
+    processSource(sourceRelative(newRelicConfigFile), NewRelicConfigSourceProcessor.sourceProcessor(key, appName)) { line =>
+      processedConfigFile.append(line)
+      processedConfigFile.append("\n")
+    }
+    FileHelper.writeToFile(processedConfigFile.toString.getBytes("utf-8"), confRelative(newRelicConfigFile))
+  }
+
+  trait SourceProcessor {
+    def processLine(in: String): String
+  }
+
+  def bodyProcessor(proc: String => String): SourceProcessor = new SourceProcessor {
+    def processLine(in: String): String = proc(in)
+  }
+
+  object NewRelicConfigSourceProcessor {
+    val commonRegex = "^common:.*$".r
+    val developmentRegex = "^development:.*$".r
+    val testRegex = "^test:.*$".r
+    val productionRegex = "^production:.*$".r
+    val stagingRegex = "^staging:.*$".r
+    val licenseKeyPrefix = "  license_key:"
+    val licenseKeyRegex = s"^${licenseKeyPrefix}.*$$".r
+    val appNamePrefix = "  app_name:"
+    val appNameRegex = s"^${appNamePrefix}.*$$".r
+
+    type Transition = String => Option[State]
+
+    sealed trait State {
+      def process(in: String): (State, String)
+    }
+    trait CommonStateProcessor extends State {
+      def bodyProcessor: SourceProcessor
+      def transition: Transition
+
+      def process(in: String): (State, String) = transition(in) match {
+        case Some(state) => (state, in)
+        case None => (this, bodyProcessor.processLine(in))
+      }
+    }
+    case class Initial(common: Common) extends State {
+      def process(in: String): (State, String) =
+        if (commonRegex.findFirstIn(in).nonEmpty) (common, in)
+        else (this, in)
+    }
+    case class Common(bodyProcessor: SourceProcessor, transition: Transition) extends CommonStateProcessor
+    case class Development(bodyProcessor: SourceProcessor, transition: Transition) extends CommonStateProcessor
+    case class Test(bodyProcessor: SourceProcessor, transition: Transition) extends CommonStateProcessor
+    case class Production(bodyProcessor: SourceProcessor, transition: Transition) extends CommonStateProcessor
+    case class Staging(bodyProcessor: SourceProcessor, transition: Transition) extends CommonStateProcessor
+
+    def stringId(in: String): String = in
+
+    def writeDeveloperKey(key: String, orElse: String => String)(in: String): String =
+      if (licenseKeyRegex.findFirstIn(in).nonEmpty) s"$licenseKeyPrefix '$key'"
+      else orElse(in)
+
+    def writeApplicatioName(name: String, orElse: String => String)(in: String): String =
+      if (appNameRegex.findFirstIn(in).nonEmpty) s"$appNamePrefix $name"
+      else orElse(in)
+
+    def commonWriter(key: String, name: String): String => String =
+      writeDeveloperKey(key, writeApplicatioName(name, stringId))_
+
+    def nameWriter(name: String): String => String =
+      writeApplicatioName(name, stringId)_
+
+    def newRelicConfigProcessorState(key: String, name: String): State = {
+      def developmentTransition(in: String): Option[State] =
+        developmentRegex.findFirstIn(in).map(_ => Development(bodyProcessor(nameWriter(s"$name (development)")), environmentTransition))
+      def stagingTransition(in: String): Option[State] =
+        stagingRegex.findFirstIn(in).map(_ => Staging(bodyProcessor(nameWriter(s"$name (staging)")), environmentTransition))
+      def testTransition(in: String): Option[State] =
+        testRegex.findFirstIn(in).map(_ => Test(bodyProcessor(nameWriter(s"$name (test)")), environmentTransition))
+      def productionTransition(in: String): Option[State] =
+        productionRegex.findFirstIn(in).map(_ => Production(bodyProcessor(nameWriter(name)), environmentTransition))
+      def environmentTransition(in: String): Option[State] =
+        developmentTransition(in) orElse stagingTransition(in) orElse testTransition(in) orElse productionTransition(in)
+
+      Initial(Common(bodyProcessor(commonWriter(key, name)), environmentTransition))
+    }
+
+    class NewRelicConfigSourceProcessor(var state: NewRelicConfigSourceProcessor.State) extends SourceProcessor {
+      def processLine(in: String): String = {
+        val (newState, line) = state.process(in)
+        state = newState
+        line
+      }
+    }
+
+    def sourceProcessor(key: String, name: String): SourceProcessor = new NewRelicConfigSourceProcessor(newRelicConfigProcessorState(key, name))
+  }
+
+  def hasNewRelic(root: File): Boolean = {
+    val nrRoot = FileHelper.relativeTo(FileHelper.relativeTo(root)("newrelic"))_
+    def hasFile(file: String): Boolean = nrRoot(file).exists()
+    hasFile("newrelic.jar") && hasFile("newrelic.yml")
+  }
+
+  def processSource(in: File, processor: SourceProcessor)(body: String => Unit): Unit = {
+    FileHelper.withFileReader(in) { reader =>
+      FileHelper.withBufferedReader(reader) { br =>
+        var line = br.readLine()
+        while (line != null) {
+          body(processor.processLine(line))
+          line = br.readLine()
+        }
+      }
+    }
+  }
+
+  case class Config(
+    downloadUrlTemplate: String,
+    version: String,
+    sha: String,
+    timeout: Timeout,
+    extractRootTemplate: String) {
+    val url: String = versionRegex.replaceAllIn(downloadUrlTemplate, version)
+
+    def extractRoot(relativeTo: File = Play.getFile(".")): File = new File(relativeTo, versionRegex.replaceAllIn(extractRootTemplate, version))
+
+    def downloadAgent(observer: HttpHelper.ProgressObserver)(implicit context: ExecutionContext): Future[File] =
+      HttpHelper.retrieveFileHttp(WS.url(url).withFollowRedirects(true),
+        observer,
+        timeout = timeout).map(verifyFile)
+
+    def verifyFile(in: File): File =
+      FileHelper.verifyFile(in, sha)
+
+    def extractFile(in: File, relativeTo: File = Play.getFile(".")): File =
+      FileHelper.unZipFile(in, extractRoot(relativeTo))
+  }
 }
 
 object Instrumentations {
+  import play.api.libs.json._
+  import play.api.libs.functional.syntax._
   import JsonHelper._
 
   case object InspectTag extends InstrumentationTag("inspect")
@@ -40,6 +210,11 @@ object Instrumentations {
   def fromString(in: String): InstrumentationTag = in.trim() match {
     case InspectTag.name => InspectTag
     case NewRelicTag.name => NewRelicTag
+  }
+
+  def withMonitoringConfig[T](in: TSConfig)(body: TSConfig => T): T = {
+    val c = in.getConfig("activator.monitoring")
+    body(c)
   }
 
   final val allInstrumentations = Set(InspectTag, NewRelicTag).map(_.name)
@@ -81,13 +256,4 @@ object Instrumentations {
     inspectReads.asInstanceOf[Reads[Instrumentation]] orElse newRelicReads.asInstanceOf[Reads[Instrumentation]]
 
   private def fileExists(dir: File, in: String): Boolean = new File(dir, in).exists()
-
-  def examineNewRelicReady(config: AppConfig): Either[Set[NewRelic.CheckResult], NewRelic] =
-    (fileExists(config.location, "conf/newrelic.yml"), config.availableInstrumentations.find(_.isInstanceOf[NewRelic])) match {
-      case (true, Some(r)) => Right(r.asInstanceOf[NewRelic])
-      case (true, None) => Left(Set(NewRelic.MissingInstrumentationJar))
-      case (false, None) => Left(Set(NewRelic.MissingInstrumentationJar, NewRelic.MissingConfigFile))
-      case (false, Some(_)) => Left(Set(NewRelic.MissingConfigFile))
-    }
-
 }
