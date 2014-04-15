@@ -230,12 +230,16 @@ loadConfigFile() {
 ###  ------------------------------- ###
 usage() {
  cat <<EOM
-Usage: $script_name [ui] [options]
+Usage: $script_name <command> [options]
 
+  Command:
   ui                 Start the Activator UI
   new [name] [template-id]  Create a new project with [name] using template [template-id]
+  list-templates     Print all available template names
   -h | -help         Print this message
-  -v | -verbose      Make this runner is chattier
+
+  Options:
+  -v | -verbose      Make this runner chattier
   -d | -debug        Set sbt log level to debug
   -mem    <integer>  Set memory options (default: $sbt_mem, which is $(get_mem_opts $sbt_mem))
   -jvm-debug <port>  Turn on JVM debugging, open at the given port.
