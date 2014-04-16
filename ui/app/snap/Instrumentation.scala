@@ -127,10 +127,10 @@ object NewRelic {
       else orElse(in)
 
     def commonWriter(key: String, name: String): String => String =
-      writeDeveloperKey(key, writeApplicatioName(name, stringId))_
+      writeDeveloperKey(key, writeApplicatioName(name, stringId))
 
     def nameWriter(name: String): String => String =
-      writeApplicatioName(name, stringId)_
+      writeApplicatioName(name, stringId)
 
     def newRelicConfigProcessorState(key: String, name: String): State = {
       def developmentTransition(in: String): Option[State] =
@@ -186,16 +186,11 @@ object NewRelic {
 
     def extractRoot(relativeTo: File = Play.getFile(".")): File = new File(relativeTo, versionRegex.replaceAllIn(extractRootTemplate, version))
 
-    def downloadAgent(observer: HttpHelper.ProgressObserver)(implicit context: ExecutionContext): Future[File] =
-      HttpHelper.retrieveFileHttp(WS.url(url).withFollowRedirects(true),
-        observer,
-        timeout = timeout).map(verifyFile)
-
     def verifyFile(in: File): File =
       FileHelper.verifyFile(in, sha)
 
     def extractFile(in: File, relativeTo: File = Play.getFile(".")): File =
-      FileHelper.unZipFile(in, extractRoot(relativeTo))
+      FileHelper.unZipFile(in, extractRoot(relativeTo = relativeTo))
   }
 }
 

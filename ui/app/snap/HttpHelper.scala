@@ -25,15 +25,15 @@ object HttpHelper {
     chunkSize: Int,
     total: Int)
 
-  abstract class ProgressObserver() extends Observer[ChunkData]
+  trait ProgressObserver extends Observer[ChunkData]
 
-  val devNullBuilder: ProgressObserver = new ProgressObserver() {
+  val devNullBuilder: ProgressObserver = new ProgressObserver {
     def onCompleted(): Unit = ()
     def onError(error: Throwable): Unit = ()
     def onNext(data: ChunkData): Unit = ()
   }
 
-  val printProgressBuilder: ProgressObserver = new ProgressObserver() {
+  val printProgressBuilder: ProgressObserver = new ProgressObserver {
     private var seenBytes: Int = 0
     private var expectedBytes: Option[Int] = None
 

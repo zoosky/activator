@@ -3,19 +3,22 @@
  */
 package snap
 
+import akka.actor._
+import akka.event.LoggingAdapter
+import akka.pattern._
 import com.typesafe.sbtrc._
 import com.typesafe.sbtrc.launching.SbtProcessLauncher
-import akka.actor._
+import console.ClientController.HandleRequest
 import java.io.File
 import java.net.URLEncoder
-import play.api.libs.concurrent.Execution.Implicits.defaultContext
-import scala.concurrent.duration._
-import console.ClientController.HandleRequest
+import java.util.concurrent.atomic.AtomicLong
 import JsonHelper._
+import play.api.libs.concurrent.Execution.Implicits.defaultContext
+import play.api.libs.functional.syntax._
 import play.api.libs.json._
 import play.api.libs.json.Json._
-import play.api.libs.functional.syntax._
-import java.util.concurrent.atomic.AtomicLong
+import scala.concurrent.duration._
+import scala.util.{ Success, Failure }
 
 sealed trait AppRequest
 
@@ -34,12 +37,111 @@ case class TaskActorReply(ref: ActorRef) extends AppReply
 case object WebSocketAlreadyUsed extends AppReply
 case class WebSocketCreatedReply(created: Boolean) extends AppReply
 
+object NewRelicRequest {
+  val tag = "NewRelicRequest"
+
+  sealed trait Request {
+    def error(message: String): Response =
+      ErrorResponse(message, this)
+  }
+  case object Provision extends Request {
+    def response: Response = Provisioned
+  }
+  case object Available extends Request {
+    def response(result: Boolean): Response = AvailableResponse(result, this)
+  }
+  case class EnableProject(destination: File, key: String, appName: String) extends Request {
+    def response: Response = ProjectEnabled(this)
+  }
+
+  sealed trait Response {
+    def request: Request
+  }
+  case object Provisioned extends Response {
+    final val request: Request = Provision
+  }
+  case class ErrorResponse(message: String, request: Request) extends Response
+  case class AvailableResponse(result: Boolean, request: Request) extends Response
+  case class ProjectEnabled(request: Request) extends Response
+
+  def extractTypeOnly[T](typeName: String, value: T): Reads[T] =
+    extractTagged("type", typeName)(Reads[T](_ => JsSuccess(value)))
+
+  def extractType[T](typeName: String)(reads: Reads[T]): Reads[T] =
+    extractTagged("type", typeName)(reads)
+
+  implicit val newRelicRequestReads: Reads[Request] = {
+    val pr = provisionReads.asInstanceOf[Reads[Request]]
+    val ar = availableReads.asInstanceOf[Reads[Request]]
+    val epr = enableProjectReads.asInstanceOf[Reads[Request]]
+    extractRequest[Request](tag)(pr.orElse(ar).orElse(epr))
+  }
+
+  implicit val newRelicRequestWrites: Writes[Request] =
+    Writes {
+      case x @ Provision => Json.toJson(x)
+      case x @ Available => Json.toJson(x)
+      case x: EnableProject => Json.toJson(x)
+    }
+
+  implicit val provisionReads: Reads[Provision.type] =
+    extractRequest[Provision.type](tag)(extractTypeOnly("provision", Provision))
+
+  implicit val provisionWrites: Writes[Provision.type] =
+    Writes(_ => Json.obj("type" -> "provision"))
+
+  implicit val availableReads: Reads[Available.type] =
+    extractRequest[Available.type](tag)(extractTypeOnly("available", Available))
+
+  implicit val availableWrites: Writes[Available.type] =
+    Writes(_ => Json.obj("type" -> "available"))
+
+  implicit val enableProjectReads: Reads[EnableProject] =
+    extractRequest[EnableProject](tag)(extractType("enable")(((__ \ "location").read[File] and
+      (__ \ "key").read[String] and
+      (__ \ "name").read[String])(EnableProject.apply _)))
+
+  implicit val enableProjectWrites: Writes[EnableProject] =
+    Writes(in => Json.obj("type" -> "enable",
+      "location" -> in.destination,
+      "key" -> in.key,
+      "name" -> in.appName))
+
+  implicit val newRelicResponseWrites: Writes[Response] =
+    Writes {
+      case x @ Provisioned => Json.toJson(x)
+      case x: AvailableResponse => Json.toJson(x)
+      case x: ProjectEnabled => Json.toJson(x)
+      case x: ErrorResponse => Json.toJson(x)
+    }
+
+  implicit val provisionedWrites: Writes[Provisioned.type] =
+    emitResponse(tag)(in => Json.obj("type" -> "provisioned",
+      "request" -> in.request))
+
+  implicit val availableResponseWrites: Writes[AvailableResponse] =
+    emitResponse(tag)(in => Json.obj("type" -> "availableResponse",
+      "result" -> in.result,
+      "request" -> in.request))
+
+  implicit val projectEnabledWrites: Writes[ProjectEnabled] =
+    emitResponse(tag)(in => Json.obj("type" -> "projectEnabled",
+      "request" -> in.request))
+
+  implicit val errorResponseWrites: Writes[ErrorResponse] =
+    emitResponse(tag)(in => Json.obj("type" -> "error",
+      "message" -> in.message,
+      "request" -> in.request))
+
+  def unapply(in: JsValue): Option[Request] = Json.fromJson[Request](in).asOpt
+}
+
 case class InspectRequest(json: JsValue)
 object InspectRequest {
   val tag = "InspectRequest"
 
   implicit val inspectRequestReads: Reads[InspectRequest] =
-    extractRequest[InspectRequest](tag)((__ \ "location").read[JsValue].map(InspectRequest.apply _))
+    extractRequest[InspectRequest](tag)((__ \ "location").read[JsValue].map(InspectRequest.apply))
 
   implicit val inspectRequestWrites: Writes[InspectRequest] =
     emitRequest(tag)(in => obj("location" -> in.json))
@@ -340,9 +442,70 @@ class AppActor(val config: AppConfig, val sbtProcessLauncher: SbtProcessLauncher
     }
   }
 
+  class ProvisioningSinkUnderlying(log: LoggingAdapter) {
+    import monitor.Provisioning._
+    def onMessage(status: Status, sender: ActorRef, self: ActorRef, context: ActorContext): Unit = status match {
+      case ProvisioningError(message, exception) =>
+        log.error(exception, message)
+        context stop self
+      case Downloading(url) =>
+        log.info(s"Downloading $url")
+      case Progress(Left(value)) =>
+        log.info(s"... progress: $value bytes downloaded")
+      case Progress(Right(value)) =>
+        log.info(s"... progress: $value% complete")
+      case DownloadComplete(url) =>
+        log.info(s"Downloaded $url")
+      case Validating =>
+        log.info("... validating")
+      case Extracting =>
+        log.info("... extracting")
+      case Complete =>
+        log.info("Provisioning complete")
+        context stop self
+    }
+  }
+
+  class ProvisioningSink(underlyingBuilder: LoggingAdapter => ProvisioningSinkUnderlying) extends Actor with ActorLogging {
+    val underlying = underlyingBuilder(log)
+    import monitor.Provisioning._
+    override def receive: Receive = {
+      case x: Status => underlying.onMessage(x, sender, self, context)
+    }
+  }
+
   class AppSocketActor extends WebSocketActor[JsValue] with ActorLogging {
+    import WebSocketActor.timeout
     override def onMessage(json: JsValue): Unit = {
       json match {
+        case NewRelicRequest(m) => m match {
+          case x @ NewRelicRequest.Provision =>
+            val sink = context.actorOf(Props(new ProvisioningSink(log => new ProvisioningSinkUnderlying(log))))
+            newRelicActor.ask(monitor.NewRelic.Provision(sink)).onComplete {
+              case Success(r: monitor.NewRelic.ErrorResponse) => produce(toJson(x.error(r.message)))
+              case Success(r: monitor.NewRelic.Provisioned) => produce(toJson(x.response))
+              case Failure(f) =>
+                log.error(f, s"Failed to provision New Relic: ${f.getMessage}")
+                produce(toJson(x.error(s"Failed to provision New Relic: ${f.getMessage}")))
+            }
+          case x @ NewRelicRequest.Available =>
+            newRelicActor.ask(monitor.NewRelic.Available).onComplete {
+              case Success(r: monitor.NewRelic.ErrorResponse) => produce(toJson(x.error(r.message)))
+              case Success(r: monitor.NewRelic.AvailableResponse) => produce(toJson(x.response(r.result)))
+              case Failure(f) =>
+                log.error(f, s"Failed New Relic availability check: ${f.getMessage}")
+                produce(toJson(x.error(s"Failed New Relic availability check: ${f.getMessage}")))
+            }
+          case x @ NewRelicRequest.EnableProject(destination, key, name) =>
+            newRelicActor.ask(monitor.NewRelic.EnableProject(destination, key, name)).onComplete {
+              case Success(r: monitor.NewRelic.ErrorResponse) => produce(toJson(x.error(r.message)))
+              case Success(r: monitor.NewRelic.ProjectEnabled) => produce(toJson(x.response))
+              case Failure(f) =>
+                log.error(f, s"Failed to provision New Relic: ${f.getMessage}")
+                produce(toJson(x.error(s"Failed to provision New Relic: ${f.getMessage}")))
+            }
+
+        }
         case InspectRequest(m) => for (cActor <- consoleActor) cActor ! HandleRequest(json)
         case WebSocketActor.Ping(ping) => produce(WebSocketActor.Pong(ping.cookie))
         case _ => log.info("unhandled message on web socket: {}", json)
