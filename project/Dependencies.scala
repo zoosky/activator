@@ -9,8 +9,7 @@ object Dependencies {
   val sbtSnapshotVersion = "0.13.0"
   val luceneVersion = "4.2.1"
   val templateCacheVersion = "0.3.0"
-  // echo enabled version (1.1.x)
-  val sbtRcVersion = "1.0-136bf52c817cd9e09ff78cafa6dc495d3fca4f9a"
+  val sbtRcVersion = "1.0-6f4f1b986c53828ab6564e5e6380bf325b275d77"
 
   val playVersion = "2.2.1"
   val webJarsVersion = "2.2.1"
@@ -32,11 +31,8 @@ object Dependencies {
   val sbtProcess           = "org.scala-sbt" % "process" % sbtVersion
 
   // sbtrc projects
-  val sbtrcRemoteController = "com.typesafe.sbtrc" % "sbt-rc-remote-controller" % sbtRcVersion
-
-  // Probes
-  val sbtrcProbe13           = "com.typesafe.sbtrc" % "sbt-rc-probe-0-13" % sbtRcVersion
-  val sbtshimUiInterface13   = "com.typesafe.sbtrc" % "sbt-rc-ui-interface-0-13" % sbtRcVersion
+  val sbtrcClient          = "com.typesafe.sbtrc" % "client" % sbtRcVersion
+  val sbtrcIntegration     = "com.typesafe.sbtrc" % "integration-tests" % sbtRcVersion
 
   // TODO - Don't use a snapshot version for this...
   val sbtCompletion           = "org.scala-sbt" % "completion" % sbtSnapshotVersion
