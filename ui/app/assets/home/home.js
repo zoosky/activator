@@ -1,6 +1,9 @@
 /*
 Copyright (C) 2013 Typesafe, Inc <http://typesafe.com>
 */
+
+var skeletonsTag = 'seed';
+
 require.config({
   baseUrl:  '/public',
   // hack for now due to problem loading plugin loaders from a plugin loader
@@ -44,10 +47,10 @@ var handleVisibilityChange = function() {
 }
 
 var skeletons = templates.filter(function(t){
-  return t.tags.indexOf('skeleton') >= 0;
+  return t.tags.indexOf(skeletonsTag) >= 0;
 });
 templates = templates.filter(function(t){
-  return t.tags.indexOf('skeleton') < 0;
+  return t.tags.indexOf(skeletonsTag) < 0;
 });
 
 var startApp = function() {
@@ -116,7 +119,7 @@ var startApp = function() {
         }
         self.showSkeletons = function() {
           //
-          self.openedTab('skeletons');
+          self.openedTab(skeletonsTag);
         }
       };
 
