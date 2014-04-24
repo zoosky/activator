@@ -19,9 +19,9 @@ define(['text!./welcome.html', 'css!./welcome.css', 'main/pluginapi' ], function
           jsonpCallback: 'setNewsJson',
           dataType: 'jsonp' // return type
         };
-        debug && console.log("sending ajax news request ", areq)
+        debug && console.log("sending ajax news request ", areq);
         return $.ajax(areq);
-    }
+    };
     self.setNewsJson = function(json) {
       debug && console.log("setting news json to ", json);
       if ('html' in json) {
@@ -29,7 +29,7 @@ define(['text!./welcome.html', 'css!./welcome.css', 'main/pluginapi' ], function
       } else {
         console.error("json does not have an html field");
       }
-    }
+    };
 
     self.loadNews();
     return self;

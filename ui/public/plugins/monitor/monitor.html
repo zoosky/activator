@@ -1,0 +1,16 @@
+<article class="monitor oneColumnAndMenu">
+  <nav class="menu">
+    <header>
+      <h1>Monitor</h1>
+    </header>
+    <ul class="list links">
+      <li class="item" data-bind="isActiveUrl: '#monitor/newrelic'">
+        <a href="#monitor/newrelic">New Relic</a>
+      </li>
+      <li class="item" data-bind="isActiveUrl: '#monitor/appdynamics'">
+        <a href="#monitor/appdynamics">AppDynamics</a>
+      </li>
+    </ul>
+  </nav>
+  <section data-bind="snapView: monitorWidget"></section>
+</article>

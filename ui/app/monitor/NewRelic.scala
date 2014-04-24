@@ -38,6 +38,10 @@ object NewRelic {
     def response: Response = ProjectEnabled(this)
   }
 
+  case class IsProjectEnabled(destination: File) extends Request {
+    def response(result: Boolean): Response = IsProjectEnabledResult(result, this)
+  }
+
   sealed trait Response {
     def request: Request
   }
@@ -45,6 +49,7 @@ object NewRelic {
   case class ErrorResponse(message: String, request: Request) extends Response
   case class AvailableResponse(result: Boolean, request: Request) extends Response
   case class ProjectEnabled(request: Request) extends Response
+  case class IsProjectEnabledResult(result: Boolean, request: Request) extends Response
 
   class Underlying(config: NR.Config)(log: LoggingAdapter)(implicit ec: ExecutionContext) {
     def onMessage(request: Request, sender: ActorRef, self: ActorRef, context: ActorContext): Unit = request match {
@@ -72,6 +77,13 @@ object NewRelic {
           case Failure(e) =>
             log.error(e, "Failure during enabling project")
             sender ! r.error(s"Failure during enabling project: ${e.getMessage}")
+        }
+      case r @ IsProjectEnabled(destination) =>
+        Try(NR.isProjectEnabled(destination)) match {
+          case Success(x) => sender ! r.response(x)
+          case Failure(e) =>
+            log.error(e, "Failure testing if project enabled for New Relic")
+            sender ! r.error(s"Failure testing if project enabled for New Relic: ${e.getMessage}")
         }
     }
   }

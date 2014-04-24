@@ -57,7 +57,7 @@ object NewRelic {
 
   def provisionNewRelic(source: File, destination: File, key: String, appName: String): Unit = {
     val destRelative = FileHelper.relativeTo(destination)_
-    val sourceRelative = FileHelper.relativeTo(source)_
+    val sourceRelative = FileHelper.relativeTo(FileHelper.relativeTo(source)("newrelic"))_
     val lib = destRelative("lib")
     val conf = destRelative("conf")
     val libRelative = FileHelper.relativeTo(lib)_
@@ -70,6 +70,16 @@ object NewRelic {
       processedConfigFile.append("\n")
     }
     FileHelper.writeToFile(processedConfigFile.toString.getBytes("utf-8"), confRelative(newRelicConfigFile))
+  }
+
+  def isProjectEnabled(root: File): Boolean = {
+    val nrRoot = FileHelper.relativeTo(root)_
+    val lib = nrRoot("lib")
+    val conf = nrRoot("conf")
+    val libRelative = FileHelper.relativeTo(lib)_
+    val confRelative = FileHelper.relativeTo(conf)_
+    def hasFile(file: String): Boolean = nrRoot(file).exists()
+    libRelative("newrelic.jar").exists() && confRelative("newrelic.yml").exists()
   }
 
   trait SourceProcessor {

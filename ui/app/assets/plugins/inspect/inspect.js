@@ -6,7 +6,7 @@ define(['main/pluginapi', 'commons/streams', 'services/build', './console/consol
 
     var InspectState = {
         consoleWidget: new Console()
-    }
+    };
 
     // Make connection a subscriber to events sent to the streams WS
     streams.subscribe(Connection);

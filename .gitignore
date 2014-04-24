@@ -23,5 +23,6 @@ logs/
 .project
 .cache
 bin/
+ui/monitoring
 project/activator-sbt-eclipse-shim.sbt
 project/activator-sbt-idea-shim.sbt

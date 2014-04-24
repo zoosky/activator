@@ -107,7 +107,6 @@ abstract class WebSocketActor[MessageType](implicit frameFormatter: FrameFormatt
   implicit val ctx = play.api.Play.current
   plugin.clientHandlerActor ! InitializeCommunication(id = "Actor" + System.currentTimeMillis, consumer = producerActorWrapper.actor)
   var consoleActor: Option[ActorRef] = None
-  val newRelicActor: ActorRef = context.actorOf(monitor.NewRelic.props(NewRelic.fromConfig(Play.current.configuration.underlying), ec))
 
   override def preStart(): Unit = {
     log.debug("starting")

@@ -19,6 +19,8 @@ import play.api.libs.json._
 import play.api.libs.json.Json._
 import scala.concurrent.duration._
 import scala.util.{ Success, Failure }
+import play.api.Play
+import scala.concurrent.ExecutionContext
 
 sealed trait AppRequest
 
@@ -38,7 +40,8 @@ case object WebSocketAlreadyUsed extends AppReply
 case class WebSocketCreatedReply(created: Boolean) extends AppReply
 
 object NewRelicRequest {
-  val tag = "NewRelicRequest"
+  val requestTag = "NewRelicRequest"
+  val responseTag = "NewRelicResponse"
 
   sealed trait Request {
     def error(message: String): Response =
@@ -50,8 +53,11 @@ object NewRelicRequest {
   case object Available extends Request {
     def response(result: Boolean): Response = AvailableResponse(result, this)
   }
-  case class EnableProject(destination: File, key: String, appName: String) extends Request {
+  case class EnableProject(key: String, appName: String) extends Request {
     def response: Response = ProjectEnabled(this)
+  }
+  case object IsProjectEnabled extends Request {
+    def response(result: Boolean): Response = IsProjectEnabledResponse(result, this)
   }
 
   sealed trait Response {
@@ -63,6 +69,7 @@ object NewRelicRequest {
   case class ErrorResponse(message: String, request: Request) extends Response
   case class AvailableResponse(result: Boolean, request: Request) extends Response
   case class ProjectEnabled(request: Request) extends Response
+  case class IsProjectEnabledResponse(result: Boolean, request: Request) extends Response
 
   def extractTypeOnly[T](typeName: String, value: T): Reads[T] =
     extractTagged("type", typeName)(Reads[T](_ => JsSuccess(value)))
@@ -70,68 +77,80 @@ object NewRelicRequest {
   def extractType[T](typeName: String)(reads: Reads[T]): Reads[T] =
     extractTagged("type", typeName)(reads)
 
+  implicit val provisionReads: Reads[Provision.type] =
+    extractRequest[Provision.type](requestTag)(extractTypeOnly("provision", Provision))
+
+  implicit val isProjectEnabledReads: Reads[IsProjectEnabled.type] =
+    extractRequest[IsProjectEnabled.type](requestTag)(extractTypeOnly("isProjectEnabled", IsProjectEnabled))
+
+  implicit val provisionWrites: Writes[Provision.type] =
+    emitRequest(requestTag)(_ => Json.obj("type" -> "provision"))
+
+  implicit val isProjectEnabledWrites: Writes[IsProjectEnabled.type] =
+    emitRequest(requestTag)(_ => Json.obj("type" -> "isProjectEnabled"))
+
+  implicit val availableReads: Reads[Available.type] =
+    extractRequest[Available.type](requestTag)(extractTypeOnly("available", Available))
+
+  implicit val availableWrites: Writes[Available.type] =
+    emitRequest(requestTag)(_ => Json.obj("type" -> "available"))
+
+  implicit val enableProjectReads: Reads[EnableProject] =
+    extractRequest[EnableProject](requestTag)(extractType("enable")(((__ \ "key").read[String] and
+      (__ \ "name").read[String])(EnableProject.apply _)))
+
+  implicit val enableProjectWrites: Writes[EnableProject] =
+    emitRequest(requestTag)(in => Json.obj("type" -> "enable",
+      "key" -> in.key,
+      "name" -> in.appName))
+
   implicit val newRelicRequestReads: Reads[Request] = {
     val pr = provisionReads.asInstanceOf[Reads[Request]]
     val ar = availableReads.asInstanceOf[Reads[Request]]
     val epr = enableProjectReads.asInstanceOf[Reads[Request]]
-    extractRequest[Request](tag)(pr.orElse(ar).orElse(epr))
+    val iper = isProjectEnabledReads.asInstanceOf[Reads[Request]]
+    extractRequest[Request](requestTag)(pr.orElse(ar).orElse(epr).orElse(iper))
   }
 
-  implicit val newRelicRequestWrites: Writes[Request] =
-    Writes {
-      case x @ Provision => Json.toJson(x)
-      case x @ Available => Json.toJson(x)
-      case x: EnableProject => Json.toJson(x)
-    }
-
-  implicit val provisionReads: Reads[Provision.type] =
-    extractRequest[Provision.type](tag)(extractTypeOnly("provision", Provision))
-
-  implicit val provisionWrites: Writes[Provision.type] =
-    Writes(_ => Json.obj("type" -> "provision"))
-
-  implicit val availableReads: Reads[Available.type] =
-    extractRequest[Available.type](tag)(extractTypeOnly("available", Available))
-
-  implicit val availableWrites: Writes[Available.type] =
-    Writes(_ => Json.obj("type" -> "available"))
-
-  implicit val enableProjectReads: Reads[EnableProject] =
-    extractRequest[EnableProject](tag)(extractType("enable")(((__ \ "location").read[File] and
-      (__ \ "key").read[String] and
-      (__ \ "name").read[String])(EnableProject.apply _)))
-
-  implicit val enableProjectWrites: Writes[EnableProject] =
-    Writes(in => Json.obj("type" -> "enable",
-      "location" -> in.destination,
-      "key" -> in.key,
-      "name" -> in.appName))
-
-  implicit val newRelicResponseWrites: Writes[Response] =
-    Writes {
-      case x @ Provisioned => Json.toJson(x)
-      case x: AvailableResponse => Json.toJson(x)
-      case x: ProjectEnabled => Json.toJson(x)
-      case x: ErrorResponse => Json.toJson(x)
-    }
-
   implicit val provisionedWrites: Writes[Provisioned.type] =
-    emitResponse(tag)(in => Json.obj("type" -> "provisioned",
+    emitResponse(responseTag)(in => Json.obj("type" -> "provisioned",
+      "request" -> in.request))
+
+  implicit val isProjectEnabledResponseWrites: Writes[IsProjectEnabledResponse] =
+    emitResponse(responseTag)(in => Json.obj("type" -> "isProjectEnabledResponse",
+      "result" -> in.result,
       "request" -> in.request))
 
   implicit val availableResponseWrites: Writes[AvailableResponse] =
-    emitResponse(tag)(in => Json.obj("type" -> "availableResponse",
+    emitResponse(responseTag)(in => Json.obj("type" -> "availableResponse",
       "result" -> in.result,
       "request" -> in.request))
 
   implicit val projectEnabledWrites: Writes[ProjectEnabled] =
-    emitResponse(tag)(in => Json.obj("type" -> "projectEnabled",
+    emitResponse(responseTag)(in => Json.obj("type" -> "projectEnabled",
       "request" -> in.request))
 
   implicit val errorResponseWrites: Writes[ErrorResponse] =
-    emitResponse(tag)(in => Json.obj("type" -> "error",
+    emitResponse(responseTag)(in => Json.obj("type" -> "error",
       "message" -> in.message,
       "request" -> in.request))
+
+  implicit val newRelicRequestWrites: Writes[Request] =
+    Writes {
+      case x: EnableProject => enableProjectWrites.writes(x)
+      case x @ IsProjectEnabled => isProjectEnabledWrites.writes(x)
+      case x @ Provision => provisionWrites.writes(x)
+      case x @ Available => availableWrites.writes(x)
+    }
+
+  implicit val newRelicResponseWrites: Writes[Response] =
+    Writes {
+      case x @ Provisioned => provisionedWrites.writes(x)
+      case x: IsProjectEnabledResponse => isProjectEnabledResponseWrites.writes(x)
+      case x: AvailableResponse => availableResponseWrites.writes(x)
+      case x: ProjectEnabled => projectEnabledWrites.writes(x)
+      case x: ErrorResponse => errorResponseWrites.writes(x)
+    }
 
   def unapply(in: JsValue): Option[Request] = Json.fromJson[Request](in).asOpt
 }
@@ -209,7 +228,9 @@ class AppActor(val config: AppConfig, val sbtProcessLauncher: SbtProcessLauncher
     case i => instrumentedSbtPools.get(i)
   }
 
-  val socket = context.actorOf(Props(new AppSocketActor()), name = "socket")
+  val newRelicActor: ActorRef = context.actorOf(monitor.NewRelic.props(NewRelic.fromConfig(Play.current.configuration.underlying), defaultContext))
+  val socket = context.actorOf(Props(new AppSocketActor(newRelicActor)), name = "socket")
+
   val projectWatcher = context.actorOf(Props(new ProjectWatcher(location, newSourcesSocket = socket, sbtPool = uninstrumentedSbts)),
     name = "projectWatcher")
 
@@ -270,11 +291,9 @@ class AppActor(val config: AppConfig, val sbtProcessLauncher: SbtProcessLauncher
             instrumentation match {
               case Instrumentations.InspectTag =>
               case Instrumentations.NewRelicTag =>
-                // Hack for demo purposes only.
-                // The real solution would involve inspecting the project for a New Relic config file
-                // and a TBD mechanism for getting the NR instrumentation jar.
-                val nrConfigFile = new File(config.location, "conf/newrelic.yml")
-                val nrJar = new File(config.location, "conf/newrelic.jar")
+                val realitiveToRoot = FileHelper.relativeTo(config.location)_
+                val nrConfigFile = realitiveToRoot("conf/newrelic.yml")
+                val nrJar = realitiveToRoot("lib/newrelic.jar")
                 val inst = NewRelic(nrConfigFile, nrJar)
                 val processFactory = new DefaultSbtProcessFactory(location, sbtProcessLauncher, inst.jvmArgs)
                 addInstrumentedSbtPool(Instrumentations.NewRelicTag, processFactory)
@@ -474,7 +493,7 @@ class AppActor(val config: AppConfig, val sbtProcessLauncher: SbtProcessLauncher
     }
   }
 
-  class AppSocketActor extends WebSocketActor[JsValue] with ActorLogging {
+  class AppSocketActor(newRelicActor: ActorRef) extends WebSocketActor[JsValue] with ActorLogging {
     import WebSocketActor.timeout
     override def onMessage(json: JsValue): Unit = {
       json match {
@@ -496,13 +515,21 @@ class AppActor(val config: AppConfig, val sbtProcessLauncher: SbtProcessLauncher
                 log.error(f, s"Failed New Relic availability check: ${f.getMessage}")
                 produce(toJson(x.error(s"Failed New Relic availability check: ${f.getMessage}")))
             }
-          case x @ NewRelicRequest.EnableProject(destination, key, name) =>
-            newRelicActor.ask(monitor.NewRelic.EnableProject(destination, key, name)).onComplete {
+          case x @ NewRelicRequest.EnableProject(key, name) =>
+            newRelicActor.ask(monitor.NewRelic.EnableProject(config.location, key, name)).onComplete {
               case Success(r: monitor.NewRelic.ErrorResponse) => produce(toJson(x.error(r.message)))
               case Success(r: monitor.NewRelic.ProjectEnabled) => produce(toJson(x.response))
               case Failure(f) =>
                 log.error(f, s"Failed to provision New Relic: ${f.getMessage}")
                 produce(toJson(x.error(s"Failed to provision New Relic: ${f.getMessage}")))
+            }
+          case x @ NewRelicRequest.IsProjectEnabled =>
+            newRelicActor.ask(monitor.NewRelic.IsProjectEnabled(config.location)).onComplete {
+              case Success(r: monitor.NewRelic.ErrorResponse) => produce(toJson(x.error(r.message)))
+              case Success(r: monitor.NewRelic.IsProjectEnabledResult) => produce(toJson(x.response(r.result)))
+              case Failure(f) =>
+                log.error(f, s"Failed check if New Relic enabled: ${f.getMessage}")
+                produce(toJson(x.error(s"Failed check if New Relic enabled: ${f.getMessage}")))
             }
 
         }

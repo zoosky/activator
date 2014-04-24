@@ -1,18 +1,35 @@
 /*
  Copyright (C) 2013 Typesafe, Inc <http://typesafe.com>
  */
-define(['services/build', 'main/model', 'text!./run.html', 'main/pluginapi', 'commons/settings', 'css!./run.css', "widgets/navigation/menu"],
-    function(build, model, template, api, settings, LogView, css){
-
-  var instrumentationOptions = [
-    { name: "Inspect", id: "inspect" },
-    { name: "New Relic", id: "newRelic" }
-  ];
+define(['services/build', 'services/newrelic', 'main/model', 'text!./run.html', 'main/pluginapi', 'commons/settings', 'css!./run.css', "widgets/navigation/menu"],
+  function(build, newrelic, model, template, api, settings, LogView, css){
 
   var RunState = (function(){
     var self = {};
-
-    self.instrumentationOptions = ko.observableArray(instrumentationOptions);
+    self.monitoringOptions = ko.computed(function() {
+      var result = [{ name: "Inspect", id: "inspect", enabled: true}];
+      if (newrelic.hasPlay() && newrelic.available() && newrelic.licenseKeySaved()) {
+        var enabled = false;
+        if (newrelic.isProjectEnabled() == true) {
+          enabled = true;
+        }
+        result.push({ name: "New Relic", id: "newRelic", enabled: enabled, enable: function() {
+            newrelic.enableProject(newrelic.licenseKey(), build.app.name());
+          }
+        });
+      }
+      return result;
+    }, self);
+    self.currentMonitoringOption = ko.observable("inspect");
+    self.currentMonitoringOption.subscribe(function (newOption) {
+      console.log("run instrumentation changed to: "+newOption);
+      build.run.instrumentation(newOption);
+      build.restartTask('run');
+    });
+    self.showMonitoringOptions = ko.computed(function () {
+      var options = self.monitoringOptions();
+      return (options != undefined && options.length > 1);
+    }, self);
     self.title = ko.observable("Run");
     self.startStopLabel = ko.computed(function() {
       if (build.run.haveActiveTask())
@@ -43,21 +60,20 @@ define(['services/build', 'main/model', 'text!./run.html', 'main/pluginapi', 'co
     self.currentMainClass = build.run.currentMainClass;
     self.mainClasses = build.run.mainClasses;
     self.rerunOnBuild = settings.build.rerunOnBuild;
-    self.instrumentation = settings.run.instrumentation;
     self.restartPending = build.run.restartPending;
     self.consoleCompatible = build.app.hasConsole;
     self.statusMessage = build.run.statusMessage;
 
     self.update = function(parameters){
-    }
+    };
     self.startStopButtonClicked = function(self) {
       debug && console.log("Start or Stop was clicked");
       build.toggleTask('run');
-    }
+    };
     self.restartButtonClicked = function(self) {
       debug && console.log("Restart was clicked");
       build.restartTask('run');
-    }
+    };
 
     return self;
   }());
