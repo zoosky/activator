@@ -31,17 +31,21 @@ define(['main/pluginapi', 'services/newrelic', 'text!./newrelic.html', 'css!./ne
           if (this.downloadEnabled()) {
             newrelic.provision()
           }
-        }
+        };
         this.loginOrSignup = function () {
           if (this.developerKeyEnabled()) {
             window.open('https://www.newrelic.com/typesafe','_blank');
           }
-        }
-        this.saveLicenseKey= function () {
+        };
+        this.saveLicenseKey = function () {
           if (this.developerKeyEnabled() && !this.licenseKeyInvalid()) {
             newrelic.licenseKey(this.licenseKey());
           }
-        }
+        };
+        this.resetKey = function () {
+          this.licenseKey("");
+          newrelic.licenseKey("");
+        };
         this.licenseKeyInvalid = ko.computed(function() {
           var key = this.licenseKey();
           return !newrelic.validKey.test(key);

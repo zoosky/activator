@@ -6,9 +6,7 @@ define(['main/pluginapi', 'commons/streams', 'services/build', './console/consol
 
     var InspectState = {
       inspectEnabled: ko.computed(function() {
-        var r = build.run.instrumentation() == "inspect";
-        console.log("Inspect enabled: "+r);
-        return r;
+        return build.run.instrumentation() == "inspect";
       }),
       consoleWidget: new Console()
     };
