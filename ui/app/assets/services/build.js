@@ -634,7 +634,7 @@ define(['webjars!knockout', 'commons/settings', 'services/log', 'commons/utils',
         task.task = 'run';
       }
 
-      if (build.app.hasEcho() && build.run.instrumentation == "inspect") {
+      if (build.app.hasEcho() && (build.run.instrumentation() == "inspect")) {
         task.task = 'echo:' + task.task;
       }
 
