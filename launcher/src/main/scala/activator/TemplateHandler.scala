@@ -40,7 +40,24 @@ object TemplateHandler extends ActivatorCliHelper {
   }
 
   def printTemplateNames(metadata: Iterable[TemplateMetadata]) {
-    metadata.toSeq.sortBy(_.name) foreach { t => println(t.name) }
+    val (featured, unfeatured) = metadata.toSeq.partition(_.featured)
+    val (featuredSeed, featuredNotSeed) = featured.partition(_.tags.contains("seed"))
+    val (unfeaturedSeed, unfeaturedNotSeed) = unfeatured.partition(_.tags.contains("seed"))
+    val sections = Seq("Featured Seed Templates" -> featuredSeed,
+      "Featured Tutorial Templates" -> featuredNotSeed,
+      "Other Seed Templates" -> unfeaturedSeed,
+      "Other Tutorial Templates" -> unfeaturedNotSeed) map {
+        case (title, list) => title -> list.sortBy(_.name)
+      }
+    sections foreach {
+      case (title, ts) if ts.nonEmpty =>
+        println(s"${title}:")
+        ts foreach { t =>
+          println(s"  ${t.name}")
+        }
+        println("")
+      case _ =>
+    }
   }
 
   def getTemplateName(possible: Seq[String], suggested: Seq[String]): String = {
