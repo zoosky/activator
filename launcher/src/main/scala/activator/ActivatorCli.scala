@@ -121,7 +121,7 @@ object ActivatorCli extends ActivatorCliHelper {
       token(any.* map { _ mkString "" }, "<application name>")
     }
 
-    readLine(appNameParser) filterNot (_.isEmpty) getOrElse default
+    readLine(appNameParser) map (_.trim) filterNot (_.isEmpty) getOrElse default
   }
 
   def withContextClassloader[A](f: => A): A = {
