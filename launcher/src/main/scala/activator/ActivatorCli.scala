@@ -44,12 +44,13 @@ object ActivatorCli extends ActivatorCliHelper {
             templateName = tName,
             file = createFile(pName))
         case _ =>
-          val pName = getApplicationName()
+          val templateName = TemplateHandler.getTemplateName(metadata.map(_.name).toSeq.distinct)
+          val pName = getApplicationName(templateName)
           createFile(pName) match {
             case f @ Some(_) =>
               ProjectInfo(
                 projectName = pName,
-                templateName = TemplateHandler.getTemplateName(metadata.map(_.name).toSeq.distinct),
+                templateName = templateName,
                 file = f)
             case None => ProjectInfo()
           }
@@ -112,15 +113,15 @@ object ActivatorCli extends ActivatorCliHelper {
                            |""".stripMargin)
   }
 
-  private def getApplicationName(): String = {
-    System.out.println("Enter an application name")
+  private def getApplicationName(default: String): String = {
+    System.out.println(s"Enter a name for your application (just press enter for '${default}')")
     val appNameParser: Parser[String] = {
       import Parser._
       import Parsers._
       token(any.* map { _ mkString "" }, "<application name>")
     }
 
-    readLine(appNameParser) filterNot (_.isEmpty) getOrElse sys.error("No application name specified.")
+    readLine(appNameParser) filterNot (_.isEmpty) getOrElse default
   }
 
   def withContextClassloader[A](f: => A): A = {
