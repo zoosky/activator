@@ -20,6 +20,14 @@ object ActivatorCli extends ActivatorCliHelper {
     val cache = UICacheHelper.makeDefaultCache(ActivatorCliHelper.system)
     val metadata = TemplateHandler.downloadTemplates(cache, ActivatorCliHelper.defaultDuration)
 
+    def getTemplateName(): String = {
+      val possible = metadata.map(_.name).toSeq.distinct
+      val featured = metadata.filter(_.featured)
+      val suggestedSeeds = featured.filter(_.tags.contains("seed")).map(_.name).toSeq.distinct
+      val suggested = if (suggestedSeeds.nonEmpty) suggestedSeeds else featured.map(_.name).toSeq.distinct
+      TemplateHandler.getTemplateName(possible, suggested)
+    }
+
     // Handling input based on length (yes, it is brittle to do argument parsing like this...):
     // length = 2 : "new" and "project name" => generate project automatically, but query for template to use
     // length = 3 : "new", "project name" and "template name" => generate project and template automatically
@@ -32,7 +40,7 @@ object ActivatorCli extends ActivatorCliHelper {
             case f @ Some(_) =>
               ProjectInfo(
                 projectName = pName,
-                templateName = TemplateHandler.getTemplateName(metadata.map(_.name).toSeq.distinct),
+                templateName = getTemplateName(),
                 file = f)
             case None => ProjectInfo()
           }
@@ -44,7 +52,7 @@ object ActivatorCli extends ActivatorCliHelper {
             templateName = tName,
             file = createFile(pName))
         case _ =>
-          val templateName = TemplateHandler.getTemplateName(metadata.map(_.name).toSeq.distinct)
+          val templateName = getTemplateName()
           val pName = getApplicationName(templateName)
           createFile(pName) match {
             case f @ Some(_) =>

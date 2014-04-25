@@ -11,6 +11,7 @@ import akka.actor.ActorSystem
 import akka.util.Timeout
 import sbt.complete.{ Parsers, Parser }
 import activator.cache.TemplateMetadata
+import scala.util.control.NonFatal
 
 object TemplateHandler extends ActivatorCliHelper {
   def apply(): Int = {
@@ -42,16 +43,32 @@ object TemplateHandler extends ActivatorCliHelper {
     metadata.toSeq.sortBy(_.name) foreach { t => println(t.name) }
   }
 
-  def getTemplateName(possible: Seq[String]): String = {
+  def getTemplateName(possible: Seq[String], suggested: Seq[String]): String = {
     val templateNameParser: Parser[String] = {
       import Parser._
       import Parsers._
       token(any.* map { _ mkString "" }, "<template name>").examples(possible.toSet, false)
     }
 
+    val options = suggested.sorted.zipWithIndex map { case (v, i) => (i + 1) -> v }
     System.out.println("Browse the list of templates: http://typesafe.com/activator/templates")
-    System.out.println("Enter a template name, or hit tab to see a list")
-    readLine(templateNameParser) filterNot (_.isEmpty) getOrElse sys.error("No template name specified.")
+    if (suggested.isEmpty) {
+      System.out.println("Enter a template name (hit tab to see a list)")
+    } else {
+      System.out.println("Choose from these featured templates or enter a template name:")
+      for {
+        (i, name) <- options
+      } System.out.println(s"  ${i}) ${name}")
+      System.out.println("(hit tab to see a list of all templates)")
+    }
+    val entered = readLine(templateNameParser) map (_.trim) filterNot (_.isEmpty) getOrElse sys.error("No template name specified.")
+    try {
+      val i = Integer.parseInt(entered)
+      options.find(_._1 == i).map(_._2).getOrElse(entered)
+    } catch {
+      case NonFatal(e) =>
+        entered
+    }
   }
 
   def findTemplate(metadata: Iterable[TemplateMetadata], tName: String): Option[TemplateMetadata] = {
