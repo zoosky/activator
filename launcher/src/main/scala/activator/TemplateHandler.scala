@@ -60,7 +60,7 @@ object TemplateHandler extends ActivatorCliHelper {
     }
   }
 
-  def getTemplateName(possible: Seq[String], suggested: Seq[String]): String = {
+  def getTemplateName(possible: Seq[String], suggested: Seq[String]): Option[String] = {
     val templateNameParser: Parser[String] = {
       import Parser._
       import Parsers._
@@ -78,13 +78,15 @@ object TemplateHandler extends ActivatorCliHelper {
       } System.out.println(s"  ${i}) ${name}")
       System.out.println("(hit tab to see a list of all templates)")
     }
-    val entered = readLine(templateNameParser) map (_.trim) filterNot (_.isEmpty) getOrElse sys.error("No template name specified.")
-    try {
-      val i = Integer.parseInt(entered)
-      options.find(_._1 == i).map(_._2).getOrElse(entered)
-    } catch {
-      case NonFatal(e) =>
-        entered
+    val enteredOption = readLine(templateNameParser) map (_.trim) filterNot (_.isEmpty)
+    enteredOption map { entered =>
+      try {
+        val i = Integer.parseInt(entered)
+        options.find(_._1 == i).map(_._2).getOrElse(entered)
+      } catch {
+        case NonFatal(e) =>
+          entered
+      }
     }
   }
 
